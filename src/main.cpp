@@ -1,11 +1,48 @@
 #include <SFML/Graphics.hpp>
+#include <filesystem>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 const int BOARD_PIXEL_SIZE = 512; // board is 512x512 pixels
 const char* PIECES_TEXTURE_DIR = "assets/pieces/alpha/";
+
+struct Piece {
+    std::string type;
+    sf::Vector2<int> position;
+    sf::Sprite sprite;
+    bool isWhite;
+    bool isAlive;
+    Piece() : type(""), position({0, 0}), isWhite(false), isAlive(false) {}
+    Piece(const std::string& type, const sf::Sprite& sprite, const sf::Vector2<int>& position, bool isWhite, bool isAlive)
+        : type(type), sprite(sprite), position(position), isWhite(isWhite), isAlive(isAlive) {}
+};
+
+// FEN to Piece vector conversion
+std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::string, sf::Texture>& textures) {
+    std::vector<Piece> pieces;
+    int x = 0, y = 0;
+    for (const char& c : fen) {
+        if (c == '/') { // move to next row
+            x = 0;
+            y++;
+        } else if (isdigit(c)) { // empty square
+            x += c - '0';
+        } else { // piece
+            Piece piece;
+            piece.isWhite = isupper(c);
+            piece.type = (piece.isWhite ? 'w' : 'b') + std::string(1, static_cast<char>(toupper(c)));
+            piece.position = {x, y};
+            piece.sprite = sf::Sprite(textures[piece.type]);
+            piece.sprite.setPosition(x * 64, y * 64);
+            piece.isAlive = true;
+            pieces.push_back(piece);
+            x++;
+        }
+    }
+    return pieces;
+}
 
 int main() {
     // create window
@@ -18,42 +55,30 @@ int main() {
         return -1;
     }
 
+    // create board sprite from texture
     sf::Sprite boardSprite(boardTexture);
     
-    // create a default view matching the board's aspect ratio
+    // create a default square view for the board
     sf::View view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
     window.setView(view);
 
-    // create a map to hold textures for each piece
-    std::unordered_map<std::string, sf::Texture> pieceTextures;
-    std::vector<std::string> pieces = {"wK", "wQ", "wR", "wB", "wN", "wP", "bK", "bQ", "bR", "bB", "bN", "bP"};
+    std::vector<std::string> pieceNames = {"wK", "wQ", "wR", "wB", "wN", "wP", "bK", "bQ", "bR", "bB", "bN", "bP"};
 
-    for (const std::string& piece : pieces) {
-        sf::Texture texture;
-        if (!texture.loadFromFile(std::string(PIECES_TEXTURE_DIR) + piece + ".png")) {
-            std::cerr << "Error loading piece texture: " << piece << std::endl;
+    // map to each piece to its texture
+    std::unordered_map<std::string, sf::Texture> pieceTextures;
+    for (const std::string& piece : pieceNames) {
+        sf::Texture t;
+        std::string path = PIECES_TEXTURE_DIR + piece + ".png";
+        if (!t.loadFromFile(path)) {
+            std::cerr << "Error loading texture: " << path << std::endl;
             return -1;
         }
-        pieceTextures[piece] = std::move(texture);
+        pieceTextures[piece] = std::move(t);
     }
 
-    // create a map to hold sprites for each piece
-    std::unordered_map<std::string, sf::Sprite> pieceSprites;
-    for (const auto& piece : pieces) {
-        sf::Sprite sprite(pieceTextures[piece]);
-        pieceSprites[piece] = std::move(sprite);
-    }
-
-    // set the position of each piece sprite
-    for (int i = 0; i < 8; i++) {
-        pieceSprites["wP"].setPosition(64 * i, 64 * 6);
-        pieceSprites["bP"].setPosition(64 * i, 64);
-    }
-
-    pieceSprites["bR"].setPosition(0, 0);
-    pieceSprites["bR"].setPosition(448, 0);
-    pieceSprites["wR"].setPosition(0, 448);
-    pieceSprites["wR"].setPosition(448, 448);
+    // generate piece structs from FEN (includes sprite)
+    std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    std::vector<Piece> pieces = fenToPieces(fen, pieceTextures);
 
     // main loop typeshit
     while (window.isOpen()) {
@@ -87,8 +112,8 @@ int main() {
         // rendering
         window.clear(sf::Color(50, 50, 50));
         window.draw(boardSprite);
-        for (const auto& piece : pieces) {
-            window.draw(pieceSprites[piece]);
+        for (const auto& p : pieces) {
+            window.draw(p.sprite);
         }
         window.display();
     }
