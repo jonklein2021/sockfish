@@ -4,7 +4,7 @@ all: compile link
 compile:
 	@echo "Compiling..."
 	@mkdir -p build/obj
-	@g++ -c main.cpp
+	@g++ -c main.cpp -I include -std=c++17 -Wall -Wextra -Werror -pedantic
 	@mv main.o build/obj
 
 link:

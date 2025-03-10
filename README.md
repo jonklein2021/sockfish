@@ -1,8 +1,8 @@
 # Sockfish
 
 ## Dependencies
-- g++
-- SFML
+- g++ 8 or higher
+- SFML 2.5.1
 
 ## Build Instructions
 ```

@@ -1,23 +1,14 @@
-#include <SFML/Graphics.hpp>
-#include <filesystem>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-const int BOARD_PIXEL_SIZE = 512; // board is 512x512 pixels
-const char* PIECES_TEXTURE_DIR = "assets/pieces/alpha/";
+#include "constants.h"
+#include "piece.h"
 
-struct Piece {
-    std::string type;
-    sf::Vector2<int> position;
-    sf::Sprite sprite;
-    bool isWhite;
-    bool isAlive;
-    Piece() : type(""), position({0, 0}), isWhite(false), isAlive(false) {}
-    Piece(const std::string& type, const sf::Sprite& sprite, const sf::Vector2<int>& position, bool isWhite, bool isAlive)
-        : type(type), sprite(sprite), position(position), isWhite(isWhite), isAlive(isAlive) {}
-};
+#include <SFML/Graphics.hpp>
+
+std::string pieceTheme = "horsey";
 
 // FEN to Piece vector conversion
 std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::string, sf::Texture>& textures) {
@@ -45,12 +36,17 @@ std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::s
 }
 
 int main() {
+    // get cursors
+    sf::Cursor arrowCursor, handCursor;
+    arrowCursor.loadFromSystem(sf::Cursor::Arrow);
+    handCursor.loadFromSystem(sf::Cursor::Hand);
+
     // create window
     sf::RenderWindow window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheess", sf::Style::Resize);
 
     // load board texture
     sf::Texture boardTexture;
-    if (!boardTexture.loadFromFile("assets/board.png")) {
+    if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
         std::cerr << "Error loading chessboard texture!" << std::endl;
         return -1;
     }
@@ -62,13 +58,11 @@ int main() {
     sf::View view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
     window.setView(view);
 
-    std::vector<std::string> pieceNames = {"wK", "wQ", "wR", "wB", "wN", "wP", "bK", "bQ", "bR", "bB", "bN", "bP"};
-
     // map to each piece to its texture
     std::unordered_map<std::string, sf::Texture> pieceTextures;
     for (const std::string& piece : pieceNames) {
         sf::Texture t;
-        std::string path = PIECES_TEXTURE_DIR + piece + ".png";
+        std::string path = PIECES_TEXTURE_DIR + pieceTheme + "/" + piece + ".png";
         if (!t.loadFromFile(path)) {
             std::cerr << "Error loading texture: " << path << std::endl;
             return -1;
@@ -77,17 +71,52 @@ int main() {
     }
 
     // generate piece structs from FEN (includes sprite)
-    std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-    std::vector<Piece> pieces = fenToPieces(fen, pieceTextures);
+    std::vector<Piece> pieces = fenToPieces(startingFen, pieceTextures);
 
-    // main loop typeshit
+    // used in loop as drag-and-drop variables
+    Piece* selectedPiece = nullptr;
+    bool isDragging = false;
+
+    // main render loop typeshit
     while (window.isOpen()) {
         sf::Event event;
+        
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        
+        // detect if mouse is hovering over a piece
+        bool hoveringOverPiece = false;
+        for (auto& piece : pieces) {
+            if (piece.sprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                hoveringOverPiece = true;
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !isDragging) {
+                    selectedPiece = &piece;
+                    isDragging = true;
+                }
+            }
+        }
+
+        // update mouse cursor
+        window.setMouseCursor(hoveringOverPiece ? handCursor : arrowCursor);
+
+        // event handler loop
         while (window.pollEvent(event)) {
+            // window close
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            // resize handler
+            // left-click release
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+                isDragging = false;
+                if (selectedPiece) {
+                    // snap to nearest tile
+                    int newX = (mousePos.x / TILE_PIXEL_SIZE) * TILE_PIXEL_SIZE;
+                    int newY = (mousePos.y / TILE_PIXEL_SIZE) * TILE_PIXEL_SIZE;
+                    selectedPiece->sprite.setPosition(newX, newY);
+                    selectedPiece = nullptr;
+                }
+            }
+
+            // resize window
             if (event.type == sf::Event::Resized) {
                 float windowWidth = event.size.width;
                 float windowHeight = event.size.height;
@@ -109,7 +138,12 @@ int main() {
             }
         }
 
-        // rendering
+        // drag-and-drop logic; move piece with mouse
+        if (isDragging && selectedPiece) {
+            selectedPiece->sprite.setPosition(mousePos.x - TILE_PIXEL_SIZE / 2, mousePos.y - TILE_PIXEL_SIZE / 2);
+        }
+
+        // render sprites
         window.clear(sf::Color(50, 50, 50));
         window.draw(boardSprite);
         for (const auto& p : pieces) {
