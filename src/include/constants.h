@@ -1,11 +1,14 @@
 #include <string>
 #include <vector>
 
+// size of board and tiles in pixels
 const int BOARD_PIXEL_SIZE = 512; // board is 512x512 pixels
 const int TILE_PIXEL_SIZE = 64; // 512/8 = 64
 
-const char* PIECES_TEXTURE_DIR = "assets/pieces/";
+// directories to assets
+const char* PIECE_TEXTURE_PATH = "assets/pieces/";
 const char* BOARD_TEXTURE_PATH = "assets/board.png";
 
+// piece & position details
 const std::vector<std::string> pieceNames = {"wK", "wQ", "wR", "wB", "wN", "wP", "bK", "bQ", "bR", "bB", "bN", "bP"};
 const std::string startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";

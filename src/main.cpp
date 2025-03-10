@@ -8,7 +8,7 @@
 
 #include <SFML/Graphics.hpp>
 
-std::string pieceTheme = "horsey";
+std::string pieceTheme = "horsey/";
 
 // FEN to Piece vector conversion
 std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::string, sf::Texture>& textures) {
@@ -60,14 +60,14 @@ int main() {
 
     // map to each piece to its texture
     std::unordered_map<std::string, sf::Texture> pieceTextures;
-    for (const std::string& piece : pieceNames) {
+    for (const std::string& name : pieceNames) {
         sf::Texture t;
-        std::string path = PIECES_TEXTURE_DIR + pieceTheme + "/" + piece + ".png";
+        const std::string path = PIECE_TEXTURE_PATH + pieceTheme + name + ".png";
         if (!t.loadFromFile(path)) {
             std::cerr << "Error loading texture: " << path << std::endl;
             return -1;
         }
-        pieceTextures[piece] = std::move(t);
+        pieceTextures[name] = std::move(t);
     }
 
     // generate piece structs from FEN (includes sprite)
@@ -80,7 +80,6 @@ int main() {
     // main render loop typeshit
     while (window.isOpen()) {
         sf::Event event;
-        
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         
         // detect if mouse is hovering over a piece
