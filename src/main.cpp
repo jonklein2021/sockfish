@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "constants.h"
+#include "game.h"
 #include "piece.h"
 
 std::string pieceTheme = "horsey/";
@@ -70,6 +71,8 @@ int main() {
 
     // generate piece structs from FEN (includes sprite)
     std::vector<Piece> pieces = fenToPieces(startingFen, pieceTextures);
+
+    fenToBitBoard(startingFen).print();
 
     // used in loop as drag-and-drop variables
     Piece* selectedPiece = nullptr;

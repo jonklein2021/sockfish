@@ -10,5 +10,5 @@ const char* PIECE_TEXTURE_PATH = "assets/pieces/";
 const char* BOARD_TEXTURE_PATH = "assets/board.png";
 
 // piece & position details
-const std::vector<std::string> pieceNames = {"wK", "wQ", "wR", "wB", "wN", "wP", "bK", "bQ", "bR", "bB", "bN", "bP"};
+const std::vector<std::string> pieceNames = {"wP", "wN", "wB", "wR", "wQ", "wK", "bP", "bN", "bB", "bR", "bQ", "bK"};
 const std::string startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";

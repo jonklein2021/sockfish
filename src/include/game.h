@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 #include <SFML/Graphics.hpp>
@@ -21,6 +22,10 @@ enum PieceType {
 struct BitBoard {
     uint64_t pieceBits[12]; // index into this with PieceType
     BitBoard() : pieceBits{0} {}
+
+    // Debugging Methods
+    void print() const;
+    void print(PieceType p) const;
 };
 
 /**

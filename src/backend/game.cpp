@@ -1,4 +1,22 @@
+#include "constants.h"
 #include "game.h"
+
+void BitBoard::print() const {
+    for (int i = 0; i < 12; i++) {
+        print(static_cast<PieceType>(i));
+    }
+}
+
+void BitBoard::print(PieceType p) const {
+    std::cout << "Piece: " << pieceNames[p] << std::endl;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            std::cout << (this->pieceBits[p] & (1ull << (i * 8 + j)) ? "1" : "0") << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 BitBoard fenToBitBoard(const std::string& fen) {
     BitBoard board;
