@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -42,8 +44,8 @@ struct Move {
     bool isEnPassant;
     char promotionPiece; // nonempty only for pawn promotion
     Move() : from({0, 0}), to({0, 0}), isCapture(false), isCastle(false), isEnPassant(false),  promotionPiece(' ') {}
-    Move(sf::Vector2<int> from, sf::Vector2<int> to, bool isCapture, bool isCastle, bool isEnPassant, char promotionPiece)
-        : from(from), to(to), isCapture(isCapture), isCastle(isCastle), isEnPassant(isEnPassant), promotionPiece(promotionPiece) {}
+    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture, bool isCastle, bool isEnPassant, char promotionPiece)
+        : from(from), to(to), pieceMoved(pieceMoved), isCapture(isCapture), isCastle(isCastle), isEnPassant(isEnPassant), promotionPiece(promotionPiece) {}
 };
 
 /**
@@ -69,6 +71,12 @@ struct GameState {
           whiteRookAMoved(whiteRookAMoved), whiteRookHMoved(whiteRookHMoved), blackRookAMoved(blackRookAMoved), blackRookHMoved(blackRookHMoved) {}
     
     // Methods
+
+    /**
+     * Applys a move to the game state
+     * 
+     * @param move the move to apply to the game state
+     */
     void ApplyMove(const Move& move);
 };
 

@@ -1,6 +1,16 @@
 #include "constants.h"
 #include "game.h"
 
+void printU64(uint64_t n) {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            std::cout << (n & (1ull << (i * 8 + j)) ? "1" : "0") << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 void BitBoard::print() const {
     for (int i = 0; i < 12; i++) {
         print(static_cast<PieceType>(i));
@@ -8,14 +18,7 @@ void BitBoard::print() const {
 }
 
 void BitBoard::print(PieceType p) const {
-    std::cout << "Piece: " << pieceNames[p] << std::endl;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            std::cout << (this->pieceBits[p] & (1ull << (i * 8 + j)) ? "1" : "0") << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+    printU64(pieceBits[p]);
 }
 
 BitBoard fenToBitBoard(const std::string& fen) {
@@ -64,7 +67,7 @@ void GameState::ApplyMove(const Move &move) {
     
 }
 
-std::vector<Move> getLegalMoves(const GameState& state) {
+std::vector<Move> generateMoves(const GameState& state) {
     std::vector<Move> moves;
     bool white = state.whiteToMove;
 
@@ -76,11 +79,53 @@ std::vector<Move> getLegalMoves(const GameState& state) {
     uint64_t queens = white ? state.board.pieceBits[WQ] : state.board.pieceBits[BQ];
     uint64_t king = white ? state.board.pieceBits[WK] : state.board.pieceBits[BK];
     
-    // may be useful for later
+    uint64_t oppPawns = white ? state.board.pieceBits[BP] : state.board.pieceBits[WP];
+    uint64_t oppKnights = white ? state.board.pieceBits[BN] : state.board.pieceBits[WN];
+    uint64_t oppBishops = white ? state.board.pieceBits[BB] : state.board.pieceBits[WB];
+    uint64_t oppRooks = white ? state.board.pieceBits[BR] : state.board.pieceBits[WR];
+    uint64_t oppQueens = white ? state.board.pieceBits[BQ] : state.board.pieceBits[WQ];
+    uint64_t oppKing = white ? state.board.pieceBits[BK] : state.board.pieceBits[WK];
+    
+    // useful for determining captures
     uint64_t myPieces = pawns | knights | bishops | rooks | queens | king;
-    uint64_t oppPieces = ~myPieces;
+    uint64_t oppPieces = oppPawns | oppKnights | oppBishops | oppRooks | oppQueens | oppKing;
     uint64_t allPieces = myPieces | oppPieces;
     uint64_t emptySquares = ~allPieces;
+
+    // initial and final positions of each piece
+    int xi, yi, xf, yf;
+
+    /* KNIGHT MOVES */
+    while (knights > 0) {
+        int trailingZeros = __builtin_ctzll(knights);
+        xi = trailingZeros % 8;
+        yi = trailingZeros / 8;
+
+        // generate all possible knight moves
+        std::vector<std::pair<int, int>> knightMoves = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+        for (auto &[dx, dy] : knightMoves) {
+            xf = xi + dx;
+            yf = yi + dy;
+            
+            // ensure this move is within bounds
+            if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+                
+                // bit of the destination square
+                uint64_t to = 1ull << (yf * 8 + xf);
+
+                if (to & oppPieces) {
+                    // move is a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WN : BN), true, false, false, ' '});
+                } else if (to & emptySquares) { // necessary so we don't move to our own piece
+                    // move is not a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WN : BN), false, false, false, ' '});
+                }
+            }
+        }
+
+        // clear this knight from the bitboard
+        knights &= knights - 1;
+    }   
     
     return moves;
 }

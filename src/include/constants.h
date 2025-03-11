@@ -1,13 +1,11 @@
+#pragma once
+
 #include <string>
 #include <vector>
 
 // size of board and tiles in pixels
 const int BOARD_PIXEL_SIZE = 512; // board is 512x512 pixels
 const int TILE_PIXEL_SIZE = 64; // 512/8 = 64
-
-// directories to assets
-const char* PIECE_TEXTURE_PATH = "assets/pieces/";
-const char* BOARD_TEXTURE_PATH = "assets/board.png";
 
 // piece & position details
 const std::vector<std::string> pieceNames = {"wP", "wN", "wB", "wR", "wQ", "wK", "bP", "bN", "bB", "bR", "bQ", "bK"};

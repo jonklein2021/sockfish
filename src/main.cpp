@@ -9,6 +9,10 @@
 
 std::string pieceTheme = "horsey/";
 
+// directories to assets
+const char* PIECE_TEXTURE_PATH = "assets/pieces/";
+const char* BOARD_TEXTURE_PATH = "assets/board.png";
+
 // FEN to Piece vector conversion
 std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::string, sf::Texture>& textures) {
     std::vector<Piece> pieces;
@@ -72,7 +76,11 @@ int main() {
     // generate piece structs from FEN (includes sprite)
     std::vector<Piece> pieces = fenToPieces(startingFen, pieceTextures);
 
-    fenToBitBoard(startingFen).print();
+    GameState state = GameState(fenToBitBoard(startingFen), true, false, false, false, false, false, false);
+    std::vector<Move> moves = generateMoves(state);
+    for (Move m : moves) {
+        std::cout << pieceNames[m.pieceMoved] << ": (" << m.from.x << ", " << m.from.y << ") -> (" << m.to.x << ", " << m.to.y << ") " << (m.isCapture ? "Capture" : "") << std::endl;
+    }
 
     // used in loop as drag-and-drop variables
     Piece* selectedPiece = nullptr;
