@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <list>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -21,9 +22,9 @@ std::unordered_map <char, PieceType> fenPieceMap = {
     {'p', BP}, {'n', BN}, {'b', BB}, {'r', BR}, {'q', BQ}, {'k', BK}
 };
 
-// FEN to Piece vector conversion
-std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<PieceType, sf::Texture>& textures) {
-    std::vector<Piece> pieces;
+// FEN to Piece list conversion
+std::list<Piece> fenToPieces(const std::string& fen, std::unordered_map<PieceType, sf::Texture>& textures) {
+    std::list<Piece> pieces;
 
     int x = 0, y = 0;
     for (const char& c : fen) {
@@ -82,7 +83,7 @@ int main() {
     }
 
     // generate piece structs from FEN (includes sprite)
-    std::vector<Piece> pieces = fenToPieces(startingFen, pieceTextures);
+    std::list<Piece> pieces = fenToPieces(startingFen, pieceTextures);
     
     // used in loop as drag-and-drop variables
     Piece* selectedPiece = nullptr;
@@ -128,7 +129,7 @@ int main() {
                     // create move object, isCapture arg doesn't matter yet because the
                     // backend will override it with the correct value
                     Move candidate({oldX, oldY}, {newX, newY}, selectedPiece->type, false);
-                    
+
                     // check this move against set of legal moves
                     std::vector<Move> legalMoves = generateMoves(state);
                     bool validMove = false;
@@ -146,27 +147,40 @@ int main() {
                     
                     if (validMove) {
                         // update frontend properties
-                        selectedPiece->position = {newX, newY};
                         if (candidate.isCapture) {
                             auto it = std::find_if(pieces.begin(), pieces.end(), [candidate](const Piece& p){
-                                return p.position.x == candidate.to.x && p.position.y == candidate.to.y;
+                                return p.type != candidate.pieceMoved && p.position.x == candidate.to.x && p.position.y == candidate.to.y;
                             });
                             
-                            it->isAlive = false;
+                            pieces.erase(it);
+                            std::cout << pieceNames[it->type] << "(" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
+                            
                         }
 
+                        
                         // update game state
                         state.whiteToMove = !state.whiteToMove;
                         state.ApplyMove(candidate);
+                        
                     } else {
                         // reset piece position if move is invalid
                         newX = oldX;
                         newY = oldY;
                     }
-
+                    
+                    selectedPiece->position = {newX, newY};
+                    // selectedPiece->type = candidate.pieceMoved;
+                    
                     // update sprite position, remembering to snap to a tile
                     selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
                     selectedPiece = nullptr;
+                    
+                    std::cout << "Remaining pieces:" << std::endl;
+                    for (Piece p : pieces) {
+                        std::cout << pieceNames[p.type] << "(" << p.position.x << ", " << p.position.y << ")" << std::endl;
+                    }
+                    
+                    prettyPrint(state.board);
                 }
             }
 

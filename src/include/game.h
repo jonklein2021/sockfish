@@ -116,7 +116,9 @@ std::string bitBoardToFen(const BitBoard& board);
  */
 std::vector<Move> generateMoves(const GameState& state);
 
+// Debugging methods
 void printU64(uint64_t n);
 void print(const BitBoard &board, PieceType p);
 void print(const BitBoard &board);
 std::string to_string(const Move &move);
+void prettyPrint(const BitBoard &board);

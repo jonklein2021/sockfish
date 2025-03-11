@@ -17,6 +17,7 @@ void print(const BitBoard &board, PieceType p) {
 
 void print(const BitBoard &board) {
     for (int i = 0; i < 12; i++) {
+        std::cout << pieceNames[i] << std::endl;
         print(board, static_cast<PieceType>(i));
     }
 }
@@ -29,6 +30,29 @@ std::string to_string(const Move &move) {
     << move.to.x << ", " << move.to.y << ")";
 
     return ss.str();
+}
+
+void prettyPrint(const BitBoard &board) {
+    std::string out;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            bool found = false;
+            for (int p = 0; p < 12; p++) {
+                if (board.pieceBits[p] & (1ull << (i * 8 + j))) {
+                    out += pieceNames[p];
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                out += "--";
+            }
+            out += " ";
+        }
+        out += "\n";
+    }
+
+    std::cout << out << std::endl;
 }
 
 BitBoard fenToBitBoard(const std::string& fen) {
@@ -84,9 +108,10 @@ void GameState::ApplyMove(const Move &move) {
     // determine what piece to remove if there is a capture
     if (move.isCapture) {
         for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-            if (bitBoard->pieceBits[p] & to) {
-                // zero out the captured piece
+            if (p != move.pieceMoved && bitBoard->pieceBits[p] & to) {
+                // zero out the captured piece's bit
                 bitBoard->pieceBits[p] &= ~to;
+                break;
             }
         }
     }
@@ -144,14 +169,16 @@ std::vector<Move> generateMoves(const GameState& state) {
         }
 
         // move two squares forward only if pawn is in its starting position
-        yf = yi + 2 * direction;
-        if ((white && (yi == 6)) || (!white && (yi == 1))) {
-            uint64_t over = 1ull << (yf * 4 + xf); // square that pawn jumps over
-            to = 1ull << (yf * 8 + xf); // square that pawn lands on
-            if ((to & emptySquares) && (over & emptySquares)) {
-                moves.push_back({{xi, yi}, {xf, yf}, (white ? WP : BP), false});
+        if ((white && yi == 6) || (!white && yi == 1)) {
+            uint64_t over = 1ull << ((yi + direction) * 8 + xf); // square pawn jumps over
+            uint64_t to = 1ull << (yf * 8 + xf); // destination square
+            
+            // both `over` and `to` must be empty for a pawn to move 2 squares
+            if ((emptySquares & (over | to)) == (over | to)) {
+                moves.push_back({{xi, yi}, {xf, yf + direction}, (white ? WP : BP), false});
             }
         }
+        
 
         // capture moves
         std::vector<std::pair<int, int>> pawnCaptures = {{1, direction}, {-1, direction}};
