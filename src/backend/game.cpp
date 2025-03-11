@@ -125,7 +125,139 @@ std::vector<Move> generateMoves(const GameState& state) {
 
         // clear this knight from the bitboard
         knights &= knights - 1;
-    }   
+    }
+
+    /* BISHOP MOVES */
+    while (bishops > 0) {
+        int trailingZeros = __builtin_ctzll(bishops);
+        xi = trailingZeros % 8;
+        yi = trailingZeros / 8;
+
+        // generate all possible bishop moves
+        std::vector<std::pair<int, int>> bishopMoves = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        for (auto &[dx, dy] : bishopMoves) {
+            xf = xi + dx;
+            yf = yi + dy;
+
+            // while move is in bounds, move in that direction
+            while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+                uint64_t to = 1ull << (yf * 8 + xf);
+                if (to & oppPieces) {
+                    // move is a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WB : BB), true, false, false, ' '});
+                    break;
+                } else if (to & emptySquares) {
+                    // move is not a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WB : BB), false, false, false, ' '});
+                } else {
+                    break;
+                }
+                xf += dx;
+                yf += dy;
+            }
+        }
+
+        bishops &= bishops - 1;
+    }
+
+    /* ROOK MOVES */
+    while (rooks > 0) {
+        int trailingZeros = __builtin_ctzll(rooks);
+        xi = trailingZeros % 8;
+        yi = trailingZeros / 8;
+
+        // generate all possible rook moves
+        std::vector<std::pair<int, int>> rookMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (auto &[dx, dy] : rookMoves) {
+            xf = xi + dx;
+            yf = yi + dy;
+
+            // while move is in bounds, move in that direction
+            while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+                uint64_t to = 1ull << (yf * 8 + xf);
+                if (to & oppPieces) {
+                    // move is a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WR : BR), true, false, false, ' '});
+                    break;
+                } else if (to & emptySquares) {
+                    // move is not a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WR : BR), false, false, false, ' '});
+                } else {
+                    break;
+                }
+                xf += dx;
+                yf += dy;
+            }
+        }
+
+        // clear this rook from the bitboard
+        rooks &= rooks - 1;
+    }
+
+    /* QUEEN MOVES */
+    while (queens > 0) {
+        int trailingZeros = __builtin_ctzll(queens);
+        xi = trailingZeros % 8;
+        yi = trailingZeros / 8;
+
+        // generate all possible queen moves
+        std::vector<std::pair<int, int>> queenMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        for (auto &[dx, dy] : queenMoves) {
+            xf = xi + dx;
+            yf = yi + dy;
+
+            // while move is in bounds, move in that direction
+            while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+                uint64_t to = 1ull << (yf * 8 + xf);
+                if (to & oppPieces) {
+                    // move is a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WQ : BQ), true, false, false, ' '});
+                    break;
+                } else if (to & emptySquares) {
+                    // move is not a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WQ : BQ), false, false, false, ' '});
+                } else {
+                    break;
+                }
+                xf += dx;
+                yf += dy;
+            }
+        }
+
+        // clear this queen from the bitboard
+        queens &= queens - 1;
+    }
+
+    /* KING MOVES */
+    while (king > 0) {
+        int trailingZeros = __builtin_ctzll(king);
+        xi = trailingZeros % 8;
+        yi = trailingZeros / 8;
+
+        // generate all possible king moves
+        std::vector<std::pair<int, int>> kingMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        for (auto &[dx, dy] : kingMoves) {
+            xf = xi + dx;
+            yf = yi + dy;
+
+            // ensure this move is within bounds
+            if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+                uint64_t to = 1ull << (yf * 8 + xf);
+                if (to & oppPieces) {
+                    // move is a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WK : BK), true, false, false, ' '});
+                } else if (to & emptySquares) {
+                    // move is not a capture
+                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WK : BK), false, false, false, ' '});
+                }
+            }
+        }
+
+        // clear this king from the bitboard
+        king &= king - 1;
+    }
+
+    /* CASTLING */
     
     return moves;
 }
