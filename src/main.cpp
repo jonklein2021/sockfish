@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -7,15 +8,23 @@
 #include "game.h"
 #include "piece.h"
 
+// TODO: Move these to header files
+
 std::string pieceTheme = "horsey/";
 
 // directories to assets
 const char* PIECE_TEXTURE_PATH = "assets/pieces/";
 const char* BOARD_TEXTURE_PATH = "assets/board.png";
 
+std::unordered_map <char, PieceType> fenPieceMap = {
+    {'P', WP}, {'N', WN}, {'B', WB}, {'R', WR}, {'Q', WQ}, {'K', WK},
+    {'p', BP}, {'n', BN}, {'b', BB}, {'r', BR}, {'q', BQ}, {'k', BK}
+};
+
 // FEN to Piece vector conversion
-std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::string, sf::Texture>& textures) {
+std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<PieceType, sf::Texture>& textures) {
     std::vector<Piece> pieces;
+
     int x = 0, y = 0;
     for (const char& c : fen) {
         if (c == '/') { // move to next row
@@ -26,7 +35,7 @@ std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::s
         } else { // piece
             Piece piece;
             piece.isWhite = isupper(c);
-            piece.type = (piece.isWhite ? 'w' : 'b') + std::string(1, static_cast<char>(toupper(c)));
+            piece.type = fenPieceMap[c];
             piece.position = {x, y};
             piece.sprite = sf::Sprite(textures[piece.type]);
             piece.sprite.setPosition(x * 64, y * 64);
@@ -62,29 +71,25 @@ int main() {
     window.setView(view);
 
     // map to each piece to its texture
-    std::unordered_map<std::string, sf::Texture> pieceTextures;
-    for (const std::string& name : pieceNames) {
-        sf::Texture t;
-        const std::string path = PIECE_TEXTURE_PATH + pieceTheme + name + ".png";
-        if (!t.loadFromFile(path)) {
-            std::cerr << "Error loading texture: " << path << std::endl;
+    std::unordered_map<PieceType, sf::Texture> pieceTextures;
+    for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
+        sf::Texture texture;
+        if (!texture.loadFromFile(PIECE_TEXTURE_PATH + pieceTheme + pieceNames[p] + ".png")) {
+            std::cerr << "Error loading piece texture: " << pieceNames[p] << std::endl;
             return -1;
         }
-        pieceTextures[name] = std::move(t);
+        pieceTextures[p] = texture;
     }
 
     // generate piece structs from FEN (includes sprite)
     std::vector<Piece> pieces = fenToPieces(startingFen, pieceTextures);
-
-    GameState state = GameState(fenToBitBoard(startingFen), true, false, false, false, false, false, false);
-    std::vector<Move> moves = generateMoves(state);
-    for (Move m : moves) {
-        std::cout << pieceNames[m.pieceMoved] << ": (" << m.from.x << ", " << m.from.y << ") -> (" << m.to.x << ", " << m.to.y << ") " << (m.isCapture ? "Capture" : "") << std::endl;
-    }
-
+    
     // used in loop as drag-and-drop variables
     Piece* selectedPiece = nullptr;
     bool isDragging = false;
+    
+    // used by backend to analyze the game state
+    GameState state(fenToBitBoard(startingFen), 0ull, 0ull, true, false, false, false, false, false, false);
 
     // main render loop typeshit
     while (window.isOpen()) {
@@ -116,10 +121,51 @@ int main() {
             if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
                 isDragging = false;
                 if (selectedPiece) {
-                    // snap to nearest tile
-                    int newX = (mousePos.x / TILE_PIXEL_SIZE) * TILE_PIXEL_SIZE;
-                    int newY = (mousePos.y / TILE_PIXEL_SIZE) * TILE_PIXEL_SIZE;
-                    selectedPiece->sprite.setPosition(newX, newY);
+                    // use to snap to nearest tile
+                    int oldX = selectedPiece->position.x, oldY = selectedPiece->position.y;
+                    int newX = mousePos.x / TILE_PIXEL_SIZE, newY = mousePos.y / TILE_PIXEL_SIZE;
+
+                    // create move object, isCapture arg doesn't matter yet because the
+                    // backend will override it with the correct value
+                    Move candidate({oldX, oldY}, {newX, newY}, selectedPiece->type, false);
+                    
+                    // check this move against set of legal moves
+                    std::vector<Move> legalMoves = generateMoves(state);
+                    bool validMove = false;
+                    for (const Move &m : legalMoves) {
+                        std::cout << to_string(m) << std::endl;
+                        if (candidate.equals(m)) {
+                            candidate = m;
+                            validMove = true;
+                            // break; // uncomment this when not testing
+                        }
+                    }
+
+                    // this line is raw as hell
+                    std::cout << "[" << (validMove ? "V" : "Inv") << "alid Move] " << to_string(candidate) << std::endl;
+                    
+                    if (validMove) {
+                        // update frontend properties
+                        selectedPiece->position = {newX, newY};
+                        if (candidate.isCapture) {
+                            auto it = std::find_if(pieces.begin(), pieces.end(), [candidate](const Piece& p){
+                                return p.position.x == candidate.to.x && p.position.y == candidate.to.y;
+                            });
+                            
+                            it->isAlive = false;
+                        }
+
+                        // update game state
+                        state.whiteToMove = !state.whiteToMove;
+                        state.ApplyMove(candidate);
+                    } else {
+                        // reset piece position if move is invalid
+                        newX = oldX;
+                        newY = oldY;
+                    }
+
+                    // update sprite position, remembering to snap to a tile
+                    selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
                     selectedPiece = nullptr;
                 }
             }
@@ -155,7 +201,8 @@ int main() {
         window.clear(sf::Color(50, 50, 50));
         window.draw(boardSprite);
         for (const auto& p : pieces) {
-            window.draw(p.sprite);
+            if (p.isAlive)
+                window.draw(p.sprite);
         }
         window.display();
     }

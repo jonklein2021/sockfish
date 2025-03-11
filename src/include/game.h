@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include <SFML/Graphics.hpp>
@@ -24,10 +25,6 @@ enum PieceType {
 struct BitBoard {
     uint64_t pieceBits[12]; // index into this with PieceType
     BitBoard() : pieceBits{0} {}
-
-    // Debugging Methods
-    void print() const;
-    void print(PieceType p) const;
 };
 
 /**
@@ -40,12 +37,10 @@ struct Move {
     sf::Vector2<int> to;
     PieceType pieceMoved;
     bool isCapture;
-    bool isCastle;
-    bool isEnPassant;
-    char promotionPiece; // nonempty only for pawn promotion
-    Move() : from({0, 0}), to({0, 0}), isCapture(false), isCastle(false), isEnPassant(false),  promotionPiece(' ') {}
-    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture, bool isCastle, bool isEnPassant, char promotionPiece)
-        : from(from), to(to), pieceMoved(pieceMoved), isCapture(isCapture), isCastle(isCastle), isEnPassant(isEnPassant), promotionPiece(promotionPiece) {}
+    Move() : from({0, 0}), to({0, 0}), pieceMoved(BK), isCapture(false) {}
+    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture)
+        : from(from), to(to), pieceMoved(pieceMoved), isCapture(isCapture) {}
+    bool equals(const Move& other);
 };
 
 /**
@@ -53,7 +48,14 @@ struct Move {
  * whose turn it is, if each side can castle, etc.
  */
 struct GameState {
+    // board representation
     BitBoard board;
+
+    // bit vectors to keep track of which pawns have moved
+    uint64_t whitePawnsMoved;
+    uint64_t blackPawnsMoved;
+
+    // other game state variables
     bool whiteToMove;
     bool whiteKingMoved;
     bool blackKingMoved;
@@ -63,11 +65,11 @@ struct GameState {
     bool blackRookHMoved;
 
     // Constructors
-    GameState() : board(), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
+    GameState() : board(), whitePawnsMoved(0), blackPawnsMoved(0), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
                   whiteRookAMoved(false), whiteRookHMoved(false), blackRookAMoved(false), blackRookHMoved(false) {}
-    GameState(BitBoard board, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
+    GameState(BitBoard board, uint64_t whitePawnsMoved, uint64_t blackPawnsMoved, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
               bool whiteRookAMoved, bool whiteRookHMoved, bool blackRookAMoved, bool blackRookHMoved)
-        : board(board), whiteToMove(whiteToMove), whiteKingMoved(whiteKingMoved), blackKingMoved(blackKingMoved),
+        : board(board), whitePawnsMoved(whitePawnsMoved), blackPawnsMoved(blackPawnsMoved), whiteToMove(whiteToMove), whiteKingMoved(whiteKingMoved), blackKingMoved(blackKingMoved),
           whiteRookAMoved(whiteRookAMoved), whiteRookHMoved(whiteRookHMoved), blackRookAMoved(blackRookAMoved), blackRookHMoved(blackRookHMoved) {}
     
     // Methods
@@ -78,6 +80,11 @@ struct GameState {
      * @param move the move to apply to the game state
      */
     void ApplyMove(const Move& move);
+
+    /**
+     * Returns true iff the current player is in check
+     */
+    bool IsCheck();
 };
 
 /**
@@ -108,3 +115,8 @@ std::string bitBoardToFen(const BitBoard& board);
  * @return a vector of all possible moves
  */
 std::vector<Move> generateMoves(const GameState& state);
+
+void printU64(uint64_t n);
+void print(const BitBoard &board, PieceType p);
+void print(const BitBoard &board);
+std::string to_string(const Move &move);
