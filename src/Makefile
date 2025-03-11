@@ -1,22 +1,22 @@
 # Compiler & flags
-CXX 			= g++
-LD 				= g++
-CXXFLAGS 		= -I include -MMD -O3 -std=c++17 -Wall -Wextra -Werror -pedantic
-LDFLAGS			= -lsfml-graphics -lsfml-window -lsfml-system
+CXX             = g++
+LD              = g++
+CXXFLAGS        = -I include -MMD -O3 -std=c++17 -Wall -Wextra -pedantic # -Werror
+LDFLAGS         = -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories
-ODIR      		:= ./build
-OUTFOLDER		:= $(shell mkdir -p $(ODIR))
+ODIR            := ./build
+$(shell mkdir -p $(ODIR))
 
 # Input files
-CXXFILES 		= game
-TARGETS			:= main
+CXXFILES        = game
+TARGETS         = main
 
 # Generate names of obj, exe, and d files
-COMMONOFILES	= $(patsubst %, $(ODIR)/%.o, $(CXXFILES))
-ALLOFILES 		= $(patsubst %, $(ODIR)/%.o, $(CXXFILES) $(TARGETS))
-EXEFILES 		= $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
-DFILES     		= $(patsubst %.o, %.d, $(ALLOFILES))
+COMMONOFILES    = $(patsubst %, $(ODIR)/%.o, $(CXXFILES))
+ALLOFILES       = $(patsubst %, $(ODIR)/%.o, $(CXXFILES) $(TARGETS))
+EXEFILES        = $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
+DFILES          = $(patsubst %.o, %.d, $(ALLOFILES))
 
 .DEFAULT_GOAL = all
 .PRECIOUS: $(OFILES)
@@ -31,12 +31,12 @@ clean:
 	@rm -rf $(ODIR)
 
 # .cpp -> .o
-$(ODIR)/%.o: src/%.cpp
+$(ODIR)/%.o: %.cpp
 	@echo "[CXX] $< --> $@"
 	@$(CXX) $< -o $@ -c $(CXXFLAGS)
 
 # .cpp -> .o
-$(ODIR)/%.o: src/backend/%.cpp
+$(ODIR)/%.o: backend/%.cpp
 	@echo "[CXX] $< --> $@"
 	@$(CXX) $< -o $@ -c $(CXXFLAGS)
 

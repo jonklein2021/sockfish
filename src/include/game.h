@@ -41,9 +41,9 @@ struct Move {
     bool isCastle;
     bool isEnPassant;
     char promotionPiece; // nonempty only for pawn promotion
-    Move() : from({0, 0}), to({0, 0}), isCapture(false), isCastle(false), promotionPiece(' '), isEnPassant(false) {}
-    Move(sf::Vector2<int> from, sf::Vector2<int> to, bool isCapture, bool isCastle, char promotionPiece, bool isEnPassant)
-        : from(from), to(to), isCapture(isCapture), isCastle(isCastle), promotionPiece(promotionPiece), isEnPassant(isEnPassant) {}
+    Move() : from({0, 0}), to({0, 0}), isCapture(false), isCastle(false), isEnPassant(false),  promotionPiece(' ') {}
+    Move(sf::Vector2<int> from, sf::Vector2<int> to, bool isCapture, bool isCastle, bool isEnPassant, char promotionPiece)
+        : from(from), to(to), isCapture(isCapture), isCastle(isCastle), isEnPassant(isEnPassant), promotionPiece(promotionPiece) {}
 };
 
 /**
