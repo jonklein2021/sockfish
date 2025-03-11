@@ -6,8 +6,6 @@
 #include "constants.h"
 #include "piece.h"
 
-#include <SFML/Graphics.hpp>
-
 std::string pieceTheme = "horsey/";
 
 // FEN to Piece vector conversion
