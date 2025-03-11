@@ -4,15 +4,23 @@
 #include <SFML/Graphics.hpp>
 
 /**
+ * Represents each the type of piece;
+ * 
+ * Useful for simplifying moves
+ */
+enum PieceType {
+    WP, WN, WB, WR, WQ, WK,
+    BP, BN, BB, BR, BQ, BK
+};
+
+/**
  * Stores the current state of the game in bitboard
  * representation. Each uint64_t represents the
  * instances of a certain piece on the board.
  */
 struct BitBoard {
-    uint64_t wp, wn, wb, wr, wq, wk; // positions of white pieces
-    uint64_t bp, bn, bb, br, bq, bk; // positions of black pieces
-    BitBoard() : wp(0), wn(0), wb(0), wr(0), wq(0), wk(0),
-                 bp(0), bn(0), bb(0), br(0), bq(0), bk(0) {}
+    uint64_t pieceBits[12]; // index into this with PieceType
+    BitBoard() : pieceBits{0} {}
 };
 
 /**
@@ -23,10 +31,11 @@ struct BitBoard {
 struct Move {
     sf::Vector2<int> from;
     sf::Vector2<int> to;
+    PieceType pieceMoved;
     bool isCapture;
     bool isCastle;
-    char promotionPiece;
     bool isEnPassant;
+    char promotionPiece; // nonempty only for pawn promotion
     Move() : from({0, 0}), to({0, 0}), isCapture(false), isCastle(false), promotionPiece(' '), isEnPassant(false) {}
     Move(sf::Vector2<int> from, sf::Vector2<int> to, bool isCapture, bool isCastle, char promotionPiece, bool isEnPassant)
         : from(from), to(to), isCapture(isCapture), isCastle(isCastle), promotionPiece(promotionPiece), isEnPassant(isEnPassant) {}
@@ -45,6 +54,17 @@ struct GameState {
     bool whiteRookHMoved;
     bool blackRookAMoved;
     bool blackRookHMoved;
+
+    // Constructors
+    GameState() : board(), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
+                  whiteRookAMoved(false), whiteRookHMoved(false), blackRookAMoved(false), blackRookHMoved(false) {}
+    GameState(BitBoard board, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
+              bool whiteRookAMoved, bool whiteRookHMoved, bool blackRookAMoved, bool blackRookHMoved)
+        : board(board), whiteToMove(whiteToMove), whiteKingMoved(whiteKingMoved), blackKingMoved(blackKingMoved),
+          whiteRookAMoved(whiteRookAMoved), whiteRookHMoved(whiteRookHMoved), blackRookAMoved(blackRookAMoved), blackRookHMoved(blackRookHMoved) {}
+    
+    // Methods
+    void ApplyMove(const Move& move);
 };
 
 /**
@@ -66,3 +86,12 @@ BitBoard fenToBitBoard(const std::string& fen);
  * @return the FEN string representation of the BitBoard
  */
 std::string bitBoardToFen(const BitBoard& board);
+
+/**
+ * Return a list of all legal moves in some
+ * game state
+ * 
+ * @param state the current game state
+ * @return a vector of all possible moves
+ */
+std::vector<Move> generateMoves(const GameState& state);

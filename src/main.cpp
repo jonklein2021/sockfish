@@ -16,7 +16,7 @@ std::vector<Piece> fenToPieces(const std::string& fen, std::unordered_map<std::s
         if (c == '/') { // move to next row
             x = 0;
             y++;
-        } else if (isdigit(c)) { // empty square
+        } else if (isdigit(c)) { // empty square; skip x squares
             x += c - '0';
         } else { // piece
             Piece piece;

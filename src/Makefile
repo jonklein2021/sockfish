@@ -1,17 +1,48 @@
-all: compile link
-	@echo "Done! Run with ./build/bin/main"
+# Compiler & flags
+CXX 			= g++
+LD 				= g++
+CXXFLAGS 		= -I include -MMD -O3 -std=c++17 -Wall -Wextra -Werror -pedantic
+LDFLAGS			= -lsfml-graphics -lsfml-window -lsfml-system
 
-compile:
-	@echo "Compiling..."
-	@mkdir -p build/obj
-	@g++ -c main.cpp -I include -std=c++17 -Wall -Wextra -Werror -pedantic
-	@mv main.o build/obj
+# Directories
+ODIR      		:= ./build
+OUTFOLDER		:= $(shell mkdir -p $(ODIR))
 
-link:
-	@echo "Linking..."
-	@mkdir -p build/bin
-	@g++ build/obj/main.o -o build/bin/main -lsfml-graphics -lsfml-window -lsfml-system
+# Input files
+CXXFILES 		= game
+TARGETS			:= main
 
+# Generate names of obj, exe, and d files
+COMMONOFILES	= $(patsubst %, $(ODIR)/%.o, $(CXXFILES))
+ALLOFILES 		= $(patsubst %, $(ODIR)/%.o, $(CXXFILES) $(TARGETS))
+EXEFILES 		= $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
+DFILES     		= $(patsubst %.o, %.d, $(ALLOFILES))
+
+.DEFAULT_GOAL = all
+.PRECIOUS: $(OFILES)
+.PHONY: all clean
+
+# Build all .exe files
+all: $(EXEFILES)
+
+# Purge the build folder
 clean:
-	@echo "Cleaning..."
-	@rm -rf build
+	@echo Cleaning up...
+	@rm -rf $(ODIR)
+
+# .cpp -> .o
+$(ODIR)/%.o: src/%.cpp
+	@echo "[CXX] $< --> $@"
+	@$(CXX) $< -o $@ -c $(CXXFLAGS)
+
+# .cpp -> .o
+$(ODIR)/%.o: src/backend/%.cpp
+	@echo "[CXX] $< --> $@"
+	@$(CXX) $< -o $@ -c $(CXXFLAGS)
+
+# .o -> .exe
+$(ODIR)/%.exe: $(ODIR)/%.o $(COMMONOFILES)
+	@echo "[LD] $^ --> $@"
+	@$(LD) $^ -o $@ $(LDFLAGS)
+
+-include $(DFILES)
