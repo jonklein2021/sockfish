@@ -35,12 +35,10 @@ std::list<Piece> fenToPieces(const std::string& fen, std::unordered_map<PieceTyp
             x += c - '0';
         } else { // piece
             Piece piece;
-            piece.isWhite = isupper(c);
             piece.type = fenPieceMap[c];
             piece.position = {x, y};
             piece.sprite = sf::Sprite(textures[piece.type]);
             piece.sprite.setPosition(x * 64, y * 64);
-            piece.isAlive = true;
             pieces.push_back(piece);
             x++;
         }
@@ -90,7 +88,7 @@ int main() {
     bool isDragging = false;
     
     // used by backend to analyze the game state
-    GameState state(fenToBitBoard(startingFen), 0ull, 0ull, true, false, false, false, false, false, false);
+    GameState state(fenToBitBoard(startingFen), true, false, false, false, false, false, false);
 
     // main render loop typeshit
     while (window.isOpen()) {
@@ -138,7 +136,7 @@ int main() {
                         if (candidate.equals(m)) {
                             candidate = m;
                             validMove = true;
-                            // break; // uncomment this when not testing
+                            // break; // TODO: uncomment this when not testing
                         }
                     }
 
@@ -153,27 +151,54 @@ int main() {
                             });
                             
                             pieces.erase(it);
-                            std::cout << pieceNames[it->type] << "(" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
-                            
+                            std::cout << pieceNames[it->type] << "on (" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
                         }
-
                         
-                        // update game state
-                        state.whiteToMove = !state.whiteToMove;
+                        // apply move to internal game state
                         state.ApplyMove(candidate);
-                        
                     } else {
                         // reset piece position if move is invalid
                         newX = oldX;
                         newY = oldY;
                     }
                     
+                    // update this piece's position
                     selectedPiece->position = {newX, newY};
-                    // selectedPiece->type = candidate.pieceMoved;
-                    
-                    // update sprite position, remembering to snap to a tile
                     selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
                     selectedPiece = nullptr;
+
+                    // update the rook's position if castling
+                    if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
+                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                            return p.type == WR && p.position.x == 7 && p.position.y == 7;
+                        });
+                        it->position = {5, 7};
+                        it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
+                    }
+
+                    if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 2 && candidate.to.y == 7) {
+                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                            return p.type == WR && p.position.x == 0 && p.position.y == 7;
+                        });
+                        it->position = {3, 7};
+                        it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
+                    }
+
+                    if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 6 && candidate.to.y == 0) {
+                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                            return p.type == BR && p.position.x == 7 && p.position.y == 0;
+                        });
+                        it->position = {5, 0};
+                        it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 0);
+                    }
+
+                    if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 2 && candidate.to.y == 0) {
+                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                            return p.type == BR && p.position.x == 0 && p.position.y == 0;
+                        });
+                        it->position = {3, 0};
+                        it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 0);
+                    }
                     
                     std::cout << "Remaining pieces:" << std::endl;
                     for (Piece p : pieces) {
@@ -215,8 +240,7 @@ int main() {
         window.clear(sf::Color(50, 50, 50));
         window.draw(boardSprite);
         for (const auto& p : pieces) {
-            if (p.isAlive)
-                window.draw(p.sprite);
+            window.draw(p.sprite);
         }
         window.display();
     }

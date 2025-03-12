@@ -51,10 +51,6 @@ struct GameState {
     // board representation
     BitBoard board;
 
-    // bit vectors to keep track of which pawns have moved
-    uint64_t whitePawnsMoved;
-    uint64_t blackPawnsMoved;
-
     // other game state variables
     bool whiteToMove;
     bool whiteKingMoved;
@@ -65,11 +61,11 @@ struct GameState {
     bool blackRookHMoved;
 
     // Constructors
-    GameState() : board(), whitePawnsMoved(0), blackPawnsMoved(0), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
+    GameState() : board(), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
                   whiteRookAMoved(false), whiteRookHMoved(false), blackRookAMoved(false), blackRookHMoved(false) {}
-    GameState(BitBoard board, uint64_t whitePawnsMoved, uint64_t blackPawnsMoved, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
+    GameState(BitBoard board, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
               bool whiteRookAMoved, bool whiteRookHMoved, bool blackRookAMoved, bool blackRookHMoved)
-        : board(board), whitePawnsMoved(whitePawnsMoved), blackPawnsMoved(blackPawnsMoved), whiteToMove(whiteToMove), whiteKingMoved(whiteKingMoved), blackKingMoved(blackKingMoved),
+        : board(board), whiteToMove(whiteToMove), whiteKingMoved(whiteKingMoved), blackKingMoved(blackKingMoved),
           whiteRookAMoved(whiteRookAMoved), whiteRookHMoved(whiteRookHMoved), blackRookAMoved(blackRookAMoved), blackRookHMoved(blackRookHMoved) {}
     
     // Methods

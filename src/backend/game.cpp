@@ -25,7 +25,7 @@ void print(const BitBoard &board) {
 std::string to_string(const Move &move) {
     std::ostringstream ss;
     
-    ss << pieceNames[move.pieceMoved] << ":(" 
+    ss << pieceNames[move.pieceMoved] << ": (" 
     << move.from.x << ", " << move.from.y << ") -> ("
     << move.to.x << ", " << move.to.y << ")";
 
@@ -94,27 +94,73 @@ std::string bitBoardToFen(const BitBoard& board) {
 }
 
 void GameState::ApplyMove(const Move &move) {
+    whiteToMove = !whiteToMove;
+    BitBoard *bitBoard = &this->board;
+    
+    // useful 64-bit words
     uint64_t from = 1ull << (move.from.y * 8 + move.from.x);
     uint64_t to = 1ull << (move.to.y * 8 + move.to.x);
     uint64_t fromTo = from | to;
+
+    /* CASTLING */
+    
+    // white king side castle
+    if (move.pieceMoved == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
+        board.pieceBits[WK] ^= fromTo;
+        board.pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
+        whiteKingMoved = true;
+        return;
+    }
+    
+    // white queen side castle
+    if (move.pieceMoved == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
+        board.pieceBits[WK] ^= fromTo;
+        board.pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
+        whiteKingMoved = true;
+        return;
+    }
+
+    // black king side castle
+    if (move.pieceMoved == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
+        board.pieceBits[BK] ^= fromTo;
+        board.pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
+        blackKingMoved = true;
+        return;
+    }
+
+    // black queen side castle
+    if (move.pieceMoved == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
+        board.pieceBits[BK] ^= fromTo;
+        board.pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
+        blackKingMoved = true;
+        return;
+    }
     
     /* BASIC MOVES AND CAPTURES */
-    BitBoard *bitBoard = &this->board;
-
+    
     // simultaneously zero out the bit of the piece's old position
     // AND mark the bit of the piece's new position using xor
-    bitBoard->pieceBits[move.pieceMoved] ^= fromTo;
+    board.pieceBits[move.pieceMoved] ^= fromTo;
     
     // determine what piece to remove if there is a capture
     if (move.isCapture) {
         for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-            if (p != move.pieceMoved && bitBoard->pieceBits[p] & to) {
+            if (p != move.pieceMoved && board.pieceBits[p] & to) {
                 // zero out the captured piece's bit
-                bitBoard->pieceBits[p] &= ~to;
+                board.pieceBits[p] &= ~to;
                 break;
             }
         }
     }
+    
+    // handle moves that revoke castling rights
+    if (move.pieceMoved == WK) whiteKingMoved = true;
+    if (move.pieceMoved == BK) blackKingMoved = true;
+    if (move.pieceMoved == WR && move.from.x == 0) whiteRookAMoved = true;
+    if (move.pieceMoved == WR && move.from.x == 7) whiteRookHMoved = true;
+    if (move.pieceMoved == BR && move.from.x == 0) blackRookAMoved = true;
+    if (move.pieceMoved == BR && move.from.x == 7) blackRookHMoved = true;
+
 }
 
 bool GameState::IsCheck() {
@@ -145,6 +191,8 @@ std::vector<Move> generateMoves(const GameState& state) {
     uint64_t oppPieces = oppPawns | oppKnights | oppBishops | oppRooks | oppQueens | oppKing;
     uint64_t allPieces = myPieces | oppPieces;
     uint64_t emptySquares = ~allPieces;
+
+    printU64(emptySquares);
 
     // initial and final positions of each piece
     int xi, yi, xf, yf;
@@ -354,8 +402,38 @@ std::vector<Move> generateMoves(const GameState& state) {
                 }
             }
         }
-        
-        // TODO: Handle castling here
+
+        // see if king can castle
+        // TODO: test for check violations
+        if (white) {
+            // kingside castle
+            if (!state.whiteKingMoved && !state.whiteRookAMoved) {
+                if ((emptySquares & (1ull << 61)) && (emptySquares & (1ull << 62))) {
+                    moves.push_back({{4, 7}, {6, 7}, WK, false});
+                }
+            }
+
+            // queenside castle
+            if (!state.whiteKingMoved && !state.whiteRookHMoved) {
+                if ((emptySquares & (1ull << 57)) && (emptySquares & (1ull << 58)) && (emptySquares & (1ull << 59))) {
+                    moves.push_back({{4, 7}, {2, 7}, WK, false});
+                }
+            }
+        } else {
+            // kingside castle
+            if (!state.blackKingMoved && !state.blackRookHMoved) {
+                if ((emptySquares& (1ull << 5)) && (emptySquares& (1ull << 6))) {
+                    moves.push_back({{4, 0}, {6, 0}, BK, false});
+                }
+            }
+            
+            // queenside castle
+            if (!state.blackKingMoved && !state.blackRookAMoved) {
+                if ((emptySquares& (1ull << 1)) && (emptySquares& (1ull << 2)) && (emptySquares& (1ull << 3))) {
+                    moves.push_back({{4, 0}, {2, 0}, BK, false});
+                }
+            }
+        }
 
         // clear this king from the bitboard
         king &= king - 1;

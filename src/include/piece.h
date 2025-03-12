@@ -8,6 +8,4 @@ struct Piece {
     PieceType type;
     sf::Vector2<int> position; // {x, y} where 0 <= x, y < 8
     sf::Sprite sprite;
-    bool isWhite;
-    bool isAlive;
 };
