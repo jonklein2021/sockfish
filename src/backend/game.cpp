@@ -93,7 +93,7 @@ BitBoard fenToBitBoard(const std::string& fen) {
 }
 
 bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
-    std::cout << "Checking if square (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
+    std::cout << "Checking if (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
     uint64_t targetBit = 1ull << (square.y * 8 + square.x);
 
     // get all pieces
@@ -117,11 +117,6 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     uint64_t allPieces = myPieces | oppPieces;
     uint64_t emptySquares = ~allPieces;
 
-    // printU64(myPieces);
-    // printU64(oppPieces);
-    // printU64(allPieces);
-    // printU64(emptySquares);
-
     int xi, yi, xf, yf;
     
     // pawn test
@@ -133,7 +128,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
 
         for (auto &[dx, dy] : pawnCaptures) {
             xf = xi + dx;
-            yf = (yi + dy) * direction;
+            yf = yi + dy * direction;
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
@@ -155,8 +150,8 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
         yi = trailingZeros / 8;
 
         for (auto &[dx, dy] : knightMoves) {
-            int xf = xi + dx;
-            int yf = yi + dy;
+            xf = xi + dx;
+            yf = yi + dy;
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
@@ -201,8 +196,8 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
         xi = trailingZeros % 8;
         yi = trailingZeros / 8;
         for (auto &[dx, dy] : rookMoves) {
-            int xf = xi + dx;
-            int yf = yi + dy;
+            xf = xi + dx;
+            yf = yi + dy;
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
@@ -224,14 +219,14 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
         xi = trailingZeros % 8;
         yi = trailingZeros / 8;
         for (auto &[dx, dy] : queenMoves) {
-            int xf = xi + dx;
-            int yf = yi + dy;
+            xf = xi + dx;
+            yf = yi + dy;
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & oppQueens) {
+                if (to & targetBit) {
                     std::cout << "Queen capture" << std::endl;
                     return true;
-                } else if (to & emptySquares) {
+                } else if (to & oppQueens) {
                     break;
                 }
                 xf += dx;
@@ -401,9 +396,6 @@ std::vector<Move> GameState::generateMoves() const {
                 BitBoard tempBoard(board);
                 tempBoard.applyMove(pseudolegal);
 
-                std::cout << "Temp board after pawn move:" << std::endl;
-                prettyPrint(tempBoard);
-
                 // add move if king is not under attack by opponent in resulting position
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
@@ -415,21 +407,34 @@ std::vector<Move> GameState::generateMoves() const {
         if ((white && yi == 6) || (!white && yi == 1)) {
             uint64_t over = 1ull << ((yi + direction) * 8 + xf); // square pawn jumps over
             uint64_t to = 1ull << (yf * 8 + xf); // destination square
+            yf += direction;
             
             // both `over` and `to` must be empty for a pawn to move 2 squares
             if ((emptySquares & (over | to)) == (over | to)) {
-                moves.push_back({{xi, yi}, {xf, yf + direction}, (white ? WP : BP), false});
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
             }
         }
 
-        // capture moves
+        // pawn capture moves
         for (auto &[dx, dy] : pawnCaptures) {
             xf = xi + dx;
-            yf = (yi + dy) * direction;
+            yf = yi + dy * direction;
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 to = 1ull << (yf * 8 + xf);
                 if (to & oppPieces) {
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WP : BP), true});
+                    Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), true};
+                    BitBoard tempBoard(board);
+                    tempBoard.applyMove(pseudolegal);
+                    
+                    if (!tempBoard.attacked(kingPos, !white)) {
+                        moves.push_back(pseudolegal);
+                    }
                 }
             }
         }
@@ -455,12 +460,19 @@ std::vector<Move> GameState::generateMoves() const {
                 // bit of the destination square
                 uint64_t to = 1ull << (yf * 8 + xf);
 
-                if (to & oppPieces) {
-                    // move is a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WN : BN), true});
-                } else if (to & emptySquares) { // necessary so we don't move to our own piece
-                    // move is not a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WN : BN), false});
+                // can't self-capture
+                if (to & myPieces) {
+                    continue;
+                }
+
+                bool capture = (to & oppPieces);
+                
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WN : BN), capture};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+                
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
                 }
             }
         }
@@ -483,16 +495,21 @@ std::vector<Move> GameState::generateMoves() const {
             // while move is in bounds, move in that direction
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & oppPieces) {
-                    // move is a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WB : BB), true});
-                    break;
-                } else if (to & emptySquares) {
-                    // move is not a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WB : BB), false});
-                } else {
+
+                // prevent self captures
+                if (to & myPieces) {
                     break;
                 }
+
+                bool capture = (to & oppPieces);
+
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WB : BB), capture};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
+
                 xf += dx;
                 yf += dy;
             }
@@ -515,16 +532,21 @@ std::vector<Move> GameState::generateMoves() const {
             // while move is in bounds, move in that direction
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & oppPieces) {
-                    // move is a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WR : BR), true});
-                    break;
-                } else if (to & emptySquares) {
-                    // move is not a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WR : BR), false});
-                } else {
+                
+                // prevent self captures
+                if (to & myPieces) {
                     break;
                 }
+
+                bool capture = (to & oppPieces);
+
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WR : BR), capture};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
+                
                 xf += dx;
                 yf += dy;
             }
@@ -548,16 +570,21 @@ std::vector<Move> GameState::generateMoves() const {
             // while move is in bounds, move in that direction
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & oppPieces) {
-                    // move is a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WQ : BQ), true});
-                    break;
-                } else if (to & emptySquares) {
-                    // move is not a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WQ : BQ), false});
-                } else {
+
+                // prevent self captures
+                if (to & myPieces) {
                     break;
                 }
+
+                bool capture = (to & oppPieces);
+
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WQ : BQ), capture};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
+
                 xf += dx;
                 yf += dy;
             }
@@ -581,12 +608,19 @@ std::vector<Move> GameState::generateMoves() const {
             // ensure this move is within bounds
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & oppPieces) {
-                    // move is a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WK : BK), true});
-                } else if (to & emptySquares) {
-                    // move is not a capture
-                    moves.push_back({{xi, yi}, {xf, yf}, (white ? WK : BK), false});
+                
+                // can't self-capture
+                if (to & myPieces) {
+                    continue;
+                }
+
+                bool capture = (to & oppPieces);
+
+                Move pseudomove{{xi, yi}, {xf, yf}, (white ? WK : BK), capture};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudomove);
+                if (!tempBoard.attacked({xf, yf}, !white)) {
+                    moves.push_back(pseudomove);
                 }
             }
         }
