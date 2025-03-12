@@ -6,9 +6,9 @@
 #include "game.h"
 
 int main() {
-    std::string initFen = "4k3/5p2/4P3/7Q/8/8/8/4K3";
+    std::string initFen = "5k2/8/8/8/7b/6P1/5P2/4K3";
     BitBoard board = fenToBitBoard(initFen);
-    GameState state(board, false, false, false, false, false, false, false);
+    GameState state(board, true, false, false, false, false, false, false);
 
     std::cout << "BOARD:" << std::endl;
     prettyPrint(board);

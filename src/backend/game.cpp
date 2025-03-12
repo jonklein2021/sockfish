@@ -33,11 +33,10 @@ std::string to_string(const Move &move) {
 }
 
 void prettyPrint(const BitBoard &board) {
-    std::string out = "      0  1  2  3  4  5  6  7\n";
-    out += "    ------------------------\n";
+    std::string out = "    0  1  2  3  4  5  6  7\n";
 
     for (int i = 0; i < 8; i++) {
-        out += " " + std::to_string(i) + " | ";
+        out += " " + std::to_string(i) + " ";
         for (int j = 0; j < 8; j++) {
             bool found = false;
             for (int p = 0; p < 12; p++) {
@@ -115,7 +114,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     uint64_t myPieces = pawns | knights | bishops | rooks | queens | king;
     uint64_t oppPieces = oppPawns | oppKnights | oppBishops | oppRooks | oppQueens | oppKing;
     uint64_t allPieces = myPieces | oppPieces;
-    uint64_t emptySquares = ~allPieces;
+    // uint64_t emptySquares = ~allPieces;
 
     int xi, yi, xf, yf;
     
@@ -132,7 +131,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
-                    std::cout << "Pawn capture" << std::endl;
+                    std::cout << "Pawn capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
             }
@@ -155,7 +154,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
-                    std::cout << "Knight capture" << std::endl;
+                    std::cout << "Knight capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
             }
@@ -175,13 +174,17 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             yf = yi + dy;
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
+
                 if (to & targetBit) {
-                    std::cout << "Bishop capture" << std::endl;
+                    std::cout << "Bishop capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
-                } else if (to & oppPieces) {
-                    // can't capture through pieces
+                }
+
+                // stop if there’s a blocking piece
+                if ((to & oppPieces) || (to & myPieces)) {
                     break;
                 }
+
                 xf += dx;
                 yf += dy;
             }
@@ -200,12 +203,18 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             yf = yi + dy;
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
+
+                
                 if (to & targetBit) {
-                    std::cout << "Rook capture" << std::endl;
+                    std::cout << "Rook capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
-                } else if (to & oppPieces) {
+                }
+                
+                // stop if there’s a blocking piece
+                if ((to & oppPieces) || (to & myPieces)) {
                     break;
                 }
+
                 xf += dx;
                 yf += dy;
             }
@@ -223,12 +232,17 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             yf = yi + dy;
             while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
+                
                 if (to & targetBit) {
-                    std::cout << "Queen capture" << std::endl;
+                    std::cout << "Queen capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
-                } else if (to & oppQueens) {
+                }
+
+                // stop if there’s a blocking piece
+                if (to & oppPieces || to & myPieces) {
                     break;
                 }
+
                 xf += dx;
                 yf += dy;
             }
@@ -245,8 +259,8 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
         yf = yi + dy;
         if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
             uint64_t to = 1ull << (yf * 8 + xf);
-            if (to & oppKing) {
-                std::cout << "King capture" << std::endl;
+            if (to & targetBit) {
+                std::cout << "King capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                 return true;
             }
         }
@@ -600,7 +614,7 @@ std::vector<Move> GameState::generateMoves() const {
         xi = trailingZeros % 8;
         yi = trailingZeros / 8;
 
-        // generate all possible king moves
+        // generate all normal king moves
         for (auto &[dx, dy] : kingMoves) {
             xf = xi + dx;
             yf = yi + dy;
@@ -626,31 +640,52 @@ std::vector<Move> GameState::generateMoves() const {
         }
 
         // white kingside castle
-        // TODO: test for check violations
         if (white && !whiteKingMoved && !whiteRookAMoved) {
             if ((emptySquares & (1ull << 61)) && (emptySquares & (1ull << 62))) {
-                moves.push_back({{4, 7}, {6, 7}, WK, false});
+                Move pseudomove{{4, 7}, {6, 7}, WK, false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudomove);
+                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 7}, !white) && !tempBoard.attacked({6, 7}, !white)) {
+                    moves.push_back(pseudomove);
+                }
             }
         }
 
         // white queenside castle
         if (white && !whiteKingMoved && !whiteRookHMoved) {
             if ((emptySquares & (1ull << 57)) && (emptySquares & (1ull << 58)) && (emptySquares & (1ull << 59))) {
-                moves.push_back({{4, 7}, {2, 7}, WK, false});
+                Move pseudomove{{4, 7}, {2, 7}, WK, false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudomove);
+                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({3, 7}, !white) && !tempBoard.attacked({2, 7}, !white)) {
+                    moves.push_back(pseudomove);
+                }
             }
+
+            
         }
         
         // black kingside castle
         if (!white && !blackKingMoved && !blackRookHMoved) {
             if ((emptySquares& (1ull << 5)) && (emptySquares& (1ull << 6))) {
-                moves.push_back({{4, 0}, {6, 0}, BK, false});
+                Move pseudomove{{4, 0}, {6, 0}, BK, false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudomove);
+                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {
+                    moves.push_back(pseudomove);
+                }
             }
         }
         
         // black queenside castle
         if (!white && !blackKingMoved && !blackRookAMoved) {
             if ((emptySquares& (1ull << 1)) && (emptySquares& (1ull << 2)) && (emptySquares& (1ull << 3))) {
-                moves.push_back({{4, 0}, {2, 0}, BK, false});
+                Move pseudomove{{4, 0}, {2, 0}, BK, false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudomove);
+                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {
+                    moves.push_back(pseudomove);
+                }
             }
         }
 

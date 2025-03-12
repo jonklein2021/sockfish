@@ -145,7 +145,7 @@ int main() {
                     std::cout << "[" << (validMove ? "V" : "Inv") << "alid Move] " << to_string(candidate) << std::endl;
                     
                     if (validMove) {
-                        // update frontend properties
+                        // remove captured piece from display list
                         if (candidate.isCapture) {
                             auto it = std::find_if(pieces.begin(), pieces.end(), [candidate](const Piece& p){
                                 return p.type != candidate.pieceMoved && p.position.x == candidate.to.x && p.position.y == candidate.to.y;
@@ -153,6 +153,39 @@ int main() {
                             
                             pieces.erase(it);
                             std::cout << pieceNames[it->type] << "on (" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
+                        }
+
+                        // update the rook's position if castling
+                        if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
+                            auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                                return p.type == WR && p.position.x == 7 && p.position.y == 7;
+                            });
+                            it->position = {5, 7};
+                            it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
+                        }
+
+                        if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 2 && candidate.to.y == 7) {
+                            auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                                return p.type == WR && p.position.x == 0 && p.position.y == 7;
+                            });
+                            it->position = {3, 7};
+                            it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
+                        }
+
+                        if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 6 && candidate.to.y == 0) {
+                            auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                                return p.type == BR && p.position.x == 7 && p.position.y == 0;
+                            });
+                            it->position = {5, 0};
+                            it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 0);
+                        }
+
+                        if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 2 && candidate.to.y == 0) {
+                            auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
+                                return p.type == BR && p.position.x == 0 && p.position.y == 0;
+                            });
+                            it->position = {3, 0};
+                            it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 0);
                         }
                         
                         // apply move to internal game state
@@ -167,39 +200,6 @@ int main() {
                     selectedPiece->position = {newX, newY};
                     selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
                     selectedPiece = nullptr;
-
-                    // update the rook's position if castling
-                    if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
-                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
-                            return p.type == WR && p.position.x == 7 && p.position.y == 7;
-                        });
-                        it->position = {5, 7};
-                        it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
-                    }
-
-                    if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 2 && candidate.to.y == 7) {
-                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
-                            return p.type == WR && p.position.x == 0 && p.position.y == 7;
-                        });
-                        it->position = {3, 7};
-                        it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
-                    }
-
-                    if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 6 && candidate.to.y == 0) {
-                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
-                            return p.type == BR && p.position.x == 7 && p.position.y == 0;
-                        });
-                        it->position = {5, 0};
-                        it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 0);
-                    }
-
-                    if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 2 && candidate.to.y == 0) {
-                        auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
-                            return p.type == BR && p.position.x == 0 && p.position.y == 0;
-                        });
-                        it->position = {3, 0};
-                        it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 0);
-                    }
                     
                     // std::cout << "Remaining pieces:" << std::endl;
                     // for (Piece p : pieces) {
