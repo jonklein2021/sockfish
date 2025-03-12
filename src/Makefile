@@ -10,7 +10,7 @@ $(shell mkdir -p $(ODIR))
 
 # Input files
 CXXFILES        = game
-TARGETS         = main
+TARGETS         = main test
 
 # Generate names of obj, exe, and d files
 COMMONOFILES    = $(patsubst %, $(ODIR)/%.o, $(CXXFILES))

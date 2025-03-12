@@ -129,7 +129,7 @@ int main() {
                     Move candidate({oldX, oldY}, {newX, newY}, selectedPiece->type, false);
 
                     // check this move against set of legal moves
-                    std::vector<Move> legalMoves = generateMoves(state);
+                    std::vector<Move> legalMoves = state.generateMoves();
                     bool validMove = false;
                     std::cout << "LEGAL MOVES:" << std::endl;
                     for (const Move &m : legalMoves) {

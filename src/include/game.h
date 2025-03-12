@@ -107,6 +107,15 @@ struct GameState {
      * Returns true iff the current player is in check
      */
     bool isCheck() const;
+
+    /**
+     * Return a list of all legal moves in some
+     * game state
+     * 
+     * @param state the current game state
+     * @return a vector of all possible moves
+     */
+    std::vector<Move> generateMoves() const;
 };
 
 /**
@@ -128,15 +137,6 @@ BitBoard fenToBitBoard(const std::string& fen);
  * @return the FEN string representation of the BitBoard
  */
 // std::string bitBoardToFen(const BitBoard& board);
-
-/**
- * Return a list of all legal moves in some
- * game state
- * 
- * @param state the current game state
- * @return a vector of all possible moves
- */
-std::vector<Move> generateMoves(const GameState& state);
 
 // Debugging methods
 void printU64(uint64_t n);
