@@ -89,6 +89,10 @@ int main() {
     
     // used by backend to analyze the game state
     GameState state(fenToBitBoard(startingFen), true, false, false, false, false, false, false);
+    prettyPrint(state.board);
+
+    // get legal moves
+    std::vector<Move> legalMoves = state.generateMoves();
 
     // main render loop typeshit
     while (window.isOpen()) {
@@ -129,11 +133,10 @@ int main() {
                     Move candidate({oldX, oldY}, {newX, newY}, selectedPiece->type, false);
 
                     // check this move against set of legal moves
-                    std::vector<Move> legalMoves = state.generateMoves();
                     bool validMove = false;
-                    std::cout << "LEGAL MOVES:" << std::endl;
+                    // std::cout << "LEGAL MOVES:" << std::endl;
                     for (const Move &m : legalMoves) {
-                        std::cout << to_string(m) << std::endl;
+                        // std::cout << to_string(m) << std::endl;
                         if (candidate.equals(m)) {
                             candidate = m;
                             validMove = true;
@@ -190,6 +193,24 @@ int main() {
                         
                         // apply move to internal game state
                         state.applyMove(candidate);
+                        
+                        prettyPrint(state.board);
+    
+                        // get new legal moves for the next turn
+                        legalMoves = state.generateMoves();
+                        
+                        if (legalMoves.empty()) {
+                            if (state.isCheck()) {
+                                std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+                            } else {
+                                std::cout << "Stalemate!" << std::endl;
+                            }
+                            window.close();
+                            return 0;
+                        }
+
+                        // cursed
+                        state.whiteToMove ? std::cout << "White to move" << std::endl : std::cout << "Black to move" << std::endl;
                     } else {
                         // reset piece position if move is invalid
                         newX = oldX;
@@ -206,7 +227,6 @@ int main() {
                     //     std::cout << pieceNames[p.type] << "(" << p.position.x << ", " << p.position.y << ")" << std::endl;
                     // }
                     
-                    prettyPrint(state.board);
                 }
             }
 

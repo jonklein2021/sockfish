@@ -92,7 +92,7 @@ BitBoard fenToBitBoard(const std::string& fen) {
 }
 
 bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
-    std::cout << "Checking if (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
+    // std::cout << "Checking if (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
     uint64_t targetBit = 1ull << (square.y * 8 + square.x);
 
     // get all pieces
@@ -131,7 +131,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
-                    std::cout << "Pawn capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
+                    // std::cout << "Pawn capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
             }
@@ -154,7 +154,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 if (to & targetBit) {
-                    std::cout << "Knight capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
+                    // std::cout << "Knight capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
             }
@@ -176,7 +176,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
                 uint64_t to = 1ull << (yf * 8 + xf);
 
                 if (to & targetBit) {
-                    std::cout << "Bishop capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
+                    // std::cout << "Bishop capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
 
@@ -206,7 +206,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
 
                 
                 if (to & targetBit) {
-                    std::cout << "Rook capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
+                    // std::cout << "Rook capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
                 
@@ -234,7 +234,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
                 uint64_t to = 1ull << (yf * 8 + xf);
                 
                 if (to & targetBit) {
-                    std::cout << "Queen capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
+                    // std::cout << "Queen capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                     return true;
                 }
 
@@ -260,7 +260,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
         if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
             uint64_t to = 1ull << (yf * 8 + xf);
             if (to & targetBit) {
-                std::cout << "King capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
+                // std::cout << "King capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
                 return true;
             }
         }
