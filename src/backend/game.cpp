@@ -33,8 +33,11 @@ std::string to_string(const Move &move) {
 }
 
 void prettyPrint(const BitBoard &board) {
-    std::string out;
+    std::string out = "      0  1  2  3  4  5  6  7\n";
+    out += "    ------------------------\n";
+
     for (int i = 0; i < 8; i++) {
+        out += " " + std::to_string(i) + " | ";
         for (int j = 0; j < 8; j++) {
             bool found = false;
             for (int p = 0; p < 12; p++) {
@@ -66,7 +69,7 @@ BitBoard fenToBitBoard(const std::string& fen) {
             x += c - '0';
         } else { // piece
             uint64_t* piece = nullptr;
-            switch (c) {
+            switch (c) { // TODO: use fenToPiece map instead of this
                 case 'P': piece = &board.pieceBits[WP]; break;
                 case 'N': piece = &board.pieceBits[WN]; break;
                 case 'B': piece = &board.pieceBits[WB]; break;
@@ -89,14 +92,117 @@ BitBoard fenToBitBoard(const std::string& fen) {
     return board;
 }
 
-std::string bitBoardToFen(const BitBoard& board) {
-    return "";
+bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
+    // get all pieces
+    uint64_t pawns = pieceBits[white ? WP : BP];
+    uint64_t knights = pieceBits[white ? WN : BN];
+    uint64_t bishops = pieceBits[white ? WB : BB];
+    uint64_t rooks = pieceBits[white ? WR : BR];
+    uint64_t queens = pieceBits[white ? WQ : BQ];
+    uint64_t king = pieceBits[white ? WK : BK];
+    
+    uint64_t oppPawns = pieceBits[white ? BP : WP];
+    uint64_t oppKnights = pieceBits[white ? BN : WN];
+    uint64_t oppBishops = pieceBits[white ? BB : WB];
+    uint64_t oppRooks = pieceBits[white ? BR : WR];
+    uint64_t oppQueens = pieceBits[white ? BQ : WQ];
+    uint64_t oppKing = pieceBits[white ? BK : WK];
+    
+    // useful for determining captures
+    uint64_t myPieces = pawns | knights | bishops | rooks | queens | king;
+    uint64_t oppPieces = oppPawns | oppKnights | oppBishops | oppRooks | oppQueens | oppKing;
+    uint64_t allPieces = myPieces | oppPieces;
+    uint64_t emptySquares = ~allPieces;
+    
+    // pawn test
+    int direction = white ? -1 : 1;
+    for (auto &[dx, dy] : pawnCaptures) {
+        int xf = square.x + dx;
+        int yf = (square.y + dy) * direction;
+        if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+            uint64_t to = 1ull << (yf * 8 + xf);
+            if (to & oppPawns) {
+                return true;
+            }
+        }
+    }
+
+    // knight test
+    for (auto &[dx, dy] : knightMoves) {
+        int xf = square.x + dx;
+        int yf = square.y + dy;
+        if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+            uint64_t to = 1ull << (yf * 8 + xf);
+            if (to & oppKnights) {
+                return true;
+            }
+        }
+    }
+
+    // bishop test
+    for (auto &[dx, dy] : bishopMoves) {
+        int xf = square.x + dx;
+        int yf = square.y + dy;
+        while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+            uint64_t to = 1ull << (yf * 8 + xf);
+            if (to & oppBishops) {
+                return true;
+            } else if (to & emptySquares) {
+                break;
+            }
+            xf += dx;
+            yf += dy;
+        }
+    }
+
+    // rook test
+    for (auto &[dx, dy] : rookMoves) {
+        int xf = square.x + dx;
+        int yf = square.y + dy;
+        while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+            uint64_t to = 1ull << (yf * 8 + xf);
+            if (to & oppRooks) {
+                return true;
+            } else if (to & emptySquares) {
+                break;
+            }
+            xf += dx;
+            yf += dy;
+        }
+    }
+
+    // queen test
+    for (auto &[dx, dy] : queenMoves) {
+        int xf = square.x + dx;
+        int yf = square.y + dy;
+        while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+            uint64_t to = 1ull << (yf * 8 + xf);
+            if (to & oppQueens) {
+                return true;
+            } else if (to & emptySquares) {
+                break;
+            }
+            xf += dx;
+            yf += dy;
+        }
+    }
+
+    // king test
+    for (auto &[dx, dy] : kingMoves) {
+        int xf = square.x + dx;
+        int yf = square.y + dy;
+        if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+            uint64_t to = 1ull << (yf * 8 + xf);
+            if (to & oppKing) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
-void GameState::ApplyMove(const Move &move) {
-    whiteToMove = !whiteToMove;
-    BitBoard *bitBoard = &this->board;
-    
+void BitBoard::applyMove(const Move& move) {    
     // useful 64-bit words
     uint64_t from = 1ull << (move.from.y * 8 + move.from.x);
     uint64_t to = 1ull << (move.to.y * 8 + move.to.x);
@@ -106,85 +212,104 @@ void GameState::ApplyMove(const Move &move) {
     
     // white king side castle
     if (move.pieceMoved == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
-        board.pieceBits[WK] ^= fromTo;
-        board.pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
-        whiteKingMoved = true;
+        pieceBits[WK] ^= fromTo;
+        pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
         return;
     }
     
     // white queen side castle
     if (move.pieceMoved == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
-        board.pieceBits[WK] ^= fromTo;
-        board.pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
-        whiteKingMoved = true;
+        pieceBits[WK] ^= fromTo;
+        pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
         return;
     }
 
     // black king side castle
     if (move.pieceMoved == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
-        board.pieceBits[BK] ^= fromTo;
-        board.pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
-        blackKingMoved = true;
+        pieceBits[BK] ^= fromTo;
+        pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
         return;
     }
 
     // black queen side castle
     if (move.pieceMoved == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
-        board.pieceBits[BK] ^= fromTo;
-        board.pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
-        blackKingMoved = true;
+        pieceBits[BK] ^= fromTo;
+        pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
         return;
     }
     
     /* BASIC MOVES AND CAPTURES */
     
-    // simultaneously zero out the bit of the piece's old position
-    // AND mark the bit of the piece's new position using xor
-    board.pieceBits[move.pieceMoved] ^= fromTo;
+    // "moves" the bit of the piece's old location to its new location
+    pieceBits[move.pieceMoved] ^= fromTo;
     
     // determine what piece to remove if there is a capture
     if (move.isCapture) {
         for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-            if (p != move.pieceMoved && board.pieceBits[p] & to) {
+            if (p != move.pieceMoved && pieceBits[p] & to) {
                 // zero out the captured piece's bit
-                board.pieceBits[p] &= ~to;
+                pieceBits[p] &= ~to;
                 break;
             }
         }
     }
-    
-    // handle moves that revoke castling rights
-    if (move.pieceMoved == WK) whiteKingMoved = true;
-    if (move.pieceMoved == BK) blackKingMoved = true;
-    if (move.pieceMoved == WR && move.from.x == 0) whiteRookAMoved = true;
-    if (move.pieceMoved == WR && move.from.x == 7) whiteRookHMoved = true;
-    if (move.pieceMoved == BR && move.from.x == 0) blackRookAMoved = true;
-    if (move.pieceMoved == BR && move.from.x == 7) blackRookHMoved = true;
-
 }
 
-bool GameState::IsCheck() {
-    return false;
+void GameState::applyMove(const Move &move) {
+    // make changes to board representation
+    board.applyMove(move);
+
+    // make state changes
+    whiteToMove = !whiteToMove;
+    
+    // rook moved or captured
+    if (move.to.x == 0 && move.to.y == 0) blackRookAMoved = true;
+    if (move.to.x == 7 && move.to.y == 0) blackRookHMoved = true;
+    if (move.to.x == 0 && move.to.y == 7) whiteRookAMoved = true;
+    if (move.to.x == 7 && move.to.y == 7) whiteRookHMoved = true;
+    if (move.pieceMoved == BR && move.from.x == 0) blackRookAMoved = true;
+    if (move.pieceMoved == BR && move.from.x == 7) blackRookHMoved = true;
+    if (move.pieceMoved == WR && move.from.x == 0) whiteRookAMoved = true;
+    if (move.pieceMoved == WR && move.from.x == 7) whiteRookHMoved = true;
+
+    // king moved
+    if (move.pieceMoved == WK) whiteKingMoved = true;
+    if (move.pieceMoved == BK) blackKingMoved = true;
+}
+
+bool GameState::underAttack(sf::Vector2<int> square) const {
+    return board.attacked(square, !whiteToMove);
+}
+
+bool GameState::isCheck() const {
+    // get position of king
+    uint64_t king = board.pieceBits[whiteToMove ? WK : BK];
+    int trailingZeros = __builtin_ctzll(king);
+    int x = trailingZeros % 8, y = trailingZeros / 8;
+
+    // check if king is under attack
+    return underAttack({x, y});
 }
 
 std::vector<Move> generateMoves(const GameState& state) {
     std::vector<Move> moves; // TODO: Check if a set would be a better choice
-    bool white = state.whiteToMove;
+    const bool white = state.whiteToMove;
+    const uint64_t *pieceBits = state.board.pieceBits;
 
     // get all pieces
-    uint64_t pawns = white ? state.board.pieceBits[WP] : state.board.pieceBits[BP];
-    uint64_t knights = white ? state.board.pieceBits[WN] : state.board.pieceBits[BN];
-    uint64_t bishops = white ? state.board.pieceBits[WB] : state.board.pieceBits[BB];
-    uint64_t rooks = white ? state.board.pieceBits[WR] : state.board.pieceBits[BR];
-    uint64_t queens = white ? state.board.pieceBits[WQ] : state.board.pieceBits[BQ];
-    uint64_t king = white ? state.board.pieceBits[WK] : state.board.pieceBits[BK];
+    uint64_t pawns = pieceBits[white ? WP : BP];
+    uint64_t knights = pieceBits[white ? WN : BN];
+    uint64_t bishops = pieceBits[white ? WB : BB];
+    uint64_t rooks = pieceBits[white ? WR : BR];
+    uint64_t queens = pieceBits[white ? WQ : BQ];
+    uint64_t king = pieceBits[white ? WK : BK];
     
-    uint64_t oppPawns = white ? state.board.pieceBits[BP] : state.board.pieceBits[WP];
-    uint64_t oppKnights = white ? state.board.pieceBits[BN] : state.board.pieceBits[WN];
-    uint64_t oppBishops = white ? state.board.pieceBits[BB] : state.board.pieceBits[WB];
-    uint64_t oppRooks = white ? state.board.pieceBits[BR] : state.board.pieceBits[WR];
-    uint64_t oppQueens = white ? state.board.pieceBits[BQ] : state.board.pieceBits[WQ];
-    uint64_t oppKing = white ? state.board.pieceBits[BK] : state.board.pieceBits[WK];
+    uint64_t oppPawns = pieceBits[white ? BP : WP];
+    uint64_t oppKnights = pieceBits[white ? BN : WN];
+    uint64_t oppBishops = pieceBits[white ? BB : WB];
+    uint64_t oppRooks = pieceBits[white ? BR : WR];
+    uint64_t oppQueens = pieceBits[white ? BQ : WQ];
+    uint64_t oppKing = pieceBits[white ? BK : WK];
     
     // useful for determining captures
     uint64_t myPieces = pawns | knights | bishops | rooks | queens | king;
@@ -192,10 +317,11 @@ std::vector<Move> generateMoves(const GameState& state) {
     uint64_t allPieces = myPieces | oppPieces;
     uint64_t emptySquares = ~allPieces;
 
-    printU64(emptySquares);
-
     // initial and final positions of each piece
     int xi, yi, xf, yf;
+
+    // get position of king
+    sf::Vector2<int> kingPos{__builtin_ctzll(king) % 8, __builtin_ctzll(king) / 8};
 
     /* PAWN MOVES */
     while (pawns > 0) {
@@ -212,7 +338,12 @@ std::vector<Move> generateMoves(const GameState& state) {
         uint64_t to = 1ull << (yf * 8 + xf);
         if (yf >= 0 && yf < 8) {
             if (to & emptySquares) {
-                moves.push_back({{xi, yi}, {xf, yf}, (white ? WP : BP), false});
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), false};
+                BitBoard tempBoard(state.board);
+                tempBoard.applyMove(pseudolegal);
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
             }
         }
 
@@ -226,13 +357,11 @@ std::vector<Move> generateMoves(const GameState& state) {
                 moves.push_back({{xi, yi}, {xf, yf + direction}, (white ? WP : BP), false});
             }
         }
-        
 
         // capture moves
-        std::vector<std::pair<int, int>> pawnCaptures = {{1, direction}, {-1, direction}};
         for (auto &[dx, dy] : pawnCaptures) {
             xf = xi + dx;
-            yf = yi + dy;
+            yf = (yi + dy) * direction;
             if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
                 to = 1ull << (yf * 8 + xf);
                 if (to & oppPieces) {
@@ -253,7 +382,6 @@ std::vector<Move> generateMoves(const GameState& state) {
         yi = trailingZeros / 8;
 
         // generate all possible knight moves
-        std::vector<std::pair<int, int>> knightMoves = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
         for (auto &[dx, dy] : knightMoves) {
             xf = xi + dx;
             yf = yi + dy;
@@ -284,7 +412,6 @@ std::vector<Move> generateMoves(const GameState& state) {
         yi = trailingZeros / 8;
 
         // generate all possible bishop moves
-        std::vector<std::pair<int, int>> bishopMoves = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         for (auto &[dx, dy] : bishopMoves) {
             xf = xi + dx;
             yf = yi + dy;
@@ -317,7 +444,6 @@ std::vector<Move> generateMoves(const GameState& state) {
         yi = trailingZeros / 8;
 
         // generate all possible rook moves
-        std::vector<std::pair<int, int>> rookMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (auto &[dx, dy] : rookMoves) {
             xf = xi + dx;
             yf = yi + dy;
@@ -351,7 +477,6 @@ std::vector<Move> generateMoves(const GameState& state) {
         yi = trailingZeros / 8;
 
         // generate all possible queen moves
-        std::vector<std::pair<int, int>> queenMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         for (auto &[dx, dy] : queenMoves) {
             xf = xi + dx;
             yf = yi + dy;
@@ -385,7 +510,6 @@ std::vector<Move> generateMoves(const GameState& state) {
         yi = trailingZeros / 8;
 
         // generate all possible king moves
-        std::vector<std::pair<int, int>> kingMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         for (auto &[dx, dy] : kingMoves) {
             xf = xi + dx;
             yf = yi + dy;

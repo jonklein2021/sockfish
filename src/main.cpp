@@ -93,7 +93,7 @@ int main() {
     // main render loop typeshit
     while (window.isOpen()) {
         sf::Event event;
-        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        sf::Vector2<int> mousePos = sf::Mouse::getPosition(window);
         
         // detect if mouse is hovering over a piece
         bool hoveringOverPiece = false;
@@ -131,6 +131,7 @@ int main() {
                     // check this move against set of legal moves
                     std::vector<Move> legalMoves = generateMoves(state);
                     bool validMove = false;
+                    std::cout << "LEGAL MOVES:" << std::endl;
                     for (const Move &m : legalMoves) {
                         std::cout << to_string(m) << std::endl;
                         if (candidate.equals(m)) {
@@ -155,7 +156,7 @@ int main() {
                         }
                         
                         // apply move to internal game state
-                        state.ApplyMove(candidate);
+                        state.applyMove(candidate);
                     } else {
                         // reset piece position if move is invalid
                         newX = oldX;
@@ -200,10 +201,10 @@ int main() {
                         it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 0);
                     }
                     
-                    std::cout << "Remaining pieces:" << std::endl;
-                    for (Piece p : pieces) {
-                        std::cout << pieceNames[p.type] << "(" << p.position.x << ", " << p.position.y << ")" << std::endl;
-                    }
+                    // std::cout << "Remaining pieces:" << std::endl;
+                    // for (Piece p : pieces) {
+                    //     std::cout << pieceNames[p.type] << "(" << p.position.x << ", " << p.position.y << ")" << std::endl;
+                    // }
                     
                     prettyPrint(state.board);
                 }

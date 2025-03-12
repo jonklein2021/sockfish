@@ -18,16 +18,6 @@ enum PieceType {
 };
 
 /**
- * Stores the current state of the game in bitboard
- * representation. Each uint64_t represents the
- * instances of a certain piece on the board.
- */
-struct BitBoard {
-    uint64_t pieceBits[12]; // index into this with PieceType
-    BitBoard() : pieceBits{0} {}
-};
-
-/**
  * Moves are represented as a pair of two 2D vectors, where the
  * first vector is where the piece starts and the second vector
  * is where the piece ends up after the move.
@@ -41,6 +31,33 @@ struct Move {
     Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture)
         : from(from), to(to), pieceMoved(pieceMoved), isCapture(isCapture) {}
     bool equals(const Move& other);
+};
+
+/**
+ * Stores the current state of the game in bitboard
+ * representation. Each uint64_t represents the
+ * instances of a certain piece on the board.
+ */
+struct BitBoard {
+    uint64_t pieceBits[12]; // index into this with PieceType
+    BitBoard() : pieceBits{0} {}
+    BitBoard(const BitBoard &board) : pieceBits{0} {
+        for (int i = 0; i < 12; i++) {
+            pieceBits[i] = board.pieceBits[i];
+        }
+    }
+
+    // Methods
+
+    /**
+     * Used to test if a square of some bitboard is under attack by a certain color
+     * 
+     * @param square the square of the board to test
+     * @param white true iff white is the attacker
+     * @return true iff the square is under attack by the given color
+     */
+    void applyMove(const Move& move);
+    bool attacked(sf::Vector2<int> square, bool white) const;
 };
 
 /**
@@ -75,12 +92,21 @@ struct GameState {
      * 
      * @param move the move to apply to the game state
      */
-    void ApplyMove(const Move& move);
+    void applyMove(const Move& move);
+
+    /**
+     * Returns true iff the given square
+     * is under attack by the opponent
+     * 
+     * @param square the square to check
+     * 
+     */
+    bool underAttack(sf::Vector2<int> square) const;
 
     /**
      * Returns true iff the current player is in check
      */
-    bool IsCheck();
+    bool isCheck() const;
 };
 
 /**
@@ -101,7 +127,7 @@ BitBoard fenToBitBoard(const std::string& fen);
  * @param board the BitBoard to convert
  * @return the FEN string representation of the BitBoard
  */
-std::string bitBoardToFen(const BitBoard& board);
+// std::string bitBoardToFen(const BitBoard& board);
 
 /**
  * Return a list of all legal moves in some
