@@ -14,7 +14,7 @@
  */
 enum PieceType {
     WP, WN, WB, WR, WQ, WK,
-    BP, BN, BB, BR, BQ, BK
+    BP, BN, BB, BR, BQ, BK, None
 };
 
 /**
@@ -26,10 +26,13 @@ struct Move {
     sf::Vector2<int> from;
     sf::Vector2<int> to;
     PieceType pieceMoved;
+    PieceType promotionPiece;
     bool isCapture;
-    Move() : from({0, 0}), to({0, 0}), pieceMoved(BK), isCapture(false) {}
+    Move() : from({0, 0}), to({0, 0}), pieceMoved(None), promotionPiece(None), isCapture(false) {}
+    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, PieceType promotionPiece, bool isCapture)
+        : from(from), to(to), pieceMoved(pieceMoved), promotionPiece(promotionPiece), isCapture(isCapture) {}
     Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture)
-        : from(from), to(to), pieceMoved(pieceMoved), isCapture(isCapture) {}
+        : from(from), to(to), pieceMoved(pieceMoved), promotionPiece(None), isCapture(isCapture) {}
     bool equals(const Move& other);
 };
 

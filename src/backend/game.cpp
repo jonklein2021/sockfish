@@ -91,6 +91,7 @@ BitBoard fenToBitBoard(const std::string& fen) {
     return board;
 }
 
+// TODO: Make this more efficient by backward-searching from the sqaure of interest
 bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     // std::cout << "Checking if (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
     uint64_t targetBit = 1ull << (square.y * 8 + square.x);
@@ -113,8 +114,6 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     // useful for determining captures
     uint64_t myPieces = pawns | knights | bishops | rooks | queens | king;
     uint64_t oppPieces = oppPawns | oppKnights | oppBishops | oppRooks | oppQueens | oppKing;
-    uint64_t allPieces = myPieces | oppPieces;
-    // uint64_t emptySquares = ~allPieces;
 
     int xi, yi, xf, yf;
     
@@ -320,6 +319,15 @@ void BitBoard::applyMove(const Move& move) {
             }
         }
     }
+
+    /* PAWN PROMOTION */
+    if (move.promotionPiece != None) {
+        pieceBits[move.pieceMoved] &= ~to; // remove pawn
+        pieceBits[move.promotionPiece] |= to; // add promoted piece
+    }
+
+    /* EN PASSANT */
+
 }
 
 void GameState::applyMove(const Move &move) {
@@ -453,7 +461,20 @@ std::vector<Move> GameState::generateMoves() const {
             }
         }
 
-        // TODO: en passant and promotion
+        // pawn promotion
+        if ((white && yf == 0) || (!white && yf == 7)) {
+            for (PieceType p : {WQ, WR, WB, WN}) {
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), p, false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+                
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
+            }
+        }
+
+        // TODO: en passant
 
         pawns &= pawns - 1;
     }

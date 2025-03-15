@@ -86,6 +86,9 @@ int main() {
     // used in loop as drag-and-drop variables
     Piece* selectedPiece = nullptr;
     bool isDragging = false;
+
+    // pawn promotion menu boolean
+    bool showPromotionPopup = false;
     
     // used by backend to analyze the game state
     GameState state(fenToBitBoard(startingFen), true, false, false, false, false, false, false);
@@ -158,6 +161,32 @@ int main() {
                             std::cout << pieceNames[it->type] << "on (" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
                         }
 
+                        // check if pawn promotion
+                        if (candidate.pieceMoved == WP && candidate.to.y == 0) {
+                            showPromotionPopup = true;
+                        } else if (candidate.pieceMoved == BP && candidate.to.y == 7) {
+                            candidate.promotionPiece = BQ;
+                            showPromotionPopup = true;
+                        }
+
+                        // open promotion window
+                        if (showPromotionPopup) {
+                            for (int i = 0; i < 4; i++) {
+                                sf::FloatRect bounds(310 + i * 50, 310, 40, 40);  // Button bounds
+                    
+                                if (bounds.contains(mousePos.x, mousePos.y)) {
+                                    // Promote the pawn
+                                    candidate.promotionPiece = (i == 0) ? (candidate.pieceMoved == WP ? WQ : BQ) :
+                                                                (i == 1) ? (candidate.pieceMoved == WP ? WR : BR) :
+                                                                (i == 2) ? (candidate.pieceMoved == WP ? WB : BB) :
+                                                                            (candidate.pieceMoved == WP ? WN : BN);
+                    
+                                    showPromotionPopup = false;  // Hide pop-up
+                                    return;
+                                }
+                            }
+                        }
+
                         // update the rook's position if castling
                         if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
                             auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
@@ -199,6 +228,7 @@ int main() {
                         // get new legal moves for the next turn
                         legalMoves = state.generateMoves();
                         
+                        // check if game has ended
                         if (legalMoves.empty()) {
                             if (state.isCheck()) {
                                 std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
@@ -262,6 +292,27 @@ int main() {
         window.draw(boardSprite);
         for (const auto& p : pieces) {
             window.draw(p.sprite);
+        }
+        if (showPromotionPopup) {
+            sf::RectangleShape popup(sf::Vector2f(200, 100));
+            popup.setFillColor(sf::Color(50, 50, 50, 200));  // Semi-transparent background
+            popup.setPosition(300, 300);  // Centered position
+
+            window.draw(popup);
+
+            // Load promotion piece textures (assuming you have these textures)
+            std::vector<sf::Texture> promotionTextures(4);
+            promotionTextures[0].loadFromFile("wQ.png");
+            promotionTextures[3].loadFromFile("wN.png");
+            promotionTextures[1].loadFromFile("wR.png");
+            promotionTextures[2].loadFromFile("wB.png");
+
+            std::vector<sf::Sprite> promotionOptions(4);
+            for (int i = 0; i < 4; i++) {
+                promotionOptions[i].setTexture(promotionTextures[i]);
+                promotionOptions[i].setPosition(310 + i * 50, 310);
+                window.draw(promotionOptions[i]);
+            }
         }
         window.display();
     }
