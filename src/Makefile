@@ -1,48 +1,47 @@
 # Compiler & flags
-CXX             = g++
-LD              = g++
-CXXFLAGS        = -I include -MMD -O3 -std=c++17 -Wall -Wextra -pedantic # -Werror
-LDFLAGS         = -lsfml-graphics -lsfml-window -lsfml-system
+CXX        = g++
+LD         = g++
+CXXFLAGS   = -I common -I backend -MMD -O3 -std=c++17 -Wall -Wextra -pedantic
+LDFLAGS    = -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories
-ODIR            := ./build
+ODIR       = build
+SDIRS      = backend common gui
 $(shell mkdir -p $(ODIR))
 
-# Input files
-CXXFILES        = game
-TARGETS         = main test
+# Gather all .cpp files
+COMMONCXX 	 	= $(foreach dir, $(SDIRS), $(wildcard $(dir)/*.cpp))
+ALLCXX	    	= $(wildcard *.cpp $(COMMONCXX))
+COMMONOFILES	= $(patsubst %.cpp, $(ODIR)/%.o, $(COMMONCXX))
+ALLOFILES    	= $(patsubst %.cpp, $(ODIR)/%.o, $(ALLCXX))
+DFILES			= $(ALLOFILES:.o=.d)
 
-# Generate names of obj, exe, and d files
-COMMONOFILES    = $(patsubst %, $(ODIR)/%.o, $(CXXFILES))
-ALLOFILES       = $(patsubst %, $(ODIR)/%.o, $(CXXFILES) $(TARGETS))
-EXEFILES        = $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
-DFILES          = $(patsubst %.o, %.d, $(ALLOFILES))
+# Targets
+TARGETS    = main test
+EXEFILES   = $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
 
 .DEFAULT_GOAL = all
-.PRECIOUS: $(OFILES)
+.PRECIOUS: $(COMMONOFILES)
 .PHONY: all clean
 
-# Build all .exe files
+# Build all executables
 all: $(EXEFILES)
 
-# Purge the build folder
+# Clean build directory
 clean:
 	@echo Cleaning up...
 	@rm -rf $(ODIR)
 
-# .cpp -> .o
+# Compile all .cpp -> .o files (merged into one rule)
 $(ODIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	@echo "[CXX] $< --> $@"
-	@$(CXX) $< -o $@ -c $(CXXFLAGS)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# .cpp -> .o
-$(ODIR)/%.o: backend/%.cpp
-	@echo "[CXX] $< --> $@"
-	@$(CXX) $< -o $@ -c $(CXXFLAGS)
-
-# .o -> .exe
+# Link .o files into .exe
 $(ODIR)/%.exe: $(ODIR)/%.o $(COMMONOFILES)
 	@echo "[LD] $^ --> $@"
 	@$(LD) $^ -o $@ $(LDFLAGS)
 
+# Include d files for faster incremental builds
 -include $(DFILES)
