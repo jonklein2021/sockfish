@@ -1,9 +1,11 @@
 #include <string>
 #include <vector>
 
-// size of board and tiles in pixels
-const int BOARD_PIXEL_SIZE = 512; // board is 512x512 pixels
-const int TILE_PIXEL_SIZE = 64; // 512/8 = 64
+#define PIECE_TEXTURE_PATH "assets/pieces/"
+#define BOARD_TEXTURE_PATH "assets/board.png"
+
+#define BOARD_PIXEL_SIZE 512 // board is 512x512 pixels
+#define TILE_PIXEL_SIZE 64 // 512/8 = 64
 
 // piece & position details
 const std::vector<std::string> pieceFilenames = {

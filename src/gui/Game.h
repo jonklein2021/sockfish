@@ -1,13 +1,8 @@
-#define PIECE_TEXTURE_PATH "assets/pieces/"
-#define BOARD_TEXTURE_PATH "assets/board.png"
-
-#define BOARD_PIXEL_SIZE 512 // board is 512x512 pixels
-#define TILE_PIXEL_SIZE 64 // 512/8 = 64
-
 #include <list>
 #include <unordered_map>
 
 #include "GameState.h"
+#include "PromotionMenu.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -20,6 +15,9 @@ class Game {
         sf::Texture boardTexture;
         sf::Sprite boardSprite;
         std::list<Piece> pieces;
+
+        // pawn promotion window
+        PromotionMenu promotionMenu;
 
         sf::Vector2<int> mousePos;
         
@@ -43,10 +41,17 @@ class Game {
         GameState state;
         std::vector<Move> legalMoves;
 
-        // FEN to Piece list conversion
+        /**
+         * Converts a FEN string representation of a chess position into a list of Piece objects
+         * 
+         * @param fen FEN string
+         * @return list of Piece objects
+         */
         std::list<Piece> fenToPieces(const std::string& fen);
         
-        // encapsulated function for piece texture loading
+        /**
+         * Loads piece textures from disk and populates the pieceTextures map
+         */
         void loadPieceTextures();
     
         void handleEvents();
@@ -55,5 +60,6 @@ class Game {
 
     public:
         Game();
+        Game(const std::string &fen);
         void run();
 };

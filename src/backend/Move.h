@@ -21,6 +21,6 @@ struct Move {
         : from(from), to(to), pieceMoved(pieceMoved), promotionPiece(None), isCapture(isCapture) {}
     
     bool equals(const Move& other);
-    std::string to_string();
+    std::string to_string() const;
 };
 

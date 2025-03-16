@@ -94,13 +94,26 @@ std::vector<Move> GameState::generateMoves() const {
 
         // move one square forward
         uint64_t to = 1ull << (yf * 8 + xf);
-        if (yf >= 0 && yf < 8) {
+        if (yf >= 1 && yf < 7) { // handle pawn promotion separately
             if (to & emptySquares) {
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), false};
                 BitBoard tempBoard(board);
                 tempBoard.applyMove(pseudolegal);
 
                 // add move if king is not under attack by opponent in resulting position
+                if (!tempBoard.attacked(kingPos, !white)) {
+                    moves.push_back(pseudolegal);
+                }
+            }
+        }
+
+        // pawn promotion
+        if ((white && yf == 0) || (!white && yf == 7)) {
+            for (PieceType p : {WQ, WR, WB, WN}) {
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), p, false};
+                BitBoard tempBoard(board);
+                tempBoard.applyMove(pseudolegal);
+                
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
                 }
@@ -139,19 +152,6 @@ std::vector<Move> GameState::generateMoves() const {
                     if (!tempBoard.attacked(kingPos, !white)) {
                         moves.push_back(pseudolegal);
                     }
-                }
-            }
-        }
-
-        // pawn promotion
-        if ((white && yf == 0) || (!white && yf == 7)) {
-            for (PieceType p : {WQ, WR, WB, WN}) {
-                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), p, false};
-                BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
-                
-                if (!tempBoard.attacked(kingPos, !white)) {
-                    moves.push_back(pseudolegal);
                 }
             }
         }

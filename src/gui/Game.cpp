@@ -1,11 +1,14 @@
 #include <iostream>
 
+#include "constants.h"
 #include "Game.h"
 
-Game::Game()
+Game::Game() : Game(initFen) {}
+
+Game::Game(const std::string &fen)
     : window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
       view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
-      state(initFen),
+      state(fen),
       legalMoves(state.generateMoves()) {
           
     window.setView(view);
@@ -15,10 +18,12 @@ Game::Game()
     if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
         std::cerr << "Error loading chessboard texture" << std::endl;
     }
+
+    promotionMenu = PromotionMenu(pieceTheme, state.whiteToMove);
     
     // finalize board and piece sprites
     boardSprite.setTexture(boardTexture);
-    pieces = fenToPieces(initFen);
+    pieces = fenToPieces(fen);
 
     // load cursors
     arrowCursor.loadFromSystem(sf::Cursor::Arrow);
@@ -94,13 +99,27 @@ void Game::handleEvents() {
             window.setView(view);
         }
 
+        // if promotion menu is open, process its events exclusively
+        if (promotionMenu.isVisible) {
+            promotionMenu.handleEvents(window);
+            return; // prevent normal game event handling
+        }
+
         // piece release
         if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
             isDragging = false;
             if (selectedPiece) {
-                // use to snap to nearest tile
                 int oldX = selectedPiece->position.x, oldY = selectedPiece->position.y;
+                
+                // snap to nearest tile
                 int newX = mousePos.x / TILE_PIXEL_SIZE, newY = mousePos.y / TILE_PIXEL_SIZE;
+
+                // check for pawn promotion
+                if ((selectedPiece->type == WP && newY == 0) || (selectedPiece->type == BP && newY == 7)) {
+                    promotionMenu.show(newX);
+                    selectedPiece = nullptr;
+                    return; // stop further processing for now
+                }
 
                 // create move object, isCapture arg doesn't matter yet because the
                 // backend will override it with the correct value
@@ -108,9 +127,9 @@ void Game::handleEvents() {
 
                 // check this move against set of legal moves
                 bool validMove = false;
-                // std::cout << "LEGAL MOVES:" << std::endl;
+                std::cout << "LEGAL MOVES:" << std::endl;
                 for (const Move &m : legalMoves) {
-                    // std::cout << to_string(m) << std::endl;
+                    std::cout << m.to_string() << std::endl;
                     if (candidate.equals(m)) {
                         candidate = m;
                         validMove = true;
@@ -200,6 +219,9 @@ void Game::handleEvents() {
 }
 
 void Game::update() {
+    // pause normal updates when promotion menu is open
+    if (promotionMenu.isVisible) return;
+
     // mouse hovers over a piece
     bool hoveringOverPiece = false;
     for (auto& piece : pieces) {
@@ -219,6 +241,12 @@ void Game::update() {
     if (isDragging && selectedPiece) {
         selectedPiece->sprite.setPosition(mousePos.x - TILE_PIXEL_SIZE / 2, mousePos.y - TILE_PIXEL_SIZE / 2);
     }
+    
+    PieceType promotedPiece = promotionMenu.getPromotionPiece();
+
+    if (promotedPiece != None) {
+        std::cout << "Promoted to piece " << pieceFilenames[promotedPiece] << std::endl;
+    }
 }
 
 // render piece and board sprites
@@ -228,5 +256,6 @@ void Game::render() {
     for (const auto& p : pieces) {
         window.draw(p.sprite);
     }
+    promotionMenu.render(window);
     window.display();
 }

@@ -18,7 +18,7 @@ bool Move::equals(const Move &other) {
     );
 }
 
-std::string Move::to_string() {
+std::string Move::to_string() const {
     std::ostringstream ss;
     
     ss << pieceFilenames[pieceMoved] << ": (" 
