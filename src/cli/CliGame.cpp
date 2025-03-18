@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "constants.h"
 #include "CliGame.h"
 
 bool CliGame::validInput(const std::string& input) {
@@ -51,15 +52,47 @@ Move CliGame::getMoveFromStdin(std::vector<Move>& legalMoves) {
 
         // check if the move is legal before returning it
         Move candidate = coordsToMove(input);
+
+        // check for pawn promotion
+        if (
+            (candidate.to.y == 0 && state.board.getPieceType(candidate.from) == WP) ||
+            (candidate.to.y == 7 && state.board.getPieceType(candidate.from) == BP)
+        ) {
+            while (true) {
+                std::cout << "Promotion piece (Q, R, B, N): ";
+                std::string promotion;
+                std::getline(std::cin, promotion);
+                if (promotion == "Q" || promotion == "q") {
+                    candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+                    break;
+                } else if (promotion == "R" || promotion == "r") {
+                    candidate.promotionPiece = state.whiteToMove ? WR : BR;
+                    break;
+                } else if (promotion == "B" || promotion == "b") {
+                    candidate.promotionPiece = state.whiteToMove ? WB : BB;
+                    break;
+                } else if (promotion == "N" || promotion == "n") {
+                    candidate.promotionPiece = state.whiteToMove ? WN : BN;
+                    break;
+                } else {
+                    std::cout << "Error: Invalid promotion piece" << std::endl;
+                }
+            }
+        }
+
         for (const Move& move : legalMoves) {
             if (candidate.equals(move)) {
                 return move;
             }
         }
+
+        std::cout << "Error: Illegal move" << std::endl;
     }
 }
 
-CliGame::CliGame() : state(), legalMoves(state.generateMoves()) {
+CliGame::CliGame() : CliGame(startingFen) {}
+
+CliGame::CliGame(std::string fen) : state(fen), legalMoves(state.generateMoves()) {
     // generate seed for random move generator
     std::srand(std::time(nullptr));
 }

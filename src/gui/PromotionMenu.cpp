@@ -10,10 +10,7 @@ PromotionMenu::PromotionMenu(const std::string &theme, bool white) : selectedPie
     menu.setPosition(0, 0); // should update to the location of the promoted pawn
     menu.setFillColor(sf::Color(0, 0, 0, 200));
 
-    if (white)
-        pieceOptions = std::vector<PieceType>{WQ, WR, WB, WN};
-    else
-        pieceOptions = std::vector<PieceType>{BQ, BR, BB, BN};
+    pieceOptions = white ? promotionPiecesWhite : promotionPiecesBlack;
 
     // load textures for the promotion pieces
     textures.resize(4);

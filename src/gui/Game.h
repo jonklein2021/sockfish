@@ -34,8 +34,6 @@ class Game {
 
         // 1-1 mapping from each piece to its texture
         std::unordered_map<PieceType, sf::Texture> pieceTextures;
-
-        const std::string initFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
         
         // backend stuff
         GameState state;

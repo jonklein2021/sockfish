@@ -260,6 +260,16 @@ void BitBoard::applyMove(const Move& move) {
 
 }
 
+PieceType BitBoard::getPieceType(sf::Vector2<int> square) const {
+    uint64_t targetBit = 1ull << (square.y * 8 + square.x);
+    for (int i = 0; i < 12; i++) {
+        if (pieceBits[i] & targetBit) {
+            return static_cast<PieceType>(i);
+        }
+    }
+    return None;
+}
+
 std::string BitBoard::to_string() {
     std::string out = "";
 

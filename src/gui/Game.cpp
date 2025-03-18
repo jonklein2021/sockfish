@@ -3,7 +3,7 @@
 #include "constants.h"
 #include "Game.h"
 
-Game::Game() : Game(initFen) {}
+Game::Game() : Game(startingFen) {}
 
 Game::Game(const std::string &fen)
     : window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),

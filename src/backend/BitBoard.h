@@ -21,14 +21,27 @@ struct BitBoard {
     // Methods
 
     /**
+     * Applies a move to the board
+     * 
+     * @param move the move to apply
+     */
+    void applyMove(const Move& move);
+    
+    /**
      * Used to test if a square of some bitboard is under attack by a certain color
      * 
      * @param square the square of the board to test
      * @param white true iff white is the attacker
      * @return true iff the square is under attack by the given color
      */
-    void applyMove(const Move& move);
     bool attacked(sf::Vector2<int> square, bool white) const;
+    
+    /**
+     * Returns the piece type at a given square
+     * 
+     * @param square the square to check
+     */
+    PieceType getPieceType(sf::Vector2<int> square) const;
     void print(PieceType p);
     void print();
     std::string to_string();

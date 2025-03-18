@@ -11,5 +11,6 @@ private:
     Move getMoveFromStdin(std::vector<Move>& legalMoves);
 public:
     CliGame();
+    CliGame(const std::string fen);
     void run();
 };

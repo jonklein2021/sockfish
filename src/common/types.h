@@ -15,6 +15,9 @@ enum PieceType {
     BP, BN, BB, BR, BQ, BK, None
 };
 
+const std::vector<PieceType> promotionPiecesWhite = {WQ, WR, WB, WN};
+const std::vector<PieceType> promotionPiecesBlack = {BQ, BR, BB, BN};
+
 extern std::unordered_map <char, PieceType> fenPieceMap;
 
 // N.B: This struct is only used to make rendering easier; the search algorithm will use bitboard representation

@@ -109,7 +109,7 @@ std::vector<Move> GameState::generateMoves() const {
 
         // pawn promotion
         if ((white && yf == 0) || (!white && yf == 7)) {
-            for (PieceType p : {WQ, WR, WB, WN}) {
+            for (PieceType p : (white ? promotionPiecesWhite : promotionPiecesBlack)) {
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), p, false};
                 BitBoard tempBoard(board);
                 tempBoard.applyMove(pseudolegal);
