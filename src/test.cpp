@@ -5,4 +5,5 @@ int main() {
 
     Game *game = new Game(initFen);
     game->run();
+    return 0;
 }

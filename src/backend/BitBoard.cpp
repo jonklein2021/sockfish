@@ -261,10 +261,10 @@ void BitBoard::applyMove(const Move& move) {
 }
 
 std::string BitBoard::to_string() {
-    std::string out = "    0  1  2  3  4  5  6  7\n";
+    std::string out = "    a  b  c  d  e  f  g  h\n";
 
     for (int i = 0; i < 8; i++) {
-        out += " " + std::to_string(i) + " ";
+        out += " " + std::to_string(8-i) + " ";
         for (int j = 0; j < 8; j++) {
             bool found = false;
             for (int p = 0; p < 12; p++) {

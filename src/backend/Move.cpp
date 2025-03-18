@@ -3,14 +3,13 @@
 #include "constants.h"
 
 /**
- * N.B: This method IGNORES the isCapture
- * member for convenience
+ * N.B: This method ONLY compares the `from` and `to` members of the Move struct.
+ * It does not compare `pieceMoved`, `isCapture`, or `promotionPiece`
  * 
  * @param other move to compare to
  */
 bool Move::equals(const Move &other) {
     return (
-        pieceMoved == other.pieceMoved &&
         from.x == other.from.x &&
         from.y == other.from.y &&
         to.x == other.to.x &&
