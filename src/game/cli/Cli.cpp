@@ -92,9 +92,12 @@ Move Cli::getMoveFromStdin(std::vector<Move>& legalMoves) {
 
 Cli::Cli() : Cli(defaultFEN) {}
 
-Cli::Cli(std::string fen) : state(fen), legalMoves(state.generateMoves()) {
+Cli::Cli(const std::string &fen) {
     // generate seed for random move generator
     std::srand(std::time(nullptr));
+
+    state = GameState(fen);
+    legalMoves = state.generateMoves();
 }
 
 void Cli::run() {

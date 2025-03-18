@@ -1,13 +1,16 @@
 #pragma once
 
-#include <string>
+#include "GameState.h"
+
 
 /**
- * Abstract class for a game extended
- * by classes in Cli.h and Gui.h
+ * Abstract base class for a game that
+ * classes in Cli.h and Gui.h extend
  */
-
 class Game {
+protected:
+    GameState state;
+    std::vector<Move> legalMoves;
 public:
     /**
      * Runs the game loop

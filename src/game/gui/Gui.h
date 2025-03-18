@@ -2,7 +2,6 @@
 #include <unordered_map>
 
 #include "../Game.h"
-#include "GameState.h"
 #include "Piece.h"
 #include "PromotionMenu.h"
 
@@ -34,8 +33,8 @@ class Gui : public Game {
         std::unordered_map<PieceType, sf::Texture> pieceTextures;
         
         // backend stuff
-        GameState state;
-        std::vector<Move> legalMoves;
+        // GameState state;
+        // std::vector<Move> legalMoves;
 
         /**
          * Converts a FEN string representation of a chess position into a list of Piece objects

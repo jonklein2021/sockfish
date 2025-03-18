@@ -7,11 +7,12 @@ Gui::Gui() : Gui(defaultFEN) {}
 
 Gui::Gui(const std::string &fen)
     : window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
-      view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
-      state(fen),
-      legalMoves(state.generateMoves()) {
+      view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) {
           
     window.setView(view);
+
+    state = GameState(fen);
+    legalMoves = state.generateMoves();
 
     // load textures
     loadPieceTextures();
