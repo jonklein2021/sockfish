@@ -5,14 +5,8 @@
 Move::Move() : Move(sf::Vector2<int>{-1, -1}, sf::Vector2<int>{-1, -1}, None, false, None, false) {}
 
 Move::Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture, PieceType promotionPiece, bool isEnPassant)
-: from(from), to(to), pieceMoved(pieceMoved), promotionPiece(promotionPiece), isCapture(isCapture), isEnPassant(isEnPassant) {}
+: from(from), to(to), piece(pieceMoved), promotionPiece(promotionPiece), isCapture(isCapture), isEnPassant(isEnPassant) {}
 
-/**
- * N.B: This method ONLY compares the `from` and `to` members of the Move struct.
- * It does not compare `pieceMoved` or `isCapture`
- * 
- * @param other move to compare to
- */
 bool Move::equals(const Move &other) {
     return (
         from.x == other.from.x &&
@@ -26,7 +20,7 @@ bool Move::equals(const Move &other) {
 std::string Move::to_string() const {
     std::ostringstream ss;
     
-    ss << (pieceMoved == None ? "None" : pieceFilenames[pieceMoved]) << ": (" 
+    ss << (piece == None ? "None" : pieceFilenames[piece]) << ": (" 
     << from.x << ", " << from.y << ") -> ("
     << to.x << ", " << to.y << ")" << (isCapture ? " (capture)" : "")
     << (promotionPiece == None ? "" : " (promotion: " + pieceFilenames[promotionPiece] + ")");

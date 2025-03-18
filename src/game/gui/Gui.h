@@ -15,15 +15,14 @@ class Gui : public Game {
         sf::Cursor arrowCursor, handCursor;
         sf::Texture boardTexture;
         sf::Sprite boardSprite;
+        sf::Vector2<int> mousePos;
+        std::string pieceTheme = "horsey/";
+        
+        // pieces on the board
         std::list<Piece> pieces;
 
         // pawn promotion window
         PromotionMenu promotionMenu;
-
-        sf::Vector2<int> mousePos;
-        
-        // used for piece theme
-        std::string pieceTheme = "horsey/";
 
         // drag-and-drop variables
         Piece* selectedPiece = nullptr;
@@ -31,10 +30,6 @@ class Gui : public Game {
 
         // 1-1 mapping from each piece to its texture
         std::unordered_map<PieceType, sf::Texture> pieceTextures;
-        
-        // backend stuff
-        // GameState state;
-        // std::vector<Move> legalMoves;
 
         /**
          * Converts a FEN string representation of a chess position into a list of Piece objects
@@ -49,8 +44,21 @@ class Gui : public Game {
          */
         void loadPieceTextures();
     
+        /**
+         * Primary event loop; handles window resizing,
+         * window closing, mouse clicks and piece dragging
+         */
         void handleEvents();
+
+        /**
+         * Updates the game state
+         */
         void update();
+
+        /**
+         * Renders relevant sprites to the window, including the board,
+         * pieces, and promotion menu if it is open
+         */
         void render();
 
     public:

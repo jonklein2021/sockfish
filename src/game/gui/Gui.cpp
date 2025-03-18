@@ -143,7 +143,7 @@ void Gui::handleEvents() {
                     // remove captured piece from display list
                     if (candidate.isCapture) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [candidate](const Piece& p){
-                            return p.type != candidate.pieceMoved && p.position.x == candidate.to.x && p.position.y == candidate.to.y;
+                            return p.type != candidate.piece && p.position.x == candidate.to.x && p.position.y == candidate.to.y;
                         });
                         
                         pieces.erase(it);
@@ -151,7 +151,7 @@ void Gui::handleEvents() {
                     }
 
                     // update the rook's position if castling
-                    if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
+                    if (candidate.piece == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == WR && p.position.x == 7 && p.position.y == 7;
                         });
@@ -159,7 +159,7 @@ void Gui::handleEvents() {
                         it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
                     }
 
-                    if (candidate.pieceMoved == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 2 && candidate.to.y == 7) {
+                    if (candidate.piece == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 2 && candidate.to.y == 7) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == WR && p.position.x == 0 && p.position.y == 7;
                         });
@@ -167,7 +167,7 @@ void Gui::handleEvents() {
                         it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
                     }
 
-                    if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 6 && candidate.to.y == 0) {
+                    if (candidate.piece == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 6 && candidate.to.y == 0) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == BR && p.position.x == 7 && p.position.y == 0;
                         });
@@ -175,7 +175,7 @@ void Gui::handleEvents() {
                         it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 0);
                     }
 
-                    if (candidate.pieceMoved == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 2 && candidate.to.y == 0) {
+                    if (candidate.piece == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 2 && candidate.to.y == 0) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == BR && p.position.x == 0 && p.position.y == 0;
                         });
@@ -248,7 +248,6 @@ void Gui::update() {
     }
 }
 
-// render piece and board sprites
 void Gui::render() {
     window.clear(sf::Color(50, 50, 50));
     window.draw(boardSprite);

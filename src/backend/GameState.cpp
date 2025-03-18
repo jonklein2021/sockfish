@@ -21,19 +21,19 @@ void GameState::applyMove(const Move &move) {
     if (move.to.x == 7 && move.to.y == 7) whiteRookHMoved = true;
     
     // rook moved
-    if (move.pieceMoved == BR && move.from.x == 0) blackRookAMoved = true;
-    if (move.pieceMoved == BR && move.from.x == 7) blackRookHMoved = true;
-    if (move.pieceMoved == WR && move.from.x == 0) whiteRookAMoved = true;
-    if (move.pieceMoved == WR && move.from.x == 7) whiteRookHMoved = true;
+    if (move.piece == BR && move.from.x == 0) blackRookAMoved = true;
+    if (move.piece == BR && move.from.x == 7) blackRookHMoved = true;
+    if (move.piece == WR && move.from.x == 0) whiteRookAMoved = true;
+    if (move.piece == WR && move.from.x == 7) whiteRookHMoved = true;
 
     // king moved
-    if (move.pieceMoved == WK) whiteKingMoved = true;
-    if (move.pieceMoved == BK) blackKingMoved = true;
+    if (move.piece == WK) whiteKingMoved = true;
+    if (move.piece == BK) blackKingMoved = true;
 
     // update en passant square
-    if (move.pieceMoved == WP && move.from.y == 6 && move.to.y == 4)
+    if (move.piece == WP && move.from.y == 6 && move.to.y == 4)
         enPassantSquare = {move.from.x, 5};
-    else if (move.pieceMoved == BP && move.from.y == 1 && move.to.y == 3)
+    else if (move.piece == BP && move.from.y == 1 && move.to.y == 3)
         enPassantSquare = {move.from.x, 2};
     else
         enPassantSquare = {-1, -1};

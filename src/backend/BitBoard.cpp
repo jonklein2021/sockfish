@@ -208,28 +208,28 @@ void BitBoard::applyMove(const Move& move) {
     /* CASTLING */
     
     // white king side castle
-    if (move.pieceMoved == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
+    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
         pieceBits[WK] ^= fromTo;
         pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
         return;
     }
     
     // white queen side castle
-    if (move.pieceMoved == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
+    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
         pieceBits[WK] ^= fromTo;
         pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
         return;
     }
 
     // black king side castle
-    if (move.pieceMoved == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
+    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
         pieceBits[BK] ^= fromTo;
         pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
         return;
     }
 
     // black queen side castle
-    if (move.pieceMoved == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
+    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
         pieceBits[BK] ^= fromTo;
         pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
         return;
@@ -238,7 +238,7 @@ void BitBoard::applyMove(const Move& move) {
     /* BASIC MOVES */
     
     // "move" the bit of the piece's old location to its new location
-    pieceBits[move.pieceMoved] ^= fromTo;
+    pieceBits[move.piece] ^= fromTo;
     
     /* CAPTURES */
 
@@ -246,11 +246,11 @@ void BitBoard::applyMove(const Move& move) {
     if (move.isCapture) {
         if (move.isEnPassant) {
             // remove the captured pawn
-            pieceBits[move.pieceMoved] ^= (to >> 8);
+            pieceBits[move.piece] ^= (to >> 8);
         } else {
             // remove the captured piece
             for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-                if (p != move.pieceMoved && pieceBits[p] & to) {
+                if (p != move.piece && pieceBits[p] & to) {
                     // zero out the captured piece's bit
                     pieceBits[p] &= ~to;
                     break;
@@ -261,7 +261,7 @@ void BitBoard::applyMove(const Move& move) {
 
     /* PAWN PROMOTION */
     if (move.promotionPiece != None) {
-        pieceBits[move.pieceMoved] &= ~to; // remove pawn
+        pieceBits[move.piece] &= ~to; // remove pawn
         pieceBits[move.promotionPiece] |= to; // add promoted piece
     }
 

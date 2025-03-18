@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::cout << "Initializing the " << (useCli ? "CLI" : "GUI") << " with FEN string: " << fen << std::endl;
+    std::cout << "Initializing the " << (useCli ? "CLI" : "GUI") << " with FEN string " << fen << std::endl;
 
     // run the CLI or GUI
     Game *game;

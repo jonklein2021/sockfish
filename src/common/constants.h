@@ -9,22 +9,35 @@
 #define PIECE_TEXTURE_PATH "assets/pieces/"
 #define BOARD_TEXTURE_PATH "assets/board.png"
 
-#define BOARD_PIXEL_SIZE 512 // board is 512x512 pixels
-#define TILE_PIXEL_SIZE 64 // 512/8 = 64
+#define BOARD_PIXEL_SIZE 512
+#define TILE_PIXEL_SIZE 64
 
+/**
+ * List of all piece filenames, mainly used for loading textures
+ * but also helpful for nice debug output
+ */
 const std::vector<std::string> pieceFilenames = {
     "wP", "wN", "wB", "wR", "wQ", "wK",
     "bP", "bN", "bB", "bR", "bQ", "bK"
 };
 
+
+/**
+ * Map from FEN character to PieceType, used in FEN
+ * conversion methods
+ */
 const std::unordered_map<char, PieceType> fenPieceMap = {
     {'P', WP}, {'N', WN}, {'B', WB}, {'R', WR}, {'Q', WQ}, {'K', WK},
     {'p', BP}, {'n', BN}, {'b', BB}, {'r', BR}, {'q', BQ}, {'k', BK}
 };
 
+
 const std::vector<PieceType> promotionPiecesWhite = {WQ, WR, WB, WN};
 const std::vector<PieceType> promotionPiecesBlack = {BQ, BR, BB, BN};
 
+/**
+ * FEN string for the starting position
+ */
 const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
 const std::vector<std::pair<int, int>> pawnCaptures = {{1, 1}, {-1, 1}};
