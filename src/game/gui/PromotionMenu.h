@@ -1,6 +1,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
-#include "types.h"
+
+#include "constants.h"
 
 class PromotionMenu {
 private:

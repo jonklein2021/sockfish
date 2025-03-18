@@ -1,5 +1,5 @@
 #include "PromotionMenu.h"
-#include "constants.h"
+
 #include <iostream>
 
 PromotionMenu::PromotionMenu() : PromotionMenu("horsey/", true) {}

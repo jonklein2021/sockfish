@@ -14,7 +14,8 @@ BitBoard fenToBitBoard(const std::string& fen) {
             x += c - '0';
         } else { // piece
             // set this piece's bit at the correct position
-            board.pieceBits[fenPieceMap[c]] |= 1ull << (y * 8 + x);
+            PieceType temp = fenPieceMap.at(c);
+            board.pieceBits[temp] |= 1ull << (y * 8 + x);
             x++;
         }
     }

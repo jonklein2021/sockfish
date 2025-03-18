@@ -1,11 +1,11 @@
 #include <iostream>
 
 #include "constants.h"
-#include "Game.h"
+#include "Gui.h"
 
-Game::Game() : Game(startingFen) {}
+Gui::Gui() : Gui(defaultFEN) {}
 
-Game::Game(const std::string &fen)
+Gui::Gui(const std::string &fen)
     : window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
       view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
       state(fen),
@@ -30,7 +30,7 @@ Game::Game(const std::string &fen)
     handCursor.loadFromSystem(sf::Cursor::Hand);
 }
 
-void Game::loadPieceTextures() {
+void Gui::loadPieceTextures() {
     for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
         if (!pieceTextures[p].loadFromFile(PIECE_TEXTURE_PATH + pieceTheme + pieceFilenames[p] + ".png")) {
             std::cerr << "Error loading piece texture: " << pieceFilenames[p] << std::endl;
@@ -38,7 +38,7 @@ void Game::loadPieceTextures() {
     }
 }
 
-std::list<Piece> Game::fenToPieces(const std::string& fen) {
+std::list<Piece> Gui::fenToPieces(const std::string& fen) {
     std::list<Piece> pieces;
 
     int x = 0, y = 0;
@@ -50,7 +50,7 @@ std::list<Piece> Game::fenToPieces(const std::string& fen) {
             x += c - '0';
         } else { // piece
             Piece piece;
-            piece.type = fenPieceMap[c];
+            piece.type = fenPieceMap.at(c);
             piece.position = {x, y};
             piece.sprite = sf::Sprite(pieceTextures[piece.type]);
             piece.sprite.setPosition(x * 64, y * 64);
@@ -61,7 +61,7 @@ std::list<Piece> Game::fenToPieces(const std::string& fen) {
     return pieces;
 }
 
-void Game::run() {
+void Gui::run() {
     while (window.isOpen()) {
         handleEvents();
         update();
@@ -69,7 +69,7 @@ void Game::run() {
     }
 }
 
-void Game::handleEvents() {
+void Gui::handleEvents() {
     sf::Event event;
     mousePos = sf::Mouse::getPosition(window);
 
@@ -218,7 +218,7 @@ void Game::handleEvents() {
     }
 }
 
-void Game::update() {
+void Gui::update() {
     // pause normal updates when promotion menu is open
     if (promotionMenu.isVisible) return;
 
@@ -250,7 +250,7 @@ void Game::update() {
 }
 
 // render piece and board sprites
-void Game::render() {
+void Gui::render() {
     window.clear(sf::Color(50, 50, 50));
     window.draw(boardSprite);
     for (const auto& p : pieces) {

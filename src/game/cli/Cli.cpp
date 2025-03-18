@@ -1,9 +1,9 @@
 #include <iostream>
 
 #include "constants.h"
-#include "CliGame.h"
+#include "Cli.h"
 
-bool CliGame::validInput(const std::string& input) {
+bool Cli::validInput(const std::string& input) {
     if (input.size() != 5) {
         return false;
     }
@@ -15,13 +15,13 @@ bool CliGame::validInput(const std::string& input) {
            (input[4] >= '1' && input[4] <= '8');
 }
 
-Move CliGame::coordsToMove(const std::string& input) {
+Move Cli::coordsToMove(const std::string& input) {
     sf::Vector2<int> from = {input[0] - 'a', '8' - input[1]};
     sf::Vector2<int> to = {input[3] - 'a', '8' - input[4]};
     return Move(from, to, None, false);
 }
 
-std::string CliGame::moveToCoords(const Move& move) {
+std::string Cli::moveToCoords(const Move& move) {
     std::string out = "";
     out += 'a' + move.from.x;
     out += '8' - move.from.y;
@@ -31,7 +31,7 @@ std::string CliGame::moveToCoords(const Move& move) {
     return out;
 }
 
-Move CliGame::getMoveFromStdin(std::vector<Move>& legalMoves) {
+Move Cli::getMoveFromStdin(std::vector<Move>& legalMoves) {
     while (true) {
         // pick a random move to suggest
         std::string sample = moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
@@ -90,14 +90,14 @@ Move CliGame::getMoveFromStdin(std::vector<Move>& legalMoves) {
     }
 }
 
-CliGame::CliGame() : CliGame(startingFen) {}
+Cli::Cli() : Cli(defaultFEN) {}
 
-CliGame::CliGame(std::string fen) : state(fen), legalMoves(state.generateMoves()) {
+Cli::Cli(std::string fen) : state(fen), legalMoves(state.generateMoves()) {
     // generate seed for random move generator
     std::srand(std::time(nullptr));
 }
 
-void CliGame::run() {
+void Cli::run() {
     std::cout << state.board.to_string() << std::endl;
     std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
     

@@ -1,7 +1,7 @@
 #include "GameState.h"
 #include "constants.h"
 
-GameState::GameState() : board(fenToBitBoard(startingFen)), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
+GameState::GameState() : board(fenToBitBoard(defaultFEN)), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
                   whiteRookAMoved(false), whiteRookHMoved(false), blackRookAMoved(false), blackRookHMoved(false) {}
                 
 GameState::GameState(const std::string &fen) : board(fenToBitBoard(fen)), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),

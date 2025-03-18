@@ -1,12 +1,14 @@
 #include <list>
 #include <unordered_map>
 
+#include "../Game.h"
 #include "GameState.h"
+#include "Piece.h"
 #include "PromotionMenu.h"
 
 #include <SFML/Graphics.hpp>
 
-class Game {
+class Gui : public Game {
     private:
         // visual stuff
         sf::RenderWindow window;
@@ -23,10 +25,6 @@ class Game {
         
         // used for piece theme
         std::string pieceTheme = "horsey/";
-        const std::vector<std::string> pieceFilenames = {
-            "wP", "wN", "wB", "wR", "wQ", "wK",
-            "bP", "bN", "bB", "bR", "bQ", "bK"
-        };
 
         // drag-and-drop variables
         Piece* selectedPiece = nullptr;
@@ -57,7 +55,7 @@ class Game {
         void render();
 
     public:
-        Game();
-        Game(const std::string &fen);
+        Gui();
+        Gui(const std::string &fen);
         void run();
 };

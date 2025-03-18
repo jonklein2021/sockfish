@@ -6,7 +6,7 @@ LDFLAGS    = -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories
 ODIR       = build
-SDIRS      = backend common cli gui
+SDIRS      = backend game/cli game/gui
 $(shell mkdir -p $(ODIR))
 
 # Gather all .cpp files
@@ -17,7 +17,7 @@ ALLOFILES    	= $(patsubst %.cpp, $(ODIR)/%.o, $(ALLCXX))
 DFILES			= $(ALLOFILES:.o=.d)
 
 # Targets
-TARGETS    = main test
+TARGETS    = main
 EXEFILES   = $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
 
 .DEFAULT_GOAL = all

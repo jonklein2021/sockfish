@@ -1,6 +1,7 @@
+#include "../Game.h"
 #include "GameState.h"
 
-class CliGame {
+class Cli : public Game {
 private:
     GameState state;
     std::vector<Move> legalMoves;
@@ -10,7 +11,7 @@ private:
     std::string moveToCoords(const Move& move);
     Move getMoveFromStdin(std::vector<Move>& legalMoves);
 public:
-    CliGame();
-    CliGame(const std::string fen);
+    Cli();
+    Cli(const std::string fen);
     void run();
 };
