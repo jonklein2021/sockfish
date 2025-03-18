@@ -92,28 +92,33 @@ Move Cli::getMoveFromStdin() {
 
 Cli::Cli() : Game() {}
 
-Cli::Cli(const std::string &fen) : Game(fen) {
-    // generate seed for random move generator
-    std::srand(std::time(nullptr));
-}
+Cli::Cli(const std::string &fen) : Game(fen) {}
 
 void Cli::run() {
-    state.board.prettyPrint();
+    state.board.prettyPrint(playerIsWhite);
 
     while (!legalMoves.empty()) {
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
 
-        // get move from stdin
-        Move candidate = getMoveFromStdin();
+        Move next;
+        if (playersTurn) {
+            // get move from stdin
+            next = getMoveFromStdin();
+        } else {
+            // pick a random move
+            next = legalMoves[std::rand() % legalMoves.size()];
+            std::cout << "Computer move: " << moveToCoords(next) << std::endl;
+        }
 
-        // update state with move
-        state.applyMove(candidate);
+        // update state with new move
+        state.applyMove(next);
         
         // print board
-        state.board.prettyPrint();
+        state.board.prettyPrint(playerIsWhite);
 
         // update set of legal moves
         legalMoves = state.generateMoves();
+        playersTurn = !playersTurn;
     }
 
     if (state.isCheck()) {

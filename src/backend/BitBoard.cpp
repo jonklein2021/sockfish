@@ -235,18 +235,26 @@ void BitBoard::applyMove(const Move& move) {
         return;
     }
     
-    /* BASIC MOVES AND CAPTURES */
+    /* BASIC MOVES */
     
-    // "moves" the bit of the piece's old location to its new location
+    // "move" the bit of the piece's old location to its new location
     pieceBits[move.pieceMoved] ^= fromTo;
     
+    /* CAPTURES */
+
     // determine what piece to remove if there is a capture
     if (move.isCapture) {
-        for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-            if (p != move.pieceMoved && pieceBits[p] & to) {
-                // zero out the captured piece's bit
-                pieceBits[p] &= ~to;
-                break;
+        if (move.isEnPassant) {
+            // remove the captured pawn
+            pieceBits[move.pieceMoved] ^= (to >> 8);
+        } else {
+            // remove the captured piece
+            for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
+                if (p != move.pieceMoved && pieceBits[p] & to) {
+                    // zero out the captured piece's bit
+                    pieceBits[p] &= ~to;
+                    break;
+                }
             }
         }
     }
@@ -256,8 +264,6 @@ void BitBoard::applyMove(const Move& move) {
         pieceBits[move.pieceMoved] &= ~to; // remove pawn
         pieceBits[move.promotionPiece] |= to; // add promoted piece
     }
-
-    /* EN PASSANT */
 
 }
 
@@ -271,31 +277,43 @@ PieceType BitBoard::getPieceType(sf::Vector2<int> square) const {
     return None;
 }
 
-void BitBoard::prettyPrint() {
-    std::string out = "\n";
+void BitBoard::prettyPrint(bool noFlip) {
+    std::ostringstream out;
+    out << "\n";
 
     for (int i = 0; i < 8; i++) {
-        out += " " + std::to_string(8-i) + " ";
+        int rank = noFlip ? i : 7 - i;
+        out << " " << (rank + 1) << " ";
+
         for (int j = 0; j < 8; j++) {
+            int file = noFlip ? j : 7 - j;
+            int squareIndex = rank * 8 + file;
             bool found = false;
+
             for (int p = 0; p < 12; p++) {
-                if (pieceBits[p] & (1ull << (i * 8 + j))) {
-                    out += pieceFilenames[p];
+                if (pieceBits[p] & (1ull << squareIndex)) {
+                    out << pieceFilenames[p];
                     found = true;
                     break;
                 }
             }
+
             if (!found) {
-                out += "--";
+                out << "--";
             }
-            out += " ";
+            out << " ";
         }
-        out += "\n";
+        out << "\n";
     }
 
-    out += "    a  b  c  d  e  f  g  h\n";
+    out << "    ";
+    if (noFlip) {
+        out << "a  b  c  d  e  f  g  h\n";  // Correct for normal view
+    } else {
+        out << "h  g  f  e  d  c  b  a\n";  // Correct for flipped view
+    }
 
-    std::cout << out << std::endl;
+    std::cout << out.str() << std::endl;
 }
 
 void printU64(uint64_t n) {

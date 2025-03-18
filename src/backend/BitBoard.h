@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <sstream>
 #include <SFML/Graphics.hpp>
 
 #include "Move.h"
@@ -45,7 +46,7 @@ struct BitBoard {
     PieceType getPieceType(sf::Vector2<int> square) const;
     void print(PieceType p);
     void print();
-    void prettyPrint();
+    void prettyPrint(bool noFlip = true);
 };
 
 /**
