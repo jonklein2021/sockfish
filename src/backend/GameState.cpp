@@ -1,16 +1,11 @@
 #include "GameState.h"
 #include "constants.h"
 
-GameState::GameState() : board(fenToBitBoard(defaultFEN)), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
-                  whiteRookAMoved(false), whiteRookHMoved(false), blackRookAMoved(false), blackRookHMoved(false) {}
+GameState::GameState() : GameState(defaultFEN) {}
                 
-GameState::GameState(const std::string &fen) : board(fenToBitBoard(fen)), whiteToMove(true), whiteKingMoved(false), blackKingMoved(false),
-    whiteRookAMoved(false), whiteRookHMoved(false), blackRookAMoved(false), blackRookHMoved(false) {}
-
-GameState::GameState(BitBoard board, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
-            bool whiteRookAMoved, bool whiteRookHMoved, bool blackRookAMoved, bool blackRookHMoved)
-    : board(board), whiteToMove(whiteToMove), whiteKingMoved(whiteKingMoved), blackKingMoved(blackKingMoved),
-        whiteRookAMoved(whiteRookAMoved), whiteRookHMoved(whiteRookHMoved), blackRookAMoved(blackRookAMoved), blackRookHMoved(blackRookHMoved) {}
+GameState::GameState(const std::string &fen) : board(fenToBitBoard(fen)), whiteToMove(true),
+    whiteKingMoved(false), blackKingMoved(false), whiteRookAMoved(false), whiteRookHMoved(false),
+    blackRookAMoved(false), blackRookHMoved(false), enPassantSquare(sf::Vector2<int>{-1, -1}), movesSinceCapture(0) {}
 
 void GameState::applyMove(const Move &move) {
     // make changes to board representation
@@ -19,11 +14,13 @@ void GameState::applyMove(const Move &move) {
     // make state changes
     whiteToMove = !whiteToMove;
     
-    // rook moved or captured
+    // rook captured
     if (move.to.x == 0 && move.to.y == 0) blackRookAMoved = true;
     if (move.to.x == 7 && move.to.y == 0) blackRookHMoved = true;
     if (move.to.x == 0 && move.to.y == 7) whiteRookAMoved = true;
     if (move.to.x == 7 && move.to.y == 7) whiteRookHMoved = true;
+    
+    // rook moved
     if (move.pieceMoved == BR && move.from.x == 0) blackRookAMoved = true;
     if (move.pieceMoved == BR && move.from.x == 7) blackRookHMoved = true;
     if (move.pieceMoved == WR && move.from.x == 0) whiteRookAMoved = true;
@@ -32,6 +29,20 @@ void GameState::applyMove(const Move &move) {
     // king moved
     if (move.pieceMoved == WK) whiteKingMoved = true;
     if (move.pieceMoved == BK) blackKingMoved = true;
+
+    // update en passant square
+    if (move.pieceMoved == WP && move.from.y == 6 && move.to.y == 4)
+        enPassantSquare = {move.from.x, 5};
+    else if (move.pieceMoved == BP && move.from.y == 1 && move.to.y == 3)
+        enPassantSquare = {move.from.x, 2};
+    else
+        enPassantSquare = {-1, -1};
+
+    // update 50 move rule
+    if (move.isCapture)
+        movesSinceCapture = 0;
+    else
+        movesSinceCapture++;
 }
 
 bool GameState::underAttack(sf::Vector2<int> square) const {
@@ -94,28 +105,22 @@ std::vector<Move> GameState::generateMoves() const {
 
         // move one square forward
         uint64_t to = 1ull << (yf * 8 + xf);
-        if (yf >= 1 && yf < 7) { // handle pawn promotion separately
+        if (yf >= 0 && yf < 8) {
             if (to & emptySquares) {
-                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), false};
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP)};
                 BitBoard tempBoard(board);
                 tempBoard.applyMove(pseudolegal);
 
-                // add move if king is not under attack by opponent in resulting position
-                if (!tempBoard.attacked(kingPos, !white)) {
-                    moves.push_back(pseudolegal);
-                }
-            }
-        }
-
-        // pawn promotion
-        if ((white && yf == 0) || (!white && yf == 7)) {
-            for (PieceType p : (white ? promotionPiecesWhite : promotionPiecesBlack)) {
-                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), p, false};
-                BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
-                
-                if (!tempBoard.attacked(kingPos, !white)) {
-                    moves.push_back(pseudolegal);
+                // only add if king is not under attack by opponent in resulting position
+                if (!tempBoard.attacked(kingPos, !white)) {    
+                    // pawn promotion
+                    if ((white && yf == 0) || (!white && yf == 7)) {
+                        for (PieceType p : (white ? promotionPiecesWhite : promotionPiecesBlack)) {
+                            moves.push_back(Move{{xi, yi}, {xf, yf}, (white ? WP : BP), false, p});
+                        }
+                    } else {
+                        moves.push_back(pseudolegal);
+                    }
                 }
             }
         }
@@ -128,7 +133,7 @@ std::vector<Move> GameState::generateMoves() const {
             
             // both `over` and `to` must be empty for a pawn to move 2 squares
             if ((emptySquares & (over | to)) == (over | to)) {
-                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), false};
+                Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP)};
                 BitBoard tempBoard(board);
                 tempBoard.applyMove(pseudolegal);
 
@@ -149,14 +154,42 @@ std::vector<Move> GameState::generateMoves() const {
                     BitBoard tempBoard(board);
                     tempBoard.applyMove(pseudolegal);
                     
-                    if (!tempBoard.attacked(kingPos, !white)) {
+                    // skip if king is under attack in resulting position
+                    if (tempBoard.attacked(kingPos, !white)) {
+                        continue;
+                    }
+                    
+                    // check for promotion
+                    if ((white && yf == 0) || (!white && yf == 7)) {
+                        for (PieceType p : (white ? promotionPiecesWhite : promotionPiecesBlack)) {
+                            moves.push_back({{xi, yi}, {xf, yf}, (white ? WP : BP), true, p});
+                        }
+                    } else {
                         moves.push_back(pseudolegal);
                     }
                 }
             }
         }
 
-        // TODO: en passant
+        // en passant
+        if (enPassantSquare.x != -1) {
+            for (int dx : {-1, 1}) {
+                xf = xi + dx;
+                yf = yi + direction;
+                if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
+                    to = 1ull << (yf * 8 + xf);
+                    if (to & (1ull << (enPassantSquare.y * 8 + enPassantSquare.x))) {
+                        Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), true, None, true};
+                        BitBoard tempBoard(board);
+                        tempBoard.applyMove(pseudolegal);
+                        
+                        if (!tempBoard.attacked(kingPos, !white)) {
+                            moves.push_back(pseudolegal);
+                        }
+                    }
+                }
+            }
+        }
 
         pawns &= pawns - 1;
     }
@@ -383,7 +416,7 @@ std::vector<Move> GameState::generateMoves() const {
         // black queenside castle
         if (!white && !blackKingMoved && !blackRookAMoved) {
             if ((emptySquares& (1ull << 1)) && (emptySquares& (1ull << 2)) && (emptySquares& (1ull << 3))) {
-                Move pseudomove{{4, 0}, {2, 0}, BK, false};
+                Move pseudomove{{4, 0}, {2, 0}, BK};
                 BitBoard tempBoard(board);
                 tempBoard.applyMove(pseudomove);
                 if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {

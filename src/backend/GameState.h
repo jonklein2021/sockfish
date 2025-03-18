@@ -14,8 +14,10 @@ struct GameState {
     // board representation
     BitBoard board;
 
-    // other game state variables
+    // trivial
     bool whiteToMove;
+
+    // used to check if castling is legal
     bool whiteKingMoved;
     bool blackKingMoved;
     bool whiteRookAMoved;
@@ -23,13 +25,19 @@ struct GameState {
     bool blackRookAMoved;
     bool blackRookHMoved;
 
+    // used to check for en passant
+    sf::Vector2<int> enPassantSquare;
+
+    // used to check for 50 move rule
+    int movesSinceCapture;
+
+    // TODO: use this to check for threefold repetition
+    // std::vector<BitBoard> history;
+
     // Constructors
     GameState();
                   
     GameState(const std::string &fen);
-
-    GameState(BitBoard board, bool whiteToMove, bool whiteKingMoved, bool blackKingMoved,
-              bool whiteRookAMoved, bool whiteRookHMoved, bool blackRookAMoved, bool blackRookHMoved);
     
     // Methods
 

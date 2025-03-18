@@ -31,7 +31,7 @@ std::string Cli::moveToCoords(const Move& move) {
     return out;
 }
 
-Move Cli::getMoveFromStdin(std::vector<Move>& legalMoves) {
+Move Cli::getMoveFromStdin() {
     while (true) {
         // pick a random move to suggest
         std::string sample = moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
@@ -90,30 +90,35 @@ Move Cli::getMoveFromStdin(std::vector<Move>& legalMoves) {
     }
 }
 
-Cli::Cli() : Cli(defaultFEN) {}
+Cli::Cli() : Game() {}
 
-Cli::Cli(const std::string &fen) {
+Cli::Cli(const std::string &fen) : Game(fen) {
     // generate seed for random move generator
     std::srand(std::time(nullptr));
-
-    state = GameState(fen);
-    legalMoves = state.generateMoves();
 }
 
 void Cli::run() {
-    std::cout << state.board.to_string() << std::endl;
-    std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
-    
+    state.board.prettyPrint();
+
     while (!legalMoves.empty()) {
-        Move candidate = getMoveFromStdin(legalMoves);
-
-        state.applyMove(candidate);
-
-        // print the board
-        std::cout << state.board.to_string() << std::endl;
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
+
+        // get move from stdin
+        Move candidate = getMoveFromStdin();
+
+        // update state with move
+        state.applyMove(candidate);
         
+        // print board
+        state.board.prettyPrint();
+
         // update set of legal moves
         legalMoves = state.generateMoves();
+    }
+
+    if (state.isCheck()) {
+        std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+    } else {
+        std::cout << "Stalemate!" << std::endl;
     }
 }

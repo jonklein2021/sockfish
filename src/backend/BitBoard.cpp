@@ -271,8 +271,8 @@ PieceType BitBoard::getPieceType(sf::Vector2<int> square) const {
     return None;
 }
 
-std::string BitBoard::to_string() {
-    std::string out = "";
+void BitBoard::prettyPrint() {
+    std::string out = "\n";
 
     for (int i = 0; i < 8; i++) {
         out += " " + std::to_string(8-i) + " ";
@@ -295,7 +295,7 @@ std::string BitBoard::to_string() {
 
     out += "    a  b  c  d  e  f  g  h\n";
 
-    return out;
+    std::cout << out << std::endl;
 }
 
 void printU64(uint64_t n) {

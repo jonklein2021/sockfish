@@ -5,7 +5,7 @@ private:
     bool validInput(const std::string& input);
     Move coordsToMove(const std::string& input);
     std::string moveToCoords(const Move& move);
-    Move getMoveFromStdin(std::vector<Move>& legalMoves);
+    Move getMoveFromStdin();
 public:
     Cli();
     Cli(const std::string &fen);

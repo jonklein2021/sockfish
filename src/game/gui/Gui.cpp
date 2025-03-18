@@ -3,16 +3,14 @@
 #include "constants.h"
 #include "Gui.h"
 
-Gui::Gui() : Gui(defaultFEN) {}
+Gui::Gui() : Game() {}
 
 Gui::Gui(const std::string &fen)
-    : window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
+    : Game(fen),
+      window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
       view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) {
           
     window.setView(view);
-
-    state = GameState(fen);
-    legalMoves = state.generateMoves();
 
     // load textures
     loadPieceTextures();
@@ -187,7 +185,7 @@ void Gui::handleEvents() {
 
                     // apply move to internal game state
                     state.applyMove(candidate);
-                    std::cout << state.board.to_string() << std::endl;
+                    state.board.prettyPrint();
 
                     // get new legal moves for the next turn
                     legalMoves = state.generateMoves();

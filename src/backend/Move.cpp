@@ -2,6 +2,11 @@
 #include "Move.h"
 #include "constants.h"
 
+Move::Move() : Move(sf::Vector2<int>{-1, -1}, sf::Vector2<int>{-1, -1}, None, false, None, false) {}
+
+Move::Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture, PieceType promotionPiece, bool isEnPassant)
+: from(from), to(to), pieceMoved(pieceMoved), promotionPiece(promotionPiece), isCapture(isCapture), isEnPassant(isEnPassant) {}
+
 /**
  * N.B: This method ONLY compares the `from` and `to` members of the Move struct.
  * It does not compare `pieceMoved` or `isCapture`

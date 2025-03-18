@@ -15,12 +15,11 @@ struct Move {
     PieceType pieceMoved;
     PieceType promotionPiece;
     bool isCapture;
+    bool isEnPassant;
     
-    Move() : from({0, 0}), to({0, 0}), pieceMoved(None), promotionPiece(None), isCapture(false) {}
-    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, PieceType promotionPiece, bool isCapture)
-        : from(from), to(to), pieceMoved(pieceMoved), promotionPiece(promotionPiece), isCapture(isCapture) {}
-    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, bool isCapture)
-        : from(from), to(to), pieceMoved(pieceMoved), promotionPiece(None), isCapture(isCapture) {}
+    Move();
+    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved,
+        bool isCapture = false, PieceType promotionPiece = None, bool isEnPassant = false);
     
     bool equals(const Move& other);
     std::string to_string() const;

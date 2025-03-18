@@ -45,7 +45,7 @@ struct BitBoard {
     PieceType getPieceType(sf::Vector2<int> square) const;
     void print(PieceType p);
     void print();
-    std::string to_string();
+    void prettyPrint();
 };
 
 /**

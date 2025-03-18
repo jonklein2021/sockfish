@@ -11,7 +11,6 @@ void usage() {
     std::cout << "  -c, --cli       Run the game in CLI mode (default)" << std::endl;
     std::cout << "  -g, --gui       Run the game in GUI mode" << std::endl;
     std::cout << "  -f  <string>    Specify a custom FEN string for the starting position" << std::endl;
-
 }
 
 int main(int argc, char** argv) {
