@@ -245,12 +245,15 @@ void BitBoard::applyMove(const Move& move) {
     // determine what piece to remove if there is a capture
     if (move.isCapture) {
         if (move.isEnPassant) {
+            // the piece to remove is at the attacker pawn's new x and old y
+            uint64_t removeBit = (1ull << (move.from.y * 8 + move.to.x));
+            
             // remove the captured pawn
-            pieceBits[move.piece] ^= (to >> 8);
+            pieceBits[move.piece == WP ? BP : WP] &= ~removeBit;
         } else {
             // remove the captured piece
             for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-                if (p != move.piece && pieceBits[p] & to) {
+                if (p != move.piece && (pieceBits[p] & to)) {
                     // zero out the captured piece's bit
                     pieceBits[p] &= ~to;
                     break;
@@ -283,34 +286,45 @@ void BitBoard::prettyPrint(bool noFlip) {
 
     for (int i = 0; i < 8; i++) {
         int rank = noFlip ? i : 7 - i;
-        out << " " << (rank + 1) << " ";
+        
+        // row border
+        out << "   +----+----+----+----+----+----+----+----+\n";
+
+        // rank number
+        out << " " << (8 - rank) << " ";
 
         for (int j = 0; j < 8; j++) {
             int file = noFlip ? j : 7 - j;
             int squareIndex = rank * 8 + file;
             bool found = false;
 
+            out << "| ";
+
             for (int p = 0; p < 12; p++) {
                 if (pieceBits[p] & (1ull << squareIndex)) {
-                    out << pieceFilenames[p];
+                    out << pieceFilenames[p] << " ";
                     found = true;
                     break;
                 }
             }
 
             if (!found) {
-                out << "--";
+                out << "   ";
             }
-            out << " ";
         }
-        out << "\n";
+
+        out << "|\n";
     }
 
-    out << "    ";
+    // bottom border
+    out << "   +----+----+----+----+----+----+----+----+\n";
+
+    // file indices
+    out << "     ";
     if (noFlip) {
-        out << "a  b  c  d  e  f  g  h\n";  // Correct for normal view
+        out << "a    b    c    d    e    f    g    h  \n";
     } else {
-        out << "h  g  f  e  d  c  b  a\n";  // Correct for flipped view
+        out << "h    g    f    e    d    c    b    a  \n";
     }
 
     std::cout << out.str() << std::endl;
