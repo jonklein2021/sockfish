@@ -6,7 +6,7 @@ LDFLAGS    = -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories
 ODIR       = build
-SDIRS      = backend common gui
+SDIRS      = backend common cli gui
 $(shell mkdir -p $(ODIR))
 
 # Gather all .cpp files

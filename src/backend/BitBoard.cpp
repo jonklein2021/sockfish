@@ -261,7 +261,7 @@ void BitBoard::applyMove(const Move& move) {
 }
 
 std::string BitBoard::to_string() {
-    std::string out = "    a  b  c  d  e  f  g  h\n";
+    std::string out = "";
 
     for (int i = 0; i < 8; i++) {
         out += " " + std::to_string(8-i) + " ";
@@ -281,6 +281,8 @@ std::string BitBoard::to_string() {
         }
         out += "\n";
     }
+
+    out += "    a  b  c  d  e  f  g  h\n";
 
     return out;
 }
