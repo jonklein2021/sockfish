@@ -3,8 +3,8 @@
 
 GameState::GameState() : GameState(defaultFEN) {}
                 
-GameState::GameState(const std::string &fen) : whiteRookAMoved(false), whiteRookHMoved(false),
-    blackRookAMoved(false), blackRookHMoved(false), enPassantSquare(sf::Vector2<int>{-1, -1}), movesSinceCapture(0) {
+GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingMoved(false), whiteRookAMoved(true), whiteRookHMoved(true),
+    blackRookAMoved(true), blackRookHMoved(true), enPassantSquare(sf::Vector2<int>{-1, -1}), movesSinceCapture(0) {
     
     // 1: position data
     size_t i = 0;
@@ -358,6 +358,11 @@ std::vector<Move> GameState::generateMoves() const {
                     moves.push_back(pseudolegal);
                 }
 
+                // stop after a capture
+                if (capture) {
+                    break;
+                }
+
                 xf += dx;
                 yf += dy;
             }
@@ -393,6 +398,11 @@ std::vector<Move> GameState::generateMoves() const {
                 tempBoard.makeMove(pseudolegal);
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
+                }
+                
+                // stop after a capture
+                if (capture) {
+                    break;
                 }
                 
                 xf += dx;
@@ -431,6 +441,11 @@ std::vector<Move> GameState::generateMoves() const {
                 tempBoard.makeMove(pseudolegal);
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
+                }
+
+                // stop after a capture
+                if (capture) {
+                    break;
                 }
 
                 xf += dx;
