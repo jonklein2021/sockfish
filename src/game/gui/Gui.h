@@ -17,6 +17,8 @@ class Gui : public Game {
         sf::Sprite boardSprite;
         sf::Vector2<int> mousePos;
         std::string pieceTheme = "horsey/";
+
+        Move candidate;
         
         // pieces on the board
         std::list<Piece> pieces;
@@ -63,6 +65,6 @@ class Gui : public Game {
 
     public:
         Gui();
-        Gui(const std::string &fen);
+        Gui(const std::string &fen, int depth);
         void run();
 };

@@ -32,6 +32,8 @@ std::string Cli::moveToCoords(const Move& move) {
 }
 
 Move Cli::getMoveFromStdin() {
+    Move candidate;
+    bool pawnPromoting;
     while (true) {
         // pick a random move to suggest
         std::string sample = moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
@@ -51,48 +53,62 @@ Move Cli::getMoveFromStdin() {
         }
 
         // check if the move is legal before returning it
-        Move candidate = coordsToMove(input);
+        candidate = coordsToMove(input);
 
         // check for pawn promotion
-        if (
-            (candidate.to.y == 0 && state.board.getPieceType(candidate.from) == WP) ||
-            (candidate.to.y == 7 && state.board.getPieceType(candidate.from) == BP)
-        ) {
-            while (true) {
-                std::cout << "Promotion piece (Q, R, B, N): ";
-                std::string promotion;
-                std::getline(std::cin, promotion);
-                if (promotion == "Q" || promotion == "q") {
-                    candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
-                    break;
-                } else if (promotion == "R" || promotion == "r") {
-                    candidate.promotionPiece = state.whiteToMove ? WR : BR;
-                    break;
-                } else if (promotion == "B" || promotion == "b") {
-                    candidate.promotionPiece = state.whiteToMove ? WB : BB;
-                    break;
-                } else if (promotion == "N" || promotion == "n") {
-                    candidate.promotionPiece = state.whiteToMove ? WN : BN;
-                    break;
-                } else {
-                    std::cout << "Error: Invalid promotion piece" << std::endl;
-                }
+        pawnPromoting = (candidate.to.y == 0 && state.board.getPieceType(candidate.from) == WP) || (candidate.to.y == 7 && state.board.getPieceType(candidate.from) == BP);
+
+        // temporarily set the promotion piece to a queen
+        // so that it can match a legal move
+        if (pawnPromoting) {
+            candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+        }
+
+        bool validMove = false;
+        for (const Move& move : legalMoves) {
+            if (candidate.equals(move)) {
+                validMove = true;
+                candidate = move;
+                break;
             }
         }
 
-        for (const Move& move : legalMoves) {
-            if (candidate.equals(move)) {
-                return move;
-            }
+        if (validMove) {
+            break;
         }
 
         std::cout << "Error: Illegal move" << std::endl;
     }
+
+    if (pawnPromoting) {
+        while (true) {
+            std::cout << "Promotion piece (Q, N, R, B): ";
+            std::string promotion;
+            std::getline(std::cin, promotion);
+            if (promotion == "Q" || promotion == "q") {
+                candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+                break;
+            } else if (promotion == "N" || promotion == "n") {
+                candidate.promotionPiece = state.whiteToMove ? WN : BN;
+                break;
+            } else if (promotion == "R" || promotion == "r") {
+                candidate.promotionPiece = state.whiteToMove ? WR : BR;
+                break;
+            } else if (promotion == "B" || promotion == "b") {
+                candidate.promotionPiece = state.whiteToMove ? WB : BB;
+                break;
+            } else {
+                std::cout << "Error: Invalid promotion piece" << std::endl;
+            }
+        }
+    }
+
+    return candidate;
 }
 
 Cli::Cli() : Game() {}
 
-Cli::Cli(const std::string &fen) : Game(fen) {}
+Cli::Cli(const std::string &fen, int depth) : Game(fen, depth) {}
 
 void Cli::run() {
     state.board.prettyPrint(playerIsWhite);
@@ -105,13 +121,14 @@ void Cli::run() {
             // get move from stdin
             next = getMoveFromStdin();
         } else {
-            // pick a random move
-            next = legalMoves[std::rand() % legalMoves.size()];
-            std::cout << "Computer move: " << moveToCoords(next) << std::endl;
+            // get move from engine
+            next = cpu.getMove(state, legalMoves);
+            std::cout << next.to_string() << std::endl;
+            std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
         // update state with new move
-        state.applyMove(next);
+        state.makeMove(next);
         
         // print board
         state.board.prettyPrint(playerIsWhite);

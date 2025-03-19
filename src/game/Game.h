@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Engine.h"
 #include "GameState.h"
-
 
 /**
  * Base class for a chess game that
@@ -9,13 +9,14 @@
  */
 class Game {
 protected:
+    Engine cpu;
     GameState state;
     std::vector<Move> legalMoves;
     bool playerIsWhite;
     bool playersTurn;
 public:
     Game() : Game(defaultFEN) {}
-    Game(const std::string &fen) : state(GameState(fen)), legalMoves(state.generateMoves()) {
+    Game(const std::string &fen, int depth = 8) : cpu(Engine(depth)), state(GameState(fen)), legalMoves(state.generateMoves()) {
         // generate seed for random features (move hints, who goes first)
         std::srand(std::time(nullptr));
 

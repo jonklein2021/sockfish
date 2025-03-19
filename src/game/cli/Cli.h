@@ -36,7 +36,7 @@ private:
     Move getMoveFromStdin();
 public:
     Cli();
-    Cli(const std::string &fen);
+    Cli(const std::string &fen, int depth);
 
     /**
      * Run the game loop

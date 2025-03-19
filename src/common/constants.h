@@ -31,15 +31,20 @@ const std::unordered_map<char, PieceType> fenPieceMap = {
     {'p', BP}, {'n', BN}, {'b', BB}, {'r', BR}, {'q', BQ}, {'k', BK}
 };
 
-
+/**
+ * List of all possible promotion pieces
+ */
 const std::vector<PieceType> promotionPiecesWhite = {WQ, WR, WB, WN};
 const std::vector<PieceType> promotionPiecesBlack = {BQ, BR, BB, BN};
 
 /**
  * FEN string for the starting position
  */
-const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
 
+/**
+ * List of all possible piece moves
+ */
 const std::vector<std::pair<int, int>> pawnCaptures = {{1, 1}, {-1, 1}};
 const std::vector<std::pair<int, int>> knightMoves = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
 const std::vector<std::pair<int, int>> bishopMoves = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -47,3 +52,7 @@ const std::vector<std::pair<int, int>> rookMoves = {{1, 0}, {-1, 0}, {0, 1}, {0,
 const std::vector<std::pair<int, int>> queenMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 const std::vector<std::pair<int, int>> kingMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
+/**
+ * Piece values for material evaluation
+ */
+const std::vector<double> pieceValues = {1.0, 3.0, 3.0, 5.0, 9.0, 1000.0, 1.0, 3.0, 3.0, 5.0, 9.0, 1000.0};

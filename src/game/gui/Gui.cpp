@@ -5,8 +5,8 @@
 
 Gui::Gui() : Game() {}
 
-Gui::Gui(const std::string &fen)
-    : Game(fen),
+Gui::Gui(const std::string &fen, int depth)
+    : Game(fen, depth),
       window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
       view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) {
           
@@ -113,16 +113,14 @@ void Gui::handleEvents() {
                 // snap to nearest tile
                 int newX = mousePos.x / TILE_PIXEL_SIZE, newY = mousePos.y / TILE_PIXEL_SIZE;
 
-                // check for pawn promotion
-                if ((selectedPiece->type == WP && newY == 0) || (selectedPiece->type == BP && newY == 7)) {
-                    promotionMenu.show(newX);
-                    selectedPiece = nullptr;
-                    return; // stop further processing for now
-                }
+                bool pawnPromoting = (selectedPiece->type == WP && newY == 0) || (selectedPiece->type == BP && newY == 7);
 
-                // create move object, isCapture arg doesn't matter yet because the
-                // backend will override it with the correct value
-                Move candidate({oldX, oldY}, {newX, newY}, selectedPiece->type, false);
+                // create move object, isCapture and promotionPiece will be overridden later
+                candidate = Move({oldX, oldY}, {newX, newY}, selectedPiece->type, false, None);
+
+                // necessary to match with a legal move
+                if (pawnPromoting)
+                    candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
 
                 // check this move against set of legal moves
                 bool validMove = false;
@@ -132,7 +130,7 @@ void Gui::handleEvents() {
                     if (candidate.equals(m)) {
                         candidate = m;
                         validMove = true;
-                        // break; // TODO: uncomment this when not testing
+                        break;
                     }
                 }
 
@@ -142,12 +140,25 @@ void Gui::handleEvents() {
                 if (validMove) {
                     // remove captured piece from display list
                     if (candidate.isCapture) {
-                        auto it = std::find_if(pieces.begin(), pieces.end(), [candidate](const Piece& p){
+                        auto it = std::find_if(pieces.begin(), pieces.end(), [this](const Piece& p){
                             return p.type != candidate.piece && p.position.x == candidate.to.x && p.position.y == candidate.to.y;
                         });
                         
                         pieces.erase(it);
                         std::cout << pieceFilenames[it->type] << "on (" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
+                    }
+
+                    // show promotion menu if pawn is promoting
+                    // handle the rest in separate control flow
+                    if (pawnPromoting) {
+                        promotionMenu.show(newX);
+    
+                        // snap to grid
+                        selectedPiece->position = {newX, newY};
+                        selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
+                        
+                        // stop further processing for now
+                        return;
                     }
 
                     // update the rook's position if castling
@@ -184,7 +195,7 @@ void Gui::handleEvents() {
                     }
 
                     // apply move to internal game state
-                    state.applyMove(candidate);
+                    state.makeMove(candidate);
                     state.board.prettyPrint();
 
                     // get new legal moves for the next turn
@@ -244,6 +255,31 @@ void Gui::update() {
     PieceType promotedPiece = promotionMenu.getPromotionPiece();
 
     if (promotedPiece != None) {
+        // update the selected piece to the promoted piece
+        selectedPiece->type = promotedPiece;
+        selectedPiece->sprite.setTexture(pieceTextures[promotedPiece]);
+
+        candidate.promotionPiece = promotedPiece;
+
+        // apply move to internal game state
+        state.makeMove(candidate);
+        state.board.prettyPrint();
+
+        // get new legal moves for the next turn
+        legalMoves = state.generateMoves();
+
+        // check if game has ended
+        if (legalMoves.empty()) {
+            if (state.isCheck()) {
+                std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+            } else {
+                std::cout << "Stalemate!" << std::endl;
+            }
+            window.close();
+        } else {   
+            state.whiteToMove ? std::cout << "White to move" << std::endl : std::cout << "Black to move" << std::endl;
+        }
+
         std::cout << "Promoted to piece " << pieceFilenames[promotedPiece] << std::endl;
     }
 }

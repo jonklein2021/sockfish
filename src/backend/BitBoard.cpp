@@ -3,25 +3,6 @@
 #include "BitBoard.h"
 #include "constants.h"
 
-BitBoard fenToBitBoard(const std::string& fen) {
-    BitBoard board;
-    int x = 0, y = 0;
-    for (const char& c : fen) {
-        if (c == '/') { // move to next row
-            x = 0;
-            y++;
-        } else if (isdigit(c)) { // empty square; skip x squares
-            x += c - '0';
-        } else { // piece
-            // set this piece's bit at the correct position
-            PieceType temp = fenPieceMap.at(c);
-            board.pieceBits[temp] |= 1ull << (y * 8 + x);
-            x++;
-        }
-    }
-    return board;
-}
-
 // TODO: Make this more efficient by backward-searching from the sqaure of interest
 bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     // std::cout << "Checking if (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
@@ -199,7 +180,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     return false;
 }
 
-void BitBoard::applyMove(const Move& move) {    
+void BitBoard::makeMove(const Move& move) {    
     // useful 64-bit words
     uint64_t from = 1ull << (move.from.y * 8 + move.from.x);
     uint64_t to = 1ull << (move.to.y * 8 + move.to.x);
@@ -267,8 +248,77 @@ void BitBoard::applyMove(const Move& move) {
         pieceBits[move.piece] &= ~to; // remove pawn
         pieceBits[move.promotionPiece] |= to; // add promoted piece
     }
-
 }
+
+void BitBoard::unmakeMove(const Move &move, const Metadata &metadata) {
+    uint64_t from = 1ull << (move.from.y * 8 + move.from.x);
+    uint64_t to = 1ull << (move.to.y * 8 + move.to.x);
+    uint64_t fromTo = from | to;
+
+    /* CASTLING */
+    
+    // white king-side castle
+    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
+        pieceBits[WK] ^= fromTo;
+        pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
+        return;
+    }
+    
+    // white queen-side castle
+    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
+        pieceBits[WK] ^= fromTo;
+        pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
+        return;
+    }
+
+    // black king-side castle
+    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
+        pieceBits[BK] ^= fromTo;
+        pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
+        return;
+    }
+
+    // black queen-side castle
+    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
+        pieceBits[BK] ^= fromTo;
+        pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
+        return;
+    }
+    
+    /* BASIC MOVES */
+    
+    // "Move" the bit of the piece back to its original position
+    pieceBits[move.piece] ^= fromTo;
+
+    /* CAPTURES */
+    if (move.isCapture) {
+        if (move.isEnPassant) {
+            uint64_t restoreBit = (1ull << (move.from.y * 8 + move.to.x));
+            pieceBits[move.piece == WP ? BP : WP] |= restoreBit;
+        } else {
+            pieceBits[metadata.capturedPiece] |= to;  // Restore captured piece
+        }
+    }
+
+    /* PAWN PROMOTION */
+    if (move.promotionPiece != None) {
+        pieceBits[move.piece] |= from;  // Restore original pawn
+        pieceBits[move.promotionPiece] &= ~to;  // Remove promoted piece
+    }
+}
+
+bool BitBoard::isDraw() const {
+    return pieceBits[WP] == 0 &&
+           pieceBits[WN] == 0 &&
+           pieceBits[WB] == 0 &&
+           pieceBits[WR] == 0 &&
+           pieceBits[WQ] == 0 &&
+           pieceBits[BP] == 0 &&
+           pieceBits[BN] == 0 &&
+           pieceBits[BB] == 0 &&
+           pieceBits[BR] == 0 &&
+           pieceBits[BQ] == 0;
+};
 
 PieceType BitBoard::getPieceType(sf::Vector2<int> square) const {
     uint64_t targetBit = 1ull << (square.y * 8 + square.x);

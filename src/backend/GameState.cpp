@@ -3,15 +3,82 @@
 
 GameState::GameState() : GameState(defaultFEN) {}
                 
-GameState::GameState(const std::string &fen) : board(fenToBitBoard(fen)), whiteToMove(true),
-    whiteKingMoved(false), blackKingMoved(false), whiteRookAMoved(false), whiteRookHMoved(false),
-    blackRookAMoved(false), blackRookHMoved(false), enPassantSquare(sf::Vector2<int>{-1, -1}), movesSinceCapture(0) {}
+GameState::GameState(const std::string &fen) : whiteRookAMoved(false), whiteRookHMoved(false),
+    blackRookAMoved(false), blackRookHMoved(false), enPassantSquare(sf::Vector2<int>{-1, -1}), movesSinceCapture(0) {
+    
+    // 1: position data
+    size_t i = 0;
+    int x = 0, y = 0;
+    for (; i < fen.size(); i++) {
+        const char c = fen[i];
+        if (c == '/') { // move to next row
+            x = 0;
+            y++;
+        } else if (isdigit(c)) { // empty square; skip x squares
+            x += c - '0';
+        } else if (c == ' ') { // end of board
+            break;
+        } else { // piece
+            // set this piece's bit at the correct position
+            PieceType temp = fenPieceMap.at(c);
+            board.pieceBits[temp] |= 1ull << (y * 8 + x);
+            x++;
+        }
+    }
 
-void GameState::applyMove(const Move &move) {
+    // 2: whose turn it is
+    whiteToMove = fen[++i] == 'w';
+
+    // 3: castling rights
+    i += 2;
+    for (; fen[i] != ' ' && i < fen.size(); i++) {
+        if (fen[i] == 'K') whiteRookHMoved = false;
+        if (fen[i] == 'Q') whiteRookAMoved = false;
+        if (fen[i] == 'k') blackRookHMoved = false;
+        if (fen[i] == 'q') blackRookAMoved = false;
+    }
+
+    // 4: en passant square
+    if (fen[++i] != '-') {
+        int file = fen[i] - 'a';
+        int rank = '8' - fen[i + 1];
+        enPassantSquare = {file, rank};
+    }
+
+    // 5: halfmove clock
+    i += 2;
+    std::string halfmoveClock = "";
+    for (; fen[i] != ' ' && i < fen.size(); i++) {
+        halfmoveClock += fen[i];
+    }
+    movesSinceCapture = std::stoi(halfmoveClock);
+
+    // 6: fulllmove number (not used)    
+
+}
+
+Metadata GameState::makeMove(const Move &move) {
+    // save metadata about this state before making move
+    Metadata metadata = {
+        blackRookAMoved, blackRookHMoved, 
+        whiteRookAMoved, whiteRookHMoved,
+        whiteKingMoved, blackKingMoved,
+        movesSinceCapture, enPassantSquare,
+        None
+    };
+
+    // Determine captured piece (if any)
+    if (move.isCapture) {
+        for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
+            if ((board.pieceBits[p] & (1ull << (move.to.y * 8 + move.to.x))) != 0) {
+                metadata.capturedPiece = p;
+                break;
+            }
+        }
+    }
+
     // make changes to board representation
-    board.applyMove(move);
-
-    // make state changes
+    board.makeMove(move);
     whiteToMove = !whiteToMove;
     
     // rook captured
@@ -43,10 +110,41 @@ void GameState::applyMove(const Move &move) {
         movesSinceCapture = 0;
     else
         movesSinceCapture++;
+    
+    return metadata;
+}
+
+void GameState::unmakeMove(const Move &move, const Metadata &metadata) {
+    // Revert board state
+    board.unmakeMove(move, metadata);
+
+    // Restore turn order
+    whiteToMove = !whiteToMove;
+
+    // Restore rook movement flags
+    blackRookAMoved = metadata.blackRookAMoved;
+    blackRookHMoved = metadata.blackRookHMoved;
+    whiteRookAMoved = metadata.whiteRookAMoved;
+    whiteRookHMoved = metadata.whiteRookHMoved;
+
+    // Restore king movement flags
+    whiteKingMoved = metadata.whiteKingMoved;
+    blackKingMoved = metadata.blackKingMoved;
+
+    // Restore en passant square
+    enPassantSquare = metadata.enPassantSquare;
+
+    // Restore 50-move rule counter
+    movesSinceCapture = metadata.movesSinceCapture;
 }
 
 bool GameState::underAttack(sf::Vector2<int> square) const {
     return board.attacked(square, !whiteToMove);
+}
+
+bool GameState::isTerminal() const {
+    // TODO: add threefold repetition check
+    return generateMoves().empty() || movesSinceCapture >= 100 || board.isDraw();
 }
 
 bool GameState::isCheck() const {
@@ -109,7 +207,7 @@ std::vector<Move> GameState::generateMoves() const {
             if (to & emptySquares) {
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP)};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
+                tempBoard.makeMove(pseudolegal);
 
                 // only add if king is not under attack by opponent in resulting position
                 if (!tempBoard.attacked(kingPos, !white)) {    
@@ -135,7 +233,7 @@ std::vector<Move> GameState::generateMoves() const {
             if ((emptySquares & (over | to)) == (over | to)) {
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP)};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
+                tempBoard.makeMove(pseudolegal);
 
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
@@ -152,7 +250,7 @@ std::vector<Move> GameState::generateMoves() const {
                 if (to & oppPieces) {
                     Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), true};
                     BitBoard tempBoard(board);
-                    tempBoard.applyMove(pseudolegal);
+                    tempBoard.makeMove(pseudolegal);
                     
                     // skip if king is under attack in resulting position
                     if (tempBoard.attacked(kingPos, !white)) {
@@ -181,7 +279,7 @@ std::vector<Move> GameState::generateMoves() const {
                     if (to & (1ull << (enPassantSquare.y * 8 + enPassantSquare.x))) {
                         Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP), true, None, true};
                         BitBoard tempBoard(board);
-                        tempBoard.applyMove(pseudolegal);
+                        tempBoard.makeMove(pseudolegal);
                         
                         if (!tempBoard.attacked(kingPos, !white)) {
                             moves.push_back(pseudolegal);
@@ -219,7 +317,7 @@ std::vector<Move> GameState::generateMoves() const {
                 
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WN : BN), capture};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
+                tempBoard.makeMove(pseudolegal);
                 
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
@@ -255,7 +353,7 @@ std::vector<Move> GameState::generateMoves() const {
 
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WB : BB), capture};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
+                tempBoard.makeMove(pseudolegal);
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
                 }
@@ -292,7 +390,7 @@ std::vector<Move> GameState::generateMoves() const {
 
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WR : BR), capture};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
+                tempBoard.makeMove(pseudolegal);
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
                 }
@@ -330,7 +428,7 @@ std::vector<Move> GameState::generateMoves() const {
 
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WQ : BQ), capture};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudolegal);
+                tempBoard.makeMove(pseudolegal);
                 if (!tempBoard.attacked(kingPos, !white)) {
                     moves.push_back(pseudolegal);
                 }
@@ -368,7 +466,7 @@ std::vector<Move> GameState::generateMoves() const {
 
                 Move pseudomove{{xi, yi}, {xf, yf}, (white ? WK : BK), capture};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudomove);
+                tempBoard.makeMove(pseudomove);
                 if (!tempBoard.attacked({xf, yf}, !white)) {
                     moves.push_back(pseudomove);
                 }
@@ -380,7 +478,7 @@ std::vector<Move> GameState::generateMoves() const {
             if ((emptySquares & (1ull << 61)) && (emptySquares & (1ull << 62))) {
                 Move pseudomove{{4, 7}, {6, 7}, WK, false};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudomove);
+                tempBoard.makeMove(pseudomove);
                 if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 7}, !white) && !tempBoard.attacked({6, 7}, !white)) {
                     moves.push_back(pseudomove);
                 }
@@ -392,7 +490,7 @@ std::vector<Move> GameState::generateMoves() const {
             if ((emptySquares & (1ull << 57)) && (emptySquares & (1ull << 58)) && (emptySquares & (1ull << 59))) {
                 Move pseudomove{{4, 7}, {2, 7}, WK, false};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudomove);
+                tempBoard.makeMove(pseudomove);
                 if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({3, 7}, !white) && !tempBoard.attacked({2, 7}, !white)) {
                     moves.push_back(pseudomove);
                 }
@@ -406,7 +504,7 @@ std::vector<Move> GameState::generateMoves() const {
             if ((emptySquares& (1ull << 5)) && (emptySquares& (1ull << 6))) {
                 Move pseudomove{{4, 0}, {6, 0}, BK, false};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudomove);
+                tempBoard.makeMove(pseudomove);
                 if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {
                     moves.push_back(pseudomove);
                 }
@@ -418,7 +516,7 @@ std::vector<Move> GameState::generateMoves() const {
             if ((emptySquares& (1ull << 1)) && (emptySquares& (1ull << 2)) && (emptySquares& (1ull << 3))) {
                 Move pseudomove{{4, 0}, {2, 0}, BK};
                 BitBoard tempBoard(board);
-                tempBoard.applyMove(pseudomove);
+                tempBoard.makeMove(pseudomove);
                 if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {
                     moves.push_back(pseudomove);
                 }

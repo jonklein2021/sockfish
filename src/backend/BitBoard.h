@@ -4,6 +4,7 @@
 #include <sstream>
 #include <SFML/Graphics.hpp>
 
+#include "Metadata.h"
 #include "Move.h"
 
 /**
@@ -27,7 +28,16 @@ struct BitBoard {
      * 
      * @param move the move to apply
      */
-    void applyMove(const Move& move);
+    void makeMove(const Move& move);
+
+    
+    /**
+     * Undoes a move on the board
+     * 
+     * @param move the move to undo
+     * @param metadata the metadata to restore captures
+     */
+    void unmakeMove(const Move &move, const Metadata &metadata);
     
     /**
      * Used to test if a square of some bitboard is under attack by a certain color
@@ -37,6 +47,13 @@ struct BitBoard {
      * @return true iff the square is under attack by the given color
      */
     bool attacked(sf::Vector2<int> square, bool white) const;
+
+    /**
+     * Checks if the position is drawn by insufficient material
+     * 
+     * @return true iff position is a draw
+     */
+    bool isDraw() const;
     
     /**
      * Returns the piece type at a given square
@@ -48,16 +65,6 @@ struct BitBoard {
     void print();
     void prettyPrint(bool noFlip = true);
 };
-
-/**
- * Converts a FEN string to a BitBoard
- * 
- * Only used in the initialization of the game
- * 
- * @param fen the FEN string to convert
- * @return the BitBoard representation of the FEN string
- */
-BitBoard fenToBitBoard(const std::string& fen);
 
 /**
  * Converts a BitBoard to a FEN string

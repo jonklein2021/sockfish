@@ -5,18 +5,24 @@
 #include "game/gui/Gui.h"
 
 void usage() {
-    std::cout << "Usage: ./build/main [options]" << std::endl;
-    std::cout << "Options:" << std::endl;
-    std::cout << "  -h, --help      Display this message" << std::endl;
-    std::cout << "  -c, --cli       Run the game in CLI mode (default)" << std::endl;
-    std::cout << "  -g, --gui       Run the game in GUI mode" << std::endl;
-    std::cout << "  -f  <string>    Specify a custom FEN string for the starting position" << std::endl;
+    std::ostringstream ss;
+    
+    ss << "Usage: ./build/main [options]\n";
+    ss << "Options:\n";
+    ss << "  -h, --help      Display this message\n";
+    ss << "  -c, --cli       Run the game in CLI mode (default)\n";
+    ss << "  -g, --gui       Run the game in GUI mode\n";
+    ss << "  -f  <string>    Specify a custom FEN string for the starting position\n";
+    ss << "  -d  <depth>     Specify the depth of the minimax search\n";
+    
+    std::cout << ss.str() << std::endl;
 }
 
 int main(int argc, char** argv) {
     // parse command line arguments
     bool useCli = true;
     std::string fen = defaultFEN;
+    int depth = 4;
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "-h" || arg == "--help") {
@@ -35,6 +41,15 @@ int main(int argc, char** argv) {
                 usage();
                 return 1;
             }
+        } else if (arg == "-d") {
+            if (i + 1 < argc) {
+                depth = std::stoi(argv[i + 1]);
+                i++;
+            } else {
+                std::cerr << "Error: -d option requires a depth" << std::endl;
+                usage();
+                return 1;
+            }
         } else {
             std::cerr << "Error: Unknown option " << arg << std::endl;
             usage();
@@ -47,9 +62,9 @@ int main(int argc, char** argv) {
     // run the CLI or GUI
     Game *game;
     if (useCli) {
-        game = new Cli(fen);
+        game = new Cli(fen, depth);
     } else {
-        game = new Gui(fen);
+        game = new Gui(fen, depth);
     }
     game->run();
 

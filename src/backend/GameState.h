@@ -42,11 +42,20 @@ struct GameState {
     // Methods
 
     /**
-     * Applys a move to the game state
+     * Makes a move in the game state
      * 
      * @param move the move to apply to the game state
+     * @return the metadata of the state before the move is made
      */
-    void applyMove(const Move& move);
+    Metadata makeMove(const Move& move);
+
+    /**
+     * Undoes a move in the game state
+     * 
+     * @param move the move to undo
+     * @param metadata the metadata to restore
+     */
+    void unmakeMove(const Move &move, const Metadata &metadata);
 
     /**
      * Returns true iff the given square
@@ -56,6 +65,11 @@ struct GameState {
      * 
      */
     bool underAttack(sf::Vector2<int> square) const;
+
+    /**
+     * @return true iff the game state is terminal
+     */
+    bool isTerminal() const;
 
     /**
      * Returns true iff the current player is in check
