@@ -331,7 +331,7 @@ PieceType BitBoard::getPieceType(sf::Vector2<int> square) const {
     return None;
 }
 
-void BitBoard::prettyPrint(bool noFlip) {
+void BitBoard::prettyPrint(bool noFlip) const {
     std::ostringstream out;
     out << "\n";
 

@@ -101,6 +101,23 @@ void Gui::run() {
                     break;
                 }
             }
+
+            // remove captured piece from display list
+            if (move.isCapture) {
+                auto it = std::find_if(pieces.begin(), pieces.end(), [this, move](const Piece& p){
+                    return p.type != move.piece && p.position == move.to;
+                });
+                pieces.erase(it);
+            }
+
+            // handle pawn promotion
+            if (move.promotionPiece != None) {
+                auto it = std::find_if(pieces.begin(), pieces.end(), [this, move](const Piece& p){
+                    return p.type == move.piece && p.position == move.to;
+                });
+                it->type = move.promotionPiece;
+                it->sprite.setTexture(pieceTextures[move.promotionPiece]);
+            }
             
             // update state
             state.makeMove(move);

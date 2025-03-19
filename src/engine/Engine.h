@@ -15,9 +15,10 @@ private:
      * Calculates heuristic value of state
      * 
      * @param state The state to evaluate
+     * @param legalMoves The possible legal moves from that state
      * @return The heuristic value of the state
      */
-    eval_t evaluate(const GameState& state);
+    eval_t evaluate(const GameState& state, const std::vector<Move>& legalMoves);
 
     /**
      * Minimax algorithm with alpha-beta pruning

@@ -25,8 +25,8 @@ public:
     // randomly decide who goes first
     playerIsWhite = (std::rand() % 2) & 1;
 
-    // if the player is white, it is their turn
-    playersTurn = playerIsWhite;
+    // if the player's color matches the state's whiteToMove, it is their turn
+    playersTurn = (state.whiteToMove == playerIsWhite);
   }
 
   Game(const std::string &fen, int depth)
@@ -38,14 +38,14 @@ public:
     // randomly decide who goes first
     playerIsWhite = (std::rand() % 2) & 1;
 
-    // if the player is white, it is their turn
-    playersTurn = playerIsWhite;
+    // if the player's color matches the state's whiteToMove, it is their turn
+    playersTurn = (state.whiteToMove == playerIsWhite);
   }
 
   Game(const std::string &fen, int depth, bool playerIsWhite)
       : cpu(Engine(depth)), state(GameState(fen)),
         legalMoves(state.generateMoves()), playerIsWhite(playerIsWhite),
-        playersTurn(playerIsWhite) {
+        playersTurn(state.whiteToMove == playerIsWhite) {
     // generate seed for random features (move hints, who goes first)
     std::srand(std::time(nullptr));
   }

@@ -15,7 +15,7 @@ void usage() {
     ss << "  -w, --white     Play with the white pieces\n";
     ss << "  -b, --black     Play with the black pieces\n";
     ss << "  -f  <string>    Specify a custom FEN string for the starting position\n";
-    ss << "  -d  <depth>     Specify the depth of the minimax search\n";
+    ss << "  -d  <depth>     Specify the depth of the minimax search (default: 6)\n";
     ss << "  -t  <theme>     Specify the piece theme for the GUI\n";
     
     std::cout << ss.str() << std::endl;
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     std::string playerColor = "";
     std::string fen = defaultFEN;
     std::string pieceTheme = "horsey/";
-    int depth = 4;
+    int depth = 6;
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "-h" || arg == "--help") {
