@@ -1,3 +1,4 @@
+#include <functional>
 #include <vector>
 #include <SFML/Graphics.hpp>
 
@@ -26,11 +27,8 @@ public:
     
     // Public Methods
     void render(sf::RenderWindow& window);
-    void handleEvents(sf::RenderWindow &window);
-    void update();
-    PieceType getPromotionPiece();
+    void handleEvents(sf::RenderWindow &window, const std::function<void(PieceType)> &callback);
     
-    // Helper functions
-    void show(int col);  // Show the promotion menu
-    void hide();  // Hide the promotion menu
+    // Show the promotion menu
+    void show(int col);
 };

@@ -48,16 +48,20 @@ void PromotionMenu::render(sf::RenderWindow &window) {
     }
 }
 
-void PromotionMenu::handleEvents(sf::RenderWindow &window) {
+void PromotionMenu::handleEvents(sf::RenderWindow &window, const std::function<void(const PieceType)> &callback) {
     sf::Event event;
     while (window.pollEvent(event)) {
         // user left clicks
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+
+            std::cout << "Mouse clicked at (" << worldPos.x << ", " << worldPos.y << ")" << std::endl;
 
             for (int i = 0; i < 4; ++i) {
-                if (pieces[i].getGlobalBounds().contains(sf::Vector2f(mousePos))) {
+                if (pieces[i].getGlobalBounds().contains(worldPos)) {
                     selectedPiece = pieceOptions[i];
+                    callback(selectedPiece);
                     isVisible = false;
                     return;
                 }
@@ -66,22 +70,10 @@ void PromotionMenu::handleEvents(sf::RenderWindow &window) {
     }
 }
 
-void PromotionMenu::update() {
-    // You can update other logic for the menu if needed
-}
-
-PieceType PromotionMenu::getPromotionPiece() {
-    return selectedPiece; // Return the selected piece index
-}
-
 void PromotionMenu::show(int col) {
     for (int i = 0; i < 4; i++) {
         circles[i].setPosition(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i);
         pieces[i].setPosition(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i);
     }
     isVisible = true;
-}
-
-void PromotionMenu::hide() {
-    isVisible = false;
 }

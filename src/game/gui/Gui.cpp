@@ -40,19 +40,22 @@ void Gui::loadPieceTextures() {
 std::list<Piece> Gui::fenToPieces(const std::string& fen) {
     std::list<Piece> pieces;
 
+    // get position data from FEN
+    size_t i = 0;
     int x = 0, y = 0;
-    for (const char& c : fen) {
+    for (; i < fen.size(); i++) {
+        const char c = fen[i];
         if (c == '/') { // move to next row
             x = 0;
             y++;
         } else if (isdigit(c)) { // empty square; skip x squares
             x += c - '0';
+        } else if (c == ' ') { // end of board
+            break;
         } else { // piece
-            Piece piece;
-            piece.type = fenPieceMap.at(c);
-            piece.position = {x, y};
-            piece.sprite = sf::Sprite(pieceTextures[piece.type]);
-            piece.sprite.setPosition(x * 64, y * 64);
+            // set this piece's bit at the correct position
+            Piece piece(fenPieceMap.at(c), {x, y}, sf::Sprite(pieceTextures[fenPieceMap.at(c)]));
+            piece.sprite.setPosition(x * TILE_PIXEL_SIZE, y * TILE_PIXEL_SIZE);
             pieces.push_back(piece);
             x++;
         }
@@ -100,7 +103,38 @@ void Gui::handleEvents() {
 
         // if promotion menu is open, process its events exclusively
         if (promotionMenu.isVisible) {
-            promotionMenu.handleEvents(window);
+            auto callback = [this](const PieceType p) {
+                // update the selected piece to the promoted piece
+                selectedPiece->type = p;
+                selectedPiece->sprite.setTexture(pieceTextures[p]);
+
+                candidate.promotionPiece = p;
+
+                std::cout << candidate.to_string() << std::endl;
+
+                // apply move to internal game state
+                state.makeMove(candidate);
+                state.board.prettyPrint();
+
+                // get new legal moves for the next turn
+                legalMoves = state.generateMoves();
+
+                // check if game has ended
+                if (state.isTerminal()) {
+                    if (state.isCheck()) {
+                        std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+                    } else {
+                        std::cout << "Stalemate!" << std::endl;
+                    }
+                    window.close();
+                } else {   
+                    state.whiteToMove ? std::cout << "White to move" << std::endl : std::cout << "Black to move" << std::endl;
+                }
+
+                std::cout << "Promoted to piece " << pieceFilenames[p] << std::endl;
+            };
+
+            promotionMenu.handleEvents(window, callback);
             return; // prevent normal game event handling
         }
 
@@ -149,15 +183,16 @@ void Gui::handleEvents() {
                     }
 
                     // show promotion menu if pawn is promoting
-                    // handle the rest in separate control flow
                     if (pawnPromoting) {
                         promotionMenu.show(newX);
+                        window.setMouseCursor(arrowCursor);
     
                         // snap to grid
                         selectedPiece->position = {newX, newY};
                         selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
                         
-                        // stop further processing for now
+                        // stop further processing for now;
+                        // handle the rest in callback lambda to promotionMenu.handleEvents()
                         return;
                     }
 
@@ -202,11 +237,11 @@ void Gui::handleEvents() {
                     legalMoves = state.generateMoves();
 
                     // check if game has ended
-                    if (legalMoves.empty()) {
+                    if (state.isTerminal()) {
                         if (state.isCheck()) {
                             std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
                         } else {
-                            std::cout << "Stalemate!" << std::endl;
+                            std::cout << "Draw!" << std::endl;
                         }
                         window.close();
                     } else {   
@@ -237,6 +272,8 @@ void Gui::update() {
     for (auto& piece : pieces) {
         if (piece.sprite.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
             hoveringOverPiece = true;
+
+            // drag-and-drop logic: select piece with mouse
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !isDragging) {
                 selectedPiece = &piece;
                 isDragging = true;
@@ -244,43 +281,12 @@ void Gui::update() {
         }
     }
 
-    // update mouse cursor
+    // update mouse cursor if hovering over piece
     window.setMouseCursor(hoveringOverPiece ? handCursor : arrowCursor);
     
-    // drag-and-drop logic; move piece with mouse
+    // drag-and-drop logic: move piece with mouse
     if (isDragging && selectedPiece) {
         selectedPiece->sprite.setPosition(mousePos.x - TILE_PIXEL_SIZE / 2, mousePos.y - TILE_PIXEL_SIZE / 2);
-    }
-    
-    PieceType promotedPiece = promotionMenu.getPromotionPiece();
-
-    if (promotedPiece != None) {
-        // update the selected piece to the promoted piece
-        selectedPiece->type = promotedPiece;
-        selectedPiece->sprite.setTexture(pieceTextures[promotedPiece]);
-
-        candidate.promotionPiece = promotedPiece;
-
-        // apply move to internal game state
-        state.makeMove(candidate);
-        state.board.prettyPrint();
-
-        // get new legal moves for the next turn
-        legalMoves = state.generateMoves();
-
-        // check if game has ended
-        if (legalMoves.empty()) {
-            if (state.isCheck()) {
-                std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
-            } else {
-                std::cout << "Stalemate!" << std::endl;
-            }
-            window.close();
-        } else {   
-            state.whiteToMove ? std::cout << "White to move" << std::endl : std::cout << "Black to move" << std::endl;
-        }
-
-        std::cout << "Promoted to piece " << pieceFilenames[promotedPiece] << std::endl;
     }
 }
 

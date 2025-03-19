@@ -4,7 +4,7 @@
 GameState::GameState() : GameState(defaultFEN) {}
                 
 GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingMoved(false), whiteRookAMoved(true), whiteRookHMoved(true),
-    blackRookAMoved(true), blackRookHMoved(true), enPassantSquare(sf::Vector2<int>{-1, -1}), movesSinceCapture(0) {
+    blackRookAMoved(true), blackRookHMoved(true), enPassantSquare({-1, -1}), movesSinceCapture(0) {
     
     // 1: position data
     size_t i = 0;
