@@ -3,10 +3,34 @@
 #include "constants.h"
 #include "Gui.h"
 
-Gui::Gui() : Game() {}
+Gui::Gui() : Gui(defaultFEN, 8) {}
 
 Gui::Gui(const std::string &fen, int depth)
     : Game(fen, depth),
+      window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
+      view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) {
+          
+    window.setView(view);
+
+    // load textures
+    loadPieceTextures();
+    if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
+        std::cerr << "Error loading chessboard texture" << std::endl;
+    }
+
+    promotionMenu = PromotionMenu(pieceTheme, state.whiteToMove);
+    
+    // finalize board and piece sprites
+    boardSprite.setTexture(boardTexture);
+    pieces = fenToPieces(fen);
+
+    // load cursors
+    arrowCursor.loadFromSystem(sf::Cursor::Arrow);
+    handCursor.loadFromSystem(sf::Cursor::Hand);
+}
+
+Gui::Gui(const std::string &fen, int depth, bool playerIsWhite)
+    : Game(fen, depth, playerIsWhite),
       window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
       view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) {
           
@@ -65,6 +89,28 @@ std::list<Piece> Gui::fenToPieces(const std::string& fen) {
 
 void Gui::run() {
     while (window.isOpen()) {
+        if (!playersTurn) {
+            // get move from engine
+            Move move = cpu.getMove(state, legalMoves);
+
+            // render move to screen
+            for (Piece& p : pieces) {
+                if (p.position == move.from) {
+                    p.position = move.to;
+                    p.sprite.setPosition(move.to.x * TILE_PIXEL_SIZE, move.to.y * TILE_PIXEL_SIZE);
+                    break;
+                }
+            }
+            
+            // update state
+            state.makeMove(move);
+            state.board.prettyPrint();
+            playersTurn = true;
+
+            // get new legal moves for the next turn
+            legalMoves = state.generateMoves();
+        }
+
         handleEvents();
         update();
         render();
@@ -114,6 +160,7 @@ void Gui::handleEvents() {
 
                 // apply move to internal game state
                 state.makeMove(candidate);
+                playersTurn = false;
                 state.board.prettyPrint();
 
                 // get new legal moves for the next turn
@@ -141,7 +188,7 @@ void Gui::handleEvents() {
         // piece release
         if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
             isDragging = false;
-            if (selectedPiece) {
+            if (playersTurn && selectedPiece) {
                 int oldX = selectedPiece->position.x, oldY = selectedPiece->position.y;
                 
                 // snap to nearest tile
@@ -232,6 +279,7 @@ void Gui::handleEvents() {
                     // apply move to internal game state
                     state.makeMove(candidate);
                     state.board.prettyPrint();
+                    playersTurn = false;
 
                     // get new legal moves for the next turn
                     legalMoves = state.generateMoves();

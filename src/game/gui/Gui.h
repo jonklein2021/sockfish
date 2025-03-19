@@ -66,5 +66,6 @@ class Gui : public Game {
     public:
         Gui();
         Gui(const std::string &fen, int depth);
+        Gui(const std::string &fen, int depth, bool playerIsWhite);
         void run();
 };

@@ -37,6 +37,7 @@ private:
 public:
     Cli();
     Cli(const std::string &fen, int depth);
+    Cli(const std::string &fen, int depth, bool playerIsWhite);
 
     /**
      * Run the game loop

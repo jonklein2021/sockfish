@@ -303,6 +303,7 @@ void BitBoard::unmakeMove(const Move &move, const Metadata &metadata) {
     /* PAWN PROMOTION */
     if (move.promotionPiece != None) {
         pieceBits[move.piece] |= from;  // Restore original pawn
+        pieceBits[move.piece] &= ~to;  // Compensate for pieceBits[move.piece] ^= fromTo;
         pieceBits[move.promotionPiece] &= ~to;  // Remove promoted piece
     }
 }

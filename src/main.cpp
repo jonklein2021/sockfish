@@ -12,8 +12,11 @@ void usage() {
     ss << "  -h, --help      Display this message\n";
     ss << "  -c, --cli       Run the game in CLI mode (default)\n";
     ss << "  -g, --gui       Run the game in GUI mode\n";
+    ss << "  -w, --white     Play with the white pieces\n";
+    ss << "  -b, --black     Play with the black pieces\n";
     ss << "  -f  <string>    Specify a custom FEN string for the starting position\n";
     ss << "  -d  <depth>     Specify the depth of the minimax search\n";
+    ss << "  -t  <theme>     Specify the piece theme for the GUI\n";
     
     std::cout << ss.str() << std::endl;
 }
@@ -21,7 +24,9 @@ void usage() {
 int main(int argc, char** argv) {
     // parse command line arguments
     bool useCli = true;
+    std::string playerColor = "";
     std::string fen = defaultFEN;
+    std::string pieceTheme = "horsey/";
     int depth = 4;
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -32,6 +37,19 @@ int main(int argc, char** argv) {
             useCli = true;
         } else if (arg == "-g" || arg == "--gui") {
             useCli = false;
+        } else if (arg == "-w" || arg == "--white") {
+            playerColor = "white";
+        } else if (arg == "-b" || arg == "--black") {
+            playerColor = "black";
+        } else if (arg == "-t") {
+            if (i + 1 < argc) {
+                pieceTheme = argv[i + 1];
+                i++;
+            } else {
+                std::cerr << "Error: -t option requires a theme" << std::endl;
+                usage();
+                return 1;
+            }
         } else if (arg == "-f") {
             if (i + 1 < argc) {
                 fen = argv[i + 1];
@@ -62,9 +80,21 @@ int main(int argc, char** argv) {
     // run the CLI or GUI
     Game *game;
     if (useCli) {
-        game = new Cli(fen, depth);
+        if (playerColor == "white") {
+            game = new Cli(fen, depth, true);
+        } else if (playerColor == "black") {
+            game = new Cli(fen, depth, false);
+        } else {
+            game = new Cli(fen, depth);
+        }
     } else {
-        game = new Gui(fen, depth);
+        if (playerColor == "white") {
+            game = new Gui(fen, depth, true);
+        } else if (playerColor == "black") {
+            game = new Gui(fen, depth, false);
+        } else {
+            game = new Gui(fen, depth);
+        }
     }
     game->run();
 

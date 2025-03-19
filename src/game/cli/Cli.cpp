@@ -110,8 +110,10 @@ Cli::Cli() : Game() {}
 
 Cli::Cli(const std::string &fen, int depth) : Game(fen, depth) {}
 
+Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, depth, playerIsWhite) {}
+
 void Cli::run() {
-    state.board.prettyPrint(playerIsWhite);
+    // state.board.prettyPrint(playerIsWhite);
 
     while (!legalMoves.empty()) {
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
@@ -129,9 +131,7 @@ void Cli::run() {
 
         // update state with new move
         state.makeMove(next);
-        
-        // print board
-        state.board.prettyPrint(playerIsWhite);
+        // state.board.prettyPrint(playerIsWhite);
 
         // update set of legal moves
         legalMoves = state.generateMoves();

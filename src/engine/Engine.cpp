@@ -25,7 +25,7 @@ eval_t Engine::evaluate(const GameState& state) {
 eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
     if (depth >= maxDepth || state.isTerminal()) {
         eval_t eval = evaluate(state);
-        // std::cout << std::string(depth * 2, ' ') << "Eval: " << eval << "\n";
+        std::cout << std::string(depth * 2, ' ') << "Eval: " << eval << "\n";
         return eval;
     }
 
@@ -36,7 +36,8 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
         const Metadata md = state.makeMove(move);
 
         // Print move with indentation based on depth
-        // std::cout << std::string(depth * 2, ' ') << "Depth " << depth << ": " << move.to_string() << "\n";
+        std::cout << std::string(depth * 2, ' ') << "Depth " << depth << ": " << move.to_string() << "\n";
+        state.board.prettyPrint();
 
         eval_t eval = -negamax(state, -beta, -alpha, depth + 1);
         state.unmakeMove(move, md);
@@ -45,7 +46,7 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
         alpha = std::max(alpha, eval);
 
         if (alpha >= beta) {
-            // std::cout << std::string(depth * 2, ' ') << "Pruned at depth " << depth << "\n";
+            std::cout << std::string(depth * 2, ' ') << "Pruned at depth " << depth << "\n";
             break;
         }
     }
@@ -63,7 +64,8 @@ Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
     for (const Move& move : legalMoves) {
         const Metadata md = state.makeMove(move);
         
-        // std::cout << std::string(0 * 2, ' ') << "Depth " << 0 << ": " << move.to_string() << "\n";
+        std::cout << std::string(0 * 2, ' ') << "Depth " << 0 << ": " << move.to_string() << "\n";
+        state.board.prettyPrint();
         
         eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 1);
         state.unmakeMove(move, md);
