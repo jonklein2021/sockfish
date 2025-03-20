@@ -15,22 +15,6 @@ bool Cli::validInput(const std::string& input) {
            (input[4] >= '1' && input[4] <= '8');
 }
 
-Move Cli::coordsToMove(const std::string& input) {
-    sf::Vector2<int> from = {input[0] - 'a', '8' - input[1]};
-    sf::Vector2<int> to = {input[3] - 'a', '8' - input[4]};
-    return Move(from, to, None, false);
-}
-
-std::string Cli::moveToCoords(const Move& move) {
-    std::string out = "";
-    out += 'a' + move.from.x;
-    out += '8' - move.from.y;
-    out += ' ';
-    out += 'a' + move.to.x;
-    out += '8' - move.to.y;
-    return out;
-}
-
 Move Cli::getMoveFromStdin() {
     Move candidate;
     bool pawnPromoting;
@@ -114,6 +98,13 @@ Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, dept
 
 void Cli::run() {
     state.board.prettyPrint(playerIsWhite);
+
+    std::cout << legalMoves.size() << " legal moves:" << std::endl;    
+    for (const Move& m : legalMoves) {
+        std::cout << moveToCoords(m) << std::endl;
+    }
+
+    // std::cout << state.board.attacked({2, 0}, true) << std::endl;
 
     while (!legalMoves.empty()) {
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;

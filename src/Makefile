@@ -17,7 +17,7 @@ ALLOFILES    	= $(patsubst %.cpp, $(ODIR)/%.o, $(ALLCXX))
 DFILES			= $(ALLOFILES:.o=.d)
 
 # Targets
-TARGETS    = main
+TARGETS    = main test
 EXEFILES   = $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
 
 .DEFAULT_GOAL = all

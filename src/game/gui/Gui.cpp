@@ -77,9 +77,14 @@ std::list<Piece> Gui::fenToPieces(const std::string& fen) {
         } else if (c == ' ') { // end of board
             break;
         } else { // piece
+            // rotate 180 degrees if player is black
+            int displayX = playerIsWhite ? x : 7 - x;
+            int displayY = playerIsWhite ? y : 7 - y;
+
             // set this piece's bit at the correct position
-            Piece piece(fenPieceMap.at(c), {x, y}, sf::Sprite(pieceTextures[fenPieceMap.at(c)]));
-            piece.sprite.setPosition(x * TILE_PIXEL_SIZE, y * TILE_PIXEL_SIZE);
+            PieceType label = fenPieceMap.at(c);
+            Piece piece(label, {displayX, displayY}, sf::Sprite(pieceTextures[label]));
+            piece.sprite.setPosition(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE);
             pieces.push_back(piece);
             x++;
         }
@@ -93,11 +98,16 @@ void Gui::run() {
             // get move from engine
             Move move = cpu.getMove(state, legalMoves);
 
+            // int displayX = playerIsWhite ? move.to.x : 7 - move.to.x;
+            // int displayY = playerIsWhite ? move.to.y : 7 - move.to.y;
+            int displayX = move.to.x;
+            int displayY = move.to.y;
+
             // render move to screen
             for (Piece& p : pieces) {
                 if (p.position == move.from) {
                     p.position = move.to;
-                    p.sprite.setPosition(move.to.x * TILE_PIXEL_SIZE, move.to.y * TILE_PIXEL_SIZE);
+                    p.sprite.setPosition(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE);
                     break;
                 }
             }
@@ -210,6 +220,10 @@ void Gui::handleEvents() {
                 
                 // snap to nearest tile
                 int newX = mousePos.x / TILE_PIXEL_SIZE, newY = mousePos.y / TILE_PIXEL_SIZE;
+                
+                // rotate 180 degrees if player is black
+                int displayX = playerIsWhite ? newX : 7 - newX;
+                int displayY = playerIsWhite ? newY : 7 - newY;
 
                 bool pawnPromoting = (selectedPiece->type == WP && newY == 0) || (selectedPiece->type == BP && newY == 7);
 
@@ -246,14 +260,16 @@ void Gui::handleEvents() {
                         std::cout << pieceFilenames[it->type] << "on (" << it->position.x << ", " << it->position.y << ") captured" << std::endl;
                     }
 
+
                     // show promotion menu if pawn is promoting
                     if (pawnPromoting) {
-                        promotionMenu.show(newX);
+
+                        promotionMenu.show(displayX);
                         window.setMouseCursor(arrowCursor);
     
                         // snap to grid
-                        selectedPiece->position = {newX, newY};
-                        selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
+                        selectedPiece->position = {displayX, displayY};
+                        selectedPiece->sprite.setPosition(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE);
                         
                         // stop further processing for now;
                         // handle the rest in callback lambda to promotionMenu.handleEvents()
@@ -317,11 +333,13 @@ void Gui::handleEvents() {
                     // reset piece position if move is invalid
                     newX = oldX;
                     newY = oldY;
+                    displayX = playerIsWhite ? newX : 7 - newX;
+                    displayY = playerIsWhite ? newY : 7 - newY;
                 }
 
                 // update this piece's position
-                selectedPiece->position = {newX, newY};
-                selectedPiece->sprite.setPosition(newX * TILE_PIXEL_SIZE, newY * TILE_PIXEL_SIZE);
+                selectedPiece->position = {displayX, displayY};
+                selectedPiece->sprite.setPosition(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE);
                 selectedPiece = nullptr;
             }
         }

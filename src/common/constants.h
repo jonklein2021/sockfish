@@ -40,7 +40,7 @@ const std::vector<PieceType> promotionPiecesBlack = {BQ, BR, BB, BN};
 /**
  * FEN string for the starting position
  */
-const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
+const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /**
  * List of all possible piece moves

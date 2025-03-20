@@ -75,7 +75,11 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::cout << "Initializing the " << (useCli ? "CLI" : "GUI") << " with FEN string " << fen << std::endl;
+    std::cout << "Initializing game in " << (useCli ? "CLI" : "GUI") << " mode...\n";
+    std::cout << "  Player color: " << (playerColor.empty() ? "random" : playerColor) << "\n";
+    std::cout << "  FEN: " << fen << "\n";
+    std::cout << "  Depth: " << depth << "\n";
+    std::cout << "  Piece theme: " << pieceTheme << std::endl;
 
     // run the CLI or GUI
     Game *game;

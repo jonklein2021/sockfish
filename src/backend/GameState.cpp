@@ -1,6 +1,8 @@
 #include "GameState.h"
 #include "constants.h"
 
+#include <iostream>
+
 GameState::GameState() : GameState(defaultFEN) {}
                 
 GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingMoved(false), whiteRookAMoved(true), whiteRookHMoved(true),
@@ -9,15 +11,13 @@ GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingM
     // 1: position data
     size_t i = 0;
     int x = 0, y = 0;
-    for (; i < fen.size(); i++) {
+    for (; i < fen.size() && fen[i] != ' '; i++) {
         const char c = fen[i];
         if (c == '/') { // move to next row
             x = 0;
             y++;
         } else if (isdigit(c)) { // empty square; skip x squares
             x += c - '0';
-        } else if (c == ' ') { // end of board
-            break;
         } else { // piece
             // set this piece's bit at the correct position
             PieceType temp = fenPieceMap.at(c);
@@ -25,6 +25,8 @@ GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingM
             x++;
         }
     }
+
+    if (i >= fen.size()) return;
 
     // 2: whose turn it is
     whiteToMove = fen[++i] == 'w';
@@ -38,6 +40,8 @@ GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingM
         if (fen[i] == 'q') blackRookAMoved = false;
     }
 
+    if (i >= fen.size()) return;
+
     // 4: en passant square
     if (fen[++i] != '-') {
         int file = fen[i] - 'a';
@@ -45,15 +49,17 @@ GameState::GameState(const std::string &fen) : whiteKingMoved(false), blackKingM
         enPassantSquare = {file, rank};
     }
 
+    if (i >= fen.size()) return;
+
     // 5: halfmove clock
     i += 2;
     std::string halfmoveClock = "";
-    for (; fen[i] != ' ' && i < fen.size(); i++) {
+    for (; i < fen.size() && fen[i] != ' '; i++) {
         halfmoveClock += fen[i];
     }
-    movesSinceCapture = std::stoi(halfmoveClock);
+    movesSinceCapture = halfmoveClock.empty() ? 0 : std::stoi(halfmoveClock);
 
-    // 6: fulllmove number (not used)    
+    // 6: fullmove number (not used)
 
 }
 
@@ -67,12 +73,16 @@ Metadata GameState::makeMove(const Move &move) {
         None
     };
 
-    // Determine captured piece (if any)
+    // determine captured piece (if any)
     if (move.isCapture) {
-        for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-            if ((board.pieceBits[p] & (1ull << (move.to.y * 8 + move.to.x))) != 0) {
-                metadata.capturedPiece = p;
-                break;
+        if (move.isEnPassant) {
+            metadata.capturedPiece = whiteToMove ? BP : WP;
+        } else {
+            for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
+                if ((board.pieceBits[p] & (1ull << (move.to.y * 8 + move.to.x))) != 0) {
+                    metadata.capturedPiece = p;
+                    break;
+                }
             }
         }
     }
@@ -226,11 +236,11 @@ std::vector<Move> GameState::generateMoves() const {
         // move two squares forward only if pawn is in its starting position
         if ((white && yi == 6) || (!white && yi == 1)) {
             uint64_t over = 1ull << ((yi + direction) * 8 + xf); // square pawn jumps over
-            uint64_t to = 1ull << (yf * 8 + xf); // destination square
+            uint64_t to = 1ull << ((yf + direction) * 8 + xf); // destination square
             yf += direction;
             
             // both `over` and `to` must be empty for a pawn to move 2 squares
-            if ((emptySquares & (over | to)) == (over | to)) {
+            if ((emptySquares & over) && (emptySquares & to)) {
                 Move pseudolegal{{xi, yi}, {xf, yf}, (white ? WP : BP)};
                 BitBoard tempBoard(board);
                 tempBoard.makeMove(pseudolegal);
@@ -488,25 +498,31 @@ std::vector<Move> GameState::generateMoves() const {
             }
         }
 
+        // {king square, rook square, squares in between}
+        const uint64_t whiteKingsideCastle[4] = {1ull << 60, 1ull << 63, 1ull << 61, 1ull << 62};
+        const uint64_t whiteQueensideCastle[5] = {1ull << 60, 1ull << 56, 1ull << 57, 1ull << 58, 1ull << 59};
+        const uint64_t blackKingsideCastle[4] = {1ull << 4, 1ull << 7, 1ull << 5, 1ull << 6};
+        const uint64_t blackQueensideCastle[5] = {1ull << 4, 1ull << 0, 1ull << 1, 1ull << 2, 1ull << 3};
+
         // white kingside castle
-        if (white && !whiteKingMoved && !whiteRookAMoved) {
-            if ((emptySquares & (1ull << 61)) && (emptySquares & (1ull << 62))) {
+        if (white && !whiteKingMoved && !whiteRookHMoved && !board.attacked(kingPos, !white) && !board.attacked({5, 7}, !white) && !board.attacked({6, 7}, !white)) {
+            if ((emptySquares & whiteKingsideCastle[2]) && (emptySquares & whiteKingsideCastle[3])) {
                 Move pseudomove{{4, 7}, {6, 7}, WK, false};
                 BitBoard tempBoard(board);
                 tempBoard.makeMove(pseudomove);
-                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 7}, !white) && !tempBoard.attacked({6, 7}, !white)) {
+                if (!tempBoard.attacked({6, 7}, !white)) {
                     moves.push_back(pseudomove);
                 }
             }
         }
 
         // white queenside castle
-        if (white && !whiteKingMoved && !whiteRookHMoved) {
-            if ((emptySquares & (1ull << 57)) && (emptySquares & (1ull << 58)) && (emptySquares & (1ull << 59))) {
+        if (white && !whiteKingMoved && !whiteRookAMoved && !board.attacked(kingPos, !white) && !board.attacked({2, 7}, !white) && !board.attacked({3, 7}, !white)) {
+            if ((emptySquares & whiteQueensideCastle[2]) && (emptySquares & whiteQueensideCastle[3]) && (emptySquares & whiteQueensideCastle[4])) {
                 Move pseudomove{{4, 7}, {2, 7}, WK, false};
                 BitBoard tempBoard(board);
                 tempBoard.makeMove(pseudomove);
-                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({3, 7}, !white) && !tempBoard.attacked({2, 7}, !white)) {
+                if (!tempBoard.attacked({2, 7}, !white)) {
                     moves.push_back(pseudomove);
                 }
             }
@@ -515,24 +531,24 @@ std::vector<Move> GameState::generateMoves() const {
         }
         
         // black kingside castle
-        if (!white && !blackKingMoved && !blackRookHMoved) {
-            if ((emptySquares& (1ull << 5)) && (emptySquares& (1ull << 6))) {
+        if (!white && !blackKingMoved && !blackRookHMoved && !board.attacked(kingPos, !white) && !board.attacked({5, 0}, !white) && !board.attacked({6, 0}, !white)) {
+            if ((emptySquares & blackKingsideCastle[2]) && (emptySquares & blackKingsideCastle[3])) {
                 Move pseudomove{{4, 0}, {6, 0}, BK, false};
                 BitBoard tempBoard(board);
                 tempBoard.makeMove(pseudomove);
-                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {
+                if (!tempBoard.attacked({6, 0}, !white)) {
                     moves.push_back(pseudomove);
                 }
             }
         }
         
         // black queenside castle
-        if (!white && !blackKingMoved && !blackRookAMoved) {
-            if ((emptySquares& (1ull << 1)) && (emptySquares& (1ull << 2)) && (emptySquares& (1ull << 3))) {
+        if (!white && !blackKingMoved && !blackRookAMoved && !board.attacked(kingPos, !white) && !board.attacked({2, 0}, !white) && !board.attacked({3, 0}, !white)) {
+            if ((emptySquares & blackQueensideCastle[2]) && (emptySquares & blackQueensideCastle[3]) && (emptySquares & blackQueensideCastle[4])) {
                 Move pseudomove{{4, 0}, {2, 0}, BK};
                 BitBoard tempBoard(board);
                 tempBoard.makeMove(pseudomove);
-                if (!tempBoard.attacked(kingPos, !white) && !tempBoard.attacked({5, 0}, !white) && !tempBoard.attacked({6, 0}, !white)) {
+                if (!tempBoard.attacked({2, 0}, !white)) {
                     moves.push_back(pseudomove);
                 }
             }

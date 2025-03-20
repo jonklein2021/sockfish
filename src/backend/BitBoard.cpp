@@ -5,10 +5,8 @@
 
 // TODO: Make this more efficient by backward-searching from the sqaure of interest
 bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
-    // std::cout << "Checking if (" << square.x << ", " << square.y << ") is under attack by " << (white ? "white" : "black") << std::endl;
-    uint64_t targetBit = 1ull << (square.y * 8 + square.x);
 
-    // get all pieces
+    // attacker's pieces
     uint64_t oppPawns = pieceBits[white ? WP : BP];
     uint64_t oppKnights = pieceBits[white ? WN : BN];
     uint64_t oppBishops = pieceBits[white ? WB : BB];
@@ -16,6 +14,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     uint64_t oppQueens = pieceBits[white ? WQ : BQ];
     uint64_t oppKing = pieceBits[white ? WK : BK];
     
+    // my pieces
     uint64_t pawns = pieceBits[white ? BP : WP];
     uint64_t knights = pieceBits[white ? BN : WN];
     uint64_t bishops = pieceBits[white ? BB : WB];
@@ -23,157 +22,76 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     uint64_t queens = pieceBits[white ? BQ : WQ];
     uint64_t king = pieceBits[white ? BK : WK];
     
-    // useful for determining captures
+    // helps break out of loop long-range pieces
     uint64_t myPieces = pawns | knights | bishops | rooks | queens | king;
     uint64_t oppPieces = oppPawns | oppKnights | oppBishops | oppRooks | oppQueens | oppKing;
 
-    int xi, yi, xf, yf;
+    // idea: search backwards from the square of interest to the direction of each potential attacking piece
+    int x, y;
+
+    /* PAWNS */
+    const std::vector<std::pair<int, int>> reversePawnCaptures = {{1, 1}, {-1, 1}};
+    int direction = white ? 1 : -1;
+    for (auto &[dx, dy] : reversePawnCaptures) {
+        x = square.x + dx;
+        y = square.y + dy * direction;
+        if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            uint64_t to = 1ull << (y * 8 + x);
+            if (to & oppPawns) return true;
+        }
+    }
+
+    /* KNIGHTS */
+    for (auto &[dx, dy] : knightMoves) {
+        x = square.x + dx;
+        y = square.y + dy;
+        if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            uint64_t to = 1ull << (y * 8 + x);
+            if (to & oppKnights) return true;
+        }
+    }
+
+    /* BISHOPS/QUEENS */
+    for (auto &[dx, dy] : bishopMoves) {
+        x = square.x + dx;
+        y = square.y + dy;
+        while (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            uint64_t to = 1ull << (y * 8 + x);
+            if (to & oppPieces) {
+                if (to & oppBishops) return true;
+                else if (to & oppQueens) return true;
+                else break;
+            }
+            if (to & myPieces) break;
+            x += dx;
+            y += dy;
+        }
+    }
     
-    // pawn test
-    int direction = white ? -1 : 1;
-    while (oppPawns > 0) {
-        int trailingZeros = __builtin_ctzll(oppPawns);
-        xi = trailingZeros % 8;
-        yi = trailingZeros / 8;
-
-        for (auto &[dx, dy] : pawnCaptures) {
-            xf = xi + dx;
-            yf = yi + dy * direction;
-            if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
-                uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & targetBit) {
-                    // std::cout << "Pawn capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
-                    return true;
-                }
+    /* ROOKS/QUEENS */
+    for (auto &[dx, dy] : rookMoves) {
+        x = square.x + dx;
+        y = square.y + dy;
+        while (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            uint64_t to = 1ull << (y * 8 + x);
+            if (to & oppPieces) {
+                if (to & oppRooks) return true;
+                else if (to & oppQueens) return true;
+                else break;
             }
+            if (to & myPieces) break;
+            x += dx;
+            y += dy;
         }
-
-        // TODO: en passant
-
-        oppPawns &= oppPawns - 1;
     }
 
-    // knight test
-    while (oppKnights > 0) {
-        int trailingZeros = __builtin_ctzll(oppKnights);
-        xi = trailingZeros % 8;
-        yi = trailingZeros / 8;
-
-        for (auto &[dx, dy] : knightMoves) {
-            xf = xi + dx;
-            yf = yi + dy;
-            if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
-                uint64_t to = 1ull << (yf * 8 + xf);
-                if (to & targetBit) {
-                    // std::cout << "Knight capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
-                    return true;
-                }
-            }
-        }
-
-        oppKnights &= oppKnights - 1;
-    }
-
-    // bishop test
-    while (oppBishops > 0) {
-        int trailingZeros = __builtin_ctzll(oppBishops);
-        xi = trailingZeros % 8;
-        yi = trailingZeros / 8;
-
-        for (auto &[dx, dy] : bishopMoves) {
-            xf = xi + dx;
-            yf = yi + dy;
-            while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
-                uint64_t to = 1ull << (yf * 8 + xf);
-
-                if (to & targetBit) {
-                    // std::cout << "Bishop capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
-                    return true;
-                }
-
-                // stop if there’s a blocking piece
-                if ((to & oppPieces) || (to & myPieces)) {
-                    break;
-                }
-
-                xf += dx;
-                yf += dy;
-            }
-        }
-
-        oppBishops &= oppBishops - 1;
-    }
-
-    // rook test
-    while (oppRooks > 0) {
-        int trailingZeros = __builtin_ctzll(oppRooks);
-        xi = trailingZeros % 8;
-        yi = trailingZeros / 8;
-        for (auto &[dx, dy] : rookMoves) {
-            xf = xi + dx;
-            yf = yi + dy;
-            while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
-                uint64_t to = 1ull << (yf * 8 + xf);
-
-                
-                if (to & targetBit) {
-                    // std::cout << "Rook capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
-                    return true;
-                }
-                
-                // stop if there’s a blocking piece
-                if ((to & oppPieces) || (to & myPieces)) {
-                    break;
-                }
-
-                xf += dx;
-                yf += dy;
-            }
-        }
-        oppRooks &= oppRooks - 1;
-    }
-
-    // queen test
-    while (oppQueens > 0) {
-        int trailingZeros = __builtin_ctzll(oppQueens);
-        xi = trailingZeros % 8;
-        yi = trailingZeros / 8;
-        for (auto &[dx, dy] : queenMoves) {
-            xf = xi + dx;
-            yf = yi + dy;
-            while (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
-                uint64_t to = 1ull << (yf * 8 + xf);
-                
-                if (to & targetBit) {
-                    // std::cout << "Queen capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
-                    return true;
-                }
-
-                // stop if there’s a blocking piece
-                if (to & oppPieces || to & myPieces) {
-                    break;
-                }
-
-                xf += dx;
-                yf += dy;
-            }
-        }
-        oppQueens &= oppQueens - 1;
-    }
-
-    // king test
-    int trailingZeros = __builtin_ctzll(oppKing);
-    xi = trailingZeros % 8;
-    yi = trailingZeros / 8;
+    /* KINGS */
     for (auto &[dx, dy] : kingMoves) {
-        xf = xi + dx;
-        yf = yi + dy;
-        if (xf >= 0 && xf < 8 && yf >= 0 && yf < 8) {
-            uint64_t to = 1ull << (yf * 8 + xf);
-            if (to & targetBit) {
-                // std::cout << "King capture: (" << xi << ", " << yi << ") -> (" << xf << ", " << yf << ")" << std::endl;
-                return true;
-            }
+        x = square.x + dx;
+        y = square.y + dy;
+        if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            uint64_t to = 1ull << (y * 8 + x);
+            if (to & oppKing) return true;
         }
     }
 
@@ -223,7 +141,6 @@ void BitBoard::makeMove(const Move& move) {
     
     /* CAPTURES */
 
-    // determine what piece to remove if there is a capture
     if (move.isCapture) {
         if (move.isEnPassant) {
             // the piece to remove is at the attacker pawn's new x and old y
@@ -232,7 +149,7 @@ void BitBoard::makeMove(const Move& move) {
             // remove the captured pawn
             pieceBits[move.piece == WP ? BP : WP] &= ~removeBit;
         } else {
-            // remove the captured piece
+            // determine what piece to remove
             for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
                 if (p != move.piece && (pieceBits[p] & to)) {
                     // zero out the captured piece's bit
