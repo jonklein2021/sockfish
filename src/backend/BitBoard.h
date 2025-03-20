@@ -4,7 +4,6 @@
 #include <sstream>
 #include <SFML/Graphics.hpp>
 
-#include "Metadata.h"
 #include "Move.h"
 
 /**
@@ -35,9 +34,8 @@ struct BitBoard {
      * Undoes a move on the board
      * 
      * @param move the move to undo
-     * @param metadata the metadata to restore captures
      */
-    void unmakeMove(const Move &move, const Metadata &metadata);
+    void unmakeMove(const Move &move);
     
     /**
      * Used to test if a square of some bitboard is under attack by a certain color

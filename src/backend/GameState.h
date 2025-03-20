@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "BitBoard.h"
+#include "Metadata.h"
 
 /**
  * The game state includes the current position
@@ -14,25 +15,10 @@ struct GameState {
     // board representation
     BitBoard board;
 
-    // trivial
     bool whiteToMove;
 
-    // used to check if castling is legal
-    bool whiteKingMoved;
-    bool blackKingMoved;
-    bool whiteRookAMoved;
-    bool whiteRookHMoved;
-    bool blackRookAMoved;
-    bool blackRookHMoved;
-
-    // used to check for en passant
-    sf::Vector2<int> enPassantSquare;
-
-    // used to check for 50 move rule
-    int movesSinceCapture;
-
-    // TODO: use this to check for threefold repetition
-    // std::vector<BitBoard> history;
+    // game state information
+    Metadata md;
 
     // Constructors
     GameState();
@@ -53,9 +39,9 @@ struct GameState {
      * Undoes a move in the game state
      * 
      * @param move the move to undo
-     * @param metadata the metadata to restore
+     * @param prevMD the old metadata to restore
      */
-    void unmakeMove(const Move &move, const Metadata &metadata);
+    void unmakeMove(const Move &move, const Metadata &prevMD);
 
     /**
      * Returns true iff the given square

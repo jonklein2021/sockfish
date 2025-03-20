@@ -9,24 +9,24 @@ void testPerftFile(const std::string &inputFilename) {
     std::string line;
     while (std::getline(in, line)) {
         state = GameState(line);
-        cpu.countPositionsBuildup(state, 6);
+        cpu.countPositionsBuildup(state, 4);
     }
     in.close();
     exit(0);
 }
 
 int main(int argc, char **argv) {
+    testPerftFile("testfiles/input");
+
     std::string fen = argv[1];
     GameState state(fen);
     state.board.prettyPrint();
     std::cout << "White to move: " << state.whiteToMove << std::endl;
-    std::cout << "White King Moved: " << state.whiteKingMoved << std::endl;
-    std::cout << "Black King Moved: " << state.blackKingMoved << std::endl;
-    std::cout << "White A Rook Moved: " << state.whiteRookAMoved << std::endl;
-    std::cout << "White H Rook Moved: " << state.whiteRookHMoved << std::endl;
-    std::cout << "Black A Rook Moved: " << state.blackRookAMoved << std::endl;
-    std::cout << "Black H Rook Moved: " << state.blackRookHMoved << std::endl;
-    std::cout << "En Passant Square: " << state.enPassantSquare.x << ", " << state.enPassantSquare.y << "\n" << std::endl;
+    std::cout << "White Kingside Castle: " << state.md.whiteKCastleRights << std::endl;
+    std::cout << "White Queenside Castle: " << state.md.whiteQCastleRights << std::endl;
+    std::cout << "Black Kingside Castle: " << state.md.blackKCastleRights << std::endl;
+    std::cout << "Black Queenside Castle: " << state.md.blackQCastleRights << std::endl;
+    std::cout << "En Passant Square: " << state.md.enPassantSquare.x << ", " << state.md.enPassantSquare.y << "\n" << std::endl;
 
     // generate moves
     std::vector<Move> legalMoves = state.generateMoves();

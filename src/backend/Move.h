@@ -15,6 +15,8 @@ struct Move {
     
     /**
      * The type of piece that was moved
+     * 
+     * Castling is a king move and en passant is a pawn move
      */
     PieceType piece;
 
@@ -23,12 +25,20 @@ struct Move {
      */
     PieceType promotionPiece;
 
-    bool isCapture;
+    /**
+     * The type of piece that was captured or None if no capture
+     * 
+     * Pawn for all en passant moves
+     */
+    PieceType capturedPiece;
+
     bool isEnPassant;
+    bool isKCastle;
+    bool isQCastle;
     
     Move();
-    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved,
-        bool isCapture = false, PieceType promotionPiece = None, bool isEnPassant = false);
+    Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, PieceType capturedPiece = None,
+        PieceType promotionPiece = None, bool isKCastle = false, bool isQCastle = false, bool isEnPassant = false);
     
     /**
      * N.B: This method ONLY compares the `from`, `to`, and `promotedPiece` members

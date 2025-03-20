@@ -68,7 +68,7 @@ void Engine::countPositions(GameState& state, int depth) const {
             count += countPositionsHelper(state, depth - 1);
             total += count;  // Accumulate total count
             
-            if (move.isCapture) captures++;
+            if (move.capturedPiece != None) captures++;
             if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK)) castles++;
             if (move.isEnPassant) eps++;
             if (move.promotionPiece != None) promotions++;

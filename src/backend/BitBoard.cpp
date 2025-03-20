@@ -107,28 +107,28 @@ void BitBoard::makeMove(const Move& move) {
     /* CASTLING */
     
     // white king side castle
-    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
+    if (move.piece == WK && move.isKCastle) {
         pieceBits[WK] ^= fromTo;
         pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
         return;
     }
     
     // white queen side castle
-    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
+    if (move.piece == WK && move.isQCastle) {
         pieceBits[WK] ^= fromTo;
         pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
         return;
     }
 
     // black king side castle
-    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
+    if (move.piece == BK && move.isKCastle) {
         pieceBits[BK] ^= fromTo;
         pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
         return;
     }
 
     // black queen side castle
-    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
+    if (move.piece == BK && move.isQCastle) {
         pieceBits[BK] ^= fromTo;
         pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
         return;
@@ -141,7 +141,7 @@ void BitBoard::makeMove(const Move& move) {
     
     /* CAPTURES */
 
-    if (move.isCapture) {
+    if (move.capturedPiece != None) {
         if (move.isEnPassant) {
             // the piece to remove is at the attacker pawn's new x and old y
             uint64_t removeBit = (1ull << (move.from.y * 8 + move.to.x));
@@ -167,36 +167,36 @@ void BitBoard::makeMove(const Move& move) {
     }
 }
 
-void BitBoard::unmakeMove(const Move &move, const Metadata &metadata) {
+void BitBoard::unmakeMove(const Move &move) {
     uint64_t from = 1ull << (move.from.y * 8 + move.from.x);
     uint64_t to = 1ull << (move.to.y * 8 + move.to.x);
     uint64_t fromTo = from | to;
 
     /* CASTLING */
     
-    // white king-side castle
-    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 6 && move.to.y == 7) {
+    // white king side castle
+    if (move.piece == WK && move.isKCastle) {
         pieceBits[WK] ^= fromTo;
         pieceBits[WR] ^= (1ull << 63) | (1ull << 61);
         return;
     }
     
-    // white queen-side castle
-    if (move.piece == WK && move.from.x == 4 && move.from.y == 7 && move.to.x == 2 && move.to.y == 7) {
+    // white queen side castle
+    if (move.piece == WK && move.isQCastle) {
         pieceBits[WK] ^= fromTo;
         pieceBits[WR] ^= (1ull << 56) | (1ull << 59);
         return;
     }
 
-    // black king-side castle
-    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 6 && move.to.y == 0) {
+    // black king side castle
+    if (move.piece == BK && move.isKCastle) {
         pieceBits[BK] ^= fromTo;
         pieceBits[BR] ^= (1ull << 7) | (1ull << 5);
         return;
     }
 
-    // black queen-side castle
-    if (move.piece == BK && move.from.x == 4 && move.from.y == 0 && move.to.x == 2 && move.to.y == 0) {
+    // black queen side castle
+    if (move.piece == BK && move.isQCastle) {
         pieceBits[BK] ^= fromTo;
         pieceBits[BR] ^= (1ull << 0) | (1ull << 3);
         return;
@@ -208,12 +208,12 @@ void BitBoard::unmakeMove(const Move &move, const Metadata &metadata) {
     pieceBits[move.piece] ^= fromTo;
 
     /* CAPTURES */
-    if (move.isCapture) {
+    if (move.capturedPiece != None) {
         if (move.isEnPassant) {
             uint64_t restoreBit = (1ull << (move.from.y * 8 + move.to.x));
             pieceBits[move.piece == WP ? BP : WP] |= restoreBit;
         } else {
-            pieceBits[metadata.capturedPiece] |= to;  // Restore captured piece
+            pieceBits[move.capturedPiece] |= to;  // Restore captured piece
         }
     }
 

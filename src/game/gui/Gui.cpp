@@ -113,7 +113,7 @@ void Gui::run() {
             }
 
             // remove captured piece from display list
-            if (move.isCapture) {
+            if (move.capturedPiece != None) {
                 auto it = std::find_if(pieces.begin(), pieces.end(), [this, move](const Piece& p){
                     return p.type != move.piece && p.position == move.to;
                 });
@@ -228,7 +228,7 @@ void Gui::handleEvents() {
                 bool pawnPromoting = (selectedPiece->type == WP && newY == 0) || (selectedPiece->type == BP && newY == 7);
 
                 // create move object, isCapture and promotionPiece will be overridden later
-                candidate = Move({oldX, oldY}, {newX, newY}, selectedPiece->type, false, None);
+                candidate = Move({oldX, oldY}, {newX, newY}, selectedPiece->type, None, None);
 
                 // necessary to match with a legal move
                 if (pawnPromoting)
@@ -251,7 +251,7 @@ void Gui::handleEvents() {
                 
                 if (validMove) {
                     // remove captured piece from display list
-                    if (candidate.isCapture) {
+                    if (candidate.capturedPiece != None) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [this](const Piece& p){
                             return p.type != candidate.piece && p.position.x == candidate.to.x && p.position.y == candidate.to.y;
                         });

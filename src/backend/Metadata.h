@@ -8,13 +8,18 @@
  * that is cannot be read from the board position itself
  */
 struct Metadata {
-    bool blackRookAMoved;
-    bool blackRookHMoved;
-    bool whiteRookAMoved;
-    bool whiteRookHMoved;
-    bool whiteKingMoved;
-    bool blackKingMoved;
-    int movesSinceCapture;
+    bool whiteKCastleRights;
+    bool whiteQCastleRights;
+    bool blackKCastleRights;
+    bool blackQCastleRights;
+
+    // used to check for en passant
     sf::Vector2<int> enPassantSquare;
-    PieceType capturedPiece;
+
+    // used to check for 50 move rule
+    int movesSinceCapture;
+    
+    // TODO: use this to check for threefold repetition
+    // nts: store the hash of each state
+    std::vector<uint64_t> history;
 };
