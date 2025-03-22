@@ -61,9 +61,16 @@ void Engine::countPositions(GameState& state, int depth) const {
 
         uint64_t count = 0;
         std::vector<Move> legalMoves = state.generateMoves();
+
+        std::cout << legalMoves.size() << " legal moves\n";
+        for (const Move& m : legalMoves) {
+            std::cout << m.to_string() << "\n";
+        }
         
         for (const Move& move : legalMoves) {            
             const Metadata md = state.makeMove(move);
+
+            state.print();
             
             count += countPositionsHelper(state, depth - 1);
             total += count;  // Accumulate total count
@@ -76,7 +83,7 @@ void Engine::countPositions(GameState& state, int depth) const {
                 checks++;
                 if (state.isTerminal()) {
                     // std::cout << moveToCoords(move) << " is checkmate\n";
-                    // state.board.prettyPrint();
+                    // state.print();
                     checkmates++;
                 }
             }

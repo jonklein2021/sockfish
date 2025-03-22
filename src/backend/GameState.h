@@ -70,4 +70,9 @@ struct GameState {
      * @return a vector of all possible moves
      */
     std::vector<Move> generateMoves() const;
+
+    /**
+     * Print the game state to the console
+     */
+    void print() const;
 };

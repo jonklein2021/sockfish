@@ -3,8 +3,8 @@
 #include "BitBoard.h"
 #include "constants.h"
 
-// TODO: Make this more efficient by backward-searching from the sqaure of interest
 bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
+    // std::cout << "Checking if " << square.x << ", " << square.y << " is attacked by " << (white ? "white" : "black") << std::endl;
 
     // attacker's pieces
     uint64_t oppPawns = pieceBits[white ? WP : BP];

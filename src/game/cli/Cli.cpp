@@ -97,17 +97,17 @@ Cli::Cli(const std::string &fen, int depth) : Game(fen, depth) {}
 Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, depth, playerIsWhite) {}
 
 void Cli::run() {
-    state.board.prettyPrint(playerIsWhite);
-
-    std::cout << legalMoves.size() << " legal moves:" << std::endl;    
-    for (const Move& m : legalMoves) {
-        std::cout << moveToCoords(m) << std::endl;
-    }
-
+    
     // std::cout << state.board.attacked({2, 0}, true) << std::endl;
-
+    
     while (!legalMoves.empty()) {
+        state.print();
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
+
+        std::cout << legalMoves.size() << " legal moves:" << std::endl;    
+        for (const Move& m : legalMoves) {
+            std::cout << m.to_string() << std::endl;
+        }
 
         Move next;
         if (playersTurn) {
@@ -115,13 +115,18 @@ void Cli::run() {
             next = getMoveFromStdin();
         } else {
             // get move from engine
-            next = cpu.getMove(state, legalMoves);
-            std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
+            next = getMoveFromStdin();
+            // next = cpu.getMove(state, legalMoves);
+            // std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
+        std::cout << next.to_string() << std::endl;
+
         // update state with new move
-        state.makeMove(next);
-        state.board.prettyPrint(playerIsWhite);
+        Metadata md = state.makeMove(next);
+        state.print();
+        state.unmakeMove(next, md);
+        state.print();
 
         // update set of legal moves
         legalMoves = state.generateMoves();

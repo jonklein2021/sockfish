@@ -16,30 +16,21 @@ void testPerftFile(const std::string &inputFilename) {
 }
 
 int main(int argc, char **argv) {
-    testPerftFile("testfiles/input");
+    if (argc < 2) {   
+        testPerftFile("testfiles/input");
+    }
 
     std::string fen = argv[1];
     GameState state(fen);
-    state.board.prettyPrint();
-    std::cout << "White to move: " << state.whiteToMove << std::endl;
-    std::cout << "White Kingside Castle: " << state.md.whiteKCastleRights << std::endl;
-    std::cout << "White Queenside Castle: " << state.md.whiteQCastleRights << std::endl;
-    std::cout << "Black Kingside Castle: " << state.md.blackKCastleRights << std::endl;
-    std::cout << "Black Queenside Castle: " << state.md.blackQCastleRights << std::endl;
-    std::cout << "En Passant Square: " << state.md.enPassantSquare.x << ", " << state.md.enPassantSquare.y << "\n" << std::endl;
+    state.print();
 
     // generate moves
-    std::vector<Move> legalMoves = state.generateMoves();
-    for (const Move &m : legalMoves) {
-        std::cout << moveToCoords(m) << std::endl;
-    }
+    // std::vector<Move> legalMoves = state.generateMoves();
 
     // count positions
     Engine *cpu;
 
-    // cpu->countPositionsBuildup(state, 6);
-
-    for (int d = 1; d <= 6; d++) {
+    for (int d = 1; d <= 2; d++) {
         std::cout << "Depth: " << d << std::endl;
         cpu->countPositions(state, d);
     }

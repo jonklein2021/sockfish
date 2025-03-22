@@ -131,11 +131,15 @@ void Gui::run() {
             
             // update state
             state.makeMove(move);
-            state.board.prettyPrint();
+            state.print();
             playersTurn = true;
 
             // get new legal moves for the next turn
             legalMoves = state.generateMoves();
+            for (const Move& m : legalMoves) {
+                std::cout << m.to_string() << std::endl;
+            }
+
         }
 
         handleEvents();
@@ -188,7 +192,7 @@ void Gui::handleEvents() {
                 // apply move to internal game state
                 state.makeMove(candidate);
                 playersTurn = false;
-                state.board.prettyPrint();
+                state.print();
 
                 // get new legal moves for the next turn
                 legalMoves = state.generateMoves();
@@ -311,7 +315,7 @@ void Gui::handleEvents() {
 
                     // apply move to internal game state
                     state.makeMove(candidate);
-                    state.board.prettyPrint();
+                    state.print();
                     playersTurn = false;
 
                     // get new legal moves for the next turn
