@@ -19,7 +19,6 @@ struct Metadata {
     // used to check for 50 move rule
     int movesSinceCapture;
     
-    // TODO: use this to check for threefold repetition
-    // nts: store the hash of each state
+    // stores the hash of each state
     std::vector<uint64_t> history;
 };

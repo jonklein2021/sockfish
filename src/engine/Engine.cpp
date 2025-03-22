@@ -132,31 +132,38 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
     std::vector<Move> legalMoves = state.generateMoves();
 
     if (depth >= maxDepth || state.isTerminal()) {
-        eval_t eval = evaluate(state, legalMoves);
-        // std::cout << std::string(depth * 2, ' ') << "Eval: " << eval << "\n";
-        return eval;
+        return evaluate(state, legalMoves);
     }
 
     for (const Move& move : legalMoves) {
         const Metadata md = state.makeMove(move);
 
-        // Print move with indentation based on depth
-        // std::cout << std::string(depth * 2, ' ') << "Depth " << depth << ": " << move.to_string() << "\n";
-        // state.board.prettyPrint();
+        eval_t eval;
+        uint64_t h = state.hash();
+        
+        // check transposition table
+        if (transpositionTable.find(h) != transpositionTable.end()) {
+            eval = transpositionTable[h];
+        } else {
+            eval = -negamax(state, -beta, -alpha, depth);
+            transpositionTable[h] = eval;
+        }
 
-        eval_t eval = -negamax(state, -beta, -alpha, depth + 1);
         state.unmakeMove(move, md);
 
         bestEval = std::max(bestEval, eval);
         alpha = std::max(alpha, eval);
 
         if (alpha >= beta) {
-            // std::cout << std::string(depth * 2, ' ') << "Pruned at depth " << depth << "\n";
             break;
         }
     }
 
     return bestEval;
+}
+
+eval_t iterativeDeepening(GameState& state, int maxDepth) {
+    
 }
 
 Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
@@ -174,9 +181,18 @@ Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
         std::cout << "  " << move.to_string() << std::endl;
         // state.board.prettyPrint();
         
-        eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 1);
-        std::cout << "    eval = " << eval << std::endl;
+        uint64_t h = state.board.hash();
+        eval_t eval;
         
+        // check if the state is in the transposition table
+        if (transpositionTable.find(h) != transpositionTable.end()) {
+            eval = transpositionTable[h];
+        } else {
+            eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
+            transpositionTable[h] = eval;
+        }
+        
+        std::cout << "    eval = " << eval << std::endl;
         state.unmakeMove(move, md);
 
         if (eval > bestEval) {

@@ -9,6 +9,7 @@ typedef double eval_t;
 
 class Engine {
 private:
+    std::unordered_map<uint64_t, eval_t> transpositionTable;
     int maxDepth;
 
     /**

@@ -221,11 +221,11 @@ void BitBoard::unmakeMove(const Move &move) {
     if (move.promotionPiece != None) {
         pieceBits[move.piece] |= from;  // Restore original pawn
         pieceBits[move.piece] &= ~to;  // Compensate for pieceBits[move.piece] ^= fromTo;
-        pieceBits[move.promotionPiece] &= ~to;  // Remove promoted piece
+        pieceBits[move.promotionPiece] &= ~to;  // Remove promoted pieces
     }
 }
 
-bool BitBoard::isDraw() const {
+bool BitBoard::insufficientMaterial() const {
     return pieceBits[WP] == 0 &&
            pieceBits[WN] == 0 &&
            pieceBits[WB] == 0 &&
@@ -317,4 +317,21 @@ void BitBoard::print() {
         std::cout << pieceFilenames[i] << std::endl;
         print(static_cast<PieceType>(i));
     }
+}
+
+uint64_t BitBoard::hash() const {
+    return (
+        pieceBits[0] ^
+        pieceBits[1] ^
+        pieceBits[2] ^
+        pieceBits[3] ^
+        pieceBits[4] ^
+        pieceBits[5] ^
+        pieceBits[6] ^
+        pieceBits[7] ^
+        pieceBits[8] ^
+        pieceBits[9] ^
+        pieceBits[10] ^
+        pieceBits[11]
+    );
 }

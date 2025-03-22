@@ -9,7 +9,7 @@ void testPerftFile(const std::string &inputFilename) {
     std::string line;
     while (std::getline(in, line)) {
         state = GameState(line);
-        cpu.countPositionsBuildup(state, 4);
+        cpu.countPositionsBuildup(state, 5);
     }
     in.close();
     exit(0);

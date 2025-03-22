@@ -141,7 +141,13 @@ bool GameState::underAttack(sf::Vector2<int> square) const {
 
 bool GameState::isTerminal() const {
     // TODO: add threefold repetition check and make this more efficient
-    return generateMoves().empty() || md.movesSinceCapture >= 100 || board.isDraw();
+    const int n = md.history.size();
+    return (
+        md.movesSinceCapture >= 100 ||
+        (md.history[n-1] == md.history[n-3] && md.history[n-3] == md.history[n-5]) ||
+        board.insufficientMaterial() ||
+        generateMoves().empty()
+    );
 }
 
 bool GameState::isCheck() const {
@@ -593,6 +599,19 @@ std::vector<Move> GameState::generateMoves() const {
     return moves;
 }
 
+uint64_t GameState::hash() const {
+    return (
+        board.hash() ^
+        whiteToMove ^
+        md.whiteKCastleRights << 1 ^
+        md.whiteQCastleRights << 2 ^
+        md.blackKCastleRights << 3 ^
+        md.blackQCastleRights << 4 ^
+        md.enPassantSquare.x << 5 ^
+        md.enPassantSquare.y << 6 ^
+        md.movesSinceCapture << 7
+    );
+}
 
 void GameState::print() const {
     board.prettyPrint();

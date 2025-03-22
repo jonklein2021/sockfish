@@ -72,6 +72,11 @@ struct GameState {
     std::vector<Move> generateMoves() const;
 
     /**
+     * @return the hash of the GameState
+     */
+    uint64_t hash() const;
+
+    /**
      * Print the game state to the console
      */
     void print() const;

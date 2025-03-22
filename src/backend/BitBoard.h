@@ -51,7 +51,7 @@ struct BitBoard {
      * 
      * @return true iff position is a draw
      */
-    bool isDraw() const;
+    bool insufficientMaterial() const;
     
     /**
      * Returns the piece type at a given square
@@ -59,6 +59,11 @@ struct BitBoard {
      * @param square the square to check
      */
     PieceType getPieceType(sf::Vector2<int> square) const;
+
+    /**
+     * @return the hash of the board
+     */
+    uint64_t hash() const;
     void print(PieceType p);
     void print();
     void prettyPrint(bool noFlip = true) const;
