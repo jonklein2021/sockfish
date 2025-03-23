@@ -113,14 +113,27 @@ eval_t Engine::evaluate(const GameState& state) {
     // piece values
     eval_t score = 0;
 
-    // total up white piece values
-    for (int i = 0; i < 6; i++) {
-        score += __builtin_popcountll(state.board.pieceBits[i]) * pieceValues[i];
+    // total up pieces, scaling by piece value and position in piece-square board
+    for (PieceType p : {WP, WN, WB, WR, WQ, WK}) {
+        uint64_t pieces = state.board.pieceBits[p];
+        while (pieces) {
+            int trailingZeros = __builtin_ctzll(pieces);
+            int x = trailingZeros % 8;
+            int y = trailingZeros / 8;
+            score += (pieceValues[p] + pieceSquareTables[p][y][x]);
+            pieces &= pieces - 1;
+        }
     }
 
-    // total up black piece values
-    for (int i = 6; i < 12; i++) {
-        score -= __builtin_popcountll(state.board.pieceBits[i]) * pieceValues[i];
+    for (PieceType p : {BP, BN, BB, BR, BQ, BK}) {
+        uint64_t pieces = state.board.pieceBits[p];
+        while (pieces) {
+            int trailingZeros = __builtin_ctzll(pieces);
+            int x = trailingZeros % 8;
+            int y = trailingZeros / 8;
+            score -= (pieceValues[p] + pieceSquareTables[p][y][x]);
+            pieces &= pieces - 1;
+        }
     }
 
     // return score relative to the current player for negamax
@@ -128,6 +141,7 @@ eval_t Engine::evaluate(const GameState& state) {
 }
 
 eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMoves) {
+    std::cout << "Evaluate\n";
     if (legalMoves.empty() && state.isCheck()) {
         return state.whiteToMove ? 1738 : -1738;
     }
@@ -135,14 +149,27 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
     // piece values
     eval_t score = 0;
 
-    // total up white piece values
-    for (int i = 0; i < 6; i++) {
-        score += __builtin_popcountll(state.board.pieceBits[i]) * pieceValues[i];
+    // total up pieces, scaling by piece value and position in piece-square board
+    for (PieceType p : {WP, WN, WB, WR, WQ, WK}) {
+        uint64_t pieces = state.board.pieceBits[p];
+        while (pieces) {
+            int trailingZeros = __builtin_ctzll(pieces);
+            int x = trailingZeros % 8;
+            int y = trailingZeros / 8;
+            score += (pieceValues[p] + pieceSquareTables[p][y][x]);
+            pieces &= pieces - 1;
+        }
     }
 
-    // total up black piece values
-    for (int i = 6; i < 12; i++) {
-        score -= __builtin_popcountll(state.board.pieceBits[i]) * pieceValues[i];
+    for (PieceType p : {BP, BN, BB, BR, BQ, BK}) {
+        uint64_t pieces = state.board.pieceBits[p];
+        while (pieces) {
+            int trailingZeros = __builtin_ctzll(pieces);
+            int x = trailingZeros % 8;
+            int y = trailingZeros / 8;
+            score -= (pieceValues[p] + pieceSquareTables[p][y][x]);
+            pieces &= pieces - 1;
+        }
     }
 
     // return score relative to the current player for negamax
@@ -214,7 +241,7 @@ eval_t Engine::iterativeDeepening(GameState& state) {
         for (const Move& move : legalMoves) {
             GameState nextState = current.state;
             nextState.makeMove(move);
-            q.push({nextState, current.depth + 1});
+            q.push({nextState, current.depth+1});
         }
     }
 
@@ -225,6 +252,8 @@ Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
     if (legalMoves.empty()) {
         return Move();
     }
+
+    // TODO: sort moves by some heuristic
 
     std::cout << "Analyzing moves..." << std::endl;
 
@@ -237,11 +266,9 @@ Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
         // state.board.prettyPrint();
         std::cout << "  " << move.to_string();
         
-        eval_t eval;
-        // eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
-        eval = iterativeDeepening(state);
+        eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
         
-        std::cout << "| eval = " << eval << std::endl;
+        std::cout << " | eval = " << eval << std::endl;
         state.unmakeMove(move, md);
 
         if (eval > bestEval) {
