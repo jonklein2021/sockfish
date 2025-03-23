@@ -14,11 +14,6 @@
 struct BitBoard {
     uint64_t pieceBits[12]; // index into this with PieceType
     BitBoard() : pieceBits{0} {}
-    BitBoard(const BitBoard &board) : pieceBits{0} {
-        for (int i = 0; i < 12; i++) {
-            pieceBits[i] = board.pieceBits[i];
-        }
-    }
 
     // Methods
 

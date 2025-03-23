@@ -9,8 +9,19 @@ typedef double eval_t;
 
 class Engine {
 private:
+    /**
+     * Stores previously evaluated states
+     */
     std::unordered_map<uint64_t, eval_t> transpositionTable;
     int maxDepth;
+
+    /**
+     * Calculates heuristic value of state
+     * 
+     * @param state The state to evaluate
+     * @return The heuristic value of the state
+     */
+    eval_t evaluate(const GameState& state);
 
     /**
      * Calculates heuristic value of state
@@ -30,6 +41,14 @@ private:
      * @return The heuristic value of the state to move to
      */
     eval_t negamax(GameState& state, eval_t alpha, eval_t beta, int depth);
+
+    /**
+     * Iterative deepening search
+     * 
+     * @param state The state to evaluate
+     * @return The heuristic value of the state to move to
+     */
+    eval_t iterativeDeepening(GameState& state);
     
 public:
     Engine();

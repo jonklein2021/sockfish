@@ -9,7 +9,7 @@ void testPerftFile(const std::string &inputFilename) {
     std::string line;
     while (std::getline(in, line)) {
         state = GameState(line);
-        cpu.countPositionsBuildup(state, 5);
+        cpu.countPositionsBuildup(state, 6);
     }
     in.close();
     exit(0);
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     // std::vector<Move> legalMoves = state.generateMoves();
 
     // count positions
-    Engine *cpu;
+    Engine *cpu = new Engine(6);
 
     for (int d = 1; d <= 2; d++) {
         std::cout << "Depth: " << d << std::endl;

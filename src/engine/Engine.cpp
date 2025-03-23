@@ -105,6 +105,28 @@ void Engine::countPositions(GameState& state, int depth) const {
     std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
 }
 
+eval_t Engine::evaluate(const GameState& state) {
+    if (state.generateMoves().empty() && state.isCheck()) {
+        return state.whiteToMove ? 1738 : -1738;
+    }
+    
+    // piece values
+    eval_t score = 0;
+
+    // total up white piece values
+    for (int i = 0; i < 6; i++) {
+        score += __builtin_popcountll(state.board.pieceBits[i]) * pieceValues[i];
+    }
+
+    // total up black piece values
+    for (int i = 6; i < 12; i++) {
+        score -= __builtin_popcountll(state.board.pieceBits[i]) * pieceValues[i];
+    }
+
+    // return score relative to the current player for negamax
+    return state.whiteToMove ? score : -score;
+}
+
 eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMoves) {
     if (legalMoves.empty() && state.isCheck()) {
         return state.whiteToMove ? 1738 : -1738;
@@ -128,26 +150,27 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
 }
 
 eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
-    eval_t bestEval = std::numeric_limits<eval_t>::lowest();
+    uint64_t h = state.hash();
+    if (transpositionTable.find(h) != transpositionTable.end()) {
+        return transpositionTable[h];
+    }
+
+    // base case
+    if (depth >= maxDepth || state.isTerminal()) {
+        return evaluate(state);
+    }
+    
     std::vector<Move> legalMoves = state.generateMoves();
 
-    if (depth >= maxDepth || state.isTerminal()) {
-        return evaluate(state, legalMoves);
-    }
+    eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
     for (const Move& move : legalMoves) {
         const Metadata md = state.makeMove(move);
 
-        eval_t eval;
-        uint64_t h = state.hash();
-        
-        // check transposition table
-        if (transpositionTable.find(h) != transpositionTable.end()) {
-            eval = transpositionTable[h];
-        } else {
-            eval = -negamax(state, -beta, -alpha, depth);
-            transpositionTable[h] = eval;
-        }
+        eval_t eval = -negamax(state, -beta, -alpha, depth + 1);
+
+        // save this result for later
+        transpositionTable[h] = eval;
 
         state.unmakeMove(move, md);
 
@@ -162,8 +185,40 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
     return bestEval;
 }
 
-eval_t iterativeDeepening(GameState& state, int maxDepth) {
-    
+eval_t Engine::iterativeDeepening(GameState& state) {
+    eval_t bestEval = std::numeric_limits<eval_t>::lowest();
+
+    struct Node {
+        GameState state;
+        int depth;
+    };
+
+    std::queue<Node> q;
+    q.push({state, 0});
+
+    while (!q.empty()) {
+        Node current = q.front();
+        q.pop();
+
+        std::vector<Move> legalMoves = current.state.generateMoves();
+
+        // evaluate terminal nodes
+        if (current.depth >= maxDepth || current.state.isTerminal()) {
+            eval_t evalScore = evaluate(current.state, {});
+            if (evalScore > bestEval) {
+                bestEval = evalScore;
+            }
+        }
+
+        // evaluate non-terminal nodes
+        for (const Move& move : legalMoves) {
+            GameState nextState = current.state;
+            nextState.makeMove(move);
+            q.push({nextState, current.depth + 1});
+        }
+    }
+
+    return bestEval;
 }
 
 Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
@@ -173,26 +228,20 @@ Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
 
     std::cout << "Analyzing moves..." << std::endl;
 
-    Move bestMove;
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
+    Move bestMove;
+
     for (const Move& move : legalMoves) {
         const Metadata md = state.makeMove(move);
         
-        std::cout << "  " << move.to_string() << std::endl;
         // state.board.prettyPrint();
+        std::cout << "  " << move.to_string();
         
-        uint64_t h = state.board.hash();
         eval_t eval;
+        // eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
+        eval = iterativeDeepening(state);
         
-        // check if the state is in the transposition table
-        if (transpositionTable.find(h) != transpositionTable.end()) {
-            eval = transpositionTable[h];
-        } else {
-            eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
-            transpositionTable[h] = eval;
-        }
-        
-        std::cout << "    eval = " << eval << std::endl;
+        std::cout << "| eval = " << eval << std::endl;
         state.unmakeMove(move, md);
 
         if (eval > bestEval) {

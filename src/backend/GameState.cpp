@@ -608,9 +608,8 @@ uint64_t GameState::hash() const {
         md.blackKCastleRights << 3 ^
         md.blackQCastleRights << 4 ^
         md.enPassantSquare.x << 5 ^
-        md.enPassantSquare.y << 6 ^
-        md.movesSinceCapture << 7
-    );
+        md.enPassantSquare.y << 6
+    ); // movesSinceCapture not includes to account for transpositions
 }
 
 void GameState::print() const {

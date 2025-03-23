@@ -98,7 +98,7 @@ bool BitBoard::attacked(sf::Vector2<int> square, bool white) const {
     return false;
 }
 
-void BitBoard::makeMove(const Move& move) {    
+void BitBoard::makeMove(const Move& move) {
     // useful 64-bit words
     uint64_t from = 1ull << (move.from.y * 8 + move.from.x);
     uint64_t to = 1ull << (move.to.y * 8 + move.to.x);

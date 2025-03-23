@@ -96,7 +96,9 @@ Cli::Cli(const std::string &fen, int depth) : Game(fen, depth) {}
 
 Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, depth, playerIsWhite) {}
 
-void Cli::run() {    
+void Cli::run() {
+    legalMoves = state.generateMoves();
+
     while (!state.isTerminal()) {
         state.print();
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
@@ -107,9 +109,9 @@ void Cli::run() {
             next = getMoveFromStdin();
         } else {
             // get move from engine
-            next = getMoveFromStdin();
-            // next = cpu.getMove(state, legalMoves);
-            // std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
+            // next = getMoveFromStdin();
+            next = cpu.getMove(state, legalMoves);
+            std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
         std::cout << next.to_string() << std::endl;
@@ -121,6 +123,7 @@ void Cli::run() {
 
         // update set of legal moves
         legalMoves = state.generateMoves();
+
         playersTurn = !playersTurn;
     }
 
