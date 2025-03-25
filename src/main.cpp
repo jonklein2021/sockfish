@@ -24,7 +24,7 @@ void usage() {
 int main(int argc, char** argv) {
     // parse command line arguments
     bool useCli = true;
-    std::string playerColor = "";
+    std::string playerColor = ""; // TODO: Make this an enum
     std::string fen = defaultFEN;
     std::string pieceTheme = "horsey/";
     int depth = 6;

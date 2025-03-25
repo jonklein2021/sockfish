@@ -106,47 +106,16 @@ void Engine::countPositions(GameState& state, int depth) const {
 }
 
 eval_t Engine::evaluate(const GameState& state) {
-    if (state.generateMoves().empty() && state.isCheck()) {
-        return state.whiteToMove ? 1738 : -1738;
-    }
-    
-    // piece values
-    eval_t score = 0;
-
-    // total up pieces, scaling by piece value and position in piece-square board
-    for (PieceType p : {WP, WN, WB, WR, WQ, WK}) {
-        uint64_t pieces = state.board.pieceBits[p];
-        while (pieces) {
-            int trailingZeros = __builtin_ctzll(pieces);
-            int x = trailingZeros % 8;
-            int y = trailingZeros / 8;
-            score += (pieceValues[p] + pieceSquareTables[p][y][x]);
-            pieces &= pieces - 1;
-        }
-    }
-
-    for (PieceType p : {BP, BN, BB, BR, BQ, BK}) {
-        uint64_t pieces = state.board.pieceBits[p];
-        while (pieces) {
-            int trailingZeros = __builtin_ctzll(pieces);
-            int x = trailingZeros % 8;
-            int y = trailingZeros / 8;
-            score -= (pieceValues[p] + pieceSquareTables[p][y][x]);
-            pieces &= pieces - 1;
-        }
-    }
-
-    // return score relative to the current player for negamax
-    return state.whiteToMove ? score : -score;
+    return evaluate(state, state.generateMoves());
 }
 
 eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMoves) {
-    std::cout << "Evaluate\n";
     if (legalMoves.empty() && state.isCheck()) {
         return state.whiteToMove ? 1738 : -1738;
     }
     
-    // piece values
+    const eval_t piecePositionWeight = 0.5;
+
     eval_t score = 0;
 
     // total up pieces, scaling by piece value and position in piece-square board
@@ -156,7 +125,10 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
             int y = trailingZeros / 8;
-            score += (pieceValues[p] + pieceSquareTables[p][y][x]);
+            score += (
+                pieceValues[p] +
+                piecePositionWeight*pieceSquareTables[p][y][x]
+            );
             pieces &= pieces - 1;
         }
     }
@@ -167,7 +139,10 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
             int y = trailingZeros / 8;
-            score -= (pieceValues[p] + pieceSquareTables[p][y][x]);
+            score -= (
+                pieceValues[p] +
+                piecePositionWeight*pieceSquareTables[p][y][x]
+            );
             pieces &= pieces - 1;
         }
     }

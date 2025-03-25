@@ -8,8 +8,8 @@ Gui::Gui() : Gui(defaultFEN, 8) {}
 Gui::Gui(const std::string &fen, int depth)
     : Game(fen, depth),
       window(sf::VideoMode(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE), "Cheese", sf::Style::Resize),
-      view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) {
-          
+      view(sf::FloatRect(0, 0, BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)) 
+{
     window.setView(view);
 
     // load textures
@@ -137,7 +137,6 @@ void Gui::run() {
 
             // get new legal moves for the next turn
             legalMoves = state.generateMoves();
-
         }
 
         handleEvents();
@@ -280,7 +279,7 @@ void Gui::handleEvents() {
                     }
 
                     // update the rook's position if castling
-                    if (candidate.piece == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 6 && candidate.to.y == 7) {
+                    if (candidate.piece == WK && candidate.isKCastle) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == WR && p.position.x == 7 && p.position.y == 7;
                         });
@@ -288,7 +287,7 @@ void Gui::handleEvents() {
                         it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
                     }
 
-                    if (candidate.piece == WK && candidate.from.x == 4 && candidate.from.y == 7 && candidate.to.x == 2 && candidate.to.y == 7) {
+                    if (candidate.piece == WK && candidate.isQCastle) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == WR && p.position.x == 0 && p.position.y == 7;
                         });
@@ -296,7 +295,7 @@ void Gui::handleEvents() {
                         it->sprite.setPosition(3 * TILE_PIXEL_SIZE, 7 * TILE_PIXEL_SIZE);
                     }
 
-                    if (candidate.piece == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 6 && candidate.to.y == 0) {
+                    if (candidate.piece == BK && candidate.isKCastle) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == BR && p.position.x == 7 && p.position.y == 0;
                         });
@@ -304,7 +303,7 @@ void Gui::handleEvents() {
                         it->sprite.setPosition(5 * TILE_PIXEL_SIZE, 0);
                     }
 
-                    if (candidate.piece == BK && candidate.from.x == 4 && candidate.from.y == 0 && candidate.to.x == 2 && candidate.to.y == 0) {
+                    if (candidate.piece == BK && candidate.isQCastle) {
                         auto it = std::find_if(pieces.begin(), pieces.end(), [](const Piece& p){
                             return p.type == BR && p.position.x == 0 && p.position.y == 0;
                         });
