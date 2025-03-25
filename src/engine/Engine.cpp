@@ -125,6 +125,7 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
             int y = trailingZeros / 8;
+            // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ": " << pieceValues[p] << " + " << piecePositionWeight << "*" << pieceSquareTables[p][y][x] << std::endl;
             score += (
                 pieceValues[p] +
                 piecePositionWeight*pieceSquareTables[p][y][x]
@@ -139,6 +140,7 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
             int y = trailingZeros / 8;
+            // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ": " << pieceValues[p] << " + " << piecePositionWeight << "*" << pieceSquareTables[p][y][x] << std::endl;
             score -= (
                 pieceValues[p] +
                 piecePositionWeight*pieceSquareTables[p][y][x]
@@ -154,7 +156,12 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
 eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
     uint64_t h = state.hash();
     if (transpositionTable.find(h) != transpositionTable.end()) {
-        return transpositionTable[h];
+        const TTEntry& entry = transpositionTable[h];
+        if (entry.depth >= depth) { 
+            if (entry.flag == TTEntry::EXACT) return entry.eval;
+            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta) return entry.eval;
+            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha) return entry.eval;
+        }
     }
 
     // base case
@@ -171,8 +178,11 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
 
         eval_t eval = -negamax(state, -beta, -alpha, depth + 1);
 
-        // save this result for later
-        transpositionTable[h] = eval;
+        // save result in transposition table
+        TTEntry newEntry{eval, depth, TTEntry::EXACT};
+        if (eval <= alpha) newEntry.flag = TTEntry::UPPERBOUND;
+        if (eval >= beta) newEntry.flag = TTEntry::LOWERBOUND;
+        transpositionTable[h] = newEntry;
 
         state.unmakeMove(move, md);
 
@@ -239,11 +249,11 @@ Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
         const Metadata md = state.makeMove(move);
         
         // state.board.prettyPrint();
-        std::cout << "  " << move.to_string();
+        std::cout << "  " << move.to_string() << std::endl;
         
         eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
         
-        std::cout << " | eval = " << eval << std::endl;
+        std::cout << "\teval = " << eval << std::endl;
         state.unmakeMove(move, md);
 
         if (eval > bestEval) {

@@ -137,6 +137,22 @@ void Gui::run() {
 
             // get new legal moves for the next turn
             legalMoves = state.generateMoves();
+
+            // check if game has ended
+            if (state.isTerminal()) {
+                if (legalMoves.empty()) {
+                    if (state.isCheck()) {
+                        std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+                    } else {
+                        std::cout << "Stalemate!" << std::endl;
+                    }
+                } else {
+                    std::cout << "Draw!" << std::endl;
+                }
+                window.close(); // later, replace this with a menu modal
+            } else {
+                state.whiteToMove ? std::cout << "White to move" << std::endl : std::cout << "Black to move" << std::endl;
+            }
         }
 
         handleEvents();
@@ -197,10 +213,14 @@ void Gui::handleEvents() {
 
                 // check if game has ended
                 if (state.isTerminal()) {
-                    if (state.isCheck()) {
-                        std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+                    if (legalMoves.empty()) {
+                        if (state.isCheck()) {
+                            std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+                        } else {
+                            std::cout << "Stalemate!" << std::endl;
+                        }
                     } else {
-                        std::cout << "Stalemate!" << std::endl;
+                        std::cout << "Draw!" << std::endl;
                     }
                     window.close();
                 } else {   
@@ -265,7 +285,6 @@ void Gui::handleEvents() {
 
                     // show promotion menu if pawn is promoting
                     if (pawnPromoting) {
-
                         promotionMenu.show(displayX);
                         window.setMouseCursor(arrowCursor);
     

@@ -101,6 +101,7 @@ void Cli::run() {
 
     while (!state.isTerminal()) {
         state.board.prettyPrint(playerIsWhite);
+        std::cout << cpu.get_eval(state) << std::endl;
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
 
         Move next;
