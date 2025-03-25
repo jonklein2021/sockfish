@@ -100,7 +100,7 @@ void Cli::run() {
     legalMoves = state.generateMoves();
 
     while (!state.isTerminal()) {
-        state.print();
+        state.board.prettyPrint(playerIsWhite);
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
 
         Move next;
@@ -109,7 +109,6 @@ void Cli::run() {
             next = getMoveFromStdin();
         } else {
             // get move from engine
-            // next = getMoveFromStdin();
             next = cpu.getMove(state, legalMoves);
             std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
@@ -118,8 +117,8 @@ void Cli::run() {
 
         // update state with new move and push hash to history
         state.makeMove(next);
-        state.md.history.push_back(state.board.hash());
-        state.print();
+        state.md.history.push_back(state.hash());
+        state.board.prettyPrint(playerIsWhite);
 
         // update set of legal moves
         legalMoves = state.generateMoves();
@@ -127,9 +126,13 @@ void Cli::run() {
         playersTurn = !playersTurn;
     }
 
-    if (state.isCheck()) {
-        std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+    if (legalMoves.empty()) {
+        if (state.isCheck()) {
+            std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+        } else {
+            std::cout << "Stalemate!" << std::endl;
+        }
     } else {
-        std::cout << "Stalemate!" << std::endl;
+        std::cout << "Draw!" << std::endl;
     }
 }

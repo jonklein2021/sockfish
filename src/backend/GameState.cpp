@@ -144,7 +144,7 @@ bool GameState::isTerminal() const {
     const int n = md.history.size();
     return (
         md.movesSinceCapture >= 100 ||
-        (md.history[n-1] == md.history[n-3] && md.history[n-3] == md.history[n-5]) ||
+        (n >= 9 && md.history[n-1] == md.history[n-5] && md.history[n-5] == md.history[n-9]) ||
         board.insufficientMaterial() ||
         generateMoves().empty()
     );
@@ -160,9 +160,8 @@ bool GameState::isCheck() const {
     return underAttack({x, y});
 }
 
-// Can this be in the BitBoard class?
 std::vector<Move> GameState::generateMoves() const {
-    std::vector<Move> moves; // TODO: Check if a set would be a better choice
+    std::vector<Move> moves;
     const bool white = whiteToMove;
     const uint64_t *pieceBits = board.pieceBits;
 
@@ -603,12 +602,12 @@ uint64_t GameState::hash() const {
     return (
         board.hash() ^
         whiteToMove ^
-        md.whiteKCastleRights << 1 ^
-        md.whiteQCastleRights << 2 ^
-        md.blackKCastleRights << 3 ^
-        md.blackQCastleRights << 4 ^
-        md.enPassantSquare.x << 5 ^
-        md.enPassantSquare.y << 6
+        (md.whiteKCastleRights << 1) ^
+        (md.whiteQCastleRights << 2) ^
+        (md.blackKCastleRights << 3) ^
+        (md.blackQCastleRights << 4) ^
+        (md.enPassantSquare.x << 5) ^
+        (md.enPassantSquare.y << 6)
     ); // movesSinceCapture not includes to account for transpositions
 }
 

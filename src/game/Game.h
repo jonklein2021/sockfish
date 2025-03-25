@@ -35,8 +35,6 @@ public:
     Game(const std::string &fen, int depth)
         : cpu(Engine(depth)), state(GameState(fen)),
             legalMoves(state.generateMoves()) {
-        std::cout << "Game(const std::string &fen, int depth)" << std::endl;
-
         // generate seed for random features (move hints, who goes first)
         std::srand(std::time(nullptr));
 
@@ -47,9 +45,7 @@ public:
         playerIsWhite = (std::rand() % 2) & 1;
 
         // if the player's color matches the state's whiteToMove, it is their turn
-        playersTurn = (state.whiteToMove == playerIsWhite);
-
-        std::cout << "here0\n";
+        playersTurn = (state.whiteToMove == playerIsWhite);\
     }
 
     Game(const std::string &fen, int depth, bool playerIsWhite)
