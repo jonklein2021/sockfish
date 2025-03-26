@@ -156,6 +156,17 @@ private:
     int maxDepth;
 
     /**
+     * Assigns a move a value based on how promising
+     * it looks in that state; useful for move ordering
+     * before alpha-beta search
+     * 
+     * @param state The state in which that move should be judged
+     * @param move The move to rate
+     * @return A value representing how promising the move is
+     */
+    eval_t rateMove(const GameState& state, const Move& move);
+
+    /**
      * Calculates heuristic value of state
      * 
      * @param state The state to evaluate
@@ -226,5 +237,5 @@ public:
      * @param legalMoves The possible legal moves from that state
      * @return The best move to make
      */
-    Move getMove(GameState& state, const std::vector<Move>& legalMoves);
+    Move getMove(GameState& state, std::vector<Move>& legalMoves);
 };

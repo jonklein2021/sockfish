@@ -105,6 +105,29 @@ void Engine::countPositions(GameState& state, int depth) const {
     std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
 }
 
+eval_t Engine::rateMove(const GameState& state, const Move& move) {
+    // capture moves are promising
+    eval_t rating = 0;
+    if (move.capturedPiece != None) {
+        rating += pieceValues[move.capturedPiece] - pieceValues[move.piece];
+    }
+    
+    // pawn promotion moves are likely to be good
+    if (move.promotionPiece != None) {
+        rating += pieceValues[move.promotionPiece] - pieceValues[move.piece];
+    }
+    
+    // moves that put the opponent in check should be checked early
+    GameState temp(state);
+    temp.makeMove(move);
+    temp.whiteToMove = !temp.whiteToMove;
+    if (temp.isCheck()) {
+        rating += 10;
+    }
+
+    return rating;
+}
+
 eval_t Engine::evaluate(const GameState& state) {
     return evaluate(state, state.generateMoves());
 }
@@ -233,12 +256,17 @@ eval_t Engine::iterativeDeepening(GameState& state) {
     return bestEval;
 }
 
-Move Engine::getMove(GameState& state, const std::vector<Move>& legalMoves) {
+Move Engine::getMove(GameState& state, std::vector<Move>& legalMoves) {
     if (legalMoves.empty()) {
         return Move();
     }
 
-    // TODO: sort moves by some heuristic
+    // sort moves by how promising they seem
+    auto cmp = [&](const Move& a, const Move& b) {
+        return rateMove(state, a) > rateMove(state, b);
+    };
+
+    std::sort(legalMoves.begin(), legalMoves.end(), cmp);
 
     std::cout << "Analyzing moves..." << std::endl;
 
