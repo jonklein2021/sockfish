@@ -13,6 +13,11 @@
 #define TILE_PIXEL_SIZE 64
 
 /**
+ * Mainly used as an index into occupancies array
+ */
+enum { WHITE, BLACK, BOTH, NONE };
+
+/**
  * List of all piece filenames, mainly used for loading textures
  * but also helpful for nice debug output
  */
@@ -21,6 +26,10 @@ const std::vector<std::string> pieceFilenames = {
     "bP", "bN", "bB", "bR", "bQ", "bK"
 };
 
+/**
+ * Unicode pieces for pretty printing
+ */
+const std::vector<std::string> unicode_pieces = {".", "♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 
 /**
  * Map from FEN character to PieceType, used in FEN

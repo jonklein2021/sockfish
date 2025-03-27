@@ -2,7 +2,7 @@
 
 #include "constants.h"
 
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 
 /**
  * Moves are represented as a pair of two 2D vectors, where the

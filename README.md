@@ -11,4 +11,5 @@ make
 ./build/main
 ```
 
+Many thanks to Maksim Korzh's tutorials: https://github.com/maksimKorzh/chess_programming
 Pieces from https://github.com/lichess-org/lila/tree/master/public/piece

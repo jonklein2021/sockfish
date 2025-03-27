@@ -1,23 +1,33 @@
 #pragma once
 
 #include <cstdint>
+#include <iostream>
 #include <string>
 #include <vector>
 
-#include "BitBoard.h"
 #include "Metadata.h"
+#include "Move.h"
+#include "bit_tools.h"
+#include "constants.h"
 
 /**
  * The game state includes the current position
  * whose turn it is, if each side can castle, etc.
  */
 struct GameState {
-    // board representation
-    BitBoard board;
+    // bitboards representing the locations of each piece
+    uint64_t pieceBits[12];
 
+    // bitboards representing the locations of each piece's attacks
+    uint64_t pieceAttacks[12];
+
+    // bitboards representing the joint occupancy of each side's pieces
+    uint64_t occupancies[4];
+
+    // true iff it is white's turn to move
     bool whiteToMove;
 
-    // game state information
+    // game state information (who can castle, en passant square, etc.)
     Metadata md;
 
     // Constructors
@@ -25,7 +35,19 @@ struct GameState {
                   
     GameState(const std::string &fen);
     
-    // Methods
+    // Bitboard-only Methods
+    uint64_t computePieceAttacks(PieceType piece, uint64_t pieceBit) const;
+    uint64_t computePawnAttacks(const uint64_t squareBit, const bool white) const;
+    uint64_t computeKnightAttacks(const uint64_t squareBit) const;
+    uint64_t computeBishopAttacks(const uint64_t squareBit) const;
+    uint64_t computeRookAttacks(const uint64_t squareBit) const;
+    uint64_t computeQueenAttacks(const uint64_t squareBit) const;
+    uint64_t computeKingAttacks(const uint64_t squareBit) const;
+
+    PieceType getCapturedPiece(const uint64_t toBit, const std::vector<PieceType> &oppPieces) const;
+    PieceType pieceAt(sf::Vector2<int> square) const;
+    
+    // Other Methods
 
     /**
      * Makes a move in the game state
@@ -45,12 +67,21 @@ struct GameState {
 
     /**
      * Returns true iff the given square
+     * is under attack by the given side
+     * 
+     * @param square the square to check
+     * @param white true iff the attacker is white
+     */
+    bool underAttack(const sf::Vector2<int> &square, const bool white) const;
+
+    /**
+     * Returns true iff the given square
      * is under attack by the opponent
      * 
      * @param square the square to check
-     * 
+     * @return true iff the square is under attack by opponent
      */
-    bool underAttack(sf::Vector2<int> square) const;
+    bool underAttack(const sf::Vector2<int> &square) const;
 
     /**
      * @return true iff the game state is terminal

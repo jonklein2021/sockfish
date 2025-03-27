@@ -1,7 +1,7 @@
 # Compiler & flags
 CXX        = g++
 LD         = g++
-CXXFLAGS   = -I common -I backend -I engine -MMD -O3 -std=c++17 -Wall -Wextra -pedantic
+CXXFLAGS   = -I common -I backend -I engine -MMD -O3 -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
 LDFLAGS    = -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories

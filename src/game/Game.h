@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ctime>
+
 #include "Engine.h"
 #include "GameState.h"
 
@@ -26,7 +28,7 @@ public:
         playerIsWhite = (std::rand() % 2) & 1;
 
         // push hash of initial state to history
-        state.md.history.push_back(state.board.hash());
+        state.md.history.push_back(state.hash());
 
         // if the player's color matches the state's whiteToMove, it is their turn
         playersTurn = (state.whiteToMove == playerIsWhite);
@@ -39,7 +41,7 @@ public:
         std::srand(std::time(nullptr));
 
         // push hash of initial state to history
-        state.md.history.push_back(state.board.hash());
+        state.md.history.push_back(state.hash());
 
         // randomly decide who goes first
         playerIsWhite = (std::rand() % 2) & 1;
@@ -54,7 +56,7 @@ public:
             playersTurn(state.whiteToMove == playerIsWhite) {
 
         // push hash of initial state to history
-        state.md.history.push_back(state.board.hash());
+        state.md.history.push_back(state.hash());
 
         // generate seed for random features (move hints, who goes first)
         std::srand(std::time(nullptr));

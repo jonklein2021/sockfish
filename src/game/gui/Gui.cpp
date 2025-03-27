@@ -131,7 +131,7 @@ void Gui::run() {
             
             // update state
             state.makeMove(move);
-            state.md.history.push_back(state.board.hash());
+            state.md.history.push_back(state.hash());
             state.print();
             playersTurn = true;
 
@@ -204,7 +204,7 @@ void Gui::handleEvents() {
 
                 // apply move to internal game state
                 state.makeMove(candidate);
-                state.md.history.push_back(state.board.hash());
+                state.md.history.push_back(state.hash());
                 playersTurn = false;
                 state.print();
 
@@ -332,7 +332,7 @@ void Gui::handleEvents() {
 
                     // apply move to internal game state
                     state.makeMove(candidate);
-                    state.md.history.push_back(state.board.hash());
+                    state.md.history.push_back(state.hash());
                     state.print();
                     playersTurn = false;
 

@@ -1,3 +1,8 @@
+#pragma once
+
+#include <iostream>
+
+#include "constants.h"
 #include "../Game.h"
 
 class Cli : public Game {

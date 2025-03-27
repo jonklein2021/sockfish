@@ -1,6 +1,3 @@
-#include <iostream>
-
-#include "constants.h"
 #include "Cli.h"
 
 bool Cli::validInput(const std::string& input) {
@@ -40,7 +37,7 @@ Move Cli::getMoveFromStdin() {
         candidate = coordsToMove(input);
 
         // check for pawn promotion
-        pawnPromoting = (candidate.to.y == 0 && state.board.getPieceType(candidate.from) == WP) || (candidate.to.y == 7 && state.board.getPieceType(candidate.from) == BP);
+        pawnPromoting = (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) || (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
@@ -99,9 +96,14 @@ Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, dept
 void Cli::run() {
     legalMoves = state.generateMoves();
 
+    for (const Move& m : legalMoves) {
+        std::cout << m.to_string() << std::endl;
+    }
+
     while (!state.isTerminal()) {
-        state.board.prettyPrint(playerIsWhite);
-        std::cout << cpu.get_eval(state) << std::endl;
+        state.print();
+        
+        // std::cout << cpu.get_eval(state) << std::endl;
         std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
 
         Move next;
@@ -119,7 +121,7 @@ void Cli::run() {
         // update state with new move and push hash to history
         state.makeMove(next);
         state.md.history.push_back(state.hash());
-        state.board.prettyPrint(playerIsWhite);
+        prettyPrintPosition(state.pieceBits, playerIsWhite);
 
         // update set of legal moves
         legalMoves = state.generateMoves();
