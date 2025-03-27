@@ -200,6 +200,6 @@ uint64_t computeKingAttacks(const uint64_t squareBit);
  */
 void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip);
 
-void printU64(const uint64_t bitboard);
+void printBitboard(const uint64_t bitboard);
 
 void printBoards(const uint64_t pieceBits[12]);

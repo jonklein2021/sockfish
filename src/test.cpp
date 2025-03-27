@@ -16,22 +16,26 @@ void testPerftFile(const std::string &inputFilename) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2) {   
+    if (argc == 1) {   
         testPerftFile("testfiles/input");
     }
 
     std::string fen = argv[1];
+    
     GameState state(fen);
     state.print();
-
-    Engine *cpu = new Engine(6);
-    
-    // evaluate init state
-    cpu->get_eval(state);
-    exit(0);
     
     // generate moves
     std::vector<Move> legalMoves = state.generateMoves();
+
+    std::cout << legalMoves.size() << " legal moves" << std::endl;
+    for (const Move &m : legalMoves) {
+        std::cout << m.to_string() << std::endl;
+    }
+    
+    exit(0);
+    
+    Engine *cpu = new Engine(6);
     
     // count positions
     for (int d = 1; d <= 2; d++) {

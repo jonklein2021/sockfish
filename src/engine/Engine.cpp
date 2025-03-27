@@ -26,11 +26,7 @@ void Engine::countPositionsBuildup(GameState& state, int maxDepth) const {
 
         std::vector<Move> legalMoves = current.state.generateMoves();
 
-        // current.state.board.prettyPrint();
-
-        // std::cout << legalMoves.size() << " legal moves" << std::endl;
         for (const Move& move : legalMoves) {
-            // std::cout << moveToCoords(move) << std::endl;
             const Metadata md = current.state.makeMove(move);
             depthCounts[current.depth+1]++;
             q.push({current.state, current.depth + 1});

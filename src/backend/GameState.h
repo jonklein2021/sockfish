@@ -36,7 +36,7 @@ struct GameState {
     GameState(const std::string &fen);
     
     // Bitboard-only Methods
-    uint64_t computePieceAttacks(PieceType piece, uint64_t pieceBit) const;
+    uint64_t computePieceAttacks(PieceType piece) const;
     uint64_t computePawnAttacks(const uint64_t squareBit, const bool white) const;
     uint64_t computeKnightAttacks(const uint64_t squareBit) const;
     uint64_t computeBishopAttacks(const uint64_t squareBit) const;
@@ -82,6 +82,13 @@ struct GameState {
      * @return true iff the square is under attack by opponent
      */
     bool underAttack(const sf::Vector2<int> &square) const;
+
+    /**
+     * @return true iff the game state is drawn
+     * by insufficient material
+     */
+    bool insufficientMaterial() const;
+    
 
     /**
      * @return true iff the game state is terminal

@@ -166,19 +166,24 @@ void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
     std::cout << out.str() << std::endl;
 }
 
-void printU64(const uint64_t bitboard) {
+void printBitboard(const uint64_t bitboard) {
+    std::ostringstream out;
+    out << "\n";
     for (int y = 0; y < 8; y++) {
+        out << (y+1) << "  ";
         for (int x = 0; x < 8; x++) {
-            std::cout << ((bitboard & coordsToBit(x, y)) ? "1" : "0") << " ";
+            out << ((bitboard & coordsToBit(x, y)) ? "1" : "0") << " ";
         }
-        std::cout << std::endl;
+        out << "\n";
     }
-    std::cout << std::endl;
+
+    out << "\n   a b c d e f g h\n";
+    std::cout << out.str() << std::endl;
 }
 
 void printBoards(const uint64_t pieceBits[12]) {
     for (int i = 0; i < 12; i++) {
         std::cout << pieceFilenames[i] << std::endl;
-        printU64(pieceBits[i]);
+        printBitboard(pieceBits[i]);
     }
 }
