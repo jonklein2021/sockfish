@@ -34,7 +34,9 @@ enum {
  * @param index the index of that bitboard to check
  * @return the bit at the given index
  */
-uint64_t getBit(uint64_t bitboard, int index);
+inline static uint64_t getBit(uint64_t bitboard, int index) {
+    return bitboard & (1ull << index);
+}
 
 /**
  * Sets the bit at the given index
@@ -42,7 +44,10 @@ uint64_t getBit(uint64_t bitboard, int index);
  * @param bitboard the relevant bitboard
  * @param index the index of that bitboard to set
  */
-void setBit(uint64_t& bitboard, int index);
+inline static void setBit(uint64_t& bitboard, int index) {
+    bitboard |= (1ull << index);
+}
+
 
 /**
  * Converts a pair of coordinates to a bit
@@ -51,7 +56,9 @@ void setBit(uint64_t& bitboard, int index);
  * @param y the y coordinate
  * @return the bit corresponding to the coordinates
  */
-uint64_t coordsToBit(int x, int y);
+inline static uint64_t coordsToBit(int x, int y) {
+    return (1ull << (y * 8 + x));
+}
 
 /**
  * Pops (removes and returns) the bit at the given index
@@ -60,7 +67,11 @@ uint64_t coordsToBit(int x, int y);
  * @param index the index of that bitboard to pop
  * @return the bit at the given index
  */
-void popBit(uint64_t& bitboard, int index);
+inline static void popBit(uint64_t& bitboard, int index) {
+    if (getBit(bitboard, index)) {
+        bitboard ^= (1ull << index);
+    }
+}
 
 /**
  * Converts a pair of coordinates to a bit
@@ -68,7 +79,9 @@ void popBit(uint64_t& bitboard, int index);
  * @param coords the coordinates to convert
  * @return the bit corresponding to the coordinates
  */
-uint64_t coordsToBit(sf::Vector2<int> coords);
+inline static uint64_t coordsToBit(sf::Vector2<int> coords) {
+    return coordsToBit(coords.x, coords.y);
+}
 
 /**
  * Converts a bit to a pair of coordinates
@@ -76,7 +89,10 @@ uint64_t coordsToBit(sf::Vector2<int> coords);
  * @param bit the bit to convert
  * @return the corresponding coordinates
  */
-sf::Vector2<int> bitToCoords(uint64_t bit);
+inline static sf::Vector2<int> bitToCoords(uint64_t bit) {
+    int index = __builtin_ctzll(bit);
+    return {index % 8, index / 8};
+}
 
 /*** MOVE GENERATION TOOLS ***/
 

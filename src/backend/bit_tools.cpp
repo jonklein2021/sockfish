@@ -1,32 +1,5 @@
 #include "bit_tools.h"
 
-uint64_t getBit(uint64_t bitboard, int index) {
-    return bitboard & (1ull << index);
-}
-
-void setBit(uint64_t& bitboard, int index) {
-    bitboard |= (1ull << index);
-}
-
-void popBit(uint64_t& bitboard, int index) {
-    if (getBit(bitboard, index)) {
-        bitboard ^= (1ull << index);
-    }
-}
-
-uint64_t coordsToBit(int x, int y) {
-    return (1ull << (y * 8 + x));
-}
-
-uint64_t coordsToBit(sf::Vector2<int> coords) {
-    return coordsToBit(coords.x, coords.y);
-}
-
-sf::Vector2<int> bitToCoords(uint64_t bit) {
-    int index = __builtin_ctzll(bit);
-    return {index % 8, index / 8};
-}
-
 /*** MOVE GENERATION TOOLS ***/
 
 uint64_t computePawnAttacks(const uint64_t squareBit, const bool white) {

@@ -96,6 +96,7 @@ Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, dept
 void Cli::run() {
     legalMoves = state.generateMoves();
 
+    std::cout << legalMoves.size() << " legal moves" << std::endl;
     for (const Move& m : legalMoves) {
         std::cout << m.to_string() << std::endl;
     }
@@ -112,8 +113,9 @@ void Cli::run() {
             next = getMoveFromStdin();
         } else {
             // get move from engine
-            next = cpu.getMove(state, legalMoves);
-            std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
+            next = getMoveFromStdin();
+            // next = cpu.getMove(state, legalMoves);
+            // std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
         std::cout << next.to_string() << std::endl;
@@ -125,6 +127,11 @@ void Cli::run() {
 
         // update set of legal moves
         legalMoves = state.generateMoves();
+        
+        std::cout << legalMoves.size() << " legal moves" << std::endl;
+        for (const Move& m : legalMoves) {
+            std::cout << m.to_string() << std::endl;
+        }
 
         playersTurn = !playersTurn;
     }

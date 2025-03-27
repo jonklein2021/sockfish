@@ -466,6 +466,7 @@ bool GameState::isCheck() const {
 }
 
 std::vector<Move> GameState::generateMoves() const {
+    std::vector<Move> legalMoves;
     std::vector<Move> moves;
     
     // used to check if a move is legal
@@ -484,385 +485,436 @@ std::vector<Move> GameState::generateMoves() const {
 
     // king position
     sf::Vector2<int> kingPos;
-
+    
+    std::vector<PieceType> promotionPieces;
+    std::vector<PieceType> oppPieces;
+    PieceType PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, OPP_PAWN;
+    int SIDE;
+    int OPP;
     if (whiteToMove) {
-        const std::vector<PieceType> oppPieces{BP, BN, BB, BR, BQ, BK};
-
-        /* PAWN MOVES */
-        pieceBitboard = pieceBits[WP];
-        while (pieceBitboard) {
-            fromBit = 1ull << indexOfLs1b(pieceBitboard);
-            const sf::Vector2<int> from = bitToCoords(fromBit);
-
-            // single pawn moves
-            toBit = fromBit >> 8;
-            if (occupancies[NONE] & toBit) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
-                moves.push_back({from, to, WP});
-            }
-            
-            // double pawn moves
-            toBit = fromBit >> 16;
-            if ((rank2 & fromBit) && (occupancies[NONE] & (fromBit >> 8)) && (occupancies[NONE] & toBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
-                moves.push_back({from, to, WP});
-            }
-            
-            // pawn captures (up and) right
-            toBit = (fromBit >> 7) & not_file_h;
-            if (toBit & (occupancies[BLACK] | md.enPassantBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
-                PieceType capturedPiece = None;
-                for (PieceType p : oppPieces) {
-                    if (pieceBits[p] & toBit) {
-                        moves.push_back({from, to, WP, p});
-                        break;
-                    }
-                }
-
-                // must be en passant
-                if (capturedPiece == None) {
-                    moves.push_back({from, to, WP, BP, None, false, false, true});
-                }
-            }
-            
-            // pawn captures (up and) left
-            toBit = (fromBit >> 9) & not_file_a;
-            if (toBit & (occupancies[BLACK] | md.enPassantBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
-                
-                // determine what piece was captured
-                PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
-
-                // must be en passant
-                if (capturedPiece == None) {
-                    moves.push_back({from, to, WP, BP, None, false, false, true});
-                }
-            }
-
-            pieceBitboard &= pieceBitboard - 1;
-        }
-        
-        /* KNIGHT MOVES */
-        pieceBitboard = pieceBits[WN];
-        while (pieceBitboard) {
-            fromBit = 1ull << indexOfLs1b(pieceBitboard);
-            const sf::Vector2<int> from = bitToCoords(fromBit);
-
-            // down 2, left 1
-            if ((toBit = ((fromBit & not_rank_12 & not_file_a) << 15)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-            
-            // down 2, right 1
-            if ((toBit = ((fromBit & not_rank_12 & not_file_h) << 17)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            // down 1, right 2
-            if ((toBit = ((fromBit & not_rank_1 & not_file_gh) << 10)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            // down 1, left 2
-            if ((toBit = ((fromBit & not_rank_1 & not_file_ab) << 6)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            // up 2, right 1
-            if ((toBit = ((fromBit & not_rank_78 & not_file_h) >> 15)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            // up 2, left 1
-            if ((toBit = ((fromBit & not_rank_78 & not_file_a) >> 17)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            // up 1, left 2
-            if ((toBit = ((fromBit & not_rank_8 & not_file_ab) >> 10)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            // up 1, right 2
-            if ((toBit = ((fromBit & not_rank_8 & not_file_gh) >> 6)) && !(toBit & occupancies[WHITE])) {
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WN, capturedPiece});
-            }
-
-            pieceBitboard &= pieceBitboard - 1;
-        }
-
-
-        /* BISHOP MOVES */
-        pieceBitboard = pieceBits[WB];
-        while (pieceBitboard) {
-            fromBit = 1ull << indexOfLs1b(pieceBitboard);
-            const sf::Vector2<int> from = bitToCoords(fromBit);
-
-            toBit = fromBit;
-            uint64_t filteredMask;
-
-            // up right
-            while (filteredMask = (toBit & not_rank_8 & not_file_h & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 7;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WB, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // up left
-            while (filteredMask = (toBit & not_rank_8 & not_file_a & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 9;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WB, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // down right
-            while (filteredMask = (toBit & not_rank_1 & not_file_h & ~occupancies[WHITE])) {
-                toBit = filteredMask << 9;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WB, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // down left
-            while (filteredMask = (toBit & not_rank_1 & not_file_a & ~occupancies[WHITE])) {
-                toBit = filteredMask << 7;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WB, capturedPiece});
-            }
-
-            pieceBitboard &= pieceBitboard - 1;
-        }
-
-        /* ROOK MOVES */
-        pieceBitboard = pieceBits[WR];
-        while (pieceBitboard) {
-            fromBit = 1ull << indexOfLs1b(pieceBitboard);
-            const sf::Vector2<int> from = bitToCoords(fromBit);
-
-            toBit = fromBit;
-            uint64_t filteredMask;
-
-            // up
-            while (filteredMask = (toBit & not_rank_8 & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 8;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WR, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // down
-            while (filteredMask = (toBit & not_rank_1 & ~occupancies[WHITE])) {
-                toBit = filteredMask << 8;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WR, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // left
-            while (filteredMask = (toBit & not_file_a & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 1;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WR, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // right
-            while (filteredMask = (toBit & not_file_h & ~occupancies[WHITE])) {
-                toBit = filteredMask << 1;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WR, capturedPiece});
-            }
-            
-            pieceBitboard &= pieceBitboard - 1;
-        }
-
-        /* QUEEN MOVES */
-        pieceBitboard = pieceBits[WQ];
-        while (pieceBitboard) {
-            fromBit = 1ull << indexOfLs1b(pieceBitboard);
-            const sf::Vector2<int> from = bitToCoords(fromBit);
-
-            toBit = fromBit;
-            uint64_t filteredMask;
-
-            // up
-            while (filteredMask = (toBit & not_rank_8 & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 8;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // down
-            while (filteredMask = (toBit & not_rank_1 & ~occupancies[WHITE])) {
-                toBit = filteredMask << 8;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // left
-            while (filteredMask = (toBit & not_file_a & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 1;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // right
-            while (filteredMask = (toBit & not_file_h & ~occupancies[WHITE])) {
-                toBit = filteredMask << 1;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-
-            toBit = fromBit;
-
-            // up right
-            while (filteredMask = (toBit & not_rank_8 & not_file_h & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 7;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // up left
-            while (filteredMask = (toBit & not_rank_8 & not_file_a & ~occupancies[WHITE])) {
-                toBit = filteredMask >> 9;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // down right
-            while (filteredMask = (toBit & not_rank_1 & not_file_h & ~occupancies[WHITE])) {
-                toBit = filteredMask << 9;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            toBit = fromBit;
-            
-            // down left
-            while (filteredMask = (toBit & not_rank_1 & not_file_a & ~occupancies[WHITE])) {
-                toBit = filteredMask << 7;
-                capturedPiece = getCapturedPiece(toBit, oppPieces);
-                moves.push_back({from, bitToCoords(toBit), WQ, capturedPiece});
-            }
-            
-            pieceBitboard &= pieceBitboard - 1;
-        }
-
-        /* KING MOVES */
-        pieceBitboard = pieceBits[WK];
-        fromBit = 1ull << indexOfLs1b(pieceBitboard);
-        const sf::Vector2<int> from = bitToCoords(fromBit);
-        kingPos = from;
-
-        // standard moves
-
-        if (((toBit = ((fromBit & not_rank_1) << 8)) != 0) && !(toBit & occupancies[WHITE])) { // down
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});
-        }
-
-        if (((toBit = ((fromBit & not_rank_8) >> 8))) != 0 && !(toBit & occupancies[WHITE])) { // up
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});
-        }
-
-        if (((toBit = ((fromBit & not_file_a) >> 1)) != 0) && !(toBit & occupancies[WHITE])) { // left
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});            
-        }
-
-        if (((toBit = ((fromBit & not_file_h) << 1)) != 0) && !(toBit & occupancies[WHITE])) { // right
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});            
-        }
-
-        if (((toBit = ((fromBit & not_rank_1 & not_file_a) << 7)) != 0) && !(toBit & occupancies[WHITE])) { // down left
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});            
-        }
-
-        if (((toBit = ((fromBit & not_rank_1 & not_file_h) << 9)) != 0) && !(toBit & occupancies[WHITE])) { // down right
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});            
-        }
-
-        if (((toBit = ((fromBit & not_rank_8 & not_file_a) >> 9)) != 0) && !(toBit & occupancies[WHITE])) { // up left
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});            
-        }
-
-        if (((toBit = ((fromBit & not_rank_8 & not_file_h) >> 7)) != 0) && !(toBit & occupancies[WHITE])) { // up right
-            capturedPiece = getCapturedPiece(toBit, oppPieces);
-            moves.push_back({from, bitToCoords(toBit), WK, capturedPiece});            
-        }
-
-        // castling
-        
-        // white kingside castle
-        if ((md.castleRights & 0b0001) &&
-            (occupancies[NONE] & (1ull << f1)) &&
-            (occupancies[NONE] & (1ull << g1)) &&
-            !underAttack(from) &&
-            !underAttack({5, 0}) &&
-            !underAttack({6, 0})
-        ) {
-            moves.push_back({from, {6, 0}, WK, None, None, false, true});
-        }
-
-        // white queenside castle
-        if ((md.castleRights & 0b0010) &&
-            (occupancies[NONE] & (1ull << d1)) &&
-            (occupancies[NONE] & (1ull << c1)) &&
-            (occupancies[NONE] & (1ull << b1)) &&
-            !underAttack(from) &&
-            !underAttack({3, 0}) &&
-            !underAttack({2, 0})
-        ) {
-            moves.push_back({from, {2, 0}, WK, None, None, true, false});
-        }
+        promotionPieces = {WQ, WR, WB, WN};
+        oppPieces = {BP, BN, BB, BR, BQ, BK};
+        PAWN = WP;
+        KNIGHT = WN;
+        BISHOP = WB;
+        ROOK = WR;
+        QUEEN = WQ;
+        KING = WK;
+        OPP_PAWN = BP;
+        SIDE = WHITE;
+        OPP = BLACK;
     } else {
-
+        promotionPieces = {BQ, BR, BB, BN};
+        oppPieces = {WP, WN, WB, WR, WQ, WK};
+        PAWN = BP;
+        KNIGHT = BN;
+        BISHOP = BB;
+        ROOK = BR;
+        QUEEN = BQ;
+        KING = BK;
+        OPP_PAWN = WP;
+        SIDE = BLACK;
+        OPP = WHITE;
     }
 
+    /* PAWN MOVES */ // TODO: add promotion checks
+    pieceBitboard = pieceBits[PAWN];
+    while (pieceBitboard) {
+        fromBit = 1ull << indexOfLs1b(pieceBitboard);
+        const sf::Vector2<int> from = bitToCoords(fromBit);
+
+        // single pawn moves
+        toBit = whiteToMove ? (fromBit >> 8) : (fromBit << 8);
+        if (occupancies[NONE] & toBit) {
+            const sf::Vector2<int> to = bitToCoords(toBit);
+            moves.push_back({from, to, PAWN});
+        }
+        
+        // double pawn moves
+        toBit = whiteToMove ? (fromBit >> 16) : (fromBit << 16);
+        uint64_t overBit = whiteToMove ? (fromBit >> 8) : (fromBit << 8);
+        if (((whiteToMove && (rank2 & fromBit)) || (rank7 & fromBit)) && (occupancies[NONE] & overBit) && (occupancies[NONE] & toBit)) {
+            const sf::Vector2<int> to = bitToCoords(toBit);
+            moves.push_back({from, to, PAWN});
+        }
+        
+        // pawn captures right
+        toBit = (whiteToMove ? (fromBit >> 7) : (fromBit << 9)) & not_file_h;
+        if (toBit & (occupancies[OPP] | md.enPassantBit)) {
+            const sf::Vector2<int> to = bitToCoords(toBit);
+            PieceType capturedPiece = None;
+            for (PieceType p : oppPieces) {
+                if (pieceBits[p] & toBit) {
+                    moves.push_back({from, to, PAWN, p});
+                    break;
+                }
+            }
+
+            // must be en passant
+            if (capturedPiece == None) {
+                moves.push_back({from, to, PAWN, OPP_PAWN, None, false, false, true});
+            }
+        }
+        
+        // pawn captures (up and) left
+        toBit = (fromBit >> 9) & not_file_a;
+        if (toBit & (occupancies[OPP] | md.enPassantBit)) {
+            const sf::Vector2<int> to = bitToCoords(toBit);
+            
+            // determine what piece was captured
+            PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
+
+            // must be en passant
+            if (capturedPiece == None) {
+                moves.push_back({from, to, WP, BP, None, false, false, true});
+            }
+        }
+
+        pieceBitboard &= pieceBitboard - 1;
+    }
+    
+    /* KNIGHT MOVES */
+    pieceBitboard = pieceBits[KNIGHT];
+    while (pieceBitboard) {
+        fromBit = 1ull << indexOfLs1b(pieceBitboard);
+        const sf::Vector2<int> from = bitToCoords(fromBit);
+
+        // down 2, left 1
+        if ((toBit = ((fromBit & not_rank_12 & not_file_a) << 15)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+        
+        // down 2, right 1
+        if ((toBit = ((fromBit & not_rank_12 & not_file_h) << 17)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        // down 1, right 2
+        if ((toBit = ((fromBit & not_rank_1 & not_file_gh) << 10)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        // down 1, left 2
+        if ((toBit = ((fromBit & not_rank_1 & not_file_ab) << 6)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        // up 2, right 1
+        if ((toBit = ((fromBit & not_rank_78 & not_file_h) >> 15)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        // up 2, left 1
+        if ((toBit = ((fromBit & not_rank_78 & not_file_a) >> 17)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        // up 1, left 2
+        if ((toBit = ((fromBit & not_rank_8 & not_file_ab) >> 10)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        // up 1, right 2
+        if ((toBit = ((fromBit & not_rank_8 & not_file_gh) >> 6)) && !(toBit & occupancies[SIDE])) {
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), KNIGHT, capturedPiece});
+        }
+
+        pieceBitboard &= pieceBitboard - 1;
+    }
+
+
+    /* BISHOP MOVES */
+    pieceBitboard = pieceBits[BISHOP];
+    while (pieceBitboard) {
+        fromBit = 1ull << indexOfLs1b(pieceBitboard);
+        const sf::Vector2<int> from = bitToCoords(fromBit);
+
+        toBit = fromBit;
+        uint64_t filteredMask;
+
+        // up right
+        while (filteredMask = (toBit & not_rank_8 & not_file_h & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 7;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), BISHOP, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // up left
+        while (filteredMask = (toBit & not_rank_8 & not_file_a & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 9;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), BISHOP, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // down right
+        while (filteredMask = (toBit & not_rank_1 & not_file_h & ~occupancies[SIDE])) {
+            toBit = filteredMask << 9;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), BISHOP, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // down left
+        while (filteredMask = (toBit & not_rank_1 & not_file_a & ~occupancies[SIDE])) {
+            toBit = filteredMask << 7;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), BISHOP, capturedPiece});
+        }
+
+        pieceBitboard &= pieceBitboard - 1;
+    }
+
+    /* ROOK MOVES */
+    pieceBitboard = pieceBits[ROOK];
+    while (pieceBitboard) {
+        fromBit = 1ull << indexOfLs1b(pieceBitboard);
+        const sf::Vector2<int> from = bitToCoords(fromBit);
+
+        toBit = fromBit;
+        uint64_t filteredMask;
+
+        // up
+        while (filteredMask = (toBit & not_rank_8 & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 8;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), ROOK, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // down
+        while (filteredMask = (toBit & not_rank_1 & ~occupancies[SIDE])) {
+            toBit = filteredMask << 8;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), ROOK, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // left
+        while (filteredMask = (toBit & not_file_a & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 1;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), ROOK, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // right
+        while (filteredMask = (toBit & not_file_h & ~occupancies[SIDE])) {
+            toBit = filteredMask << 1;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), ROOK, capturedPiece});
+        }
+        
+        pieceBitboard &= pieceBitboard - 1;
+    }
+
+    /* QUEEN MOVES */
+    pieceBitboard = pieceBits[QUEEN];
+    while (pieceBitboard) {
+        fromBit = 1ull << indexOfLs1b(pieceBitboard);
+        const sf::Vector2<int> from = bitToCoords(fromBit);
+
+        toBit = fromBit;
+        uint64_t filteredMask;
+
+        // up
+        while (filteredMask = (toBit & not_rank_8 & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 8;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // down
+        while (filteredMask = (toBit & not_rank_1 & ~occupancies[SIDE])) {
+            toBit = filteredMask << 8;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // left
+        while (filteredMask = (toBit & not_file_a & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 1;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // right
+        while (filteredMask = (toBit & not_file_h & ~occupancies[SIDE])) {
+            toBit = filteredMask << 1;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+
+        toBit = fromBit;
+
+        // up right
+        while (filteredMask = (toBit & not_rank_8 & not_file_h & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 7;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // up left
+        while (filteredMask = (toBit & not_rank_8 & not_file_a & ~occupancies[SIDE])) {
+            toBit = filteredMask >> 9;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // down right
+        while (filteredMask = (toBit & not_rank_1 & not_file_h & ~occupancies[SIDE])) {
+            toBit = filteredMask << 9;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        toBit = fromBit;
+        
+        // down left
+        while (filteredMask = (toBit & not_rank_1 & not_file_a & ~occupancies[SIDE])) {
+            toBit = filteredMask << 7;
+            capturedPiece = getCapturedPiece(toBit, oppPieces);
+            moves.push_back({from, bitToCoords(toBit), QUEEN, capturedPiece});
+        }
+        
+        pieceBitboard &= pieceBitboard - 1;
+    }
+
+    /* KING MOVES */
+    pieceBitboard = pieceBits[KING];
+    fromBit = 1ull << indexOfLs1b(pieceBitboard);
+    const sf::Vector2<int> from = bitToCoords(fromBit);
+    kingPos = from;
+
+    // standard moves
+
+    if (((toBit = ((fromBit & not_rank_1) << 8)) != 0) && !(toBit & occupancies[SIDE])) { // down
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});
+    }
+
+    if (((toBit = ((fromBit & not_rank_8) >> 8))) != 0 && !(toBit & occupancies[SIDE])) { // up
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});
+    }
+
+    if (((toBit = ((fromBit & not_file_a) >> 1)) != 0) && !(toBit & occupancies[SIDE])) { // left
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});            
+    }
+
+    if (((toBit = ((fromBit & not_file_h) << 1)) != 0) && !(toBit & occupancies[SIDE])) { // right
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});            
+    }
+
+    if (((toBit = ((fromBit & not_rank_1 & not_file_a) << 7)) != 0) && !(toBit & occupancies[SIDE])) { // down left
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});            
+    }
+
+    if (((toBit = ((fromBit & not_rank_1 & not_file_h) << 9)) != 0) && !(toBit & occupancies[SIDE])) { // down right
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});            
+    }
+
+    if (((toBit = ((fromBit & not_rank_8 & not_file_a) >> 9)) != 0) && !(toBit & occupancies[SIDE])) { // up left
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});            
+    }
+
+    if (((toBit = ((fromBit & not_rank_8 & not_file_h) >> 7)) != 0) && !(toBit & occupancies[SIDE])) { // up right
+        capturedPiece = getCapturedPiece(toBit, oppPieces);
+        moves.push_back({from, bitToCoords(toBit), KING, capturedPiece});            
+    }
+
+    // castling
+    
+    // white kingside castle
+    if (whiteToMove &&
+        (md.castleRights & 0b0001) &&
+        (occupancies[NONE] & (1ull << f1)) &&
+        (occupancies[NONE] & (1ull << g1)) &&
+        !underAttack(from) && // {4, 7}
+        !underAttack({5, 7}) &&
+        !underAttack({6, 7})
+    ) {
+        moves.push_back({from, {6, 7}, KING, None, None, true, false});
+    }
+
+    // white queenside castle
+    if (whiteToMove &&
+        (md.castleRights & 0b0010) &&
+        (occupancies[NONE] & (1ull << d1)) &&
+        (occupancies[NONE] & (1ull << c1)) &&
+        (occupancies[NONE] & (1ull << b1)) &&
+        !underAttack(from) && // {4, 7}
+        !underAttack({3, 7}) &&
+        !underAttack({2, 7})
+    ) {
+        moves.push_back({from, {2, 7}, KING, None, None, false, true});
+    }
+
+    // black kingside castle
+    if (!whiteToMove &&
+        (md.castleRights & 0b0100) &&
+        (occupancies[NONE] & (1ull << f8)) &&
+        (occupancies[NONE] & (1ull << g8)) &&
+        !underAttack(from) && // {4, 0}
+        !underAttack({5, 0}) &&
+        !underAttack({6, 0})
+    ) {
+        moves.push_back({from, {6, 0}, KING, None, None, true, false});
+    }
+
+    // black queenside castle
+    if (!whiteToMove &&
+        (md.castleRights & 0b1000) &&
+        (occupancies[NONE] & (1ull << d1)) &&
+        (occupancies[NONE] & (1ull << c1)) &&
+        (occupancies[NONE] & (1ull << b1)) &&
+        !underAttack(from) && // {4, 0}
+        !underAttack({3, 0}) &&
+        !underAttack({2, 0})
+    ) {
+        moves.push_back({from, {2, 0}, KING, None, None, false, true});
+    }
+    
     // filter out moves that put the king in check
-    for (auto it = moves.begin(); it != moves.end();) {
+    for (auto it = moves.begin(); it != moves.end(); it++) {
         Metadata md = copy.makeMove(*it);
-        if (copy.underAttack(kingPos, !whiteToMove)) {
-            it = moves.erase(it);
-        } else {
-            it++;
+        if (!copy.underAttack(kingPos, !whiteToMove)) {
+            legalMoves.push_back(*it);
         }
         copy.unmakeMove(*it, md);
     }
 
-    return moves;
+    return legalMoves;
 }
 
 uint64_t GameState::hash() const {
@@ -889,7 +941,15 @@ uint64_t GameState::hash() const {
 void GameState::print() const {
     prettyPrintPosition(pieceBits, true);
     std::cout << "whiteToMove = " << whiteToMove << std::endl;
-    std::cout << "castleRights = " << md.castleRights << std::endl;
+    std::cout << "castleRights = " << (
+        md.castleRights == 0 ? "-" :
+        (
+            std::string((md.castleRights & 0b0001) ? "K" : "") +
+            std::string((md.castleRights & 0b0010) ? "Q" : "") +
+            std::string((md.castleRights & 0b0100) ? "k" : "") +
+            std::string((md.castleRights & 0b1000) ? "q" : "")
+        )
+    ) << std::endl;
     std::cout << "enPassantSquare = " << bitToCoords(md.enPassantBit).x << ", " << bitToCoords(md.enPassantBit).y << std::endl;
     std::cout << "movesSinceCapture = " << md.movesSinceCapture << std::endl;
 }
