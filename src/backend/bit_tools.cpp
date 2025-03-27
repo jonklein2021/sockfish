@@ -168,9 +168,8 @@ void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
 
 void printBitboard(const uint64_t bitboard) {
     std::ostringstream out;
-    out << "\n";
     for (int y = 0; y < 8; y++) {
-        out << (y+1) << "  ";
+        out << (8-y) << "  ";
         for (int x = 0; x < 8; x++) {
             out << ((bitboard & coordsToBit(x, y)) ? "1" : "0") << " ";
         }

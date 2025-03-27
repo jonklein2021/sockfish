@@ -32,7 +32,7 @@ struct GameState {
 
     // Constructors
     GameState();
-                  
+
     GameState(const std::string &fen);
     
     // Bitboard-only Methods
@@ -69,19 +69,19 @@ struct GameState {
      * Returns true iff the given square
      * is under attack by the given side
      * 
-     * @param square the square to check
+     * @param squareBit bit representing the square to check
      * @param white true iff the attacker is white
      */
-    bool underAttack(const sf::Vector2<int> &square, const bool white) const;
+    bool underAttack(const uint64_t squareBit, const bool white) const;
 
     /**
      * Returns true iff the given square
      * is under attack by the opponent
      * 
-     * @param square the square to check
+     * @param squareBit bit representing the square to check
      * @return true iff the square is under attack by opponent
      */
-    bool underAttack(const sf::Vector2<int> &square) const;
+    bool underAttack(const uint64_t squareBit) const;
 
     /**
      * @return true iff the game state is drawn
