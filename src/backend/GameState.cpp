@@ -515,6 +515,20 @@ bool GameState::isCheck() const {
     return underAttack(king);
 }
 
+bool GameState::isMoveLegal(GameState &copy, const uint64_t kingBit, const Move &move, bool white) const {
+    // simulate move on copied state
+    Metadata md = copy.makeMove(move);
+    
+    // test king is in check after move
+    bool illegal = underAttack(kingBit, !white);
+
+    // unmake move to preserve original state
+    copy.unmakeMove(move, md);
+
+    // return true iff the move is not illegal
+    return !illegal;
+}
+
 std::vector<Move> GameState::generateMoves() const {
     std::vector<Move> moves;
 
@@ -559,8 +573,13 @@ std::vector<Move> GameState::generateMoves() const {
         SIDE = BLACK;
         OPP = WHITE;
     }
+    
+    // used to check if a move is legal
+    GameState copy(*this);
+    Move candidate;
+    const uint64_t kingBit = pieceBits[KING];
 
-    /* PAWN MOVES */ // TODO: add promotion checks
+    /* PAWN MOVES */
     pieceBitboard = pieceBits[PAWN];
     if (whiteToMove) {
         while (pieceBitboard) {
@@ -569,31 +588,33 @@ std::vector<Move> GameState::generateMoves() const {
 
             // single pawn moves
             toBit = fromBit >> 8;
-            if (occupancies[NONE] & toBit) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
-                
+            const sf::Vector2<int> to = bitToCoords(toBit);
+            candidate = {from, to, PAWN};
+            if ((occupancies[NONE] & toBit) && isMoveLegal(copy, kingBit, candidate, true)) {
                 // promotion check
                 if (toBit & rank8) {
                     for (PieceType pt : promotionPieces) {
                         moves.push_back({from, to, PAWN, None, pt});
                     }
                 } else {   
-                    moves.push_back({from, to, PAWN});
+                    moves.push_back(candidate);
                 }
             }
             
             // double pawn moves
             uint64_t overBit = toBit;
             toBit >>= 8;
-            if ((rank2 & fromBit) && (occupancies[NONE] & overBit) && (occupancies[NONE] & toBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
-                moves.push_back({from, to, PAWN});
+            const sf::Vector2<int> to = bitToCoords(toBit);
+            candidate = {from, to, PAWN};
+            if ((rank2 & fromBit) && (occupancies[NONE] & (overBit | toBit)) && isMoveLegal(copy, kingBit, candidate, true)) {
+                moves.push_back(candidate);
             }
             
             // pawn captures up and right
             toBit = (fromBit & not_file_h) >> 7;
+            candidate = {from, to, PAWN};
+            const sf::Vector2<int> to = bitToCoords(toBit);
             if (toBit & (occupancies[OPP] | md.enPassantBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
                 
                 // determine what piece was captured
                 PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
@@ -1065,25 +1086,7 @@ std::vector<Move> GameState::generateMoves() const {
         moves.push_back({from, {2, 0}, KING, None, None, false, true});
     }
 
-    // used to check if a move is legal
-    GameState copy(*this);
-    std::vector<Move> filteredMoves;
-
-    // get position of king
-    const uint64_t kingBit = pieceBits[KING];
-    
-    // filter out moves that put the king in check
-    for (const Move &move : moves) {
-        Metadata md = copy.makeMove(move);
-        // allow all king moves because they have been checked thus far and
-        // kingBit is the old position of the king
-        if (move.piece == KING || !copy.underAttack(kingBit, !whiteToMove)) {
-            filteredMoves.push_back(move);
-        }
-        copy.unmakeMove(move, md);
-    }
-
-    return filteredMoves;
+    return moves;
 }
 
 uint64_t GameState::hash() const {

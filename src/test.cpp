@@ -75,6 +75,17 @@ int main(int argc, char **argv) {
     std::cout << legalMoves.size() << " legal moves" << std::endl;
     for (const Move &m : legalMoves) {
         std::cout << m.to_string() << std::endl;
+        Metadata md = state.makeMove(m);
+        state.print();
+        const std::vector<Move> legalMoves2 = state.generateMoves();
+        std::cout << legalMoves2.size() << " legal moves" << std::endl;
+        for (const Move &m2 : legalMoves2) {
+            std::cout << m2.to_string() << std::endl;
+            Metadata md2 = state.makeMove(m2);
+            state.print();
+            state.unmakeMove(m2, md2);
+        }
+        state.unmakeMove(m, md);
     }
 
     exit(0);

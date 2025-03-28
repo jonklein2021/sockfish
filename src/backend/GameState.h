@@ -101,6 +101,17 @@ struct GameState {
     bool isCheck() const;
 
     /**
+     * Helper function that checks if a move puts its king in check
+     * 
+     * @param copy a reference to a copied game state to test
+     * @param kingBit the bit representing the king's position
+     * @param move the move to check
+     * @param white true iff the move is made by white
+     * @return true iff the move is legal
+     */
+    bool isMoveLegal(GameState &copy, const uint64_t kingBit, const Move &move, bool white) const;
+
+    /**
      * Return a list of all legal moves in some
      * game state
      * 
