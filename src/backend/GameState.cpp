@@ -604,7 +604,7 @@ std::vector<Move> GameState::generateMoves() const {
             // double pawn moves
             uint64_t overBit = toBit;
             toBit >>= 8;
-            const sf::Vector2<int> to = bitToCoords(toBit);
+            to = bitToCoords(toBit);
             candidate = {from, to, PAWN};
             if ((rank2 & fromBit) && (occupancies[NONE] & (overBit | toBit)) && isMoveLegal(copy, kingBit, candidate, true)) {
                 moves.push_back(candidate);
@@ -613,7 +613,7 @@ std::vector<Move> GameState::generateMoves() const {
             // pawn captures up and right
             toBit = (fromBit & not_file_h) >> 7;
             candidate = {from, to, PAWN};
-            const sf::Vector2<int> to = bitToCoords(toBit);
+            to = bitToCoords(toBit);
             if (toBit & (occupancies[OPP] | md.enPassantBit)) {
                 
                 // determine what piece was captured
@@ -637,7 +637,7 @@ std::vector<Move> GameState::generateMoves() const {
             // pawn captures up and left
             toBit = (fromBit & not_file_a) >> 9;
             if (toBit & (occupancies[OPP] | md.enPassantBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
+                to = bitToCoords(toBit);
                 
                 // determine what piece was captured
                 PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
@@ -667,7 +667,7 @@ std::vector<Move> GameState::generateMoves() const {
             // single pawn moves
             toBit = fromBit << 8;
             if (occupancies[NONE] & toBit) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
+                to = bitToCoords(toBit);
 
                 // promotion check
                 if (toBit & rank1) {
@@ -683,14 +683,14 @@ std::vector<Move> GameState::generateMoves() const {
             uint64_t overBit = toBit;
             toBit <<= 8;
             if ((rank7 & fromBit) && (occupancies[NONE] & overBit) && (occupancies[NONE] & toBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
+                to = bitToCoords(toBit);
                 moves.push_back({from, to, PAWN});
             }
             
             // pawn captures down and right
             toBit = (fromBit & not_file_h) << 9;
             if (toBit & (occupancies[OPP] | md.enPassantBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
+                to = bitToCoords(toBit);
                 
                 // determine what piece was captured
                 PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
@@ -713,7 +713,7 @@ std::vector<Move> GameState::generateMoves() const {
             // pawn captures down and left
             toBit = (fromBit & not_file_a) << 7;
             if (toBit & (occupancies[OPP] | md.enPassantBit)) {
-                const sf::Vector2<int> to = bitToCoords(toBit);
+                to = bitToCoords(toBit);
                 
                 // determine what piece was captured
                 PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
