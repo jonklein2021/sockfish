@@ -14,7 +14,6 @@ class Gui : public Game {
         // visual stuff
         sf::RenderWindow window;
         sf::View view;
-        sf::Cursor arrowCursor, handCursor;
         sf::Texture boardTexture;
         sf::Sprite boardSprite;
         sf::Vector2<int> mousePos;

@@ -1,8 +1,12 @@
 # Compiler & flags
 CXX        = g++
 LD         = g++
-CXXFLAGS   = -I common -I backend -I engine -MMD -O3 -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
-LDFLAGS    = -lsfml-graphics -lsfml-window -lsfml-system
+
+# Detect Homebrew installation path
+HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null || echo /usr/local)
+
+CXXFLAGS   = -I common -I backend -I engine -I$(HOMEBREW_PREFIX)/include -MMD -O3 -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
+LDFLAGS    = -L$(HOMEBREW_PREFIX)/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories
 ODIR       = build

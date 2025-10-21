@@ -2,6 +2,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <memory>
 
 #include "PieceType.h"
 
@@ -13,9 +14,14 @@
 struct Piece {
     PieceType type;
     sf::Vector2<int> position; // {x, y} where 0 <= x, y < 8
-    sf::Sprite sprite;
-    Piece() : type(None), position({-1, -1}), sprite() {}
-    Piece(PieceType type, sf::Vector2<int> position, sf::Sprite sprite) : type(type), position(position), sprite(sprite) {}
+    std::unique_ptr<sf::Sprite> sprite;
+    
+    // Default constructor - creates empty piece
+    Piece() : type(None), position({-1, -1}), sprite(nullptr) {}
+    
+    // Constructor with texture
+    Piece(PieceType type, sf::Vector2<int> position, const sf::Texture& texture) 
+        : type(type), position(position), sprite(std::make_unique<sf::Sprite>(texture)) {}
 };
 
 // food for thought: can I delete this struct altogether?

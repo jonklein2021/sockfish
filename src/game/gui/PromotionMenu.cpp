@@ -7,7 +7,7 @@ PromotionMenu::PromotionMenu() : PromotionMenu("horsey/", true) {}
 PromotionMenu::PromotionMenu(const std::string &theme, bool white) : selectedPiece(None), isVisible(false) {
     // menu will take up the size of the board
     menu.setSize(sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
-    menu.setPosition(0, 0); // should update to the location of the promoted pawn
+    menu.setPosition(sf::Vector2f(0, 0));
     menu.setFillColor(sf::Color(0, 0, 0, 200));
 
     pieceOptions = white ? promotionPiecesWhite : promotionPiecesBlack;
@@ -27,14 +27,14 @@ PromotionMenu::PromotionMenu(const std::string &theme, bool white) : selectedPie
         circles[i].setFillColor(sf::Color(255, 255, 255, 127));
         circles[i].setOutlineThickness(0);
         circles[i].setOutlineColor(sf::Color::White);
-        circles[i].setPosition(0, TILE_PIXEL_SIZE * i);
+        circles[i].setPosition(sf::Vector2f(0, TILE_PIXEL_SIZE * i));
     }
 
-    // create sprites for each texture
-    pieces.resize(4);
+    // create sprites for each texture - need to initialize with textures
+    pieces.reserve(4);
     for (int i = 0; i < 4; i++) {
-        pieces[i].setTexture(textures[i]);
-        pieces[i].setPosition(0, TILE_PIXEL_SIZE * i); // these will get updated when the menu is shown
+        pieces.emplace_back(textures[i]);
+        pieces[i].setPosition(sf::Vector2f(0, TILE_PIXEL_SIZE * i));
     }
 }
 
@@ -49,21 +49,23 @@ void PromotionMenu::render(sf::RenderWindow &window) {
 }
 
 void PromotionMenu::handleEvents(sf::RenderWindow &window, const std::function<void(const PieceType)> &callback) {
-    sf::Event event;
-    while (window.pollEvent(event)) {
+    // SFML 3.0 event handling
+    while (auto event = window.pollEvent()) {
         // user left clicks
-        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-            sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+        if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+            if (mousePressed->button == sf::Mouse::Button::Left) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
 
-            std::cout << "Mouse clicked at (" << worldPos.x << ", " << worldPos.y << ")" << std::endl;
+                std::cout << "Mouse clicked at (" << worldPos.x << ", " << worldPos.y << ")" << std::endl;
 
-            for (int i = 0; i < 4; ++i) {
-                if (pieces[i].getGlobalBounds().contains(worldPos)) {
-                    selectedPiece = pieceOptions[i];
-                    callback(selectedPiece);
-                    isVisible = false;
-                    return;
+                for (int i = 0; i < 4; ++i) {
+                    if (pieces[i].getGlobalBounds().contains(worldPos)) {
+                        selectedPiece = pieceOptions[i];
+                        callback(selectedPiece);
+                        isVisible = false;
+                        return;
+                    }
                 }
             }
         }
@@ -72,8 +74,8 @@ void PromotionMenu::handleEvents(sf::RenderWindow &window, const std::function<v
 
 void PromotionMenu::show(int col) {
     for (int i = 0; i < 4; i++) {
-        circles[i].setPosition(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i);
-        pieces[i].setPosition(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i);
+        circles[i].setPosition(sf::Vector2f(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i));
+        pieces[i].setPosition(sf::Vector2f(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i));
     }
     isVisible = true;
 }

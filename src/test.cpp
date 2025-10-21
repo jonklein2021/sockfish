@@ -40,7 +40,7 @@ void testMove(GameState &state) {
     std::cout << " -- copy.pieceAttacks[BK] after unmove --\n";
     printBitboard(copy.pieceAttacks[BK]);
 
-    std::cout << (state.hash() == copy.hash()) << std::endl;
+    std::cout << "state.hash() == copy.hash()? " << (state.hash() == copy.hash()) << std::endl;
 }
 
 void testPerftFile(const std::string &inputFilename) {
