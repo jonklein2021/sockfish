@@ -47,7 +47,7 @@ public:
         playerIsWhite = (std::rand() % 2) & 1;
 
         // if the player's color matches the state's whiteToMove, it is their turn
-        playersTurn = (state.whiteToMove == playerIsWhite);\
+        playersTurn = (state.whiteToMove == playerIsWhite);
     }
 
     Game(const std::string &fen, int depth, bool playerIsWhite)

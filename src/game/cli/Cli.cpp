@@ -113,9 +113,8 @@ void Cli::run() {
             next = getMoveFromStdin();
         } else {
             // get move from engine
-            next = getMoveFromStdin();
-            // next = cpu.getMove(state, legalMoves);
-            // std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
+            next = cpu.getMove(state, legalMoves);
+            std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
         std::cout << next.to_string() << std::endl;

@@ -23,11 +23,10 @@ bool Move::equals(const Move &other) {
 std::string Move::to_string() const {
     std::ostringstream out;
     
-    out << (piece == None ? "None" : pieceFilenames[piece]) << ": (" 
-        << from.x << ", " << from.y << ") -> ("
-        << to.x << ", " << to.y << ")"
-        << (capturedPiece == None ? "" : " (captured " + pieceFilenames[capturedPiece] + ")")
-        << (promotionPiece == None ? "" : " (promotioned to " + pieceFilenames[promotionPiece] + ")")
+    out << (piece == None ? "None" : pieceNames[piece]) << ": "
+        << moveToCoords(*this)
+        << (capturedPiece == None ? "" : " (captures " + pieceNames[capturedPiece] + ")")
+        << (promotionPiece == None ? "" : " (promotes to " + pieceNames[promotionPiece] + ")")
         << (isKCastle ? " (kingside castle)" : "")
         << (isQCastle ? " (queenside castle)" : "")
         << (isEnPassant ? " (en passant)" : "");

@@ -19,11 +19,18 @@ enum { WHITE, BLACK, BOTH, NONE };
 
 /**
  * List of all piece filenames, mainly used for loading textures
- * but also helpful for nice debug output
  */
 const std::vector<std::string> pieceFilenames = {
     "wP", "wN", "wB", "wR", "wQ", "wK",
     "bP", "bN", "bB", "bR", "bQ", "bK"
+};
+
+/**
+ * Mainly used for debug output
+ */
+const std::vector<std::string> pieceNames = {
+    "White Pawn", "White Knight", "White Bishop", "White Rook", "White Queen", "White King",
+    "Black Pawn", "Black Knight", "Black Bishop", "Black Rook", "Black Queen", "Black King",
 };
 
 /**
