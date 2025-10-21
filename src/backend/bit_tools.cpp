@@ -5,7 +5,8 @@
 uint64_t computePawnAttacks(const uint64_t squareBit, const bool white) {
     if (white) {
         return ((squareBit & not_file_h) >> 7) | ((squareBit & not_file_a) >> 9); // up right, up left
-    } else {
+    }
+    else {
         return ((squareBit & not_file_a) << 7) | ((squareBit & not_file_h) << 9); // down left, down right
     }
 }
@@ -19,7 +20,7 @@ uint64_t computeKnightAttacks(const uint64_t squareBit) {
     const uint64_t uul = (squareBit & not_rank_78 & not_file_a) >> 17; // up 2, left 1
     const uint64_t ull = (squareBit & not_rank_8 & not_file_ab) >> 10; // up 1, left 2
     const uint64_t urr = (squareBit & not_rank_8 & not_file_gh) >> 6; //  up 1, right 2
-    
+
     return ddl | ddr | drr | dll | uur | uul | ull | urr;
 }
 
@@ -27,37 +28,37 @@ uint64_t computeBishopAttacks(const uint64_t squareBit) {
     uint64_t attacks = 0;
     uint64_t mask = squareBit;
     uint64_t filteredMask;
-    
+
     // up right
     while (filteredMask = (mask & not_rank_8 & not_file_h)) {
         mask = filteredMask >> 7;
         attacks |= mask;
     }
-    
+
     mask = squareBit;
-    
+
     // up left
     while (filteredMask = (mask & not_rank_8 & not_file_a)) {
         mask = filteredMask >> 9;
         attacks |= mask;
     }
-    
+
     mask = squareBit;
-    
+
     // down right
     while (filteredMask = (mask & not_rank_1 & not_file_h)) {
         mask = filteredMask << 9;
         attacks |= mask;
     }
-    
+
     mask = squareBit;
-    
+
     // down left
     while (filteredMask = (mask & not_rank_1 & not_file_a)) {
         mask = filteredMask << 7;
         attacks |= mask;
     }
-    
+
     return attacks;
 }
 
@@ -65,37 +66,37 @@ uint64_t computeRookAttacks(const uint64_t squareBit) {
     uint64_t attacks = 0;
     uint64_t mask = squareBit;
     uint64_t filteredMask;
-    
+
     // up
     while (filteredMask = (mask & not_rank_8)) {
         mask = filteredMask >> 8;
         attacks |= mask;
     }
-    
+
     mask = squareBit;
-    
+
     // down
     while (filteredMask = (mask & not_rank_1)) {
         mask = filteredMask << 8;
         attacks |= mask;
     }
-    
+
     mask = squareBit;
-    
+
     // left
     while (filteredMask = (mask & not_file_a)) {
         mask = filteredMask >> 1;
         attacks |= mask;
     }
-    
+
     mask = squareBit;
-    
+
     // right
     while (filteredMask = (mask & not_file_h)) {
         mask = filteredMask << 1;
         attacks |= mask;
     }
-    
+
     return attacks;
 }
 
@@ -112,7 +113,7 @@ uint64_t computeKingAttacks(const uint64_t squareBit) {
     const uint64_t dr = (squareBit & not_rank_1 & not_file_h) << 9; // down right
     const uint64_t ul = (squareBit & not_rank_8 & not_file_a) >> 9; // up left
     const uint64_t ur = (squareBit & not_rank_8 & not_file_h) >> 7; // up right
-    
+
     return d | u | l | r | dl | dr | ul | ur;
 }
 
@@ -122,7 +123,7 @@ void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
 
     for (int i = 0; i < 8; i++) {
         int rank = noFlip ? i : 7 - i;
-        
+
         // row border
         out << "   +----+----+----+----+----+----+----+----+\n";
 
@@ -159,7 +160,8 @@ void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
     out << "     ";
     if (noFlip) {
         out << "a    b    c    d    e    f    g    h  \n";
-    } else {
+    }
+    else {
         out << "h    g    f    e    d    c    b    a  \n";
     }
 
@@ -169,7 +171,7 @@ void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
 void printBitboard(const uint64_t bitboard) {
     std::ostringstream out;
     for (int y = 0; y < 8; y++) {
-        out << (8-y) << "  ";
+        out << (8 - y) << "  ";
         for (int x = 0; x < 8; x++) {
             out << ((bitboard & coordsToBit(x, y)) ? "1" : "0") << " ";
         }

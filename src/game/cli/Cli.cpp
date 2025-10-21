@@ -1,17 +1,5 @@
 #include "Cli.h"
 
-bool Cli::validInput(const std::string& input) {
-    if (input.size() != 5) {
-        return false;
-    }
-
-    return (input[0] >= 'a' && input[0] <= 'h') &&
-           (input[1] >= '1' && input[1] <= '8') &&
-           (input[2] == ' ') &&
-           (input[3] >= 'a' && input[3] <= 'h') &&
-           (input[4] >= '1' && input[4] <= '8');
-}
-
 Move Cli::getMoveFromStdin() {
     Move candidate;
     bool pawnPromoting;
@@ -28,7 +16,7 @@ Move Cli::getMoveFromStdin() {
             exit(0);
         }
 
-        if (!validInput(input)) {
+        if (!validateCoords(input)) {
             std::cout << "Error: Invalid input" << std::endl;
             continue;
         }
@@ -89,23 +77,19 @@ Move Cli::getMoveFromStdin() {
 
 Cli::Cli() : Game() {}
 
-Cli::Cli(const std::string &fen, int depth) : Game(fen, depth) {}
+Cli::Cli(const std::string& fen, int depth) : Game(fen, depth) {}
 
-Cli::Cli(const std::string &fen, int depth, bool playerIsWhite) : Game(fen, depth, playerIsWhite) {}
+Cli::Cli(const std::string& fen, int depth, bool playerIsWhite) : Game(fen, depth, playerIsWhite) {}
 
 void Cli::run() {
     legalMoves = state.generateMoves();
 
-    std::cout << legalMoves.size() << " legal moves" << std::endl;
-    for (const Move& m : legalMoves) {
-        std::cout << m.to_string() << std::endl;
-    }
-
     while (!state.isTerminal()) {
         state.print();
-        
+
         // std::cout << cpu.get_eval(state) << std::endl;
-        std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
+        std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n"
+            << std::endl;
 
         Move next;
         if (playersTurn) {
@@ -117,7 +101,7 @@ void Cli::run() {
             std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
-        std::cout << next.to_string() << std::endl;
+        std::cout << next.toString() << std::endl;
 
         // update state with new move and push hash to history
         state.makeMove(next);
@@ -126,20 +110,15 @@ void Cli::run() {
 
         // update set of legal moves
         legalMoves = state.generateMoves();
-        
-        std::cout << legalMoves.size() << " legal moves" << std::endl;
-        for (const Move& m : legalMoves) {
-            std::cout << m.to_string() << std::endl;
-        }
 
         playersTurn = !playersTurn;
     }
 
     if (legalMoves.empty()) {
         if (state.isCheck()) {
-            std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
+             std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!" << std::endl;
         } else {
-            std::cout << "Stalemate!" << std::endl;
+             std::cout << "Stalemate!" << std::endl;
         }
     } else {
         std::cout << "Draw!" << std::endl;

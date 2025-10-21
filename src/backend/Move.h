@@ -9,13 +9,14 @@
  * first vector is where the piece starts and the second vector
  * is where the piece ends up after the move.
  */
-struct Move {
+struct Move
+{
     sf::Vector2<int> from;
     sf::Vector2<int> to;
-    
+
     /**
      * The type of piece that was moved
-     * 
+     *
      * Castling is a king move and en passant is a pawn move
      */
     PieceType piece;
@@ -27,7 +28,7 @@ struct Move {
 
     /**
      * The type of piece that was captured or None if no capture
-     * 
+     *
      * Pawn for all en passant moves
      */
     PieceType capturedPiece;
@@ -35,28 +36,30 @@ struct Move {
     bool isEnPassant;
     bool isKCastle;
     bool isQCastle;
-    
+
     Move();
     Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, PieceType capturedPiece = None,
-        PieceType promotionPiece = None, bool isKCastle = false, bool isQCastle = false, bool isEnPassant = false);
-    
+         PieceType promotionPiece = None, bool isKCastle = false, bool isQCastle = false, bool isEnPassant = false);
+
     /**
      * N.B: This method ONLY compares the `from`, `to`, and `promotedPiece` members
      * of the Move struct. It does not consider `pieceMoved` or `isCapture`
-     * 
+     *
      * @param other move to compare to
      */
-    bool equals(const Move& other);
+    bool equals(const Move &other);
 
     /**
      * Convert the move to a readable string representation,
      * mainly used for debugging
-     * 
+     *
      * @return string representation of the move
      */
-    std::string to_string() const; // note: consider printing in a more stand format
+    std::string toString() const; // note: consider printing in a more stand format
 };
 
-Move coordsToMove(const std::string& input);
+Move coordsToMove(const std::string &input);
 
-std::string moveToCoords(const Move& move);
+std::string moveToCoords(const Move &move);
+
+bool validateCoords(const std::string& input);

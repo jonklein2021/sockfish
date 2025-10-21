@@ -65,7 +65,6 @@ inline static uint64_t coordsToBit(int x, int y) {
  * 
  * @param bitboard the relevant bitboard
  * @param index the index of that bitboard to pop
- * @return the bit at the given index
  */
 inline static void popBit(uint64_t& bitboard, int index) {
     if (getBit(bitboard, index)) {

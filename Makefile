@@ -5,23 +5,23 @@ LD         = g++
 # Detect Homebrew installation path
 HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null || echo /usr/local)
 
-CXXFLAGS   = -I common -I backend -I engine -I$(HOMEBREW_PREFIX)/include -MMD -O3 -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
+CXXFLAGS   = -I src/common -I src/backend -I src/engine -I$(HOMEBREW_PREFIX)/include -MMD -O3 -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
 LDFLAGS    = -L$(HOMEBREW_PREFIX)/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directories
-ODIR       = build
-SDIRS      = backend engine game/cli game/gui
+ODIR       = bin
+SDIRS      = src/backend src/engine src/game/cli src/game/gui
 $(shell mkdir -p $(ODIR))
 
 # Gather all .cpp files
 COMMONCXX 	 	= $(foreach dir, $(SDIRS), $(wildcard $(dir)/*.cpp))
 ALLCXX	    	= $(wildcard *.cpp $(COMMONCXX))
-COMMONOFILES	= $(patsubst %.cpp, $(ODIR)/%.o, $(COMMONCXX))
-ALLOFILES    	= $(patsubst %.cpp, $(ODIR)/%.o, $(ALLCXX))
+COMMONOFILES	= $(patsubst src/%.cpp, $(ODIR)/%.o, $(COMMONCXX))
+ALLOFILES    	= $(patsubst src/%.cpp, $(ODIR)/%.o, $(patsubst %.cpp, $(ODIR)/%.o, $(filter-out $(COMMONCXX), $(ALLCXX))))
 DFILES			= $(ALLOFILES:.o=.d)
 
 # Targets
-TARGETS    = main test
+TARGETS    = main test/test
 EXEFILES   = $(patsubst %, $(ODIR)/%.exe, $(TARGETS))
 
 .DEFAULT_GOAL = all
@@ -37,6 +37,11 @@ clean:
 	@rm -rf $(ODIR)
 
 # Compile all .cpp -> .o files (merged into one rule)
+$(ODIR)/%.o: src/%.cpp
+	@mkdir -p $(dir $@)
+	@echo "[CXX] $< --> $@"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
 $(ODIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@echo "[CXX] $< --> $@"

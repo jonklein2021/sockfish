@@ -6,8 +6,10 @@ Engine::Engine() : Engine(8) {}
 
 Engine::Engine(int depth) : maxDepth(depth) {}
 
-void Engine::countPositionsBuildup(GameState& state, int maxDepth) const {
-    struct Node {
+void Engine::countPositionsBuildup(GameState &state, int maxDepth) const
+{
+    struct Node
+    {
         GameState state;
         int depth;
     };
@@ -17,31 +19,36 @@ void Engine::countPositionsBuildup(GameState& state, int maxDepth) const {
 
     std::vector<uint64_t> depthCounts(maxDepth + 1, 0);
 
-    while (!q.empty()) {
+    while (!q.empty())
+    {
         Node current = q.front();
         q.pop();
 
         // as soon as we reach maxDepth we can stop
-        if (current.depth >= maxDepth) break;
+        if (current.depth >= maxDepth)
+            break;
 
         std::vector<Move> legalMoves = current.state.generateMoves();
 
-        for (const Move& move : legalMoves) {
+        for (const Move &move : legalMoves)
+        {
             const Metadata md = current.state.makeMove(move);
-            depthCounts[current.depth+1]++;
+            depthCounts[current.depth + 1]++;
             q.push({current.state, current.depth + 1});
             current.state.unmakeMove(move, md);
         }
     }
 
-    for (int d = 1; d <= maxDepth; d++) {
+    for (int d = 1; d <= maxDepth; d++)
+    {
         std::cout << ";D" << d << " " << depthCounts[d] << " ";
     }
 
     std::cout << std::endl;
 }
 
-void Engine::countPositions(GameState& state, int depth) const {
+void Engine::countPositions(GameState &state, int depth) const
+{
     uint64_t total = 0;
     uint64_t captures = 0;
     uint64_t eps = 0;
@@ -50,8 +57,10 @@ void Engine::countPositions(GameState& state, int depth) const {
     uint64_t checks = 0;
     uint64_t checkmates = 0;
 
-    std::function<uint64_t(GameState&, int)> countPositionsHelper = [&](GameState& state, int depth) -> uint64_t {
-        if (depth == 0 || state.isTerminal()) {
+    std::function<uint64_t(GameState &, int)> countPositionsHelper = [&](GameState &state, int depth) -> uint64_t
+    {
+        if (depth == 0 || state.isTerminal())
+        {
             return 1; // Base case: count this position
         }
 
@@ -59,25 +68,33 @@ void Engine::countPositions(GameState& state, int depth) const {
         std::vector<Move> legalMoves = state.generateMoves();
 
         std::cout << legalMoves.size() << " legal moves\n";
-        for (const Move& m : legalMoves) {
-            std::cout << m.to_string() << "\n";
+        for (const Move &m : legalMoves)
+        {
+            std::cout << m.toString() << "\n";
         }
-        
-        for (const Move& move : legalMoves) {            
+
+        for (const Move &move : legalMoves)
+        {
             const Metadata md = state.makeMove(move);
 
             state.print();
-            
+
             count += countPositionsHelper(state, depth - 1);
-            total += count;  // Accumulate total count
-            
-            if (move.capturedPiece != None) captures++;
-            if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK)) castles++;
-            if (move.isEnPassant) eps++;
-            if (move.promotionPiece != None) promotions++;
-            if (state.isCheck()) {
+            total += count; // Accumulate total count
+
+            if (move.capturedPiece != None)
+                captures++;
+            if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK))
+                castles++;
+            if (move.isEnPassant)
+                eps++;
+            if (move.promotionPiece != None)
+                promotions++;
+            if (state.isCheck())
+            {
                 checks++;
-                if (state.isTerminal()) {
+                if (state.isTerminal())
+                {
                     // std::cout << moveToCoords(move) << " is checkmate\n";
                     // state.print();
                     checkmates++;
@@ -98,72 +115,80 @@ void Engine::countPositions(GameState& state, int depth) const {
     std::cout << "Total castles: " << castles << "\n";
     std::cout << "Total promotions: " << promotions << "\n";
     std::cout << "Total checks: " << checks << "\n";
-    std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
+    std::cout << "Total checkmates: " << checkmates << "\n"
+              << std::endl;
 }
 
-eval_t Engine::rateMove(const GameState& state, const Move& move) {
+eval_t Engine::rateMove(const GameState &state, const Move &move)
+{
     // capture moves are promising
     eval_t rating = 0;
-    if (move.capturedPiece != None) {
+    if (move.capturedPiece != None)
+    {
         rating += pieceValues[move.capturedPiece] - pieceValues[move.piece];
     }
-    
+
     // pawn promotion moves are likely to be good
-    if (move.promotionPiece != None) {
+    if (move.promotionPiece != None)
+    {
         rating += pieceValues[move.promotionPiece] - pieceValues[move.piece];
     }
-    
+
     // moves that put the opponent in check should be checked early
     GameState temp(state);
     temp.makeMove(move);
     temp.whiteToMove = !temp.whiteToMove;
-    if (temp.isCheck()) {
+    if (temp.isCheck())
+    {
         rating += 10;
     }
 
     return rating;
 }
 
-eval_t Engine::evaluate(const GameState& state) {
+eval_t Engine::evaluate(const GameState &state)
+{
     return evaluate(state, state.generateMoves());
 }
 
-eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMoves) {
-    if (legalMoves.empty() && state.isCheck()) {
+eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMoves)
+{
+    if (legalMoves.empty() && state.isCheck())
+    {
         return state.whiteToMove ? 1738 : -1738;
     }
-    
+
     const eval_t piecePositionWeight = 0.5;
 
     eval_t score = 0;
 
     // total up pieces, scaling by piece value and position in piece-square board
-    for (PieceType p : {WP, WN, WB, WR, WQ, WK}) {
+    for (PieceType p : {WP, WN, WB, WR, WQ, WK})
+    {
         uint64_t pieces = state.pieceBits[p];
-        while (pieces) {
+        while (pieces)
+        {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
             int y = trailingZeros / 8;
             // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ": " << pieceValues[p] << " + " << piecePositionWeight << "*" << pieceSquareTables[p][y][x] << std::endl;
-            score += (
-                pieceValues[p] +
-                piecePositionWeight*pieceSquareTables[p][y][x]
-            );
+            score += (pieceValues[p] +
+                      piecePositionWeight * pieceSquareTables[p][y][x]);
             pieces &= pieces - 1;
         }
     }
 
-    for (PieceType p : {BP, BN, BB, BR, BQ, BK}) {
+    for (PieceType p : {BP, BN, BB, BR, BQ, BK})
+    {
         uint64_t pieces = state.pieceBits[p];
-        while (pieces) {
+        while (pieces)
+        {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
             int y = trailingZeros / 8;
             // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ": " << pieceValues[p] << " + " << piecePositionWeight << "*" << pieceSquareTables[p][y][x] << std::endl;
-            score -= (
-                pieceValues[p] +
-                piecePositionWeight*pieceSquareTables[p][y][x]
-            );
+            score -= (pieceValues[p] +
+                      piecePositionWeight * pieceSquareTables[p][y][x]);
             pieces &= pieces - 1;
         }
     }
@@ -172,35 +197,45 @@ eval_t Engine::evaluate(const GameState& state, const std::vector<Move>& legalMo
     return state.whiteToMove ? score : -score;
 }
 
-eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
+eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth)
+{
     uint64_t h = state.hash();
-    if (transpositionTable.find(h) != transpositionTable.end()) {
-        const TTEntry& entry = transpositionTable[h];
-        if (entry.depth >= depth) { 
-            if (entry.flag == TTEntry::EXACT) return entry.eval;
-            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta) return entry.eval;
-            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha) return entry.eval;
+    if (transpositionTable.find(h) != transpositionTable.end())
+    {
+        const TTEntry &entry = transpositionTable[h];
+        if (entry.depth >= depth)
+        {
+            if (entry.flag == TTEntry::EXACT)
+                return entry.eval;
+            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta)
+                return entry.eval;
+            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha)
+                return entry.eval;
         }
     }
 
     // base case
-    if (depth >= maxDepth || state.isTerminal()) {
+    if (depth >= maxDepth || state.isTerminal())
+    {
         return evaluate(state);
     }
-    
+
     std::vector<Move> legalMoves = state.generateMoves();
 
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
-    for (const Move& move : legalMoves) {
+    for (const Move &move : legalMoves)
+    {
         const Metadata md = state.makeMove(move);
 
         eval_t eval = -negamax(state, -beta, -alpha, depth + 1);
 
         // save result in transposition table
         TTEntry newEntry{eval, depth, TTEntry::EXACT};
-        if (eval <= alpha) newEntry.flag = TTEntry::UPPERBOUND;
-        if (eval >= beta) newEntry.flag = TTEntry::LOWERBOUND;
+        if (eval <= alpha)
+            newEntry.flag = TTEntry::UPPERBOUND;
+        if (eval >= beta)
+            newEntry.flag = TTEntry::LOWERBOUND;
         transpositionTable[h] = newEntry;
 
         state.unmakeMove(move, md);
@@ -208,7 +243,8 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
         bestEval = std::max(bestEval, eval);
         alpha = std::max(alpha, eval);
 
-        if (alpha >= beta) {
+        if (alpha >= beta)
+        {
             break;
         }
     }
@@ -216,10 +252,12 @@ eval_t Engine::negamax(GameState& state, eval_t alpha, eval_t beta, int depth) {
     return bestEval;
 }
 
-eval_t Engine::iterativeDeepening(GameState& state) {
+eval_t Engine::iterativeDeepening(GameState &state)
+{
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
-    struct Node {
+    struct Node
+    {
         GameState state;
         int depth;
     };
@@ -227,38 +265,45 @@ eval_t Engine::iterativeDeepening(GameState& state) {
     std::queue<Node> q;
     q.push({state, 0});
 
-    while (!q.empty()) {
+    while (!q.empty())
+    {
         Node current = q.front();
         q.pop();
 
         std::vector<Move> legalMoves = current.state.generateMoves();
 
         // evaluate terminal nodes
-        if (current.depth >= maxDepth || current.state.isTerminal()) {
+        if (current.depth >= maxDepth || current.state.isTerminal())
+        {
             eval_t evalScore = evaluate(current.state, {});
-            if (evalScore > bestEval) {
+            if (evalScore > bestEval)
+            {
                 bestEval = evalScore;
             }
         }
 
         // evaluate non-terminal nodes
-        for (const Move& move : legalMoves) {
+        for (const Move &move : legalMoves)
+        {
             GameState nextState = current.state;
             nextState.makeMove(move);
-            q.push({nextState, current.depth+1});
+            q.push({nextState, current.depth + 1});
         }
     }
 
     return bestEval;
 }
 
-Move Engine::getMove(GameState& state, std::vector<Move>& legalMoves) {
-    if (legalMoves.empty()) {
+Move Engine::getMove(GameState &state, std::vector<Move> &legalMoves)
+{
+    if (legalMoves.empty())
+    {
         return Move();
     }
 
     // sort moves by how promising they seem
-    auto cmp = [&](const Move& a, const Move& b) {
+    auto cmp = [&](const Move &a, const Move &b)
+    {
         return rateMove(state, a) > rateMove(state, b);
     };
 
@@ -269,18 +314,20 @@ Move Engine::getMove(GameState& state, std::vector<Move>& legalMoves) {
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
     Move bestMove;
 
-    for (const Move& move : legalMoves) {
+    for (const Move &move : legalMoves)
+    {
         const Metadata md = state.makeMove(move);
-        
+
         // state.board.prettyPrint();
-        std::cout << "  " << move.to_string() << std::endl;
-        
+        std::cout << "  " << move.toString() << std::endl;
+
         eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
-        
+
         std::cout << "\teval = " << eval << std::endl;
         state.unmakeMove(move, md);
 
-        if (eval > bestEval) {
+        if (eval > bestEval)
+        {
             bestEval = eval;
             bestMove = move;
         }

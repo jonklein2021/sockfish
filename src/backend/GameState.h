@@ -36,6 +36,8 @@ struct GameState {
     GameState(const std::string &fen);
     
     // Bitboard-only Methods
+    uint64_t computeAllSidesAttacks() const;
+    uint64_t computeAllSidesAttacks(bool white) const;
     uint64_t computePieceAttacks(PieceType piece) const;
     uint64_t computePawnAttacks(const uint64_t squareBit, const bool white) const;
     uint64_t computeKnightAttacks(const uint64_t squareBit) const;
