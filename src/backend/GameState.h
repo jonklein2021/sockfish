@@ -15,25 +15,25 @@
  * whose turn it is, if each side can castle, etc.
  */
 struct GameState {
-    // bitboards representing the locations of each piece
-    uint64_t pieceBits[12];
+public:
+    // Constructors
+    GameState();
 
-    // bitboards representing the locations of each piece's attacks
-    uint64_t pieceAttacks[12];
+    GameState(const std::string &fen);
 
-    // bitboards representing the joint occupancy of each side's pieces
-    uint64_t occupancies[4];
+    // Accessors for encapsulated bitboards (read-only)
+    uint64_t pieceBit(PieceType p) const { return pieceBits[p]; }
+    uint64_t pieceAttack(PieceType p) const { return pieceAttacks[p]; }
+    uint64_t occupancy(int idx) const { return occupancies[idx]; }
+    const uint64_t* pieceBitsData() const noexcept { return pieceBits; }
+    const uint64_t* pieceAttacksData() const noexcept { return pieceAttacks; }
+    const uint64_t* occupanciesData() const noexcept { return occupancies; }
 
     // true iff it is white's turn to move
     bool whiteToMove;
 
     // game state information (who can castle, en passant square, etc.)
     Metadata md;
-
-    // Constructors
-    GameState();
-
-    GameState(const std::string &fen);
     
     // Bitboard-only Methods
     uint64_t computeAllSidesAttacks() const;
@@ -131,4 +131,13 @@ struct GameState {
      * Print the game state to the console
      */
     void print() const;
+private:
+    // bitboards representing the locations of each piece
+    uint64_t pieceBits[12];
+
+    // bitboards representing the locations of each piece's attacks
+    uint64_t pieceAttacks[12];
+
+    // bitboards representing the joint occupancy of each side's pieces
+    uint64_t occupancies[4];
 };

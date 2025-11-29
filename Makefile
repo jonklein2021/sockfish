@@ -3,10 +3,14 @@ CXX        = g++
 LD         = g++
 
 # Detect Homebrew installation path
-HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null || echo /usr/local)
+HOMEBREW_PATH := $(shell brew --prefix 2>/dev/null || echo /usr/local)
 
-CXXFLAGS   = -I src/common -I src/backend -I src/engine -I$(HOMEBREW_PREFIX)/include -MMD -O3 -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
-LDFLAGS    = -L$(HOMEBREW_PREFIX)/lib -lsfml-graphics -lsfml-window -lsfml-system
+# Change this to where SFML 3.0 is installed
+SFML_PATH = "/home/${USER}/sfml"
+
+CXXFLAGS   = -I src/common -I src/backend -I src/engine -I$(HOMEBREW_PATH)/include -I$(SFML_PATH)/include -O3 -MMD -std=c++17 -Wall -Wextra -Wno-parentheses -pedantic
+LDFLAGS    = -L$(HOMEBREW_PATH)/lib -L$(SFML_PATH)/lib -lsfml-graphics -lsfml-window -lsfml-system
+export LD_LIBRARY_PATH=$(SFML_PATH)/lib 
 
 # Directories
 ODIR       = bin

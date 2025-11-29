@@ -47,7 +47,10 @@ struct Move
      *
      * @param other move to compare to
      */
-    bool equals(const Move &other);
+    bool equals(const Move &other) const;
+
+    // prefer operator== for comparisons; keep equals for backward compat
+    bool operator==(const Move &other) const { return equals(other); }
 
     /**
      * Convert the move to a readable string representation,

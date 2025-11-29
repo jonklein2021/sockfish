@@ -20,7 +20,7 @@ struct Piece {
     Piece() : type(None), position({-1, -1}), sprite(nullptr) {}
     
     // Constructor with texture
-    Piece(PieceType type, sf::Vector2<int> position, const sf::Texture& texture) 
+    explicit Piece(PieceType type, sf::Vector2<int> position, const sf::Texture& texture) 
         : type(type), position(position), sprite(std::make_unique<sf::Sprite>(texture)) {}
 };
 

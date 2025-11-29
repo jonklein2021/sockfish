@@ -165,7 +165,7 @@ eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMo
     // total up pieces, scaling by piece value and position in piece-square board
     for (PieceType p : {WP, WN, WB, WR, WQ, WK})
     {
-        uint64_t pieces = state.pieceBits[p];
+    uint64_t pieces = state.pieceBit(p);
         while (pieces)
         {
             int trailingZeros = __builtin_ctzll(pieces);
@@ -180,7 +180,7 @@ eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMo
 
     for (PieceType p : {BP, BN, BB, BR, BQ, BK})
     {
-        uint64_t pieces = state.pieceBits[p];
+    uint64_t pieces = state.pieceBit(p);
         while (pieces)
         {
             int trailingZeros = __builtin_ctzll(pieces);

@@ -9,7 +9,7 @@ Move::Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved, Pie
     : from(from), to(to), piece(pieceMoved), promotionPiece(promotionPiece), capturedPiece(capturedPiece),
       isEnPassant(isEnPassant), isKCastle(isKCastle), isQCastle(isQCastle) {}
 
-bool Move::equals(const Move &other) {
+bool Move::equals(const Move &other) const {
     return (
         from.x == other.from.x &&
         from.y == other.from.y &&

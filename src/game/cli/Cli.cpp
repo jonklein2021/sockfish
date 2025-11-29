@@ -106,7 +106,7 @@ void Cli::run() {
         // update state with new move and push hash to history
         state.makeMove(next);
         state.md.history.push_back(state.hash());
-        prettyPrintPosition(state.pieceBits, playerIsWhite);
+        prettyPrintPosition(state.pieceBitsData(), playerIsWhite);
 
         // update set of legal moves
         legalMoves = state.generateMoves();
