@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <limits>
+#include <memory>
+#include <unordered_map>
 
 #include "GameState.h"
 
@@ -151,7 +151,7 @@ class Engine {
      * @param move The move to rate
      * @return A value representing how promising the move is
      */
-    eval_t rateMove(const GameState &state, const Move &move);
+    eval_t rateMove(const std::unique_ptr<GameState> state, const Move &move);
 
     /**
      * Calculates heuristic value of state
@@ -159,7 +159,7 @@ class Engine {
      * @param state The state to evaluate
      * @return The heuristic value of the state
      */
-    eval_t evaluate(const GameState &state);
+    eval_t evaluate(const std::unique_ptr<GameState> state);
 
     /**
      * Calculates heuristic value of state
@@ -168,7 +168,7 @@ class Engine {
      * @param legalMoves The possible legal moves from that state
      * @return The heuristic value of the state
      */
-    eval_t evaluate(const GameState &state,
+    eval_t evaluate(const std::unique_ptr<GameState> state,
                     const std::vector<Move> &legalMoves);
 
     /**
@@ -179,7 +179,8 @@ class Engine {
      * @param beta The beta value
      * @return The heuristic value of the state to move to
      */
-    eval_t negamax(GameState &state, eval_t alpha, eval_t beta, int depth);
+    eval_t negamax(std::unique_ptr<GameState> state, eval_t alpha, eval_t beta,
+                   int depth);
 
     /**
      * Iterative deepening search (basically BFS)
@@ -187,7 +188,7 @@ class Engine {
      * @param state The state to evaluate
      * @return The heuristic value of the state to move to
      */
-    eval_t iterativeDeepening(GameState &state);
+    eval_t iterativeDeepening(std::unique_ptr<GameState> state);
 
   public:
     Engine();
@@ -196,7 +197,9 @@ class Engine {
     /**
      * for testing
      */
-    eval_t get_eval(const GameState &state) { return evaluate(state); }
+    eval_t get_eval(std::unique_ptr<GameState> state) {
+        return evaluate(std::move(state));
+    }
 
     /**
      * Counts the number of positions that can be reached from the current state
@@ -205,7 +208,7 @@ class Engine {
      * @param depth The depth to search
      * @return The number of positions that can be reached
      */
-    void countPositions(GameState &state, int depth) const;
+    void countPositions(std::unique_ptr<GameState> state, int depth) const;
 
     /**
      * Counts the number of positions with depth 1, 2, ..., maxDepth
@@ -214,7 +217,8 @@ class Engine {
      * @param state The state to evaluate
      * @param maxDepth The maximum depth to search
      */
-    void countPositionsBuildup(GameState &state, int maxDepth) const;
+    void countPositionsBuildup(std::unique_ptr<GameState> state,
+                               int maxDepth) const;
 
     /**
      * Gets the best move for the current state
@@ -223,5 +227,6 @@ class Engine {
      * @param legalMoves The possible legal moves from that state
      * @return The best move to make
      */
-    Move getMove(GameState &state, std::vector<Move> &legalMoves);
+    Move getMove(std::unique_ptr<GameState> state,
+                 std::vector<Move> &legalMoves);
 };

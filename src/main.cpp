@@ -17,7 +17,7 @@ void usage() {
     ss << "  -f  <string>    Specify a custom FEN string for the starting "
           "position\n";
     ss << "  -d  <depth>     Specify the depth of the minimax search (default: "
-          "6)\n";
+          "4)\n";
     ss << "  -t  <theme>     Specify the piece theme for the GUI\n";
 
     std::cout << ss.str() << std::endl;
@@ -26,10 +26,10 @@ void usage() {
 int main(int argc, char **argv) {
     // parse command line arguments
     bool useCli = true;
-    std::string playerColor = ""; // TODO: Make this an enum
+    std::string playerColorOverride = ""; // TODO: Make this an enum
     std::string fen = defaultFEN;
     std::string pieceTheme = "horsey/";
-    int depth = 6;
+    int depth = 4;
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "-h" || arg == "--help") {
@@ -40,9 +40,9 @@ int main(int argc, char **argv) {
         } else if (arg == "-g" || arg == "--gui") {
             useCli = false;
         } else if (arg == "-w" || arg == "--white") {
-            playerColor = "white";
+            playerColorOverride = "white";
         } else if (arg == "-b" || arg == "--black") {
-            playerColor = "black";
+            playerColorOverride = "black";
         } else if (arg == "-t") {
             if (i + 1 < argc) {
                 pieceTheme = argv[i + 1];
@@ -78,10 +78,16 @@ int main(int argc, char **argv) {
         }
     }
 
+    bool playerIsWhite = playerColorOverride.empty()
+                             ? std::rand() % 2 == 0
+                             : (playerColorOverride == "white" ? true : false);
+
     std::cout << "Initializing game in " << (useCli ? "CLI" : "GUI")
               << " mode...\n";
-    std::cout << "  Player color: "
-              << (playerColor.empty() ? "random" : playerColor) << "\n";
+    std::cout << "  Player color: " << (playerIsWhite ? "white" : "black")
+              << (playerColorOverride.empty() ? " (random)"
+                                              : playerColorOverride)
+              << "\n";
     std::cout << "  FEN: " << fen << "\n";
     std::cout << "  Depth: " << depth << "\n";
     std::cout << "  Piece theme: " << pieceTheme << std::endl;
@@ -90,32 +96,11 @@ int main(int argc, char **argv) {
     std::unique_ptr<Game> game;
 
     if (useCli) {
-        Cli::Builder builder;
-        builder.withFEN(fen);
-        builder.withDepth(depth);
-
-        if (playerColor == "white") {
-            builder.withPlayerIsWhite(true);
-        } else if (playerColor == "black") {
-            builder.withPlayerIsWhite(false);
-        }
-        // else: random color
-
-        game = builder.build();
-
+        game = std::make_unique<Cli>(
+            Cli(std::make_unique<Engine>(Engine(depth)), fen, playerIsWhite));
     } else {
-        Gui::Builder builder;
-        builder.withFEN(fen);
-        builder.withDepth(depth);
-
-        if (playerColor == "white") {
-            builder.withPlayerIsWhite(true);
-        } else if (playerColor == "black") {
-            builder.withPlayerIsWhite(false);
-        }
-        // else: random color
-
-        game = builder.build();
+        game = std::make_unique<Gui>(
+            Gui(std::make_unique<Engine>(Engine(depth)), fen, playerIsWhite));
     }
 
     game->run();

@@ -10,63 +10,69 @@
 #include <SFML/Graphics.hpp>
 
 class Gui : public Game {
-    private:
-        // visual stuff
-        sf::RenderWindow window;
-        sf::View view;
-        sf::Texture boardTexture;
-        sf::Sprite boardSprite;
-        sf::Vector2<int> mousePos;
-        std::string pieceTheme = "horsey/";
+  private:
+    // visual stuff
+    sf::RenderWindow window;
+    sf::View view;
+    sf::Texture boardTexture;
+    sf::Sprite boardSprite;
+    std::string pieceTheme = "horsey/";
+    sf::Vector2<int> mousePos;
 
-        Move candidate;
-        
-        // pieces on the board
-        std::list<Piece> pieces;
+    Move candidate;
 
-        // pawn promotion window
-        PromotionMenu promotionMenu;
+    // pieces on the board
+    std::list<Piece> pieces;
 
-        // drag-and-drop variables
-        Piece* selectedPiece = nullptr;
-        bool isDragging = false;
+    // pawn promotion window
+    PromotionMenu promotionMenu;
 
-        // 1-1 mapping from each piece to its texture
-        std::unordered_map<PieceType, sf::Texture> pieceTextures;
+    // drag-and-drop variables
+    Piece *selectedPiece = nullptr;
+    bool isDragging = false;
 
-        /**
-         * Converts a FEN string representation of a chess position into a list of Piece objects
-         * 
-         * @param fen FEN string
-         * @return list of Piece objects
-         */
-        std::list<Piece> fenToPieces(const std::string& fen);
-        
-        /**
-         * Loads piece textures from disk and populates the pieceTextures map
-         */
-        void loadPieceTextures();
-    
-        /**
-         * Primary event loop; handles window resizing,
-         * window closing, mouse clicks and piece dragging
-         */
-        void handleEvents();
+    // 1-1 mapping from each piece to its texture
+    std::unordered_map<PieceType, sf::Texture> pieceTextures;
 
-        /**
-         * Updates the game state
-         */
-        void update();
+    /**
+     * Converts a FEN string representation of a chess position into a list of
+     * Piece objects
+     *
+     * @param fen FEN string
+     * @return list of Piece objects
+     */
+    std::list<Piece> fenToPieces(const std::string &fen);
 
-        /**
-         * Renders relevant sprites to the window, including the board,
-         * pieces, and promotion menu if it is open
-         */
-        void render();
+    /**
+     * Sets up window and textures
+     */
+    void initializeScreen();
 
-    public:
-        Gui();
-        Gui(const std::string &fen, int depth);
-        Gui(const std::string &fen, int depth, bool playerIsWhite);
-        void run();
+    /**
+     * Loads piece textures from disk and populates the pieceTextures map
+     */
+    void loadPieceTextures();
+
+    /**
+     * Primary event loop; handles window resizing,
+     * window closing, mouse clicks and piece dragging
+     */
+    void handleEvents();
+
+    /**
+     * Updates the game state
+     */
+    void update();
+
+    /**
+     * Renders relevant sprites to the window, including the board,
+     * pieces, and promotion menu if it is open
+     */
+    void render();
+
+  public:
+    Gui();
+    Gui(std::unique_ptr<Engine> cpu, const std::string &fen,
+        bool playerIsWhite);
+    void run();
 };

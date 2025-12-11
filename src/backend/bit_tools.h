@@ -1,35 +1,87 @@
 #pragma once
 
 #include <cstdint>
-#include <iostream>
-#include <sstream>
-
-#include "constants.h"
 
 #include <SFML/System/Vector2.hpp>
 
 // useful for converting a square to a bitboard index
 enum {
-    a8, b8, c8, d8, e8, f8, g8, h8,
-    a7, b7, c7, d7, e7, f7, g7, h7,
-    a6, b6, c6, d6, e6, f6, g6, h6,
-    a5, b5, c5, d5, e5, f5, g5, h5,
-    a4, b4, c4, d4, e4, f4, g4, h4,
-    a3, b3, c3, d3, e3, f3, g3, h3,
-    a2, b2, c2, d2, e2, f2, g2, h2,
-    a1, b1, c1, d1, e1, f1, g1, h1
+    a8,
+    b8,
+    c8,
+    d8,
+    e8,
+    f8,
+    g8,
+    h8,
+    a7,
+    b7,
+    c7,
+    d7,
+    e7,
+    f7,
+    g7,
+    h7,
+    a6,
+    b6,
+    c6,
+    d6,
+    e6,
+    f6,
+    g6,
+    h6,
+    a5,
+    b5,
+    c5,
+    d5,
+    e5,
+    f5,
+    g5,
+    h5,
+    a4,
+    b4,
+    c4,
+    d4,
+    e4,
+    f4,
+    g4,
+    h4,
+    a3,
+    b3,
+    c3,
+    d3,
+    e3,
+    f3,
+    g3,
+    h3,
+    a2,
+    b2,
+    c2,
+    d2,
+    e2,
+    f2,
+    g2,
+    h2,
+    a1,
+    b1,
+    c1,
+    d1,
+    e1,
+    f1,
+    g1,
+    h1
 };
 
 /**
  * Returns index of the least significant bit
- * 
+ *
  * Equivalently, the number of trailing 0s
  */
 #define indexOfLs1b(bitboard) __builtin_ctzll(bitboard)
 
 /**
  * Returns the bit at the given index
- * 
+ *
  * @param bitboard the relevant bitboard
  * @param index the index of that bitboard to check
  * @return the bit at the given index
@@ -40,18 +92,17 @@ inline static uint64_t getBit(uint64_t bitboard, int index) {
 
 /**
  * Sets the bit at the given index
- * 
+ *
  * @param bitboard the relevant bitboard
  * @param index the index of that bitboard to set
  */
-inline static void setBit(uint64_t& bitboard, int index) {
+inline static void setBit(uint64_t &bitboard, int index) {
     bitboard |= (1ull << index);
 }
 
-
 /**
  * Converts a pair of coordinates to a bit
- * 
+ *
  * @param x the x coordinate
  * @param y the y coordinate
  * @return the bit corresponding to the coordinates
@@ -62,20 +113,36 @@ inline static uint64_t coordsToBit(int x, int y) {
 
 /**
  * Pops (removes and returns) the bit at the given index
- * 
+ *
  * @param bitboard the relevant bitboard
  * @param index the index of that bitboard to pop
  */
-inline static void popBit(uint64_t& bitboard, int index) {
+inline static void popBit(uint64_t &bitboard, int index) {
     if (getBit(bitboard, index)) {
         bitboard ^= (1ull << index);
     }
 }
 
 /**
+ * Converts a pair of coordinates (x, y) to an offset
+ * in a bitboard (1 << offset is the bit in the bitboard)
+ */
+inline static uint8_t coordsToOffset(sf::Vector2<int> coords) {
+    return coords.y * 8 + coords.x;
+}
+
+/**
+ * Converts an offset (1 << offset is the bit in the bitboard)
+ * to a pair of coordinates (x, y)
+ */
+inline static sf::Vector2<int> offsetToCoords(uint8_t offset) {
+    return {offset % 8, offset / 8};
+}
+
+/**
  * Converts a pair of coordinates to a bit
- * 
- * @param coords the coordinates to convert
+ *
+ * @param coords the coordinates to convert (x, y)
  * @return the bit corresponding to the coordinates
  */
 inline static uint64_t coordsToBit(sf::Vector2<int> coords) {
@@ -84,13 +151,13 @@ inline static uint64_t coordsToBit(sf::Vector2<int> coords) {
 
 /**
  * Converts a bit to a pair of coordinates
- * 
+ *
  * @param bit the bit to convert
- * @return the corresponding coordinates
+ * @return the corresponding coordinates (x, y)
  */
 inline static sf::Vector2<int> bitToCoords(uint64_t bit) {
-    int index = __builtin_ctzll(bit);
-    return {index % 8, index / 8};
+    int offset = indexOfLs1b(bit);
+    return offsetToCoords(offset);
 }
 
 /*** MOVE GENERATION TOOLS ***/
@@ -109,7 +176,7 @@ inline static sf::Vector2<int> bitToCoords(uint64_t bit) {
     |   3   . . . . . . . .
     v   2   p p p p p p p p
     |   1   r n b q k b n r
-    v    
+    v
             a b c d e f g h
 
     x increasing ->->->->->
@@ -124,7 +191,6 @@ inline static sf::Vector2<int> bitToCoords(uint64_t bit) {
 
 */
 
-
 // Bitmasks that zero out specific files or ranks
 // Useful for preventing pieces from going out of bounds
 
@@ -137,7 +203,6 @@ const uint64_t not_rank_12 = 281474976710655ull;
 const uint64_t not_rank_8 = 18446744073709551360ull;
 const uint64_t not_rank_78 = 18446744073709486080ull;
 
-
 // Bitmasks for pawn moves
 const uint64_t rank1 = 18374686479671623680ull;
 const uint64_t rank2 = 71776119061217280ull;
@@ -146,7 +211,7 @@ const uint64_t rank8 = 255ull;
 
 /**
  * Computes the attacks of a pawn on the given square
- * 
+ *
  * @param squareBit the bit denoting where the pawn is
  * @param white true iff the pawn is white
  * @return the bitboard of the pawn's attacks
@@ -155,7 +220,7 @@ uint64_t computePawnAttacks(const uint64_t squareBit, const bool white);
 
 /**
  * Computes the attacks of a knight on the given square
- * 
+ *
  * @param squareBit the bit denoting where the knight is
  * @return the bitboard of the knight's attacks
  */
@@ -163,7 +228,7 @@ uint64_t computeKnightAttacks(const uint64_t squareBit);
 
 /**
  * Computes the attacks of a bishop on the given square
- * 
+ *
  * @param squareBit the bit denoting where the bishop is
  * @return the bitboard of the bishop's attacks
  */
@@ -171,7 +236,7 @@ uint64_t computeBishopAttacks(const uint64_t squareBit);
 
 /**
  * Computes the attacks of a rook on the given square
- * 
+ *
  * @param squareBit the bit denoting where the rook is
  * @return the bitboard of the rook's attacks
  */
@@ -179,7 +244,7 @@ uint64_t computeRookAttacks(const uint64_t squareBit);
 
 /**
  * Computes the attacks of a queen on the given square
- * 
+ *
  * @param squareBit the bit denoting where the queen is
  * @return the bitboard of the queen's attacks
  */
@@ -187,7 +252,7 @@ uint64_t computeQueenAttacks(const uint64_t squareBit);
 
 /**
  * Computes the attacks of a king on the given square
- * 
+ *
  * @param squareBit the bit denoting where the king is
  * @return the bitboard of the king's attacks
  */
@@ -196,7 +261,7 @@ uint64_t computeKingAttacks(const uint64_t squareBit);
 /**
  * Converts the piece bitboards to a human-readable
  * board and prints it to stdout
- * 
+ *
  * @param pieceBits the bitboard to print
  */
 void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip);

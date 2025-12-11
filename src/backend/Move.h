@@ -1,6 +1,8 @@
 #pragma once
 
-#include "constants.h"
+#include "PieceType.h"
+
+#include <string>
 
 #include <SFML/System/Vector2.hpp>
 

@@ -1,28 +1,30 @@
-#pragma clang diagnostic ignored "-Wparentheses"
-
 #include "GameState.h"
+#include "bit_tools.h"
+#include "constants.h"
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
 
 GameState::GameState() : GameState(defaultFEN) {}
 
-GameState::GameState(const std::string &fen) {
-    // init metadata
-    md = {
-        0, // castleRights
-        0, // enPassantSquare
-        0, // movesSinceCapture
-        {} // history (not used yet)
-    };
+GameState::GameState(const std::string &fen)
+    : md({
+          std::vector<uint64_t>(), // history (not used yet)
+          0u,                      // enPassantSquare
+          0u,                      // movesSinceCapture
+          0u,                      // castleRights
+      }) {
 
     // zero out bitboards
-    for (int i = 0; i < 12; i++) {
-        pieceBits[i] = 0;
-        pieceAttacks[i] = 0;
-    }
+    std::fill(pieceBits, pieceBits + 12, 0);
+    std::fill(pieceAttacks, pieceAttacks + 12, 0);
+    std::fill(occupancies, occupancies + 4, 0);
 
-    for (int i = 0; i < 4; i++) {
-        occupancies[i] = 0;
-    }
+    // parse the fen and update game state members
+    parseFen(fen);
+}
 
+void GameState::parseFen(const std::string &fen) {
     const size_t n = fen.size();
 
     // 1: position data
@@ -85,7 +87,7 @@ GameState::GameState(const std::string &fen) {
     if (fen[++i] != '-') {
         int file = fen[i] - 'a';
         int rank = '8' - fen[i + 1];
-        md.enPassantBit = 1ull << (rank * 8 + file);
+        md.enPassantBitOffset = (rank * 8 + file);
     }
 
     if (i >= n)
@@ -421,11 +423,12 @@ Metadata GameState::makeMove(const Move &move) {
 
     // update en passant square if pawn has moved two squares
     if (move.piece == WP && move.from.y == 6 && move.to.y == 4)
-        md.enPassantBit = coordsToBit(move.from.x, 5); // {x, 5}
+        md.enPassantBitOffset = (move.from.x + 8 * 5); // {x, 5}
     else if (move.piece == BP && move.from.y == 1 && move.to.y == 3)
-        md.enPassantBit = coordsToBit(move.from.x, 2); // {x, 2}
+        md.enPassantBitOffset = (move.from.x + 8 * 2); // {x, 2}
     else
-        md.enPassantBit = 0;
+        // this ensures no stale en passant squares
+        md.enPassantBitOffset = 0;
 
     // update 50 move rule
     if (move.capturedPiece != None)
@@ -673,7 +676,7 @@ std::vector<Move> GameState::generateMoves() const {
             // pawn captures up and right
             toBit = (fromBit & not_file_h) >> 7;
             to = bitToCoords(toBit);
-            if (toBit & (occupancies[OPP] | md.enPassantBit)) {
+            if (toBit & (occupancies[OPP] | (1 << md.enPassantBitOffset))) {
 
                 // determine what piece was captured
                 PieceType capturedPiece = getCapturedPiece(toBit, oppPieces);
@@ -707,7 +710,7 @@ std::vector<Move> GameState::generateMoves() const {
 
             // pawn captures up and left
             toBit = (fromBit & not_file_a) >> 9;
-            if (toBit & (occupancies[OPP] | md.enPassantBit)) {
+            if (toBit & (occupancies[OPP] | (1 << md.enPassantBitOffset))) {
                 to = bitToCoords(toBit);
 
                 // determine what piece was captured
@@ -783,7 +786,7 @@ std::vector<Move> GameState::generateMoves() const {
 
             // pawn captures down and right
             toBit = (fromBit & not_file_h) << 9;
-            if (toBit & (occupancies[OPP] | md.enPassantBit)) {
+            if (toBit & (occupancies[OPP] | (1 << md.enPassantBitOffset))) {
                 sf::Vector2<int> to = bitToCoords(toBit);
 
                 // determine what piece was captured
@@ -818,7 +821,7 @@ std::vector<Move> GameState::generateMoves() const {
 
             // pawn captures down and left
             toBit = (fromBit & not_file_a) << 7;
-            if (toBit & (occupancies[OPP] | md.enPassantBit)) {
+            if (toBit & (occupancies[OPP] | (1 << md.enPassantBitOffset))) {
                 sf::Vector2<int> to = bitToCoords(toBit);
 
                 // determine what piece was captured
@@ -1338,7 +1341,7 @@ uint64_t GameState::hash() const {
             pieceBits[4] ^ pieceBits[5] ^ pieceBits[6] ^ pieceBits[7] ^
             pieceBits[8] ^ pieceBits[9] ^ pieceBits[10] ^ pieceBits[11] ^
             (whiteToMove << 1) ^ (md.castleRights << 2) ^
-            (md.enPassantBit << 3));
+            (md.enPassantBitOffset << 3));
     // N.B: we exclude movesSinceCapture so that transpositions hash to the same
     // value
 }
@@ -1354,11 +1357,13 @@ void GameState::print() const {
                          std::string((md.castleRights & 0b0100) ? "k" : "") +
                          std::string((md.castleRights & 0b1000) ? "q" : "")))
               << std::endl;
-    std::cout << "enPassantSquare = "
-              << (md.enPassantBit == 0
-                      ? "-"
-                      : std::to_string(bitToCoords(md.enPassantBit).x) + ", " +
-                            std::to_string(bitToCoords(md.enPassantBit).y))
-              << std::endl;
+    std::cout
+        << "enPassantSquare = "
+        << (md.enPassantBitOffset == 0
+                ? "-"
+                : std::to_string(offsetToCoords(md.enPassantBitOffset).x) +
+                      ", " +
+                      std::to_string(offsetToCoords(md.enPassantBitOffset).y))
+        << std::endl;
     std::cout << "movesSinceCapture = " << md.movesSinceCapture << std::endl;
 }

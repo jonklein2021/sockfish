@@ -1,8 +1,12 @@
 #include "GameState.h"
+#include "bit_tools.h"
+#include "constants.h"
+
+#include <iostream>
 
 using std::string, std::cin, std::cout, std::endl;
 
-void testMakeMove(GameState& gs, const std::vector<Move>& legalMoves) {
+void testMakeMove(GameState &gs, const std::vector<Move> &legalMoves) {
     // make a move
     Move candidate;
     bool pawnPromoting;
@@ -20,7 +24,8 @@ void testMakeMove(GameState& gs, const std::vector<Move>& legalMoves) {
     candidate = coordsToMove(input);
 
     // check for pawn promotion
-    pawnPromoting = (candidate.to.y == 0 && gs.pieceAt(candidate.from) == WP) || (candidate.to.y == 7 && gs.pieceAt(candidate.from) == BP);
+    pawnPromoting = (candidate.to.y == 0 && gs.pieceAt(candidate.from) == WP) ||
+                    (candidate.to.y == 7 && gs.pieceAt(candidate.from) == BP);
 
     // temporarily set the promotion piece to a queen
     // so that it can match a legal move
@@ -30,7 +35,7 @@ void testMakeMove(GameState& gs, const std::vector<Move>& legalMoves) {
 
     // match user move to a legal one
     bool validMove = false;
-    for (const Move& move : legalMoves) {
+    for (const Move &move : legalMoves) {
         if (candidate.equals(move)) {
             validMove = true;
             candidate = move;
@@ -51,20 +56,16 @@ void testMakeMove(GameState& gs, const std::vector<Move>& legalMoves) {
             if (promotion == "Q" || promotion == "q") {
                 candidate.promotionPiece = gs.whiteToMove ? WQ : BQ;
                 break;
-            }
-            else if (promotion == "N" || promotion == "n") {
+            } else if (promotion == "N" || promotion == "n") {
                 candidate.promotionPiece = gs.whiteToMove ? WN : BN;
                 break;
-            }
-            else if (promotion == "R" || promotion == "r") {
+            } else if (promotion == "R" || promotion == "r") {
                 candidate.promotionPiece = gs.whiteToMove ? WR : BR;
                 break;
-            }
-            else if (promotion == "B" || promotion == "b") {
+            } else if (promotion == "B" || promotion == "b") {
                 candidate.promotionPiece = gs.whiteToMove ? WB : BB;
                 break;
-            }
-            else {
+            } else {
                 cout << "Error: Invalid promotion piece" << endl;
             }
         }
@@ -84,14 +85,14 @@ void testMakeMove(GameState& gs, const std::vector<Move>& legalMoves) {
     }
 }
 
-void showLegalMoves(const std::vector<Move>& legalMoves) {
+void showLegalMoves(const std::vector<Move> &legalMoves) {
     cout << legalMoves.size() << " legal moves" << endl;
-    for (const Move& move : legalMoves) {
+    for (const Move &move : legalMoves) {
         cout << move.toString() << endl;
     }
 }
 
-void showAttackedSquares(const GameState& gs) {
+void showAttackedSquares(const GameState &gs) {
     cout << "Which side do you want to see the attacked squares? (w/b)\n";
     std::string side;
     getline(std::cin, side);
@@ -114,12 +115,12 @@ int main() {
     while (1) {
         string choice;
         cout << "===============================\n"
-            << "Enter an operation:\n"
-            << "0: Quit\n"
-            << "1: Make a move\n"
-            << "2: Show legal moves in this position\n"
-            << "3: Show all attacking squares\n"
-            << "4: Evaluate this position\n";
+             << "Enter an operation:\n"
+             << "0: Quit\n"
+             << "1: Make a move\n"
+             << "2: Show legal moves in this position\n"
+             << "3: Show all attacking squares\n"
+             << "4: Evaluate this position\n";
         getline(cin, choice);
 
         std::vector<Move> legalMoves = gs.generateMoves();
