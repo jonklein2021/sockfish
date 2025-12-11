@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ctime>
-#include <memory>
+// no heap ownership for cpu/state anymore
 
 #include "Engine.h"
 #include "GameState.h"
@@ -13,18 +13,17 @@
  */
 class Game {
   protected:
-    std::unique_ptr<Engine> cpu;
-    std::unique_ptr<GameState> state;
+    Engine cpu;
+    GameState state;
     std::string fen = defaultFEN;
     std::vector<Move> legalMoves;
     bool playerIsWhite;
     bool playersTurn;
 
   public:
-    Game() : Game(std::make_unique<Engine>(Engine(4)), defaultFEN, true) {};
-    Game(std::unique_ptr<Engine> _cpu, std::string _fen, bool _playerIsWhite)
-        : cpu(std::move(_cpu)),
-          state(std::make_unique<GameState>(GameState(_fen))), fen(_fen),
+    Game() : Game(Engine(4), defaultFEN, true) {};
+    Game(Engine _cpu, const std::string &_fen, bool _playerIsWhite)
+        : cpu(std::move(_cpu)), state(GameState(_fen)), fen(_fen),
           playerIsWhite(_playerIsWhite), playersTurn(_playerIsWhite) {}
 
     /**

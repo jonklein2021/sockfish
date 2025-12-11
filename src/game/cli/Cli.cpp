@@ -4,11 +4,10 @@
 
 #include <iostream>
 
-Cli::Cli() : Cli(std::make_unique<Engine>(4), defaultFEN, true) {}
+Cli::Cli() : Cli(Engine(4), defaultFEN, true) {}
 
-Cli::Cli(std::unique_ptr<Engine> cpu, const std::string &fen,
-         bool playerIsWhite)
-    : Game(std::move(cpu), fen, playerIsWhite) {}
+Cli::Cli(const Engine &cpu, const std::string &fen, bool playerIsWhite)
+    : Game(cpu, fen, playerIsWhite) {}
 
 Move Cli::getMoveFromStdin() {
     Move candidate;
@@ -37,13 +36,13 @@ Move Cli::getMoveFromStdin() {
 
         // check for pawn promotion
         pawnPromoting =
-            (candidate.to.y == 0 && state->pieceAt(candidate.from) == WP) ||
-            (candidate.to.y == 7 && state->pieceAt(candidate.from) == BP);
+            (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) ||
+            (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
         if (pawnPromoting) {
-            candidate.promotionPiece = state->whiteToMove ? WQ : BQ;
+            candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
         }
 
         bool validMove = false;
@@ -68,16 +67,16 @@ Move Cli::getMoveFromStdin() {
             std::string promotion;
             std::getline(std::cin, promotion);
             if (promotion == "Q" || promotion == "q") {
-                candidate.promotionPiece = state->whiteToMove ? WQ : BQ;
+                candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
                 break;
             } else if (promotion == "N" || promotion == "n") {
-                candidate.promotionPiece = state->whiteToMove ? WN : BN;
+                candidate.promotionPiece = state.whiteToMove ? WN : BN;
                 break;
             } else if (promotion == "R" || promotion == "r") {
-                candidate.promotionPiece = state->whiteToMove ? WR : BR;
+                candidate.promotionPiece = state.whiteToMove ? WR : BR;
                 break;
             } else if (promotion == "B" || promotion == "b") {
-                candidate.promotionPiece = state->whiteToMove ? WB : BB;
+                candidate.promotionPiece = state.whiteToMove ? WB : BB;
                 break;
             } else {
                 std::cout << "Error: Invalid promotion piece" << std::endl;
@@ -89,13 +88,13 @@ Move Cli::getMoveFromStdin() {
 }
 
 void Cli::run() {
-    legalMoves = state->generateMoves();
+    legalMoves = state.generateMoves();
 
-    while (!state->isTerminal()) {
-        state->print();
+    while (!state.isTerminal()) {
+        state.print();
 
         // std::cout << cpu.get_eval(state) << std::endl;
-        std::cout << (state->whiteToMove ? "White" : "Black") << " to move\n"
+        std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n"
                   << std::endl;
 
         Move next;
@@ -104,27 +103,27 @@ void Cli::run() {
             next = getMoveFromStdin();
         } else {
             // get move from engine
-            next = cpu->getMove(std::move(state), legalMoves);
+            next = cpu.getMove(state, legalMoves);
             std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
         }
 
         std::cout << next.toString() << std::endl;
 
         // update state with new move and push hash to history
-        state->makeMove(next);
-        state->md.history.push_back(state->hash());
-        prettyPrintPosition(state->pieceBitsData(), playerIsWhite);
+        state.makeMove(next);
+        state.md.history.push_back(state.hash());
+        prettyPrintPosition(state.pieceBitsData(), playerIsWhite);
 
         // update set of legal moves
-        legalMoves = state->generateMoves();
+        legalMoves = state.generateMoves();
 
         playersTurn = !playersTurn;
     }
 
     if (legalMoves.empty()) {
-        if (state->isCheck()) {
+        if (state.isCheck()) {
             std::cout << "Checkmate! "
-                      << (state->whiteToMove ? "Black" : "White") << " wins!"
+                      << (state.whiteToMove ? "Black" : "White") << " wins!"
                       << std::endl;
         } else {
             std::cout << "Stalemate!" << std::endl;

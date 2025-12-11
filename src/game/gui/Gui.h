@@ -72,7 +72,6 @@ class Gui : public Game {
 
   public:
     Gui();
-    Gui(std::unique_ptr<Engine> cpu, const std::string &fen,
-        bool playerIsWhite);
+    Gui(const Engine &cpu, const std::string &fen, bool playerIsWhite);
     void run();
 };

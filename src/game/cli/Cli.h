@@ -21,8 +21,7 @@ class Cli : public Game {
 
   public:
     Cli();
-    Cli(std::unique_ptr<Engine> cpu, const std::string &fen,
-        bool playerIsWhite);
+    Cli(const Engine &cpu, const std::string &fen, bool playerIsWhite);
 
     /**
      * Run the game loop

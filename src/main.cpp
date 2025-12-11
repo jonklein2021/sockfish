@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 
 #include "constants.h"
@@ -78,6 +79,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    std::srand(std::time(nullptr));
     bool playerIsWhite = playerColorOverride.empty()
                              ? std::rand() % 2 == 0
                              : (playerColorOverride == "white" ? true : false);
@@ -93,14 +95,13 @@ int main(int argc, char **argv) {
     std::cout << "  Piece theme: " << pieceTheme << std::endl;
 
     // run the CLI or GUI
+    Engine cpu(depth);
     std::unique_ptr<Game> game;
 
     if (useCli) {
-        game = std::make_unique<Cli>(
-            Cli(std::make_unique<Engine>(Engine(depth)), fen, playerIsWhite));
+        game = std::make_unique<Cli>(cpu, fen, playerIsWhite);
     } else {
-        game = std::make_unique<Gui>(
-            Gui(std::make_unique<Engine>(Engine(depth)), fen, playerIsWhite));
+        game = std::make_unique<Gui>(cpu, fen, playerIsWhite);
     }
 
     game->run();

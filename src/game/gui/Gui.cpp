@@ -3,16 +3,15 @@
 #include "Gui.h"
 #include "constants.h"
 
-Gui::Gui() : Gui(std::make_unique<Engine>(4), defaultFEN, true) {}
+Gui::Gui() : Gui(Engine(4), defaultFEN, true) {}
 
-Gui::Gui(std::unique_ptr<Engine> cpu, const std::string &fen,
-         bool playerIsWhite)
-    : Game(std::move(cpu), fen, playerIsWhite),
+Gui::Gui(const Engine &cpu, const std::string &fen, bool playerIsWhite)
+    : Game(cpu, fen, playerIsWhite),
       window(sf::VideoMode({BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE}), "Cheese",
              sf::Style::Resize),
       view(sf::Vector2f(0, 0),
            sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
-      boardSprite(boardTexture), promotionMenu(pieceTheme, state->whiteToMove) {
+      boardSprite(boardTexture), promotionMenu(pieceTheme, state.whiteToMove) {
     initializeScreen();
 }
 
@@ -77,7 +76,7 @@ void Gui::run() {
     while (window.isOpen()) {
         if (!playersTurn) {
             // get move from engine
-            Move move = cpu->getMove(std::move(state), legalMoves);
+            Move move = cpu.getMove(state, legalMoves);
 
             int displayX = move.to.x;
             int displayY = move.to.y;
@@ -117,20 +116,20 @@ void Gui::run() {
             }
 
             // update state
-            state->makeMove(move);
-            state->md.history.push_back(state->hash());
-            state->print();
+            state.makeMove(move);
+            state.md.history.push_back(state.hash());
+            state.print();
             playersTurn = true;
 
             // get new legal moves for the next turn
-            legalMoves = state->generateMoves();
+            legalMoves = state.generateMoves();
 
             // check if game has ended
-            if (state->isTerminal()) {
+            if (state.isTerminal()) {
                 if (legalMoves.empty()) {
-                    if (state->isCheck()) {
+                    if (state.isCheck()) {
                         std::cout << "Checkmate! "
-                                  << (state->whiteToMove ? "Black" : "White")
+                                  << (state.whiteToMove ? "Black" : "White")
                                   << " wins!" << std::endl;
                     } else {
                         std::cout << "Stalemate!" << std::endl;
@@ -140,8 +139,8 @@ void Gui::run() {
                 }
                 window.close();
             } else {
-                state->whiteToMove ? std::cout << "White to move" << std::endl
-                                   : std::cout << "Black to move" << std::endl;
+                state.whiteToMove ? std::cout << "White to move" << std::endl
+                                  : std::cout << "Black to move" << std::endl;
             }
         }
 
@@ -197,22 +196,21 @@ void Gui::handleEvents() {
                 std::cout << candidate.toString() << std::endl;
 
                 // apply move to internal game state
-                state->makeMove(candidate);
-                state->md.history.push_back(state->hash());
+                state.makeMove(candidate);
+                state.md.history.push_back(state.hash());
                 playersTurn = false;
-                state->print();
+                state.print();
 
                 // get new legal moves for the next turn
-                legalMoves = state->generateMoves();
+                legalMoves = state.generateMoves();
 
                 // check if game has ended
-                if (state->isTerminal()) {
+                if (state.isTerminal()) {
                     if (legalMoves.empty()) {
-                        if (state->isCheck()) {
-                            std::cout
-                                << "Checkmate! "
-                                << (state->whiteToMove ? "Black" : "White")
-                                << " wins!" << std::endl;
+                        if (state.isCheck()) {
+                            std::cout << "Checkmate! "
+                                      << (state.whiteToMove ? "Black" : "White")
+                                      << " wins!" << std::endl;
                         } else {
                             std::cout << "Stalemate!" << std::endl;
                         }
@@ -221,7 +219,7 @@ void Gui::handleEvents() {
                     }
                     window.close();
                 } else {
-                    state->whiteToMove
+                    state.whiteToMove
                         ? std::cout << "White to move" << std::endl
                         : std::cout << "Black to move" << std::endl;
                 }
@@ -262,7 +260,7 @@ void Gui::handleEvents() {
 
                     // necessary to match with a legal move
                     if (pawnPromoting)
-                        candidate.promotionPiece = state->whiteToMove ? WQ : BQ;
+                        candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
 
                     // check this move against set of legal moves
                     bool validMove = false;
@@ -314,27 +312,27 @@ void Gui::handleEvents() {
                         }
 
                         // apply move to internal game state
-                        state->makeMove(candidate);
-                        state->md.history.push_back(state->hash());
-                        state->print();
+                        state.makeMove(candidate);
+                        state.md.history.push_back(state.hash());
+                        state.print();
                         playersTurn = false;
 
                         // get new legal moves for the next turn
-                        legalMoves = state->generateMoves();
+                        legalMoves = state.generateMoves();
 
                         // check if game has ended
-                        if (state->isTerminal()) {
-                            if (state->isCheck()) {
+                        if (state.isTerminal()) {
+                            if (state.isCheck()) {
                                 std::cout
                                     << "Checkmate! "
-                                    << (state->whiteToMove ? "Black" : "White")
+                                    << (state.whiteToMove ? "Black" : "White")
                                     << " wins!" << std::endl;
                             } else {
                                 std::cout << "Draw!" << std::endl;
                             }
                             window.close();
                         } else {
-                            state->whiteToMove
+                            state.whiteToMove
                                 ? std::cout << "White to move" << std::endl
                                 : std::cout << "Black to move" << std::endl;
                         }
