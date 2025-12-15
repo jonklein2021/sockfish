@@ -62,8 +62,7 @@ struct Move {
      *
      * @return string representation of the move
      */
-    std::string
-    toString() const; // note: consider printing in a more standard format
+    std::string toString() const; // note: consider printing in a more standard format
 };
 
 Move coordsToMove(const std::string &input);

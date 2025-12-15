@@ -9,7 +9,7 @@ typedef double eval_t;
 class Engine {
   private:
     /**
-     * Entry in transposition tables
+     * Transposition table entry
      *
      * Stores the evaluation of a given state at some depth,
      * as well as whether that evaluation is an upper/lower
