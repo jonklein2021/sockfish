@@ -1,8 +1,8 @@
+#include "types.h"
+
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-
-#include "types.h"
 
 void usage() {
     std::ostringstream ss;

@@ -13,50 +13,26 @@
  */
 class Move {
 private:
+  uint16_t data;
+
 public:
-  sf::Vector2<int> from;
-  sf::Vector2<int> to;
-
-  /**
-   * The type of piece that was moved
-   *
-   * Castling is a king move and en passant is a pawn move
-   */
-  PieceType piece;
-
-  /**
-   * The type of piece that the pawn was promoted to or None if no promotion
-   */
-  PieceType promotionPiece;
-
-  /**
-   * The type of piece that was captured or None if no capture
-   *
-   * Pawn for all en passant moves
-   */
-  PieceType capturedPiece;
-
-  bool isEnPassant;
-  bool isKCastle;
-  bool isQCastle;
-
   Move();
-  Move(sf::Vector2<int> from, sf::Vector2<int> to, PieceType pieceMoved,
-       PieceType capturedPiece = None, PieceType promotionPiece = None,
+  Move(Square from, Square to, PieceType pieceMoved,
+       PieceType capturedPiece = None, PieceType promotedPiece = None,
        bool isKCastle = false, bool isQCastle = false,
        bool isEnPassant = false);
 
-  /**
-   * N.B: This method ONLY compares the `from`, `to`, and `promotedPiece`
-   * members of the Move struct. It does not consider `pieceMoved` or
-   * `isCapture`
-   *
-   * @param other move to compare to
-   */
-  bool equals(const Move &other) const;
+  Square from() const;
 
-  // prefer operator== for comparisons; keep equals for backward compat
-  bool operator==(const Move &other) const { return equals(other); }
+  Square to() const;
+
+  PieceType pieceMoved() const;
+
+  PieceType capturedPiece() const;
+
+  PieceType promotedPiece() const;
+
+  bool isEnPassant() const;
 
   /**
    * Convert the move to a readable string representation,
@@ -64,8 +40,11 @@ public:
    *
    * @return string representation of the move
    */
-  std::string
-  toString() const; // note: consider printing in a more standard format
+  std::string toString() const;
+
+  bool operator==(const Move &other) const;
+
+  bool operator!=(const Move &other) const;
 };
 
 Move coordsToMove(const std::string &input);

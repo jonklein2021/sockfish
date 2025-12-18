@@ -1,13 +1,12 @@
 #pragma once
 
 #include <array>
-#include <string>
+#include <cstdint>
 #include <string_view>
-#include <vector>
 
-using Bitboard = unsigned long long;
+using Bitboard = uint64_t;
 
-using Eval = int;
+using Eval = int32_t;
 
 /**
  * Used to index into the occupancies array
@@ -24,77 +23,54 @@ enum PieceType { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, None };
 /**
  * List of all piece filenames, mainly used for loading textures
  */
-constexpr std::array<std::string_view, 12> pieceFilenames = {
-    "wP", "wN", "wB", "wR", "wQ", "wK", "bP", "bN", "bB", "bR", "bQ", "bK"};
+constexpr std::array<std::string_view, 12> pieceFilenames = {"wP", "wN", "wB", "wR", "wQ", "wK",
+                                                             "bP", "bN", "bB", "bR", "bQ", "bK"};
 
 /**
  * Unicode pieces for pretty printing
  */
-constexpr std::array<std::string_view, 13> unicode_pieces = {
-    "♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚", "."};
+constexpr std::array<std::string_view, 13> unicode_pieces = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎",
+                                                             "♞", "♝", "♜", "♛", "♚", "."};
 
 /**
  * Mainly used for debug output
  */
-constexpr std::array<std::string_view, 12> pieceNames = {
-    "White Pawn",
-    "White Knight",
-    "White Bishop",
-    "White Rook",
-    "White Queen",
-    "White King",
-    "Black Pawn",
-    "Black Knight",
-    "Black Bishop",
-    "Black Rook",
-    "Black Queen",
-    "Black King",
-};
+constexpr std::array<std::string_view, 13> pieceNames = {
+    "White Pawn",  "White Knight", "White Bishop", "White Rook",   "White Queen",
+    "White King",  "Black Pawn",   "Black Knight", "Black Bishop", "Black Rook",
+    "Black Queen", "Black King",   "None"};
 
 /**
  * Maps FEN character to PieceType enum
  */
 constexpr PieceType fenToPiece(char c) {
     switch (c) {
-    case 'P':
-        return PieceType::WP;
-    case 'N':
-        return PieceType::WN;
-    case 'B':
-        return PieceType::WB;
-    case 'R':
-        return PieceType::WR;
-    case 'Q':
-        return PieceType::WQ;
-    case 'K':
-        return PieceType::WK;
-    case 'p':
-        return PieceType::BP;
-    case 'n':
-        return PieceType::BN;
-    case 'b':
-        return PieceType::BB;
-    case 'r':
-        return PieceType::BR;
-    case 'q':
-        return PieceType::BQ;
-    case 'k':
-        return PieceType::BK;
-    default:
-        return PieceType::None;
+        case 'P': return PieceType::WP;
+        case 'N': return PieceType::WN;
+        case 'B': return PieceType::WB;
+        case 'R': return PieceType::WR;
+        case 'Q': return PieceType::WQ;
+        case 'K': return PieceType::WK;
+        case 'p': return PieceType::BP;
+        case 'n': return PieceType::BN;
+        case 'b': return PieceType::BB;
+        case 'r': return PieceType::BR;
+        case 'q': return PieceType::BQ;
+        case 'k': return PieceType::BK;
+        default: return PieceType::None;
     }
 }
 
 /**
  * List of all possible promotion pieces
  */
-const std::vector<PieceType> promotionPiecesWhite = {WQ, WR, WB, WN};
-const std::vector<PieceType> promotionPiecesBlack = {BQ, BR, BB, BN};
+constexpr std::array<PieceType, 4> promotionPiecesWhite = {WQ, WR, WB, WN};
+constexpr std::array<PieceType, 4> promotionPiecesBlack = {BQ, BR, BB, BN};
 
 /**
  * FEN string for the starting position
  */
-const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+constexpr std::string_view defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /**
  * Piece move constants
@@ -116,8 +92,8 @@ constexpr std::array<Offset, 8> kingMoves = {
 /**
  * Piece values for material evaluation
  */
-constexpr std::array<Eval, 12> pieceValues = {
-    100, 300, 300, 500, 900, 100000, 100, 300, 300, 500, 900, 100000};
+constexpr std::array<Eval, 12> pieceValues = {100, 300, 300, 500, 900, 100000,
+                                              100, 300, 300, 500, 900, 100000};
 
 // Bitboard Constants
 constexpr Bitboard not_file_a = 18374403900871474942ull;
@@ -159,8 +135,23 @@ enum Direction : int8_t {
     NORTH_WEST = NORTH + WEST
 };
 
+// https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L126
+enum CastleRights : int8_t {
+    NO_CASTLING,                                     // 0b00000000
+    WHITE_OO,                                        // 0b00000001
+    WHITE_OOO = WHITE_OO << 1,                       // 0b00000010
+    BLACK_OO = WHITE_OO << 2,                        // 0b00000100
+    BLACK_OOO = WHITE_OO << 3,                       // 0b00001000
+    KING_SIDE = WHITE_OO | BLACK_OO,                 // 0b00000101
+    QUEEN_SIDE = WHITE_OOO | BLACK_OOO,              // 0b00001010
+    WHITE_CASTLING = WHITE_OO | WHITE_OOO,           // 0b00000011
+    BLACK_CASTLING = BLACK_OO | BLACK_OOO,           // 0b00001100
+    ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING,  // 0b00001111
+    CASTLING_RIGHT_NB = 16                           // 0b00010000
+};
+
 // GUI Constants
 constexpr std::string_view PIECE_TEXTURE_PATH = "../assets/pieces/";
 constexpr std::string_view BOARD_TEXTURE_PATH = "../assets/board.png";
-constexpr int BOARD_PIXEL_SIZE = 512;
-constexpr int TILE_PIXEL_SIZE = 64;
+constexpr int32_t BOARD_PIXEL_SIZE = 512;
+constexpr int32_t TILE_PIXEL_SIZE = 64;

@@ -1,10 +1,10 @@
 #pragma once
 
+#include "types.h"
+
 #include <SFML/Graphics.hpp>
 #include <functional>
 #include <vector>
-
-#include "types.h"
 
 class PromotionMenu {
    private:
