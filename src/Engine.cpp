@@ -6,9 +6,11 @@
 #include <limits>
 #include <queue>
 
-Engine::Engine() : Engine(4) {}
+Engine::Engine()
+    : Engine(4) {}
 
-Engine::Engine(int depth) : maxDepth(depth) {}
+Engine::Engine(int depth)
+    : maxDepth(depth) {}
 
 void Engine::countPositionsBuildup(const GameState &state, int maxDepth) const {
     struct Node {
@@ -26,7 +28,9 @@ void Engine::countPositionsBuildup(const GameState &state, int maxDepth) const {
         q.pop();
 
         // as soon as we reach maxDepth we can stop
-        if (current.depth >= maxDepth) break;
+        if (current.depth >= maxDepth) {
+            break;
+        }
 
         std::vector<Move> legalMoves = current.state.generateMoves();
 
@@ -76,11 +80,18 @@ void Engine::countPositions(GameState &state, int depth) const {
             count += countPositionsHelper(state, depth - 1);
             total += count;  // Accumulate total count
 
-            if (move.capturedPiece != None) captures++;
-            if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK))
+            if (move.capturedPiece != NO_PIECE) {
+                captures++;
+            }
+            if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK)) {
                 castles++;
-            if (move.isEnPassant) eps++;
-            if (move.promotionPiece != None) promotions++;
+            }
+            if (move.isEnPassant) {
+                eps++;
+            }
+            if (move.promotionPiece != NO_PIECE) {
+                promotions++;
+            }
             if (state.isCheck()) {
                 checks++;
                 if (state.isTerminal()) {
@@ -110,12 +121,12 @@ void Engine::countPositions(GameState &state, int depth) const {
 eval_t Engine::rateMove(const GameState &state, const Move &move) {
     // capture moves are promising
     eval_t rating = 0;
-    if (move.capturedPiece != None) {
+    if (move.capturedPiece != NO_PIECE) {
         rating += pieceValues[move.capturedPiece] - pieceValues[move.piece];
     }
 
     // pawn promotion moves are likely to be good
-    if (move.promotionPiece != None) {
+    if (move.promotionPiece != NO_PIECE) {
         rating += pieceValues[move.promotionPiece] - pieceValues[move.piece];
     }
 
@@ -145,7 +156,7 @@ eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMo
 
     // total up pieces, scaling by piece value and position in piece-square
     // board
-    for (PieceType p : {WP, WN, WB, WR, WQ, WK}) {
+    for (Piece p : {WP, WN, WB, WR, WQ, WK}) {
         uint64_t pieces = state.pieceBit(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
@@ -159,7 +170,7 @@ eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMo
         }
     }
 
-    for (PieceType p : {BP, BN, BB, BR, BQ, BK}) {
+    for (Piece p : {BP, BN, BB, BR, BQ, BK}) {
         uint64_t pieces = state.pieceBit(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
@@ -182,9 +193,15 @@ eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth) {
     if (transpositionTable.find(h) != transpositionTable.end()) {
         const TTEntry &entry = transpositionTable[h];
         if (entry.depth >= depth) {
-            if (entry.flag == TTEntry::EXACT) return entry.eval;
-            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta) return entry.eval;
-            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha) return entry.eval;
+            if (entry.flag == TTEntry::EXACT) {
+                return entry.eval;
+            }
+            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta) {
+                return entry.eval;
+            }
+            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha) {
+                return entry.eval;
+            }
         }
     }
 
@@ -204,8 +221,12 @@ eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth) {
 
         // save result in transposition table
         TTEntry newEntry{eval, depth, TTEntry::EXACT};
-        if (eval <= alpha) newEntry.flag = TTEntry::UPPERBOUND;
-        if (eval >= beta) newEntry.flag = TTEntry::LOWERBOUND;
+        if (eval <= alpha) {
+            newEntry.flag = TTEntry::UPPERBOUND;
+        }
+        if (eval >= beta) {
+            newEntry.flag = TTEntry::LOWERBOUND;
+        }
         transpositionTable[h] = newEntry;
 
         state.unmakeMove(move, md);
@@ -280,8 +301,8 @@ Move Engine::getMove(GameState &state, std::vector<Move> &legalMoves) {
         // state.board.prettyPrint();
         std::cout << "  " << move.toString() << std::endl;
 
-        eval_t eval = -negamax(
-            state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
+        eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(),
+                               std::numeric_limits<eval_t>::max(), 0);
 
         std::cout << "\teval = " << eval << std::endl;
         state.unmakeMove(move, md);

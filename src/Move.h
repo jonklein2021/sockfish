@@ -4,51 +4,64 @@
 
 #include <string>
 
-#include <SFML/System/Vector2.hpp>
-
-/**
- * Moves are represented as a pair of two 2D vectors, where the
- * first vector is where the piece starts and the second vector
- * is where the piece ends up after the move.
- */
+// heavily inspired from Stockfish:
+// https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L432
 class Move {
-private:
-  uint16_t data;
+   private:
+    /**
+     * data[0:5]: from Square (6 bits)
+     * data[6:10]: to Square (6 bits)
+     * data[11:13]: promotedPieceType (2 bits)
+     *  0b00 -> Knight
+     *  0b01 -> Bishop
+     *  0b10 -> Rook
+     *  0b11 -> Queen
+     * data[14:15]: special flags (2 bits)
+     *  0b00 -> normal,
+     *  0b01 -> promotion,
+     *  0b10 -> en passant,
+     *  0b11 -> castles
+     */
+    uint16_t data;
 
-public:
-  Move();
-  Move(Square from, Square to, PieceType pieceMoved,
-       PieceType capturedPiece = None, PieceType promotedPiece = None,
-       bool isKCastle = false, bool isQCastle = false,
-       bool isEnPassant = false);
+   public:
+    enum Type { NORMAL, PROMOTION = 1 << 14, EN_PASSANT = 2 << 14, CASTLING = 3 << 14 };
 
-  Square from() const;
+    Move();
 
-  Square to() const;
+    constexpr explicit Move(uint16_t _data);
 
-  PieceType pieceMoved() const;
+    constexpr Move(Square from, Square to);
 
-  PieceType capturedPiece() const;
+    constexpr Move(Square from, Square to, Type moveType, PieceType promotedPieceType = KNIGHT);
 
-  PieceType promotedPiece() const;
+    constexpr uint16_t raw() const;
 
-  bool isEnPassant() const;
+    constexpr Square fromSquare() const;
 
-  /**
-   * Convert the move to a readable string representation,
-   * mainly used for debugging
-   *
-   * @return string representation of the move
-   */
-  std::string toString() const;
+    constexpr Square toSquare() const;
 
-  bool operator==(const Move &other) const;
+    constexpr Piece promotedPieceType() const;
 
-  bool operator!=(const Move &other) const;
+    constexpr bool isPromotion() const;
+
+    constexpr bool isEnPassant() const;
+
+    // Note: When true, the type of castle can be determined by which rook moves, which is
+    // represented in the from/to squares
+    constexpr bool isCastles() const;
+
+    /**
+     * Convert the move to a readable string representation,
+     * mainly used for debugging
+     *
+     * @return string representation of the move
+     */
+    std::string toString() const;
+
+    bool operator==(const Move &other) const;
+
+    bool operator!=(const Move &other) const;
 };
-
-Move coordsToMove(const std::string &input);
-
-std::string moveToCoords(const Move &move);
 
 bool validateCoords(const std::string &input);

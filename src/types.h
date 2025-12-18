@@ -2,6 +2,8 @@
 
 #include <array>
 #include <cstdint>
+#include <cwctype>
+#include <string>
 #include <string_view>
 
 using Bitboard = uint64_t;
@@ -12,13 +14,17 @@ using Eval = int32_t;
  * Used to index into the occupancies array
  * and to convey the player's pieces during game initialization
  */
-enum Color { WHITE, BLACK, BOTH, NONE };
+enum Color { WHITE, BLACK, ALL, NEITHER };
 
 /**
- * Enum that represents each possible piece type,
- * used everywhere in the codebase
+ * Represents each type of piece without a color
  */
-enum PieceType { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, None };
+enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
+
+/**
+ * Represents each possible piece, including color
+ */
+enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NONE };
 
 /**
  * List of all piece filenames, mainly used for loading textures
@@ -43,29 +49,29 @@ constexpr std::array<std::string_view, 13> pieceNames = {
 /**
  * Maps FEN character to PieceType enum
  */
-constexpr PieceType fenToPiece(char c) {
+constexpr Piece fenToPiece(char c) {
     switch (c) {
-        case 'P': return PieceType::WP;
-        case 'N': return PieceType::WN;
-        case 'B': return PieceType::WB;
-        case 'R': return PieceType::WR;
-        case 'Q': return PieceType::WQ;
-        case 'K': return PieceType::WK;
-        case 'p': return PieceType::BP;
-        case 'n': return PieceType::BN;
-        case 'b': return PieceType::BB;
-        case 'r': return PieceType::BR;
-        case 'q': return PieceType::BQ;
-        case 'k': return PieceType::BK;
-        default: return PieceType::None;
+        case 'P': return WP;
+        case 'N': return WN;
+        case 'B': return WB;
+        case 'R': return WR;
+        case 'Q': return WQ;
+        case 'K': return WK;
+        case 'p': return BP;
+        case 'n': return BN;
+        case 'b': return BB;
+        case 'r': return BR;
+        case 'q': return BQ;
+        case 'k': return BK;
+        default: return NONE;
     }
 }
 
 /**
  * List of all possible promotion pieces
  */
-constexpr std::array<PieceType, 4> promotionPiecesWhite = {WQ, WR, WB, WN};
-constexpr std::array<PieceType, 4> promotionPiecesBlack = {BQ, BR, BB, BN};
+constexpr std::array<Piece, 4> promotionPiecesWhite = {WQ, WR, WB, WN};
+constexpr std::array<Piece, 4> promotionPiecesBlack = {BQ, BR, BB, BN};
 
 /**
  * FEN string for the starting position
@@ -110,7 +116,7 @@ constexpr Bitboard rank7 = 65280ull;
 constexpr Bitboard rank8 = 255ull;
 
 // clang-format off
-enum Square {
+enum Square : uint8_t {
     a8, b8, c8, d8, e8, f8, g8, h8,
     a7, b7, c7, d7, e7, f7, g7, h7,
     a6, b6, c6, d6, e6, f6, g6, h6,
@@ -122,6 +128,10 @@ enum Square {
 };
 
 // clang-format on
+
+std::string squareToString(Square sq) {
+    return std::to_string('a' + sq % 8) + std::to_string(8 - sq / 8);
+}
 
 enum Direction : int8_t {
     NORTH = -8,

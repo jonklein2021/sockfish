@@ -2,9 +2,11 @@
 
 #include <iostream>
 
-PromotionMenu::PromotionMenu() : PromotionMenu("horsey/", true) {}
+PromotionMenu::PromotionMenu()
+    : PromotionMenu("horsey/", true) {}
 
-PromotionMenu::PromotionMenu(const std::string &theme, bool white) : selectedPiece(None), isVisible(false) {
+PromotionMenu::PromotionMenu(const std::string &theme, bool white)
+    : selectedPiece(NO_PIECE), isVisible(false) {
     // menu will take up the size of the board
     menu.setSize(sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
     menu.setPosition(sf::Vector2f(0, 0));
@@ -15,7 +17,8 @@ PromotionMenu::PromotionMenu(const std::string &theme, bool white) : selectedPie
     // load textures for the promotion pieces
     textures.resize(4);
     for (int i = 0; i < 4; i++) {
-        if (!textures[i].loadFromFile(PIECE_TEXTURE_PATH + theme + pieceFilenames[pieceOptions[i]] + ".png")) {
+        if (!textures[i].loadFromFile(PIECE_TEXTURE_PATH + theme + pieceFilenames[pieceOptions[i]] +
+                                      ".png")) {
             std::cerr << "Error loading promotion piece textures" << std::endl;
         }
     }
@@ -40,7 +43,7 @@ PromotionMenu::PromotionMenu(const std::string &theme, bool white) : selectedPie
 
 void PromotionMenu::render(sf::RenderWindow &window) {
     if (isVisible) {
-        window.draw(menu); // draw the background of the menu
+        window.draw(menu);  // draw the background of the menu
         for (int i = 0; i < 4; i++) {
             window.draw(circles[i]);
             window.draw(pieces[i]);
@@ -48,16 +51,18 @@ void PromotionMenu::render(sf::RenderWindow &window) {
     }
 }
 
-void PromotionMenu::handleEvents(sf::RenderWindow &window, const std::function<void(const PieceType)> &callback) {
+void PromotionMenu::handleEvents(sf::RenderWindow &window,
+                                 const std::function<void(const Piece)> &callback) {
     // SFML 3.0 event handling
     while (auto event = window.pollEvent()) {
         // user left clicks
-        if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+        if (const auto *mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
             if (mousePressed->button == sf::Mouse::Button::Left) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                 sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
 
-                std::cout << "Mouse clicked at (" << worldPos.x << ", " << worldPos.y << ")" << std::endl;
+                std::cout << "Mouse clicked at (" << worldPos.x << ", " << worldPos.y << ")"
+                          << std::endl;
 
                 for (int i = 0; i < 4; ++i) {
                     if (pieces[i].getGlobalBounds().contains(worldPos)) {

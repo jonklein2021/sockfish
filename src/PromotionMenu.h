@@ -12,8 +12,8 @@ class PromotionMenu {
     std::vector<sf::Texture> textures;
     std::vector<sf::Sprite> pieces;
     std::vector<sf::CircleShape> circles;
-    PieceType selectedPiece;
-    std::vector<PieceType> pieceOptions;
+    Piece selectedPiece;
+    std::vector<Piece> pieceOptions;
 
    public:
     bool isVisible;
@@ -29,7 +29,7 @@ class PromotionMenu {
 
     // Public Methods
     void render(sf::RenderWindow &window);
-    void handleEvents(sf::RenderWindow &window, const std::function<void(PieceType)> &callback);
+    void handleEvents(sf::RenderWindow &window, const std::function<void(Piece)> &callback);
 
     // Show the promotion menu
     void show(int col);

@@ -28,7 +28,7 @@ void Gui::initializeScreen() {
 }
 
 void Gui::loadPieceTextures() {
-    for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
+    for (Piece p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
         if (!pieceTextures[p].loadFromFile(PIECE_TEXTURE_PATH + pieceTheme + pieceFilenames[p] +
                                            ".png")) {
             std::cerr << "Error loading piece texture: " << pieceFilenames[p] << std::endl;
@@ -57,7 +57,7 @@ std::list<Piece> Gui::fenToPieces(const std::string &fen) {
             int displayY = playerIsWhite ? y : 7 - y;
 
             // set this piece's bit at the correct position
-            PieceType label = fenPieceMap.at(c);
+            Piece label = fenPieceMap.at(c);
             Piece piece(label, {displayX, displayY}, pieceTextures[label]);
             piece.sprite->setPosition(
                 sf::Vector2f(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
@@ -90,7 +90,7 @@ void Gui::run() {
             }
 
             // remove captured piece from display list
-            if (move.capturedPiece != None) {
+            if (move.capturedPiece != NO_PIECE) {
                 auto it = std::find_if(pieces.begin(), pieces.end(), [move](const Piece &p) {
                     return p.type != move.piece && p.position == move.to;
                 });
@@ -98,7 +98,7 @@ void Gui::run() {
             }
 
             // handle pawn promotion
-            if (move.promotionPiece != None) {
+            if (move.promotionPiece != NO_PIECE) {
                 auto it = std::find_if(pieces.begin(), pieces.end(), [move](const Piece &p) {
                     return p.type == move.piece && p.position == move.to;
                 });
@@ -171,7 +171,7 @@ void Gui::handleEvents() {
 
         // if promotion menu is open, process its events exclusively
         if (promotionMenu.isVisible) {
-            auto callback = [this](const PieceType p) {
+            auto callback = [this](const Piece p) {
                 // update the selected piece to the promoted piece
                 selectedPiece->type = p;
                 if (selectedPiece->sprite) {
@@ -235,7 +235,7 @@ void Gui::handleEvents() {
 
                     // create move object, isCapture and promotionPiece will be
                     // overridden later
-                    candidate = Move({oldX, oldY}, {newX, newY}, selectedPiece->type, None, None);
+                    candidate = Move({oldX, oldY}, {newX, newY}, selectedPiece->type, NO_PIECE, NO_PIECE);
 
                     // necessary to match with a legal move
                     if (pawnPromoting) candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
@@ -257,7 +257,7 @@ void Gui::handleEvents() {
 
                     if (validMove) {
                         // remove captured piece from display list
-                        if (candidate.capturedPiece != None) {
+                        if (candidate.capturedPiece != NO_PIECE) {
                             auto it =
                                 std::find_if(pieces.begin(), pieces.end(), [this](const Piece &p) {
                                     return p.type != candidate.piece &&

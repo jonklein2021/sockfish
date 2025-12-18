@@ -32,7 +32,7 @@ class Gui : public Game {
     bool isDragging = false;
 
     // 1-1 mapping from each piece to its texture
-    std::unordered_map<PieceType, sf::Texture> pieceTextures;
+    std::unordered_map<Piece, sf::Texture> pieceTextures;
 
     /**
      * Converts a FEN string representation of a chess position into a list of

@@ -1,53 +1,62 @@
 #include "Move.h"
-#include <sstream>
 
-Move::Move() : Move({-1, -1}, {-1, -1}, None) {}
+Move::Move() = default;
 
-Move::Move(sf::Vector2<int> from,
-           sf::Vector2<int> to,
-           PieceType pieceMoved,
-           PieceType capturedPiece,
-           PieceType promotionPiece,
-           bool isKCastle,
-           bool isQCastle,
-           bool isEnPassant)
-    : from(from), to(to), piece(pieceMoved), promotionPiece(promotionPiece),
-      capturedPiece(capturedPiece), isEnPassant(isEnPassant), isKCastle(isKCastle),
-      isQCastle(isQCastle) {}
+constexpr Move::Move(uint16_t _data)
+    : data(_data) {}
 
-bool Move::equals(const Move &other) const {
-    return from.x == other.from.x && from.y == other.from.y && to.x == other.to.x &&
-           to.y == other.to.y && promotionPiece == other.promotionPiece;
+constexpr Move::Move(Square from, Square to)
+    : data(from | (to << 6)) {}
+
+constexpr Move::Move(Square from, Square to, Type moveType, PieceType promotedPieceType)
+    : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 11)) {}
+
+constexpr uint16_t Move::raw() const {
+    return data;
 }
 
-// note to self: this^ is really fucking sketch and I should change it
+constexpr Square Move::fromSquare() const {
+    return static_cast<Square>(data & 0x3F);
+}
 
+constexpr Square Move::toSquare() const {
+    return static_cast<Square>((data >> 6) & 0x3F);
+}
+
+constexpr Piece Move::promotedPieceType() const {
+    return static_cast<Piece>(((data >> 11) & 0x3) + KNIGHT);
+}
+
+constexpr bool Move::isPromotion() const {
+    return (data & (3 << 14)) == PROMOTION;
+}
+
+constexpr bool Move::isEnPassant() const {
+    return (data & (3 << 14)) == EN_PASSANT;
+}
+
+// Note: When true, the type of castle can be determined by which rook moves, which is
+// represented in the from/to squares
+constexpr bool Move::isCastles() const {
+    return (data & (3 << 14)) == CASTLING;
+}
+
+/**
+ * Convert the move to a readable string representation,
+ * mainly used for debugging
+ *
+ * @return string representation of the move
+ */
 std::string Move::toString() const {
-    std::ostringstream out;
-
-    out << (piece == None ? "None" : pieceNames[piece]) << ": " << moveToCoords(*this)
-        << (capturedPiece == None ? "" : " (captures " + pieceNames[capturedPiece] + ")")
-        << (promotionPiece == None ? "" : " (promotes to " + pieceNames[promotionPiece] + ")")
-        << (isKCastle ? " (kingside castle)" : "") << (isQCastle ? " (queenside castle)" : "")
-        << (isEnPassant ? " (en passant)" : "");
-
-    return out.str();
+    return squareToString(fromSquare()) + " " + squareToString(toSquare());
 }
 
-Move coordsToMove(const std::string &input) {
-    sf::Vector2<int> from = {input[0] - 'a', '8' - input[1]};
-    sf::Vector2<int> to = {input[3] - 'a', '8' - input[4]};
-    return Move(from, to, None);
+bool Move::operator==(const Move &other) const {
+    return data == other.raw();
 }
 
-std::string moveToCoords(const Move &move) {
-    std::string out = "";
-    out += 'a' + move.from.x;
-    out += '8' - move.from.y;
-    out += ' ';
-    out += 'a' + move.to.x;
-    out += '8' - move.to.y;
-    return out;
+bool Move::operator!=(const Move &other) const {
+    return data != other.raw();
 }
 
 bool validateCoords(const std::string &input) {
