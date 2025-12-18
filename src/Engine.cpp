@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include "constants.h"
 
 #include <cstdint>
 #include <functional>
@@ -27,8 +26,7 @@ void Engine::countPositionsBuildup(const GameState &state, int maxDepth) const {
         q.pop();
 
         // as soon as we reach maxDepth we can stop
-        if (current.depth >= maxDepth)
-            break;
+        if (current.depth >= maxDepth) break;
 
         std::vector<Move> legalMoves = current.state.generateMoves();
 
@@ -56,10 +54,10 @@ void Engine::countPositions(GameState &state, int depth) const {
     uint64_t checks = 0;
     uint64_t checkmates = 0;
 
-    std::function<uint64_t(GameState &, int)> countPositionsHelper =
-        [&](GameState &state, int depth) -> uint64_t {
+    std::function<uint64_t(GameState &, int)> countPositionsHelper = [&](GameState &state,
+                                                                         int depth) -> uint64_t {
         if (depth == 0 || state.isTerminal()) {
-            return 1; // Base case: count this position
+            return 1;  // Base case: count this position
         }
 
         uint64_t count = 0;
@@ -76,17 +74,13 @@ void Engine::countPositions(GameState &state, int depth) const {
             state.print();
 
             count += countPositionsHelper(state, depth - 1);
-            total += count; // Accumulate total count
+            total += count;  // Accumulate total count
 
-            if (move.capturedPiece != None)
-                captures++;
-            if (abs(move.from.x - move.to.x) >= 2 &&
-                (move.piece == WK || move.piece == BK))
+            if (move.capturedPiece != None) captures++;
+            if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK))
                 castles++;
-            if (move.isEnPassant)
-                eps++;
-            if (move.promotionPiece != None)
-                promotions++;
+            if (move.isEnPassant) eps++;
+            if (move.promotionPiece != None) promotions++;
             if (state.isCheck()) {
                 checks++;
                 if (state.isTerminal()) {
@@ -102,7 +96,7 @@ void Engine::countPositions(GameState &state, int depth) const {
         return count;
     };
 
-    total = countPositionsHelper(state, depth); // Start recursion
+    total = countPositionsHelper(state, depth);  // Start recursion
 
     std::cout << "Total positions: " << total << "\n";
     std::cout << "Total captures: " << captures << "\n";
@@ -140,8 +134,7 @@ eval_t Engine::evaluate(const GameState &state) {
     return evaluate(state, state.generateMoves());
 }
 
-eval_t Engine::evaluate(const GameState &state,
-                        const std::vector<Move> &legalMoves) {
+eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMoves) {
     if (legalMoves.empty() && state.isCheck()) {
         return state.whiteToMove ? 1738 : -1738;
     }
@@ -161,8 +154,7 @@ eval_t Engine::evaluate(const GameState &state,
             // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ":
             // " << pieceValues[p] << " + " << piecePositionWeight << "*" <<
             // pieceSquareTables[p][y][x] << std::endl;
-            score += (pieceValues[p] +
-                      piecePositionWeight * pieceSquareTables[p][y][x]);
+            score += (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][y][x]);
             pieces &= pieces - 1;
         }
     }
@@ -176,8 +168,7 @@ eval_t Engine::evaluate(const GameState &state,
             // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ":
             // " << pieceValues[p] << " + " << piecePositionWeight << "*" <<
             // pieceSquareTables[p][y][x] << std::endl;
-            score -= (pieceValues[p] +
-                      piecePositionWeight * pieceSquareTables[p][y][x]);
+            score -= (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][y][x]);
             pieces &= pieces - 1;
         }
     }
@@ -191,12 +182,9 @@ eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth) {
     if (transpositionTable.find(h) != transpositionTable.end()) {
         const TTEntry &entry = transpositionTable[h];
         if (entry.depth >= depth) {
-            if (entry.flag == TTEntry::EXACT)
-                return entry.eval;
-            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta)
-                return entry.eval;
-            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha)
-                return entry.eval;
+            if (entry.flag == TTEntry::EXACT) return entry.eval;
+            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta) return entry.eval;
+            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha) return entry.eval;
         }
     }
 
@@ -216,10 +204,8 @@ eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth) {
 
         // save result in transposition table
         TTEntry newEntry{eval, depth, TTEntry::EXACT};
-        if (eval <= alpha)
-            newEntry.flag = TTEntry::UPPERBOUND;
-        if (eval >= beta)
-            newEntry.flag = TTEntry::LOWERBOUND;
+        if (eval <= alpha) newEntry.flag = TTEntry::UPPERBOUND;
+        if (eval >= beta) newEntry.flag = TTEntry::LOWERBOUND;
         transpositionTable[h] = newEntry;
 
         state.unmakeMove(move, md);
@@ -294,8 +280,8 @@ Move Engine::getMove(GameState &state, std::vector<Move> &legalMoves) {
         // state.board.prettyPrint();
         std::cout << "  " << move.toString() << std::endl;
 
-        eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(),
-                               std::numeric_limits<eval_t>::max(), 0);
+        eval_t eval = -negamax(
+            state, std::numeric_limits<eval_t>::lowest(), std::numeric_limits<eval_t>::max(), 0);
 
         std::cout << "\teval = " << eval << std::endl;
         state.unmakeMove(move, md);

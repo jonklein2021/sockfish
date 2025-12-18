@@ -1,6 +1,5 @@
 #include "GameState.h"
 #include "bit_tools.h"
-#include "constants.h"
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
@@ -9,10 +8,10 @@ GameState::GameState() : GameState(defaultFEN) {}
 
 GameState::GameState(const std::string &fen)
     : md({
-          std::vector<uint64_t>(), // history (not used yet)
-          0u,                      // enPassantSquare
-          0u,                      // movesSinceCapture
-          0u,                      // castleRights
+          std::vector<uint64_t>(),  // history (not used yet)
+          0u,                       // enPassantSquare
+          0u,                       // movesSinceCapture
+          0u,                       // castleRights
       }) {
 
     // zero out bitboards
@@ -32,12 +31,12 @@ void GameState::parseFen(const std::string &fen) {
     int x = 0, y = 0;
     for (; i < n && fen[i] != ' '; i++) {
         const char c = fen[i];
-        if (c == '/') { // move to next row
+        if (c == '/') {  // move to next row
             x = 0;
             y++;
-        } else if (isdigit(c)) { // empty square; skip x squares
+        } else if (isdigit(c)) {  // empty square; skip x squares
             x += c - '0';
-        } else { // piece
+        } else {  // piece
             const PieceType pt = fenPieceMap.at(c);
             const uint64_t pieceBit = coordsToBit(x, y);
 
@@ -49,10 +48,10 @@ void GameState::parseFen(const std::string &fen) {
     }
 
     // update occupancies bitboards
-    occupancies[WHITE] = pieceBits[WP] | pieceBits[WN] | pieceBits[WB] |
-                         pieceBits[WR] | pieceBits[WQ] | pieceBits[WK];
-    occupancies[BLACK] = pieceBits[BP] | pieceBits[BN] | pieceBits[BB] |
-                         pieceBits[BR] | pieceBits[BQ] | pieceBits[BK];
+    occupancies[WHITE] = pieceBits[WP] | pieceBits[WN] | pieceBits[WB] | pieceBits[WR] |
+                         pieceBits[WQ] | pieceBits[WK];
+    occupancies[BLACK] = pieceBits[BP] | pieceBits[BN] | pieceBits[BB] | pieceBits[BR] |
+                         pieceBits[BQ] | pieceBits[BK];
     occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
     occupancies[NONE] = ~occupancies[BOTH];
 
@@ -61,8 +60,7 @@ void GameState::parseFen(const std::string &fen) {
         pieceAttacks[p] = computePieceAttacks(static_cast<PieceType>(p));
     }
 
-    if (i >= n)
-        return;
+    if (i >= n) return;
 
     // 2: whose turn it is
     whiteToMove = fen[++i] == 'w';
@@ -70,18 +68,13 @@ void GameState::parseFen(const std::string &fen) {
     // 3: castling rights (castleRights = 0b0000qkQK)
     i += 2;
     for (; fen[i] != ' ' && i < n; i++) {
-        if (fen[i] == 'K')
-            md.castleRights |= 0b0001;
-        if (fen[i] == 'Q')
-            md.castleRights |= 0b0010;
-        if (fen[i] == 'k')
-            md.castleRights |= 0b0100;
-        if (fen[i] == 'q')
-            md.castleRights |= 0b1000;
+        if (fen[i] == 'K') md.castleRights |= 0b0001;
+        if (fen[i] == 'Q') md.castleRights |= 0b0010;
+        if (fen[i] == 'k') md.castleRights |= 0b0100;
+        if (fen[i] == 'q') md.castleRights |= 0b1000;
     }
 
-    if (i >= n)
-        return;
+    if (i >= n) return;
 
     // 4: en passant square
     if (fen[++i] != '-') {
@@ -90,8 +83,7 @@ void GameState::parseFen(const std::string &fen) {
         md.enPassantBitOffset = (rank * 8 + file);
     }
 
-    if (i >= n)
-        return;
+    if (i >= n) return;
 
     // 5: halfmove clock
     i += 2;
@@ -122,8 +114,7 @@ uint64_t GameState::computePieceAttacks(PieceType piece) const {
     uint64_t attacks = 0;
     uint64_t pieceBitboard = pieceBits[piece];
     while (pieceBitboard) {
-        const uint64_t pieceBit =
-            pieceBitboard & -pieceBitboard; // isolate the LSB
+        const uint64_t pieceBit = pieceBitboard & -pieceBitboard;  // isolate the LSB
 
         // compute attacks for this piece
         switch (piece) {
@@ -155,39 +146,30 @@ uint64_t GameState::computePieceAttacks(PieceType piece) const {
             return 0;
         }
 
-        pieceBitboard ^= pieceBit; // remove the LSB from the bitboard
+        pieceBitboard ^= pieceBit;  // remove the LSB from the bitboard
     }
     return attacks;
 }
 
-uint64_t GameState::computePawnAttacks(const uint64_t squareBit,
-                                       const bool white) const {
+uint64_t GameState::computePawnAttacks(const uint64_t squareBit, const bool white) const {
     if (white) {
         return ((squareBit >> 7) & not_file_a) |
-               ((squareBit >> 9) & not_file_h); // up right, up left
+               ((squareBit >> 9) & not_file_h);  // up right, up left
     } else {
         return ((squareBit << 7) & not_file_h) |
-               ((squareBit << 9) & not_file_a); // down left, down right
+               ((squareBit << 9) & not_file_a);  // down left, down right
     }
 }
 
 uint64_t GameState::computeKnightAttacks(const uint64_t squareBit) const {
-    const uint64_t ddl = (squareBit & not_rank_12 & not_file_a)
-                         << 15; // down 2, left 1
-    const uint64_t ddr = (squareBit & not_rank_12 & not_file_h)
-                         << 17; // down 2, right 1
-    const uint64_t drr = (squareBit & not_rank_1 & not_file_gh)
-                         << 10; // down 1, right 2
-    const uint64_t dll = (squareBit & not_rank_1 & not_file_ab)
-                         << 6; // down 1, left 2
-    const uint64_t uur =
-        (squareBit & not_rank_78 & not_file_h) >> 15; // up 2, right 1
-    const uint64_t uul =
-        (squareBit & not_rank_78 & not_file_a) >> 17; // up 2, left 1
-    const uint64_t ull =
-        (squareBit & not_rank_8 & not_file_ab) >> 10; // up 1, left 2
-    const uint64_t urr =
-        (squareBit & not_rank_8 & not_file_gh) >> 6; //  up 1, right 2
+    const uint64_t ddl = (squareBit & not_rank_12 & not_file_a) << 15;  // down 2, left 1
+    const uint64_t ddr = (squareBit & not_rank_12 & not_file_h) << 17;  // down 2, right 1
+    const uint64_t drr = (squareBit & not_rank_1 & not_file_gh) << 10;  // down 1, right 2
+    const uint64_t dll = (squareBit & not_rank_1 & not_file_ab) << 6;   // down 1, left 2
+    const uint64_t uur = (squareBit & not_rank_78 & not_file_h) >> 15;  // up 2, right 1
+    const uint64_t uul = (squareBit & not_rank_78 & not_file_a) >> 17;  // up 2, left 1
+    const uint64_t ull = (squareBit & not_rank_8 & not_file_ab) >> 10;  // up 1, left 2
+    const uint64_t urr = (squareBit & not_rank_8 & not_file_gh) >> 6;   // up 1, right 2
 
     return ddl | ddr | drr | dll | uur | uul | ull | urr;
 }
@@ -203,32 +185,28 @@ uint64_t GameState::computeBishopAttacks(const uint64_t squareBit) const {
     for (int r = r0 + 1, c = c0 + 1; r <= 7 && c <= 7; r++, c++) {
         const uint64_t attackedSquare = coordsToBit(c, r);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     // up left
     for (int r = r0 + 1, c = c0 - 1; r <= 7 && c >= 0; r++, c--) {
         const uint64_t attackedSquare = coordsToBit(c, r);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     // down right
     for (int r = r0 - 1, c = c0 + 1; r >= 0 && c <= 7; r--, c++) {
         const uint64_t attackedSquare = coordsToBit(c, r);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     // down left
     for (int r = r0 - 1, c = c0 - 1; r >= 0 && c >= 0; r--, c--) {
         const uint64_t attackedSquare = coordsToBit(c, r);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     return attacks;
@@ -245,59 +223,52 @@ uint64_t GameState::computeRookAttacks(const uint64_t squareBit) const {
     for (int r = r0 + 1; r <= 7; r++) {
         const uint64_t attackedSquare = coordsToBit(c0, r);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     // down
     for (int r = r0 - 1; r >= 0; r--) {
         const uint64_t attackedSquare = coordsToBit(c0, r);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     // left
     for (int c = c0 - 1; c >= 0; c--) {
         const uint64_t attackedSquare = coordsToBit(c, r0);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     // right
     for (int c = c0 + 1; c <= 7; c++) {
         const uint64_t attackedSquare = coordsToBit(c, r0);
         attacks |= attackedSquare;
-        if (attackedSquare & occupancies[BOTH])
-            break;
+        if (attackedSquare & occupancies[BOTH]) break;
     }
 
     return attacks;
 }
 
 uint64_t GameState::computeQueenAttacks(const uint64_t squareBit) const {
-    return computeBishopAttacks(squareBit) |
-           computeRookAttacks(squareBit); // heheh
+    return computeBishopAttacks(squareBit) | computeRookAttacks(squareBit);  // heheh
 }
 
 uint64_t GameState::computeKingAttacks(const uint64_t squareBit) const {
-    const uint64_t d = (squareBit & not_rank_1) << 8;               // down
-    const uint64_t u = (squareBit & not_rank_8) >> 8;               // up
-    const uint64_t l = (squareBit & not_file_a) >> 1;               // left
-    const uint64_t r = (squareBit & not_file_h) << 1;               // right
-    const uint64_t dl = (squareBit & not_rank_1 & not_file_a) << 7; // down left
-    const uint64_t dr = (squareBit & not_rank_1 & not_file_h)
-                        << 9; // down right
-    const uint64_t ul = (squareBit & not_rank_8 & not_file_a) >> 9; // up left
-    const uint64_t ur = (squareBit & not_rank_8 & not_file_h) >> 7; // up right
+    const uint64_t d = (squareBit & not_rank_1) << 8;                // down
+    const uint64_t u = (squareBit & not_rank_8) >> 8;                // up
+    const uint64_t l = (squareBit & not_file_a) >> 1;                // left
+    const uint64_t r = (squareBit & not_file_h) << 1;                // right
+    const uint64_t dl = (squareBit & not_rank_1 & not_file_a) << 7;  // down left
+    const uint64_t dr = (squareBit & not_rank_1 & not_file_h) << 9;  // down right
+    const uint64_t ul = (squareBit & not_rank_8 & not_file_a) >> 9;  // up left
+    const uint64_t ur = (squareBit & not_rank_8 & not_file_h) >> 7;  // up right
 
     return d | u | l | r | dl | dr | ul | ur;
 }
 
-PieceType
-GameState::getCapturedPiece(const uint64_t toBit,
-                            const std::vector<PieceType> &oppPieces) const {
+PieceType GameState::getCapturedPiece(const uint64_t toBit,
+                                      const std::vector<PieceType> &oppPieces) const {
     for (PieceType p : oppPieces) {
         if (pieceBits[p] & toBit) {
             return p;
@@ -355,8 +326,7 @@ Metadata GameState::makeMove(const Move &move) {
             pieceBits[move.piece == WP ? BP : WP] &= ~removeBit;
         } else {
             // determine what piece to remove
-            for (PieceType p :
-                 {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
+            for (PieceType p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
                 if (p != move.piece && (pieceBits[p] & to)) {
                     // zero out the captured piece's bit
                     pieceBits[p] &= ~to;
@@ -368,15 +338,15 @@ Metadata GameState::makeMove(const Move &move) {
 
     // handle pawn promotion
     if (move.promotionPiece != None) {
-        pieceBits[move.piece] &= ~to;         // remove pawn
-        pieceBits[move.promotionPiece] |= to; // add promoted piece
+        pieceBits[move.piece] &= ~to;          // remove pawn
+        pieceBits[move.promotionPiece] |= to;  // add promoted piece
     }
 
     // update occupancies bitboards
-    occupancies[WHITE] = pieceBits[WP] | pieceBits[WN] | pieceBits[WB] |
-                         pieceBits[WR] | pieceBits[WQ] | pieceBits[WK];
-    occupancies[BLACK] = pieceBits[BP] | pieceBits[BN] | pieceBits[BB] |
-                         pieceBits[BR] | pieceBits[BQ] | pieceBits[BK];
+    occupancies[WHITE] = pieceBits[WP] | pieceBits[WN] | pieceBits[WB] | pieceBits[WR] |
+                         pieceBits[WQ] | pieceBits[WK];
+    occupancies[BLACK] = pieceBits[BP] | pieceBits[BN] | pieceBits[BB] | pieceBits[BR] |
+                         pieceBits[BQ] | pieceBits[BK];
     occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
     occupancies[NONE] = ~occupancies[BOTH];
 
@@ -402,30 +372,26 @@ Metadata GameState::makeMove(const Move &move) {
     }
 
     // prevent black queenside castle
-    if ((move.to.x == 0 && move.to.y == 0) ||
-        (move.piece == BR && move.from.x == 0))
+    if ((move.to.x == 0 && move.to.y == 0) || (move.piece == BR && move.from.x == 0))
         md.castleRights &= ~0b1000;
 
     // prevent black kingside castle
-    if ((move.to.x == 7 && move.to.y == 0) ||
-        (move.piece == BR && move.from.x == 7))
+    if ((move.to.x == 7 && move.to.y == 0) || (move.piece == BR && move.from.x == 7))
         md.castleRights &= ~0b0100;
 
     // prevent white queenside castle
-    if ((move.to.x == 0 && move.to.y == 7) ||
-        (move.piece == WR && move.from.x == 0))
+    if ((move.to.x == 0 && move.to.y == 7) || (move.piece == WR && move.from.x == 0))
         md.castleRights &= ~0b0010;
 
     // prevent white kingside castle
-    if ((move.to.x == 7 && move.to.y == 7) ||
-        (move.piece == WR && move.from.x == 7))
+    if ((move.to.x == 7 && move.to.y == 7) || (move.piece == WR && move.from.x == 7))
         md.castleRights &= ~0b0001;
 
     // update en passant square if pawn has moved two squares
     if (move.piece == WP && move.from.y == 6 && move.to.y == 4)
-        md.enPassantBitOffset = (move.from.x + 8 * 5); // {x, 5}
+        md.enPassantBitOffset = (move.from.x + 8 * 5);  // {x, 5}
     else if (move.piece == BP && move.from.y == 1 && move.to.y == 3)
-        md.enPassantBitOffset = (move.from.x + 8 * 2); // {x, 2}
+        md.enPassantBitOffset = (move.from.x + 8 * 2);  // {x, 2}
     else
         // this ensures no stale en passant squares
         md.enPassantBitOffset = 0;
@@ -474,23 +440,22 @@ void GameState::unmakeMove(const Move &move, const Metadata &prevMD) {
             uint64_t restoreBit = coordsToBit(move.to.x, move.from.y);
             pieceBits[move.piece == WP ? BP : WP] |= restoreBit;
         } else {
-            pieceBits[move.capturedPiece] |= to; // restore captured piece
+            pieceBits[move.capturedPiece] |= to;  // restore captured piece
         }
     }
 
     // undo pawn promotion
     if (move.promotionPiece != None) {
-        pieceBits[move.piece] |= from; // restore original pawn
-        pieceBits[move.piece] &=
-            ~to; // compensate for pieceBits[move.piece] ^= fromTo;
-        pieceBits[move.promotionPiece] &= ~to; // remove promoted piece
+        pieceBits[move.piece] |= from;          // restore original pawn
+        pieceBits[move.piece] &= ~to;           // compensate for pieceBits[move.piece] ^= fromTo;
+        pieceBits[move.promotionPiece] &= ~to;  // remove promoted piece
     }
 
     // update occupancies
-    occupancies[WHITE] = pieceBits[WP] | pieceBits[WN] | pieceBits[WB] |
-                         pieceBits[WR] | pieceBits[WQ] | pieceBits[WK];
-    occupancies[BLACK] = pieceBits[BP] | pieceBits[BN] | pieceBits[BB] |
-                         pieceBits[BR] | pieceBits[BQ] | pieceBits[BK];
+    occupancies[WHITE] = pieceBits[WP] | pieceBits[WN] | pieceBits[WB] | pieceBits[WR] |
+                         pieceBits[WQ] | pieceBits[WK];
+    occupancies[BLACK] = pieceBits[BP] | pieceBits[BN] | pieceBits[BB] | pieceBits[BR] |
+                         pieceBits[BQ] | pieceBits[BK];
     occupancies[BOTH] = occupancies[WHITE] | occupancies[BLACK];
     occupancies[NONE] = ~occupancies[BOTH];
 
@@ -516,11 +481,10 @@ void GameState::unmakeMove(const Move &move, const Metadata &prevMD) {
  * @param white The attacking side. True for white, false for black
  */
 bool GameState::underAttack(const uint64_t squareBit, const bool white) const {
-    return squareBit &
-           (white ? (pieceAttacks[WP] | pieceAttacks[WN] | pieceAttacks[WB] |
-                     pieceAttacks[WR] | pieceAttacks[WQ] | pieceAttacks[WK])
-                  : (pieceAttacks[BP] | pieceAttacks[BN] | pieceAttacks[BB] |
-                     pieceAttacks[BR] | pieceAttacks[BQ] | pieceAttacks[BK]));
+    return squareBit & (white ? (pieceAttacks[WP] | pieceAttacks[WN] | pieceAttacks[WB] |
+                                 pieceAttacks[WR] | pieceAttacks[WQ] | pieceAttacks[WK])
+                              : (pieceAttacks[BP] | pieceAttacks[BN] | pieceAttacks[BB] |
+                                 pieceAttacks[BR] | pieceAttacks[BQ] | pieceAttacks[BK]));
 }
 
 /**
@@ -540,30 +504,29 @@ bool GameState::insufficientMaterial() const {
         __builtin_popcountll(pieceBits[WB]),
         __builtin_popcountll(pieceBits[WR]),
         __builtin_popcountll(pieceBits[WQ]),
-        1, // always 1 white king
+        1,  // always 1 white king
         __builtin_popcountll(pieceBits[BP]),
         __builtin_popcountll(pieceBits[BN]),
         __builtin_popcountll(pieceBits[BB]),
         __builtin_popcountll(pieceBits[BR]),
         __builtin_popcountll(pieceBits[BQ]),
-        1 // always 1 black king
+        1  // always 1 black king
     };
 
     // note: consider testing for king + two knights vs king
 
     // insufficient material if at most one knight or bishop is left per side
-    return (!(pieceCount[WN] & pieceCount[WB]) &
-            !(pieceCount[BN] & pieceCount[BB]) &
-            !(pieceCount[WP] | pieceCount[WR] | pieceCount[WQ] |
-              pieceCount[BP] | pieceCount[BR] | pieceCount[BQ]));
+    return !(pieceCount[WN] & pieceCount[WB]) & !(pieceCount[BN] & pieceCount[BB]) &
+           !(pieceCount[WP] | pieceCount[WR] | pieceCount[WQ] | pieceCount[BP] | pieceCount[BR] |
+             pieceCount[BQ]);
 }
 
 bool GameState::isTerminal() const {
     const int n = md.history.size();
-    return (md.movesSinceCapture >= 100 ||
-            (n >= 9 && md.history[n - 1] == md.history[n - 5] &&
-             md.history[n - 5] == md.history[n - 9]) ||
-            insufficientMaterial() || generateMoves().empty());
+    return md.movesSinceCapture >= 100 ||
+           (n >= 9 && md.history[n - 1] == md.history[n - 5] &&
+            md.history[n - 5] == md.history[n - 9]) ||
+           insufficientMaterial() || generateMoves().empty();
 }
 
 bool GameState::isCheck() const {
@@ -574,8 +537,10 @@ bool GameState::isCheck() const {
     return underAttack(king);
 }
 
-bool GameState::isMoveLegal(GameState &copy, const uint64_t kingBit,
-                            const Move &move, bool white) const {
+bool GameState::isMoveLegal(GameState &copy,
+                            const uint64_t kingBit,
+                            const Move &move,
+                            bool white) const {
     // simulate move on copied state
     Metadata md = copy.makeMove(move);
 
@@ -650,8 +615,7 @@ std::vector<Move> GameState::generateMoves() const {
             toBit = fromBit >> 8;
             sf::Vector2<int> to = bitToCoords(toBit);
             candidate = {from, to, PAWN};
-            if ((occupancies[NONE] & toBit) &&
-                isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
+            if ((occupancies[NONE] & toBit) && isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                 // promotion check
                 if (toBit & rank8) {
                     for (PieceType pt : promotionPieces) {
@@ -667,8 +631,7 @@ std::vector<Move> GameState::generateMoves() const {
             toBit = fromBit >> 16;
             to = bitToCoords(toBit);
             candidate = {from, to, PAWN};
-            if ((rank2 & fromBit) && (occupancies[NONE] & overBit) &&
-                (occupancies[NONE] & toBit) &&
+            if ((rank2 & fromBit) && (occupancies[NONE] & overBit) && (occupancies[NONE] & toBit) &&
                 isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                 moves.push_back(candidate);
             }
@@ -686,22 +649,19 @@ std::vector<Move> GameState::generateMoves() const {
                     if (toBit & rank8) {
                         for (PieceType pt : promotionPieces) {
                             candidate = {from, to, PAWN, capturedPiece, pt};
-                            if (isMoveLegal(copy, kingBit, candidate,
-                                            whiteToMove)) {
+                            if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                                 moves.push_back(candidate);
                             }
                         }
                     } else {
                         candidate = {from, to, PAWN, capturedPiece};
-                        if (isMoveLegal(copy, kingBit, candidate,
-                                        whiteToMove)) {
+                        if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                             moves.push_back(candidate);
                         }
                     }
                 } else {
                     // must be en passant
-                    candidate = {from, to,    PAWN,  OPP_PAWN,
-                                 None, false, false, true};
+                    candidate = {from, to, PAWN, OPP_PAWN, None, false, false, true};
                     if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                         moves.push_back(candidate);
                     }
@@ -721,22 +681,19 @@ std::vector<Move> GameState::generateMoves() const {
                     if (toBit & rank8) {
                         for (PieceType pt : promotionPieces) {
                             candidate = {from, to, PAWN, capturedPiece, pt};
-                            if (isMoveLegal(copy, kingBit, candidate,
-                                            whiteToMove)) {
+                            if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                                 moves.push_back(candidate);
                             }
                         }
                     } else {
                         candidate = {from, to, PAWN, capturedPiece};
-                        if (isMoveLegal(copy, kingBit, candidate,
-                                        whiteToMove)) {
+                        if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                             moves.push_back(candidate);
                         }
                     }
                 } else {
                     // must be en passant
-                    candidate = {from, to,    PAWN,  OPP_PAWN,
-                                 None, false, false, true};
+                    candidate = {from, to, PAWN, OPP_PAWN, None, false, false, true};
                     if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                         moves.push_back(candidate);
                     }
@@ -759,8 +716,7 @@ std::vector<Move> GameState::generateMoves() const {
                 if (toBit & rank1) {
                     for (PieceType pt : promotionPieces) {
                         candidate = {from, to, PAWN, None, pt};
-                        if (isMoveLegal(copy, kingBit, candidate,
-                                        whiteToMove)) {
+                        if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                             moves.push_back(candidate);
                         }
                     }
@@ -775,8 +731,7 @@ std::vector<Move> GameState::generateMoves() const {
             // double pawn moves
             uint64_t overBit = fromBit << 8;
             toBit = fromBit << 16;
-            if ((rank7 & fromBit) && (occupancies[NONE] & overBit) &&
-                (occupancies[NONE] & toBit)) {
+            if ((rank7 & fromBit) && (occupancies[NONE] & overBit) && (occupancies[NONE] & toBit)) {
                 sf::Vector2<int> to = bitToCoords(toBit);
                 candidate = {from, to, PAWN};
                 if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -797,22 +752,19 @@ std::vector<Move> GameState::generateMoves() const {
                     if (toBit & rank1) {
                         for (PieceType pt : promotionPieces) {
                             candidate = {from, to, PAWN, capturedPiece, pt};
-                            if (isMoveLegal(copy, kingBit, candidate,
-                                            whiteToMove)) {
+                            if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                                 moves.push_back(candidate);
                             }
                         }
                     } else {
                         candidate = {from, to, PAWN, capturedPiece};
-                        if (isMoveLegal(copy, kingBit, candidate,
-                                        whiteToMove)) {
+                        if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                             moves.push_back(candidate);
                         }
                     }
                 } else {
                     // must be en passant
-                    candidate = {from, to,    PAWN,  OPP_PAWN,
-                                 None, false, false, true};
+                    candidate = {from, to, PAWN, OPP_PAWN, None, false, false, true};
                     if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                         moves.push_back(candidate);
                     }
@@ -832,22 +784,19 @@ std::vector<Move> GameState::generateMoves() const {
                     if (toBit & rank1) {
                         for (PieceType pt : promotionPieces) {
                             candidate = {from, to, PAWN, capturedPiece, pt};
-                            if (isMoveLegal(copy, kingBit, candidate,
-                                            whiteToMove)) {
+                            if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                                 moves.push_back(candidate);
                             }
                         }
                     } else {
                         candidate = {from, to, PAWN, capturedPiece};
-                        if (isMoveLegal(copy, kingBit, candidate,
-                                        whiteToMove)) {
+                        if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                             moves.push_back(candidate);
                         }
                     }
                 } else {
                     // must be en passant
-                    candidate = {from, to,    PAWN,  OPP_PAWN,
-                                 None, false, false, true};
+                    candidate = {from, to, PAWN, OPP_PAWN, None, false, false, true};
                     if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
                         moves.push_back(candidate);
                     }
@@ -895,8 +844,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
 
         // down 1, left 2
-        if ((toBit = ((fromBit & not_rank_1 & not_file_ab) << 6)) &&
-            (toBit & ~occupancies[SIDE])) {
+        if ((toBit = ((fromBit & not_rank_1 & not_file_ab) << 6)) && (toBit & ~occupancies[SIDE])) {
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), KNIGHT, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -935,8 +883,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
 
         // up 1, right 2
-        if ((toBit = ((fromBit & not_rank_8 & not_file_gh) >> 6)) &&
-            (toBit & ~occupancies[SIDE])) {
+        if ((toBit = ((fromBit & not_rank_8 & not_file_gh) >> 6)) && (toBit & ~occupancies[SIDE])) {
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), KNIGHT, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -958,11 +905,9 @@ std::vector<Move> GameState::generateMoves() const {
         const uint64_t otherPieces = occupancies[BOTH] & ~fromBit;
 
         // up right
-        while (filteredMask =
-                   (toBit & not_rank_8 & not_file_h & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_8 & not_file_h & ~otherPieces)) {
             toBit = filteredMask >> 7;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), BISHOP, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -973,11 +918,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // up left
-        while (filteredMask =
-                   (toBit & not_rank_8 & not_file_a & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_8 & not_file_a & ~otherPieces)) {
             toBit = filteredMask >> 9;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), BISHOP, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -988,11 +931,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // down right
-        while (filteredMask =
-                   (toBit & not_rank_1 & not_file_h & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_1 & not_file_h & ~otherPieces)) {
             toBit = filteredMask << 9;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), BISHOP, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1003,11 +944,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // down left
-        while (filteredMask =
-                   (toBit & not_rank_1 & not_file_a & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_1 & not_file_a & ~otherPieces)) {
             toBit = filteredMask << 7;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), BISHOP, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1031,8 +970,7 @@ std::vector<Move> GameState::generateMoves() const {
         // up
         while (filteredMask = (toBit & not_rank_8 & ~otherPieces)) {
             toBit = filteredMask >> 8;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), ROOK, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1045,8 +983,7 @@ std::vector<Move> GameState::generateMoves() const {
         // down
         while (filteredMask = (toBit & not_rank_1 & ~otherPieces)) {
             toBit = filteredMask << 8;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), ROOK, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1059,8 +996,7 @@ std::vector<Move> GameState::generateMoves() const {
         // left
         while (filteredMask = (toBit & not_file_a & ~otherPieces)) {
             toBit = filteredMask >> 1;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), ROOK, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1073,8 +1009,7 @@ std::vector<Move> GameState::generateMoves() const {
         // right
         while (filteredMask = (toBit & not_file_h & ~otherPieces)) {
             toBit = filteredMask << 1;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), ROOK, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1098,8 +1033,7 @@ std::vector<Move> GameState::generateMoves() const {
         // up
         while (filteredMask = (toBit & not_rank_8 & ~otherPieces)) {
             toBit = filteredMask >> 8;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1112,8 +1046,7 @@ std::vector<Move> GameState::generateMoves() const {
         // down
         while (filteredMask = (toBit & not_rank_1 & ~otherPieces)) {
             toBit = filteredMask << 8;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1126,8 +1059,7 @@ std::vector<Move> GameState::generateMoves() const {
         // left
         while (filteredMask = (toBit & not_file_a & ~otherPieces)) {
             toBit = filteredMask >> 1;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1140,8 +1072,7 @@ std::vector<Move> GameState::generateMoves() const {
         // right
         while (filteredMask = (toBit & not_file_h & ~otherPieces)) {
             toBit = filteredMask << 1;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1152,11 +1083,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // up right
-        while (filteredMask =
-                   (toBit & not_rank_8 & not_file_h & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_8 & not_file_h & ~otherPieces)) {
             toBit = filteredMask >> 7;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1167,11 +1096,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // up left
-        while (filteredMask =
-                   (toBit & not_rank_8 & not_file_a & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_8 & not_file_a & ~otherPieces)) {
             toBit = filteredMask >> 9;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1182,11 +1109,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // down right
-        while (filteredMask =
-                   (toBit & not_rank_1 & not_file_h & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_1 & not_file_h & ~otherPieces)) {
             toBit = filteredMask << 9;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1197,11 +1122,9 @@ std::vector<Move> GameState::generateMoves() const {
         toBit = fromBit;
 
         // down left
-        while (filteredMask =
-                   (toBit & not_rank_1 & not_file_a & ~otherPieces)) {
+        while (filteredMask = (toBit & not_rank_1 & not_file_a & ~otherPieces)) {
             toBit = filteredMask << 7;
-            if (toBit & occupancies[SIDE])
-                break;
+            if (toBit & occupancies[SIDE]) break;
             capturedPiece = getCapturedPiece(toBit, oppPieces);
             candidate = {from, bitToCoords(toBit), QUEEN, capturedPiece};
             if (isMoveLegal(copy, kingBit, candidate, whiteToMove)) {
@@ -1217,8 +1140,7 @@ std::vector<Move> GameState::generateMoves() const {
     const sf::Vector2<int> from = bitToCoords(fromBit);
 
     // standard moves
-    if ((toBit = ((fromBit & not_rank_1) << 8)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_rank_1) << 8)) && (toBit & ~occupancies[SIDE])) {
         // down
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1227,8 +1149,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_rank_8) >> 8)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_rank_8) >> 8)) && (toBit & ~occupancies[SIDE])) {
         // up
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1237,8 +1158,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_file_a) >> 1)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_file_a) >> 1)) && (toBit & ~occupancies[SIDE])) {
         // left
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1247,8 +1167,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_file_h) << 1)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_file_h) << 1)) && (toBit & ~occupancies[SIDE])) {
         // right
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1257,8 +1176,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_rank_1 & not_file_a) << 7)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_rank_1 & not_file_a) << 7)) && (toBit & ~occupancies[SIDE])) {
         // down left
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1267,8 +1185,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_rank_1 & not_file_h) << 9)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_rank_1 & not_file_h) << 9)) && (toBit & ~occupancies[SIDE])) {
         // down right
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1277,8 +1194,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_rank_8 & not_file_a) >> 9)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_rank_8 & not_file_a) >> 9)) && (toBit & ~occupancies[SIDE])) {
         // up left
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1287,8 +1203,7 @@ std::vector<Move> GameState::generateMoves() const {
         }
     }
 
-    if ((toBit = ((fromBit & not_rank_8 & not_file_h) >> 7)) &&
-        (toBit & ~occupancies[SIDE])) {
+    if ((toBit = ((fromBit & not_rank_8 & not_file_h) >> 7)) && (toBit & ~occupancies[SIDE])) {
         // up right
         capturedPiece = getCapturedPiece(toBit, oppPieces);
         candidate = {from, bitToCoords(toBit), KING, capturedPiece};
@@ -1300,36 +1215,32 @@ std::vector<Move> GameState::generateMoves() const {
     // castling
 
     // white kingside castle
-    if (whiteToMove && (md.castleRights & 0b0001) &&
-        (occupancies[NONE] & (1ull << f1)) &&
-        (occupancies[NONE] & (1ull << g1)) && !underAttack(fromBit) && // e1
-        !underAttack((1ull << f1)) && !underAttack((1ull << g1))) {
+    if (whiteToMove && (md.castleRights & 0b0001) && (occupancies[NONE] & (1ull << f1)) &&
+        (occupancies[NONE] & (1ull << g1)) && !underAttack(fromBit) &&  // e1
+        !underAttack(1ull << f1) && !underAttack(1ull << g1)) {
         moves.push_back({from, {6, 7}, KING, None, None, true, false});
     }
 
     // white queenside castle
-    if (whiteToMove && (md.castleRights & 0b0010) &&
-        (occupancies[NONE] & (1ull << d1)) &&
-        (occupancies[NONE] & (1ull << c1)) &&
-        (occupancies[NONE] & (1ull << b1)) && !underAttack(fromBit) && // e1
-        !underAttack((1ull << d1)) && !underAttack((1ull << c1))) {
+    if (whiteToMove && (md.castleRights & 0b0010) && (occupancies[NONE] & (1ull << d1)) &&
+        (occupancies[NONE] & (1ull << c1)) && (occupancies[NONE] & (1ull << b1)) &&
+        !underAttack(fromBit) &&  // e1
+        !underAttack(1ull << d1) && !underAttack(1ull << c1)) {
         moves.push_back({from, {2, 7}, KING, None, None, false, true});
     }
 
     // black kingside castle
-    if (!whiteToMove && (md.castleRights & 0b0100) &&
-        (occupancies[NONE] & (1ull << f8)) &&
-        (occupancies[NONE] & (1ull << g8)) && !underAttack(fromBit) && // e8
-        !underAttack((1ull << f8)) && !underAttack((1ull << g8))) {
+    if (!whiteToMove && (md.castleRights & 0b0100) && (occupancies[NONE] & (1ull << f8)) &&
+        (occupancies[NONE] & (1ull << g8)) && !underAttack(fromBit) &&  // e8
+        !underAttack(1ull << f8) && !underAttack(1ull << g8)) {
         moves.push_back({from, {6, 0}, KING, None, None, true, false});
     }
 
     // black queenside castle
-    if (!whiteToMove && (md.castleRights & 0b1000) &&
-        (occupancies[NONE] & (1ull << d8)) &&
-        (occupancies[NONE] & (1ull << c8)) &&
-        (occupancies[NONE] & (1ull << b8)) && !underAttack(fromBit) && // e8
-        !underAttack((1ull << d8)) && !underAttack((1ull << c8))) {
+    if (!whiteToMove && (md.castleRights & 0b1000) && (occupancies[NONE] & (1ull << d8)) &&
+        (occupancies[NONE] & (1ull << c8)) && (occupancies[NONE] & (1ull << b8)) &&
+        !underAttack(fromBit) &&  // e8
+        !underAttack(1ull << d8) && !underAttack(1ull << c8)) {
         moves.push_back({from, {2, 0}, KING, None, None, false, true});
     }
 
@@ -1337,11 +1248,10 @@ std::vector<Move> GameState::generateMoves() const {
 }
 
 uint64_t GameState::hash() const {
-    return (pieceBits[0] ^ pieceBits[1] ^ pieceBits[2] ^ pieceBits[3] ^
-            pieceBits[4] ^ pieceBits[5] ^ pieceBits[6] ^ pieceBits[7] ^
-            pieceBits[8] ^ pieceBits[9] ^ pieceBits[10] ^ pieceBits[11] ^
-            (whiteToMove << 1) ^ (md.castleRights << 2) ^
-            (md.enPassantBitOffset << 3));
+    return pieceBits[0] ^ pieceBits[1] ^ pieceBits[2] ^ pieceBits[3] ^ pieceBits[4] ^ pieceBits[5] ^
+           pieceBits[6] ^ pieceBits[7] ^ pieceBits[8] ^ pieceBits[9] ^ pieceBits[10] ^
+           pieceBits[11] ^ (whiteToMove << 1) ^ (md.castleRights << 2) ^
+           (md.enPassantBitOffset << 3);
     // N.B: we exclude movesSinceCapture so that transpositions hash to the same
     // value
 }
@@ -1350,20 +1260,17 @@ void GameState::print() const {
     prettyPrintPosition(pieceBits, true);
     std::cout << "whiteToMove = " << whiteToMove << std::endl;
     std::cout << "castleRights = "
-              << (md.castleRights == 0
-                      ? "-"
-                      : (std::string((md.castleRights & 0b0001) ? "K" : "") +
-                         std::string((md.castleRights & 0b0010) ? "Q" : "") +
-                         std::string((md.castleRights & 0b0100) ? "k" : "") +
-                         std::string((md.castleRights & 0b1000) ? "q" : "")))
+              << (md.castleRights == 0 ? "-"
+                                       : (std::string((md.castleRights & 0b0001) ? "K" : "") +
+                                          std::string((md.castleRights & 0b0010) ? "Q" : "") +
+                                          std::string((md.castleRights & 0b0100) ? "k" : "") +
+                                          std::string((md.castleRights & 0b1000) ? "q" : "")))
               << std::endl;
-    std::cout
-        << "enPassantSquare = "
-        << (md.enPassantBitOffset == 0
-                ? "-"
-                : std::to_string(offsetToCoords(md.enPassantBitOffset).x) +
-                      ", " +
-                      std::to_string(offsetToCoords(md.enPassantBitOffset).y))
-        << std::endl;
+    std::cout << "enPassantSquare = "
+              << (md.enPassantBitOffset == 0
+                      ? "-"
+                      : std::to_string(offsetToCoords(md.enPassantBitOffset).x) + ", " +
+                            std::to_string(offsetToCoords(md.enPassantBitOffset).y))
+              << std::endl;
     std::cout << "movesSinceCapture = " << md.movesSinceCapture << std::endl;
 }

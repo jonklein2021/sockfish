@@ -5,14 +5,14 @@
 
 #include "Engine.h"
 #include "GameState.h"
-#include "constants.h"
+#include "types.h"
 
 /**
  * Base class for a chess game that
  * classes in Cli.h and Gui.h extend.
  */
 class Game {
-  protected:
+   protected:
     Engine cpu;
     GameState state;
     std::string fen = defaultFEN;
@@ -20,11 +20,12 @@ class Game {
     bool playerIsWhite;
     bool playersTurn;
 
-  public:
-    Game() : Game(Engine(4), defaultFEN, true) {};
+   public:
+    Game() : Game(Engine(4), defaultFEN, true) {}
+
     Game(Engine _cpu, const std::string &_fen, bool _playerIsWhite)
-        : cpu(std::move(_cpu)), state(GameState(_fen)), fen(_fen),
-          playerIsWhite(_playerIsWhite), playersTurn(_playerIsWhite) {}
+        : cpu(std::move(_cpu)), state(GameState(_fen)), fen(_fen), playerIsWhite(_playerIsWhite),
+          playersTurn(_playerIsWhite) {}
 
     /**
      * Runs the game loop

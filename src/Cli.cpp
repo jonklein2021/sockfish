@@ -1,6 +1,6 @@
 #include "Cli.h"
 #include "bit_tools.h"
-#include "constants.h"
+#include "types.h"
 
 #include <iostream>
 
@@ -14,8 +14,7 @@ Move Cli::getMoveFromStdin() {
     bool pawnPromoting;
     while (true) {
         // pick a random move to suggest
-        std::string sample =
-            moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
+        std::string sample = moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
 
         // prompt user for input
         std::cout << "Enter move (example: " + sample + ") or q to quit: ";
@@ -35,9 +34,8 @@ Move Cli::getMoveFromStdin() {
         candidate = coordsToMove(input);
 
         // check for pawn promotion
-        pawnPromoting =
-            (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) ||
-            (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
+        pawnPromoting = (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) ||
+                        (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
@@ -94,8 +92,7 @@ void Cli::run() {
         state.print();
 
         // std::cout << cpu.get_eval(state) << std::endl;
-        std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n"
-                  << std::endl;
+        std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
 
         Move next;
         if (playersTurn) {
@@ -122,8 +119,7 @@ void Cli::run() {
 
     if (legalMoves.empty()) {
         if (state.isCheck()) {
-            std::cout << "Checkmate! "
-                      << (state.whiteToMove ? "Black" : "White") << " wins!"
+            std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!"
                       << std::endl;
         } else {
             std::cout << "Stalemate!" << std::endl;

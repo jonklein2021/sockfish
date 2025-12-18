@@ -3,14 +3,14 @@
 #include <list>
 #include <unordered_map>
 
-#include "../Game.h"
+#include "Game.h"
 #include "Piece.h"
 #include "PromotionMenu.h"
 
 #include <SFML/Graphics.hpp>
 
 class Gui : public Game {
-  private:
+   private:
     // visual stuff
     sf::RenderWindow window;
     sf::View view;
@@ -70,7 +70,7 @@ class Gui : public Game {
      */
     void render();
 
-  public:
+   public:
     Gui();
     Gui(const Engine &cpu, const std::string &fen, bool playerIsWhite);
     void run();

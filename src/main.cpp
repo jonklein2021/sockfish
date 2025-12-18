@@ -1,9 +1,8 @@
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
-#include "constants.h"
-#include "game/cli/Cli.h"
-#include "game/gui/Gui.h"
+#include "types.h"
 
 void usage() {
     std::ostringstream ss;
@@ -17,7 +16,8 @@ void usage() {
     ss << "  -b, --black     Play with the black pieces\n";
     ss << "  -f  <string>    Specify a custom FEN string for the starting "
           "position\n";
-    ss << "  -d  <depth>     Specify the depth of the minimax search (default: "
+    ss << "  -d  <depth>     Specify the depth of the minimax search "
+          "(default: "
           "4)\n";
     ss << "  -t  <theme>     Specify the piece theme for the GUI\n";
 
@@ -27,7 +27,7 @@ void usage() {
 int main(int argc, char **argv) {
     // parse command line arguments
     bool useCli = true;
-    std::string playerColorOverride = ""; // TODO: Make this an enum
+    std::string playerColorOverride = "";  // TODO: Make this an enum
     std::string fen = defaultFEN;
     std::string pieceTheme = "horsey/";
     int depth = 4;
@@ -58,7 +58,8 @@ int main(int argc, char **argv) {
                 fen = argv[i + 1];
                 i++;
             } else {
-                std::cerr << "Error: -f option requires a FEN string"
+                std::cerr << "Error: -f option requires a "
+                             "FEN string"
                           << std::endl;
                 usage();
                 return 1;
@@ -84,12 +85,9 @@ int main(int argc, char **argv) {
                              ? std::rand() % 2 == 0
                              : (playerColorOverride == "white" ? true : false);
 
-    std::cout << "Initializing game in " << (useCli ? "CLI" : "GUI")
-              << " mode...\n";
+    std::cout << "Initializing game in " << (useCli ? "CLI" : "GUI") << " mode...\n";
     std::cout << "  Player color: " << (playerIsWhite ? "white" : "black")
-              << (playerColorOverride.empty() ? " (random)"
-                                              : playerColorOverride)
-              << "\n";
+              << (playerColorOverride.empty() ? " (random)" : playerColorOverride) << "\n";
     std::cout << "  FEN: " << fen << "\n";
     std::cout << "  Depth: " << depth << "\n";
     std::cout << "  Piece theme: " << pieceTheme << std::endl;

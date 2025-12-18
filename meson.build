@@ -13,13 +13,6 @@ project(
 cc = meson.get_compiler('cpp')
 cxx_args = ['-Wno-parentheses']
 
-# Include directories
-inc_dirs = include_directories(
-  'src/common',
-  'src/backend',
-  'src/engine'
-)
-
 # SFML libraries (link statically or dynamically depending on install)
 sfml_libs = [
   cc.find_library('sfml-graphics', dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml'], required: true),
@@ -28,20 +21,19 @@ sfml_libs = [
 ]
 
 common_sources = [
-  'src/backend/GameState.cpp',
-  'src/backend/Move.cpp',
-  'src/backend/bit_tools.cpp',
-  'src/engine/Engine.cpp',
-  'src/game/cli/Cli.cpp',
-  'src/game/gui/Gui.cpp',
-  'src/game/gui/PromotionMenu.cpp',
+  'src/GameState.cpp',
+  'src/Move.cpp',
+  'src/bit_tools.cpp',
+  'src/Engine.cpp',
+  'src/Cli.cpp',
+  'src/Gui.cpp',
+  'src/PromotionMenu.cpp',
 ]
 
 # -------------------- EXECUTABLE: main --------------------
 main_exe = executable(
   'main',
   [ 'src/main.cpp', common_sources ],
-  include_directories : inc_dirs,
   cpp_args : cxx_args,
   dependencies : sfml_libs,
   install : false
@@ -51,7 +43,6 @@ main_exe = executable(
 test_exe = executable(
   'test_test',  # Meson cannot output nested paths as names
   [ 'src/test/test.cpp', common_sources ],
-  include_directories : inc_dirs,
   cpp_args : cxx_args,
   dependencies : sfml_libs,
   install : false

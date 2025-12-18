@@ -22,7 +22,7 @@ QualifierAlignment: Left
 ReferenceAlignment: Right
 RemoveBracesLLVM: false
 RemoveEmptyLinesInUnwrappedLines: true
-RemoveParentheses: true
+RemoveParentheses: ReturnStatement
 RemoveSemicolon: true
 RequiresClausePosition: SingleLine
 SeparateDefinitionBlocks: Always
@@ -41,9 +41,11 @@ SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
 SpaceBeforeSquareBrackets: false
 SpacesBeforeTrailingComments: 2
-SpaceInEmptyBraces: Never
+# SpaceInEmptyBraces: Never
 SpacesInAngles: Never
-SpacesInLineCommentPrefix: 1
+SpacesInLineCommentPrefix: 
+  Minimum: 1
+  Maximum: 1
 Standard: c++17
 TabWidth: 4
 UseTab: Never
