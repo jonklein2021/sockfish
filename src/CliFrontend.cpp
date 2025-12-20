@@ -1,23 +1,21 @@
-#include "Cli.h"
+#include "CliFrontend.h"
+
 #include "bit_tools.h"
 #include "types.h"
 
 #include <iostream>
 
-Cli::Cli() : Cli(Engine(4), defaultFEN, true) {}
+CliFrontend::CliFrontend(GameController &game)
+    : game(game) {}
 
-Cli::Cli(const Engine &cpu, const std::string &fen, bool playerIsWhite)
-    : Game(cpu, fen, playerIsWhite) {}
-
-Move Cli::getMoveFromStdin() {
-    Move candidate;
-    bool pawnPromoting;
+Move CliFrontend::getMoveFromStdin() {
+    std::vector<Move> legalMoves;
     while (true) {
         // pick a random move to suggest
-        std::string sample = moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
+        const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
 
         // prompt user for input
-        std::cout << "Enter move (example: " + sample + ") or q to quit: ";
+        std::cout << "Enter move (example: " << sample << ") or q to quit: ";
         std::string input;
         std::getline(std::cin, input);
 
@@ -31,11 +29,12 @@ Move Cli::getMoveFromStdin() {
         }
 
         // check if the move is legal before returning it
-        candidate = coordsToMove(input);
+        // todo: check for castling
+        Move candidate = coordsToMove(input);
 
         // check for pawn promotion
-        pawnPromoting = (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) ||
-                        (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
+        bool pawnPromoting = (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) ||
+                             (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
@@ -45,7 +44,7 @@ Move Cli::getMoveFromStdin() {
 
         bool validMove = false;
         for (const Move &move : legalMoves) {
-            if (candidate.equals(move)) {
+            if (candidate == move) {
                 validMove = true;
                 candidate = move;
                 break;
@@ -85,7 +84,7 @@ Move Cli::getMoveFromStdin() {
     return candidate;
 }
 
-void Cli::run() {
+void CliFrontend::run() {
     legalMoves = state.generateMoves();
 
     while (!state.isTerminal()) {

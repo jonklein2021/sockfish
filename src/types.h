@@ -11,10 +11,14 @@ using Bitboard = uint64_t;
 using Eval = int32_t;
 
 /**
- * Used to index into the occupancies array
- * and to convey the player's pieces during game initialization
+ * Conveys the player's pieces during game initialization
  */
-enum Color { WHITE, BLACK, ALL, NEITHER };
+enum Color { WHITE, BLACK };
+
+/**
+ * Used to index into the occupancies array
+ */
+enum OccupancyType { WHITE_OCCUPANCY, BLACK_OCCUPANCY, BOTH_OCCUPANCY, EMPTY_OCCUPANCY };
 
 /**
  * Represents each type of piece without a color
@@ -45,6 +49,12 @@ constexpr std::array<std::string_view, 13> pieceNames = {
     "White Pawn",  "White Knight", "White Bishop", "White Rook",   "White Queen",
     "White King",  "Black Pawn",   "Black Knight", "Black Bishop", "Black Rook",
     "Black Queen", "Black King",   "None"};
+
+/**
+ * Mainly used for debug output
+ */
+constexpr std::array<std::string_view, 7> pieceTypeNames = {"Pawn",  "Knight", "Bishop", "Rook",
+                                                            "Queen", "King",   "None"};
 
 /**
  * Maps FEN character to PieceType enum
@@ -129,7 +139,12 @@ enum Square : uint8_t {
 
 // clang-format on
 
-std::string squareToString(Square sq) {
+// (0, 0) corresponds to a8, the top-left square
+static inline Square coordsToSquare(int x, int y) {
+    return Square(y * 8 + x);
+}
+
+static inline std::string squareToString(Square sq) {
     return std::to_string('a' + sq % 8) + std::to_string(8 - sq / 8);
 }
 

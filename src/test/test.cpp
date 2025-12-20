@@ -6,7 +6,7 @@
 
 using std::string, std::cin, std::cout, std::endl;
 
-void testMakeMove(GameState &gs, const std::vector<Move> &legalMoves) {
+void testMakeMove(Position &gs, const std::vector<Move> &legalMoves) {
     // make a move
     Move candidate;
     bool pawnPromoting;
@@ -92,7 +92,7 @@ void showLegalMoves(const std::vector<Move> &legalMoves) {
     }
 }
 
-void showAttackedSquares(const GameState &gs) {
+void showAttackedSquares(const Position &gs) {
     cout << "Which side do you want to see the attacked squares? (w/b)\n";
     std::string side;
     getline(std::cin, side);
@@ -109,7 +109,7 @@ int main() {
     getline(cin, fen);
     if (fen.empty())
         fen = defaultFEN;
-    GameState gs(fen);
+    Position gs(fen);
     gs.print();
 
     while (1) {

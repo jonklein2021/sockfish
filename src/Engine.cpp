@@ -12,9 +12,9 @@ Engine::Engine()
 Engine::Engine(int depth)
     : maxDepth(depth) {}
 
-void Engine::countPositionsBuildup(const GameState &state, int maxDepth) const {
+void Engine::countPositionsBuildup(const Position &state, int maxDepth) const {
     struct Node {
-        GameState state;
+        Position state;
         int depth;
     };
 
@@ -49,7 +49,7 @@ void Engine::countPositionsBuildup(const GameState &state, int maxDepth) const {
     std::cout << std::endl;
 }
 
-void Engine::countPositions(GameState &state, int depth) const {
+void Engine::countPositions(Position &state, int depth) const {
     uint64_t total = 0;
     uint64_t captures = 0;
     uint64_t eps = 0;
@@ -58,7 +58,7 @@ void Engine::countPositions(GameState &state, int depth) const {
     uint64_t checks = 0;
     uint64_t checkmates = 0;
 
-    std::function<uint64_t(GameState &, int)> countPositionsHelper = [&](GameState &state,
+    std::function<uint64_t(Position &, int)> countPositionsHelper = [&](Position &state,
                                                                          int depth) -> uint64_t {
         if (depth == 0 || state.isTerminal()) {
             return 1;  // Base case: count this position
@@ -118,7 +118,7 @@ void Engine::countPositions(GameState &state, int depth) const {
     std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
 }
 
-eval_t Engine::rateMove(const GameState &state, const Move &move) {
+eval_t Engine::rateMove(const Position &state, const Move &move) {
     // capture moves are promising
     eval_t rating = 0;
     if (move.capturedPiece != NO_PIECE) {
@@ -131,7 +131,7 @@ eval_t Engine::rateMove(const GameState &state, const Move &move) {
     }
 
     // moves that put the opponent in check should be checked early
-    GameState temp(state);
+    Position temp(state);
     temp.makeMove(move);
     temp.whiteToMove = !temp.whiteToMove;
     if (temp.isCheck()) {
@@ -141,11 +141,11 @@ eval_t Engine::rateMove(const GameState &state, const Move &move) {
     return rating;
 }
 
-eval_t Engine::evaluate(const GameState &state) {
+eval_t Engine::evaluate(const Position &state) {
     return evaluate(state, state.generateMoves());
 }
 
-eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMoves) {
+eval_t Engine::evaluate(const Position &state, const std::vector<Move> &legalMoves) {
     if (legalMoves.empty() && state.isCheck()) {
         return state.whiteToMove ? 1738 : -1738;
     }
@@ -188,7 +188,7 @@ eval_t Engine::evaluate(const GameState &state, const std::vector<Move> &legalMo
     return state.whiteToMove ? score : -score;
 }
 
-eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth) {
+eval_t Engine::negamax(Position &state, eval_t alpha, eval_t beta, int depth) {
     uint64_t h = state.hash();
     if (transpositionTable.find(h) != transpositionTable.end()) {
         const TTEntry &entry = transpositionTable[h];
@@ -242,11 +242,11 @@ eval_t Engine::negamax(GameState &state, eval_t alpha, eval_t beta, int depth) {
     return bestEval;
 }
 
-eval_t Engine::iterativeDeepening(const GameState &state) {
+eval_t Engine::iterativeDeepening(const Position &state) {
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
     struct Node {
-        GameState state;
+        Position state;
         int depth;
     };
 
@@ -269,7 +269,7 @@ eval_t Engine::iterativeDeepening(const GameState &state) {
 
         // evaluate non-terminal nodes
         for (const Move &move : legalMoves) {
-            GameState nextState = current.state;
+            Position nextState = current.state;
             nextState.makeMove(move);
             q.push({nextState, current.depth + 1});
         }
@@ -278,7 +278,7 @@ eval_t Engine::iterativeDeepening(const GameState &state) {
     return bestEval;
 }
 
-Move Engine::getMove(GameState &state, std::vector<Move> &legalMoves) {
+Move Engine::getMove(Position &state, std::vector<Move> &legalMoves) {
     if (legalMoves.empty()) {
         return Move();
     }

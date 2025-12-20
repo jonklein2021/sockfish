@@ -1,5 +1,9 @@
 #include "Move.h"
 
+#include "src/types.h"
+
+#include <sstream>
+
 Move::Move() = default;
 
 constexpr Move::Move(uint16_t _data)
@@ -41,14 +45,23 @@ constexpr bool Move::isCastles() const {
     return (data & (3 << 14)) == CASTLING;
 }
 
-/**
- * Convert the move to a readable string representation,
- * mainly used for debugging
- *
- * @return string representation of the move
- */
-std::string Move::toString() const {
+std::string Move::toCoordinateString() const {
     return squareToString(fromSquare()) + " " + squareToString(toSquare());
+}
+
+std::string Move::toString() const {
+    std::stringstream ss(toCoordinateString());
+    if (isPromotion()) {
+        ss << ", Promote to " << pieceTypeNames[promotedPieceType()].data();
+    }
+    if (isEnPassant()) {
+        ss << ", En Passant";
+    }
+    if (isCastles()) {
+        ss << ", Castles";
+    }
+    ss << ", data=" << data;
+    return ss.str();
 }
 
 bool Move::operator==(const Move &other) const {
@@ -60,11 +73,10 @@ bool Move::operator!=(const Move &other) const {
 }
 
 bool validateCoords(const std::string &input) {
-    if (input.size() != 5) {
+    if (input.size() != 4) {
         return false;
     }
 
     return (input[0] >= 'a' && input[0] <= 'h') && (input[1] >= '1' && input[1] <= '8') &&
-           (input[2] == ' ') && (input[3] >= 'a' && input[3] <= 'h') &&
-           (input[4] >= '1' && input[4] <= '8');
+           (input[2] >= 'a' && input[2] <= 'h') && (input[3] >= '1' && input[3] <= '8');
 }

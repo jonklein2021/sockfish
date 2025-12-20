@@ -1,74 +1,16 @@
+#include "GuiFrontend.h"
+
 #include <iostream>
 
-#include "Gui.h"
-
-Gui::Gui() : Gui(Engine(4), defaultFEN, true) {}
-
-Gui::Gui(const Engine &cpu, const std::string &fen, bool playerIsWhite)
-    : Game(cpu, fen, playerIsWhite),
+GuiFrontend::GuiFrontend(GameController &game)
+    : game(game),
       window(sf::VideoMode({BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE}), "Cheese", sf::Style::Resize),
       view(sf::Vector2f(0, 0), sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
-      boardSprite(boardTexture), promotionMenu(pieceTheme, state.whiteToMove) {
-    initializeScreen();
-}
-
-void Gui::initializeScreen() {
+      promotionMenu(pieceTheme, game.humanSide()) {
     window.setView(view);
-
-    // load textures
-    loadPieceTextures();
-    if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
-        std::cerr << "Error loading chessboard texture" << std::endl;
-        exit(1);
-    }
-
-    // finalize board and piece sprites
-    boardSprite.setTexture(boardTexture);
-    pieces = fenToPieces(fen);
 }
 
-void Gui::loadPieceTextures() {
-    for (Piece p : {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK}) {
-        if (!pieceTextures[p].loadFromFile(PIECE_TEXTURE_PATH + pieceTheme + pieceFilenames[p] +
-                                           ".png")) {
-            std::cerr << "Error loading piece texture: " << pieceFilenames[p] << std::endl;
-        }
-    }
-}
-
-std::list<Piece> Gui::fenToPieces(const std::string &fen) {
-    std::list<Piece> pieces;
-
-    // get position data from FEN
-    size_t i = 0;
-    int x = 0, y = 0;
-    for (; i < fen.size(); i++) {
-        const char c = fen[i];
-        if (c == '/') {  // move to next row
-            x = 0;
-            y++;
-        } else if (isdigit(c)) {  // empty square; skip x squares
-            x += c - '0';
-        } else if (c == ' ') {  // end of board
-            break;
-        } else {  // piece
-            // rotate 180 degrees if player is black
-            int displayX = playerIsWhite ? x : 7 - x;
-            int displayY = playerIsWhite ? y : 7 - y;
-
-            // set this piece's bit at the correct position
-            Piece label = fenPieceMap.at(c);
-            Piece piece(label, {displayX, displayY}, pieceTextures[label]);
-            piece.sprite->setPosition(
-                sf::Vector2f(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
-            pieces.push_back(std::move(piece));
-            x++;
-        }
-    }
-    return pieces;
-}
-
-void Gui::run() {
+void GuiFrontend::run() {
     while (window.isOpen()) {
         if (!playersTurn) {
             // get move from engine
@@ -142,13 +84,15 @@ void Gui::run() {
     }
 }
 
-void Gui::handleEvents() {
+void GuiFrontend::handleEvents() {
     mousePos = sf::Mouse::getPosition(window);
 
     // SFML 3.0 event handling
     while (auto event = window.pollEvent()) {
         // user quits
-        if (event->is<sf::Event::Closed>()) window.close();
+        if (event->is<sf::Event::Closed>()) {
+            window.close();
+        }
 
         // resize window
         if (const auto *resized = event->getIf<sf::Event::Resized>()) {
@@ -235,10 +179,13 @@ void Gui::handleEvents() {
 
                     // create move object, isCapture and promotionPiece will be
                     // overridden later
-                    candidate = Move({oldX, oldY}, {newX, newY}, selectedPiece->type, NO_PIECE, NO_PIECE);
+                    candidate =
+                        Move({oldX, oldY}, {newX, newY}, selectedPiece->type, NO_PIECE, NO_PIECE);
 
                     // necessary to match with a legal move
-                    if (pawnPromoting) candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+                    if (pawnPromoting) {
+                        candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+                    }
 
                     // check this move against set of legal moves
                     bool validMove = false;
@@ -328,9 +275,11 @@ void Gui::handleEvents() {
     }
 }
 
-void Gui::update() {
+void GuiFrontend::update() {
     // pause normal updates when promotion menu is open
-    if (promotionMenu.isVisible) return;
+    if (promotionMenu.isVisible) {
+        return;
+    }
 
     // mouse hovers over a piece
     for (auto &piece : pieces) {
@@ -352,7 +301,7 @@ void Gui::update() {
     }
 }
 
-void Gui::render() {
+void GuiFrontend::render() {
     window.clear(sf::Color(50, 50, 50));
     window.draw(boardSprite);
     for (const auto &p : pieces) {

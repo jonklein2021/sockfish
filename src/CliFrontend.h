@@ -1,18 +1,21 @@
 #pragma once
 
-#include "Game.h"
+#include "GameController.h"
 
-class Cli : public Game {
+class CliFrontend {
    private:
+    GameController game;
+
     /**
      * Get a move from stdin, looping until
      * a valid legal move is entered
      */
     Move getMoveFromStdin();
 
+    void printBoard();
+
    public:
-    Cli();
-    Cli(const Engine &cpu, const std::string &fen, bool playerIsWhite);
+    CliFrontend(GameController &game);
 
     /**
      * Run the game loop

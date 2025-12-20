@@ -51,11 +51,11 @@ class Move {
     // represented in the from/to squares
     constexpr bool isCastles() const;
 
+    std::string toCoordinateString() const;
+
     /**
-     * Convert the move to a readable string representation,
-     * mainly used for debugging
-     *
-     * @return string representation of the move
+     * @return readable representation of the move
+     * for debugging
      */
     std::string toString() const;
 

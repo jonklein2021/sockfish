@@ -1,47 +1,31 @@
 #pragma once
 
-#include <list>
-#include <unordered_map>
-
-#include "Game.h"
-#include "Piece.h"
+#include "GameController.h"
 #include "PromotionMenu.h"
 
 #include <SFML/Graphics.hpp>
 
-class Gui : public Game {
+class GuiFrontend {
    private:
     // visual stuff
     sf::RenderWindow window;
     sf::View view;
-    sf::Texture boardTexture;
-    sf::Sprite boardSprite;
-    std::string pieceTheme = "horsey/";
     sf::Vector2<int> mousePos;
 
-    Move candidate;
-
     // pieces on the board
-    std::list<Piece> pieces;
+    // std::list<Piece> pieces;
 
-    // pawn promotion window
     PromotionMenu promotionMenu;
+    BoardRenderer boardRenderer;
+
+    GameController game;
 
     // drag-and-drop variables
     Piece *selectedPiece = nullptr;
     bool isDragging = false;
 
     // 1-1 mapping from each piece to its texture
-    std::unordered_map<Piece, sf::Texture> pieceTextures;
-
-    /**
-     * Converts a FEN string representation of a chess position into a list of
-     * Piece objects
-     *
-     * @param fen FEN string
-     * @return list of Piece objects
-     */
-    std::list<Piece> fenToPieces(const std::string &fen);
+    // std::unordered_map<Piece, sf::Texture> pieceTextures;
 
     /**
      * Sets up window and textures
@@ -71,7 +55,6 @@ class Gui : public Game {
     void render();
 
    public:
-    Gui();
-    Gui(const Engine &cpu, const std::string &fen, bool playerIsWhite);
+    GuiFrontend(GameController &game);
     void run();
 };
