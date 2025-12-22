@@ -7,6 +7,9 @@
 // heavily inspired from Stockfish:
 // https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L432
 class Move {
+   public:
+    enum Type { NORMAL, PROMOTION = 1 << 14, EN_PASSANT = 2 << 14, CASTLING = 3 << 14 };
+
    private:
     /**
      * data[0:5]: from Square (6 bits)
@@ -25,8 +28,6 @@ class Move {
     uint16_t data;
 
    public:
-    enum Type { NORMAL, PROMOTION = 1 << 14, EN_PASSANT = 2 << 14, CASTLING = 3 << 14 };
-
     Move();
 
     constexpr explicit Move(uint16_t _data);
@@ -34,6 +35,10 @@ class Move {
     constexpr Move(Square from, Square to);
 
     constexpr Move(Square from, Square to, Type moveType, PieceType promotedPieceType = KNIGHT);
+
+    static Move fromCoordinateString(const std::string &coords);
+
+    void setPromotedPiece(PieceType promotedPieceType);
 
     constexpr uint16_t raw() const;
 

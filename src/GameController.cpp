@@ -12,8 +12,13 @@ GameController::GameController(std::unique_ptr<Engine> engine,
       humanSide(humanSide),
       sideToMove(WHITE) {}
 
+// TODO: This
 constexpr bool GameController::isGameOver() const {
     return true;
+}
+
+constexpr Color GameController::getHumanSide() const {
+    return humanSide;
 }
 
 constexpr Color GameController::getSideToMove() const {
@@ -24,8 +29,8 @@ const Position &GameController::getPosition() const {
     return position;
 }
 
-const std::vector<Move> &GameController::legalMoves() const {
-    return moveGenerator->generateLegal();
+const std::vector<Move> GameController::legalMoves() {
+    return moveGenerator->generateLegal(position);
 }
 
 void GameController::makeHumanMove(Move move) {

@@ -1,6 +1,6 @@
 #include "Move.h"
 
-#include "src/types.h"
+#include "types.h"
 
 #include <sstream>
 
@@ -15,20 +15,31 @@ constexpr Move::Move(Square from, Square to)
 constexpr Move::Move(Square from, Square to, Type moveType, PieceType promotedPieceType)
     : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 11)) {}
 
+void Move::setPromotedPiece(PieceType promotedPieceType) {
+    data |= ((promotedPieceType - KNIGHT) << 11);  // set piece
+    data |= PROMOTION;                             // set flag
+}
+
+Move Move::fromCoordinateString(const std::string &coords) {
+    const Square from = coordinateStringToSquare(coords.substr(0, 2));
+    const Square to = coordinateStringToSquare(coords.substr(2));
+    return Move(from, to);
+}
+
 constexpr uint16_t Move::raw() const {
     return data;
 }
 
 constexpr Square Move::fromSquare() const {
-    return static_cast<Square>(data & 0x3F);
+    return Square(data & 0x3F);
 }
 
 constexpr Square Move::toSquare() const {
-    return static_cast<Square>((data >> 6) & 0x3F);
+    return Square((data >> 6) & 0x3F);
 }
 
 constexpr Piece Move::promotedPieceType() const {
-    return static_cast<Piece>(((data >> 11) & 0x3) + KNIGHT);
+    return Piece(((data >> 11) & 0x3) + KNIGHT);
 }
 
 constexpr bool Move::isPromotion() const {
@@ -46,7 +57,7 @@ constexpr bool Move::isCastles() const {
 }
 
 std::string Move::toCoordinateString() const {
-    return squareToString(fromSquare()) + " " + squareToString(toSquare());
+    return squareToCoordinateString(fromSquare()) + " " + squareToCoordinateString(toSquare());
 }
 
 std::string Move::toString() const {

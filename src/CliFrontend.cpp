@@ -1,16 +1,21 @@
 #include "CliFrontend.h"
 
-#include "bit_tools.h"
+#include "GameController.h"
+#include "Move.h"
 #include "types.h"
 
 #include <iostream>
 
 CliFrontend::CliFrontend(GameController &game)
-    : game(game) {}
+    : game(std::move(game)) {}
 
 Move CliFrontend::getMoveFromStdin() {
-    std::vector<Move> legalMoves;
-    while (true) {
+    const std::vector<Move> legalMoves = game.legalMoves();
+    Move candidate;
+    bool validMove = false;
+    bool pawnPromoting = false;
+
+    while (!validMove) {
         // pick a random move to suggest
         const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
 
@@ -30,19 +35,19 @@ Move CliFrontend::getMoveFromStdin() {
 
         // check if the move is legal before returning it
         // todo: check for castling
-        Move candidate = coordsToMove(input);
+        candidate = Move::fromCoordinateString(input);
+        const Piece pieceMoved = game.getPosition().getBoard().pieceAt(candidate.fromSquare());
 
         // check for pawn promotion
-        bool pawnPromoting = (candidate.to.y == 0 && state.pieceAt(candidate.from) == WP) ||
-                             (candidate.to.y == 7 && state.pieceAt(candidate.from) == BP);
+        pawnPromoting = (pieceMoved == WP && candidate.toSquare() <= h8) ||
+                        (pieceMoved == BP && candidate.toSquare() >= a1);
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
         if (pawnPromoting) {
-            candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+            candidate.setPromotedPiece(QUEEN);
         }
 
-        bool validMove = false;
         for (const Move &move : legalMoves) {
             if (candidate == move) {
                 validMove = true;
@@ -51,11 +56,9 @@ Move CliFrontend::getMoveFromStdin() {
             }
         }
 
-        if (validMove) {
-            break;
+        if (!validMove) {
+            std::cout << "Error: Illegal move. Please try again" << std::endl;
         }
-
-        std::cout << "Error: Illegal move" << std::endl;
     }
 
     if (pawnPromoting) {
@@ -64,16 +67,16 @@ Move CliFrontend::getMoveFromStdin() {
             std::string promotion;
             std::getline(std::cin, promotion);
             if (promotion == "Q" || promotion == "q") {
-                candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+                candidate.setPromotedPiece(QUEEN);
                 break;
             } else if (promotion == "N" || promotion == "n") {
-                candidate.promotionPiece = state.whiteToMove ? WN : BN;
+                candidate.setPromotedPiece(KNIGHT);
                 break;
             } else if (promotion == "R" || promotion == "r") {
-                candidate.promotionPiece = state.whiteToMove ? WR : BR;
+                candidate.setPromotedPiece(ROOK);
                 break;
             } else if (promotion == "B" || promotion == "b") {
-                candidate.promotionPiece = state.whiteToMove ? WB : BB;
+                candidate.setPromotedPiece(BISHOP);
                 break;
             } else {
                 std::cout << "Error: Invalid promotion piece" << std::endl;
@@ -85,45 +88,23 @@ Move CliFrontend::getMoveFromStdin() {
 }
 
 void CliFrontend::run() {
-    legalMoves = state.generateMoves();
+    auto legalMoves = game.legalMoves();
 
-    while (!state.isTerminal()) {
-        state.print();
+    while (!game.isGameOver()) {
+        printBoard();
 
         // std::cout << cpu.get_eval(state) << std::endl;
-        std::cout << (state.whiteToMove ? "White" : "Black") << " to move\n" << std::endl;
+        std::cout << (game.getSideToMove() == WHITE ? "White" : "Black") << " to move\n"
+                  << std::endl;
 
-        Move next;
-        if (playersTurn) {
+        if (game.getSideToMove() == game.getHumanSide()) {
             // get move from stdin
-            next = getMoveFromStdin();
+            game.makeHumanMove(getMoveFromStdin());
         } else {
             // get move from engine
-            next = cpu.getMove(state, legalMoves);
-            std::cout << "CPU's move: " << moveToCoords(next) << std::endl;
+            game.makeAIMove();
         }
-
-        std::cout << next.toString() << std::endl;
-
-        // update state with new move and push hash to history
-        state.makeMove(next);
-        state.md.history.push_back(state.hash());
-        prettyPrintPosition(state.pieceBitsData(), playerIsWhite);
-
-        // update set of legal moves
-        legalMoves = state.generateMoves();
-
-        playersTurn = !playersTurn;
     }
 
-    if (legalMoves.empty()) {
-        if (state.isCheck()) {
-            std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White") << " wins!"
-                      << std::endl;
-        } else {
-            std::cout << "Stalemate!" << std::endl;
-        }
-    } else {
-        std::cout << "Draw!" << std::endl;
-    }
+    std::cout << "Game over!" << std::endl;
 }

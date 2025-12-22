@@ -141,11 +141,14 @@ enum Square : uint8_t {
 // clang-format on
 
 // (0, 0) corresponds to a8, the top-left square
-static inline Square coordsToSquare(int x, int y) {
-    return Square(y * 8 + x);
+// input is assumed to be in a2a4 format
+constexpr static inline Square coordinateStringToSquare(const std::string &str) {
+    const int fileIndex = str[0] - 'a';
+    const int rankIndex = 8 - str[1];
+    return Square(rankIndex * 8 + fileIndex);
 }
 
-static inline std::string squareToString(Square sq) {
+static inline std::string squareToCoordinateString(const Square &sq) {
     return std::to_string('a' + sq % 8) + std::to_string(8 - sq / 8);
 }
 

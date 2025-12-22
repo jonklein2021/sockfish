@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     Position pos(cfg.fen);
     GameController gameController(std::move(engine), moveGenerator, pos, cfg.humanSide);
 
-    // launch CLI or GUI
+    // create and launch game
     if (cfg.useGui) {
         GuiFrontend gui(gameController);
         gui.run();

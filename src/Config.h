@@ -10,7 +10,7 @@ struct Config {
     int searchDepth = 4;
     Color humanSide = WHITE;
     bool randomColor = true;
-    bool useGui = true;
+    bool useGui = false;
 
     void parseArgs(int argc, char **argv) {
         for (int i = 1; i < argc; i++) {
@@ -18,8 +18,6 @@ struct Config {
             if (arg == "-h" || arg == "--help") {
                 printUsage();
                 exit(0);
-            } else if (arg == "-c" || arg == "--cli") {
-                useGui = false;
             } else if (arg == "-g" || arg == "--gui") {
                 useGui = true;
             } else if (arg == "-w" || arg == "--white") {
@@ -30,6 +28,7 @@ struct Config {
                 humanSide = BLACK;
             } else if (arg == "-t") {
                 if (i + 1 < argc) {
+                    // TODO: validate this theme
                     pieceTheme = argv[i + 1];
                     i++;
                 } else {
@@ -74,7 +73,6 @@ struct Config {
         std::cout << "Usage: ./main [options]\n"
                      "Options:\n"
                      "  -h, --help      Display this message\n"
-                     "  -c, --cli       Run the game in CLI mode (default)\n"
                      "  -g, --gui       Run the game in GUI mode\n"
                      "  -w, --white     Play with the white pieces\n"
                      "  -b, --black     Play with the black pieces\n"

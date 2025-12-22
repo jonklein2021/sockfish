@@ -27,7 +27,7 @@ class GameController {
     constexpr bool isGameOver() const;
 
     const Position &getPosition() const;
-    const std::vector<Move> &legalMoves() const;
+    const std::vector<Move> legalMoves();
 
     void makeHumanMove(Move move);
     void makeAIMove();
