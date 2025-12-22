@@ -4,7 +4,7 @@
 
 GameController::GameController(std::unique_ptr<Engine> engine,
                                std::shared_ptr<MoveGenerator> moveGenerator,
-                               Position &startPos,
+                               Position startPos,
                                Color humanSide)
     : engine(std::move(engine)),
       moveGenerator(moveGenerator),
@@ -12,9 +12,9 @@ GameController::GameController(std::unique_ptr<Engine> engine,
       humanSide(humanSide),
       sideToMove(WHITE) {}
 
-// TODO: This
-constexpr bool GameController::isGameOver() const {
-    return true;
+// should GameController own this logic?
+bool GameController::isGameOver() {
+    return legalMoves().empty();
 }
 
 constexpr Color GameController::getHumanSide() const {
@@ -38,6 +38,6 @@ void GameController::makeHumanMove(Move move) {
 }
 
 void GameController::makeAIMove() {
-    Move m = engine->getMove(position, legalMoves());
-    position.makeMove(m);
+    Move best = engine->getMove(position, legalMoves());
+    position.makeMove(best);
 }

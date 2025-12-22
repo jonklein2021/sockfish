@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BoardRenderer.h"
 #include "GameController.h"
 #include "PromotionMenu.h"
 

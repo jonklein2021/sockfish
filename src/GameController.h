@@ -19,12 +19,12 @@ class GameController {
    public:
     GameController(std::unique_ptr<Engine> engine,
                    std::shared_ptr<MoveGenerator> moveGenerator,
-                   Position &startPos,
+                   Position startPos,
                    Color humanSide);
 
     constexpr Color getHumanSide() const;
     constexpr Color getSideToMove() const;
-    constexpr bool isGameOver() const;
+    bool isGameOver();
 
     const Position &getPosition() const;
     const std::vector<Move> legalMoves();

@@ -36,11 +36,11 @@ Move CliFrontend::getMoveFromStdin() {
         // check if the move is legal before returning it
         // todo: check for castling
         candidate = Move::fromCoordinateString(input);
-        const Piece pieceMoved = game.getPosition().getBoard().pieceAt(candidate.fromSquare());
+        const Square from = candidate.fromSquare(), to = candidate.toSquare();
+        const Piece pieceMoved = game.getPosition().getBoard().pieceAt(from);
 
         // check for pawn promotion
-        pawnPromoting = (pieceMoved == WP && candidate.toSquare() <= h8) ||
-                        (pieceMoved == BP && candidate.toSquare() >= a1);
+        pawnPromoting = (pieceMoved == WP && to <= h8) || (pieceMoved == BP && to >= a1);
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move

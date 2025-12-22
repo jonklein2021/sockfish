@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     cfg.print();
 
     // create base objects
-    std::shared_ptr<MoveGenerator> moveGenerator;
+    std::shared_ptr<MoveGenerator> moveGenerator = std::make_shared<MoveGenerator>();
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(cfg.searchDepth);
     Position pos(cfg.fen);
     GameController gameController(std::move(engine), moveGenerator, pos, cfg.humanSide);

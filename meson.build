@@ -15,19 +15,23 @@ cxx_args = ['-Wno-parentheses']
 
 # SFML libraries (link statically or dynamically depending on install)
 sfml_libs = [
-  cc.find_library('sfml-graphics', dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml'], required: true),
-  cc.find_library('sfml-window',   dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml'], required: true),
-  cc.find_library('sfml-system',   dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml'], required: true),
+  cc.find_library('sfml-graphics', dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml','/usr/lib/SFML', '/usr/local/lib/SFML'], required: true),
+  cc.find_library('sfml-window',   dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml','/usr/lib/SFML', '/usr/local/lib/SFML'], required: true),
+  cc.find_library('sfml-system',   dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml','/usr/lib/SFML', '/usr/local/lib/SFML'], required: true),
 ]
 
 common_sources = [
-  'src/GameState.cpp',
-  'src/Move.cpp',
   'src/bit_tools.cpp',
+  'src/Board.cpp',
+  'src/BoardRenderer.cpp',
+  'src/CliFrontend.cpp',
   'src/Engine.cpp',
-  'src/Cli.cpp',
-  'src/Gui.cpp',
-  'src/PromotionMenu.cpp',
+  'src/GameController.cpp',
+  'src/GuiFrontend.cpp',
+  'src/Move.cpp',
+  'src/MoveGenerator.cpp',
+  'src/Position.cpp',
+  'src/PromotionMenu.cpp'
 ]
 
 # -------------------- EXECUTABLE: main --------------------
@@ -41,7 +45,7 @@ main_exe = executable(
 
 # -------------------- EXECUTABLE: test/test --------------------
 test_exe = executable(
-  'test_test',  # Meson cannot output nested paths as names
+  'test_test',
   [ 'src/test/test.cpp', common_sources ],
   cpp_args : cxx_args,
   dependencies : sfml_libs,
