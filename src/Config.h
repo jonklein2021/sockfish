@@ -2,7 +2,6 @@
 
 #include <ctime>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 struct Config {
@@ -17,7 +16,7 @@ struct Config {
         for (int i = 1; i < argc; i++) {
             std::string arg = argv[i];
             if (arg == "-h" || arg == "--help") {
-                Config::printUsage();
+                printUsage();
                 exit(0);
             } else if (arg == "-c" || arg == "--cli") {
                 useGui = false;
@@ -35,7 +34,7 @@ struct Config {
                     i++;
                 } else {
                     std::cerr << "Error: -t option requires a theme" << std::endl;
-                    Config::printUsage();
+                    printUsage();
                     exit(1);
                 }
             } else if (arg == "-f") {
@@ -46,7 +45,7 @@ struct Config {
                     std::cerr << "Error: -f option requires a "
                                  "FEN string"
                               << std::endl;
-                    Config::printUsage();
+                    printUsage();
                     exit(1);
                 }
             } else if (arg == "-d") {
@@ -55,12 +54,12 @@ struct Config {
                     i++;
                 } else {
                     std::cerr << "Error: -d option requires a depth" << std::endl;
-                    Config::printUsage();
+                    printUsage();
                     exit(1);
                 }
             } else {
                 std::cerr << "Error: Unknown option " << arg << std::endl;
-                Config::printUsage();
+                printUsage();
                 exit(1);
             }
         }
@@ -72,23 +71,20 @@ struct Config {
     }
 
     static void printUsage() {
-        std::ostringstream ss;
-
-        ss << "Usage: ./build/main [options]\n";
-        ss << "Options:\n";
-        ss << "  -h, --help      Display this message\n";
-        ss << "  -c, --cli       Run the game in CLI mode (default)\n";
-        ss << "  -g, --gui       Run the game in GUI mode\n";
-        ss << "  -w, --white     Play with the white pieces\n";
-        ss << "  -b, --black     Play with the black pieces\n";
-        ss << "  -f  <string>    Specify a custom FEN string for the starting "
-              "position\n";
-        ss << "  -d  <depth>     Specify the depth of the minimax search "
-              "(default: "
-              "4)\n";
-        ss << "  -t  <theme>     Specify the piece theme for the GUI\n";
-
-        std::cout << ss.str() << std::endl;
+        std::cout << "Usage: ./main [options]\n"
+                     "Options:\n"
+                     "  -h, --help      Display this message\n"
+                     "  -c, --cli       Run the game in CLI mode (default)\n"
+                     "  -g, --gui       Run the game in GUI mode\n"
+                     "  -w, --white     Play with the white pieces\n"
+                     "  -b, --black     Play with the black pieces\n"
+                     "  -f  <string>    Specify a custom FEN string for the starting "
+                     "position\n"
+                     "  -d  <depth>     Specify the depth of the minimax search "
+                     "(default: "
+                     "4)\n"
+                     "  -t  <theme>     Specify the piece theme for the GUI\n"
+                  << std::endl;
     }
 
     void print() {
