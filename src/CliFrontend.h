@@ -7,7 +7,7 @@ class CliFrontend {
     GameController game;
 
     /**
-     * Get a move from stdin, looping until
+     * Get a move from stdin, loops until
      * a valid legal move is entered
      */
     Move getMoveFromStdin();

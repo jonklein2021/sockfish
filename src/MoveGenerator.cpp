@@ -3,9 +3,6 @@
 #include "Move.h"
 #include "Position.h"
 
-MoveGenerator::MoveGenerator(Position &pos)
-    : position(pos) {}
-
 uint64_t MoveGenerator::computeAllSidesAttacks() const {
     return computeAllSidesAttacks(position.getWhoseTurn());
 }

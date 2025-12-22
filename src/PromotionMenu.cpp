@@ -12,7 +12,7 @@ PromotionMenu::PromotionMenu(const std::string &theme, bool white)
     menu.setPosition(sf::Vector2f(0, 0));
     menu.setFillColor(sf::Color(0, 0, 0, 200));
 
-    pieceOptions = white ? promotionPiecesWhite : promotionPiecesBlack;
+    pieceOptions = white ? WHITE_PROMOTION_PIECES : promotionPiecesBlack;
 
     // load textures for the promotion pieces
     textures.resize(4);

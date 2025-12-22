@@ -80,13 +80,14 @@ constexpr Piece fenToPiece(char c) {
 /**
  * List of all possible promotion pieces
  */
-constexpr std::array<Piece, 4> promotionPiecesWhite = {WQ, WR, WB, WN};
-constexpr std::array<Piece, 4> promotionPiecesBlack = {BQ, BR, BB, BN};
+constexpr std::array<Piece, 4> WHITE_PROMOTION_PIECES = {WQ, WR, WB, WN};
+constexpr std::array<Piece, 4> BLACK_PROMOTION_PIECES = {BQ, BR, BB, BN};
 
 /**
  * FEN string for the starting position
  */
-constexpr std::string_view defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+constexpr std::string_view STARTING_POSITION_FEN =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /**
  * Piece move constants
@@ -177,6 +178,7 @@ enum CastleRights : int8_t {
 
 // GUI Constants
 constexpr std::string_view PIECE_TEXTURE_PATH = "../assets/pieces/";
+constexpr std::string_view DEFAULT_THEME_PATH = "../assets/pieces/horsey/";
 constexpr std::string_view BOARD_TEXTURE_PATH = "../assets/board.png";
 constexpr int32_t BOARD_PIXEL_SIZE = 512;
 constexpr int32_t TILE_PIXEL_SIZE = 64;

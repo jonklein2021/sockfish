@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Move.h"
 #include "Position.h"
 
@@ -5,8 +7,6 @@
 
 class MoveGenerator {
    private:
-    Position &position;
-
     uint64_t computeAllSidesAttacks() const;
     uint64_t computeAllSidesAttacks(Color color) const;
     uint64_t computePieceAttacks(Piece piece) const;
@@ -25,7 +25,6 @@ class MoveGenerator {
     bool isMoveLegal(Position &copy, const uint64_t kingBit, const Move &move, bool white);
 
    public:
-    MoveGenerator(Position &pos);
-    Move *generateLegal();
-    Move *generatePseudolegal();
+    const std::vector<Move> &generateLegal(Position &pos);
+    const std::vector<Move> &generatePseudolegal(Position &pos);
 };

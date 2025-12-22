@@ -1,33 +1,34 @@
 #pragma once
 
 #include "Engine.h"
+#include "MoveGenerator.h"
 #include "types.h"
 
 #include <memory>
 
-/**
- * Base class for a chess game that
- * classes in Cli.h and Gui.h extend.
- */
 class GameController {
    private:
     std::unique_ptr<Engine> engine;
-    Position position;
+    std::shared_ptr<MoveGenerator> moveGenerator;
     std::vector<Move> moves;
-    std::vector<Position::Metadata> history;
-    Color human;
-    Color toMove;
+    std::vector<Position::Metadata> hashHistory;
+    Position position;
+    Color humanSide;
+    Color sideToMove;
 
    public:
-    GameController(std::unique_ptr<Engine> engine, Position startPos, bool humanSide);
+    GameController(std::unique_ptr<Engine> engine,
+                   std::shared_ptr<MoveGenerator> moveGenerator,
+                   Position &startPos,
+                   Color humanSide);
 
+    constexpr Color getHumanSide() const;
+    constexpr Color getSideToMove() const;
     constexpr bool isGameOver() const;
-    constexpr Color humanSide() const;
-    constexpr Color sideToMove() const;
 
-    const Position &position() const;
-    std::vector<Move> legalMoves() const;
+    const Position &getPosition() const;
+    const std::vector<Move> &legalMoves() const;
 
     void makeHumanMove(Move move);
-    void makeAIMove(Move move);
+    void makeAIMove();
 };
