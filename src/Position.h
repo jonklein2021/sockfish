@@ -17,12 +17,13 @@ class Position {
      * that is cannot be read from the board alone
      */
     struct Metadata {
-        // 5-bit number [0:63] that represents the location
-        // of the en passant square
-        uint8_t enPassantBitOffset : 5;
+        Square enPassantSquare;
+
+        // the last move (that led to this postion) captured this piece
+        Piece capturedPiece;
 
         // used to check for 50 move rule
-        uint8_t movesSinceCapture : 5;
+        uint8_t movesSinceCapture;
 
         CastleRights castleRights;
     };
@@ -36,8 +37,6 @@ class Position {
 
    public:
     // Constructors
-    Position();
-
     Position(const std::string &fen);
 
     // Getters

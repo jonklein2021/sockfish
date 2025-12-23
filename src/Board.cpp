@@ -4,7 +4,7 @@
 
 #include <cstring>
 
-Bitboard Board::getPieces(Piece p) const {
+Bitboard &Board::getPieces(Piece p) {
     return pieces[p];
 }
 

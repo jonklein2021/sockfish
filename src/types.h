@@ -30,6 +30,10 @@ enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
  */
 enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NONE };
 
+constexpr std::array<Piece, 6> WHITE_PIECES = {WP, WN, WB, WR, WQ, WK};
+
+constexpr std::array<Piece, 6> BLACK_PIECES = {BP, BN, BB, BR, BQ, BK};
+
 /**
  * List of all piece filenames, mainly used for loading textures
  */
@@ -140,12 +144,16 @@ enum Square : uint8_t {
 
 // clang-format on
 
-// (0, 0) corresponds to a8, the top-left square
+// x and y are 0-indexed, where (0, 0) is the top-left square (a8)
+constexpr static inline Square xyToSquare(int x, int y) {
+    return Square(y * 8 + x);
+}
+
 // input is assumed to be in a2a4 format
 constexpr static inline Square coordinateStringToSquare(const std::string &str) {
     const int fileIndex = str[0] - 'a';
     const int rankIndex = 8 - str[1];
-    return Square(rankIndex * 8 + fileIndex);
+    return xyToSquare(fileIndex, rankIndex);
 }
 
 static inline std::string squareToCoordinateString(const Square &sq) {
@@ -164,6 +172,7 @@ enum Direction : int8_t {
     NORTH_WEST = NORTH + WEST
 };
 
+// Credit:
 // https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L126
 enum CastleRights : int8_t {
     NO_CASTLING,                                     // 0b00000000
@@ -178,6 +187,16 @@ enum CastleRights : int8_t {
     ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING,  // 0b00001111
     CASTLING_RIGHT_NB = 16                           // 0b00010000
 };
+
+// only used in FEN parsing
+constexpr static inline void addCastleRights(CastleRights &current, const CastleRights &toAdd) {
+    current = CastleRights(current | toAdd);
+}
+
+constexpr static inline void removeCastleRights(CastleRights &current,
+                                                const CastleRights &toRemove) {
+    current = CastleRights(current & ~toRemove);
+}
 
 // GUI Constants
 constexpr std::string_view PIECE_TEXTURE_PATH = "../assets/pieces/";

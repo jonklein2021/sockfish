@@ -15,6 +15,12 @@ int main(int argc, char **argv) {
     // parse command line arguments
     Config cfg;
     cfg.parseArgs(argc, argv);
+
+    // randomly assign colors if no override
+    if (cfg.randomColor) {
+        cfg.randomizeSides();
+    }
+
     cfg.print();
 
     // create base objects

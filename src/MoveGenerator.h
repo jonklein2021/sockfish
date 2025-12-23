@@ -16,7 +16,6 @@ class MoveGenerator {
     uint64_t computeRookAttacks(const uint64_t squareBit);
     uint64_t computeQueenAttacks(const uint64_t squareBit);
     uint64_t computeKingAttacks(const uint64_t squareBit);
-    Piece getCapturedPiece(const uint64_t toBit, const std::vector<Piece> &oppPieces);
     bool underAttack(const uint64_t squareBit, const bool white);
     bool underAttack(const uint64_t squareBit);
     bool insufficientMaterial();
