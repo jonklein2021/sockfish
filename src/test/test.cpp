@@ -7,9 +7,7 @@
 
 using std::string, std::cin, std::cout, std::endl;
 
-void testMakeMove(CliFrontend &cli) {
-    cli.run();
-}
+void testMakeMove(CliFrontend &cli) {}
 
 void showLegalMoves(const std::vector<Move> &legalMoves) {
     cout << legalMoves.size() << " legal moves" << endl;
@@ -27,10 +25,10 @@ int main() {
         fen = STARTING_POSITION_FEN;
     }
 
-    Position pos(fen);
+    std::shared_ptr<Position> pos = std::make_shared<Position>(fen);
+    std::shared_ptr<MoveGenerator> moveGen = std::make_shared<MoveGenerator>(pos);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
-    std::shared_ptr<MoveGenerator> moveGen = std::make_shared<MoveGenerator>();
-    GameController game(std::move(engine), moveGen, pos, WHITE);
+    GameController game(pos, moveGen, std::move(engine), WHITE);
     CliFrontend cli(game);
 
     while (1) {

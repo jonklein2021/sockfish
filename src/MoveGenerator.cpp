@@ -3,11 +3,14 @@
 #include "Move.h"
 #include "Position.h"
 
-uint64_t MoveGenerator::computeAllSidesAttacks() const {
-    return computeAllSidesAttacks(position.getWhoseTurn());
+MoveGenerator::MoveGenerator(std::shared_ptr<Position> _pos)
+    : pos(_pos) {}
+
+uint64_t MoveGenerator::computeAllSidesAttacks() {
+    return computeAllSidesAttacks(pos->getSideToMove());
 }
 
-uint64_t MoveGenerator::computeAllSidesAttacks(Color color) const {
+uint64_t MoveGenerator::computeAllSidesAttacks(Color color) {
     uint64_t attacks = 0;
     const int startIndex = (color == WHITE) ? 0 : 6;
     const int endIndex = (color == WHITE) ? 6 : 12;
@@ -17,9 +20,9 @@ uint64_t MoveGenerator::computeAllSidesAttacks(Color color) const {
     return attacks;
 }
 
-uint64_t MoveGenerator::computePieceAttacks(Piece piece) const {
+uint64_t MoveGenerator::computePieceAttacks(Piece piece) {
     uint64_t attacks = 0;
-    uint64_t pieceBitboard = pieceBits[piece];
+    uint64_t pieceBitboard = pos->getBoard().getPieces(piece);
     while (pieceBitboard) {
         const uint64_t pieceBit = pieceBitboard & -pieceBitboard;  // isolate the LSB
 
@@ -260,7 +263,7 @@ bool MoveGenerator::isMoveLegal(Position &copy,
     return !isOurKingInCheck;
 }
 
-Move *generateLegal(Position &pos) {
+Move *generateLegal() {
     std::vector<Move> moves;
 
     // stores a copy of the bitboard of a selected piece
@@ -995,6 +998,6 @@ Move *generateLegal(Position &pos) {
     return moves;
 }
 
-Move *generatePseudolegal(Position &pos) {
+Move *generatePseudolegal() {
     return nullptr;
 }

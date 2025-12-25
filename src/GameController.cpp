@@ -2,13 +2,13 @@
 
 #include "GameController.h"
 
-GameController::GameController(std::unique_ptr<Engine> engine,
+GameController::GameController(std::shared_ptr<Position> startPos,
                                std::shared_ptr<MoveGenerator> moveGenerator,
-                               Position startPos,
+                               std::unique_ptr<Engine> engine,
                                Color humanSide)
-    : engine(std::move(engine)),
+    : pos(startPos),
       moveGenerator(moveGenerator),
-      position(startPos),
+      engine(std::move(engine)),
       humanSide(humanSide),
       sideToMove(WHITE) {}
 
@@ -26,18 +26,18 @@ constexpr Color GameController::getSideToMove() const {
 }
 
 const Position &GameController::getPosition() const {
-    return position;
+    return *pos;
 }
 
 const std::vector<Move> GameController::legalMoves() {
-    return moveGenerator->generateLegal(position);
+    return moveGenerator->generateLegal();
 }
 
 void GameController::makeHumanMove(Move move) {
-    position.makeMove(move);
+    pos->makeMove(move);
 }
 
 void GameController::makeAIMove() {
-    Move best = engine->getMove(position, legalMoves());
-    position.makeMove(best);
+    Move best = engine->getMove(*pos, legalMoves());
+    pos->makeMove(best);
 }

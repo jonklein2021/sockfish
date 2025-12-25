@@ -8,18 +8,18 @@
 
 class GameController {
    private:
-    std::unique_ptr<Engine> engine;
+    std::shared_ptr<Position> pos;
     std::shared_ptr<MoveGenerator> moveGenerator;
+    std::unique_ptr<Engine> engine;
     std::vector<Move> moves;
     std::vector<Position::Metadata> hashHistory;
-    Position position;
     Color humanSide;
     Color sideToMove;
 
    public:
-    GameController(std::unique_ptr<Engine> engine,
+    GameController(std::shared_ptr<Position> startPos,
                    std::shared_ptr<MoveGenerator> moveGenerator,
-                   Position startPos,
+                   std::unique_ptr<Engine> engine,
                    Color humanSide);
 
     constexpr Color getHumanSide() const;
