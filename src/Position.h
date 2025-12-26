@@ -29,13 +29,13 @@ class Position {
     };
 
    private:
+    Color sideToMove;
+
+   public:
     Board board;
 
     Metadata md;
 
-    Color sideToMove;
-
-   public:
     // Constructors
     Position(const std::string &fen);
 

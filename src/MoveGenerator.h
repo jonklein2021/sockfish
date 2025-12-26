@@ -10,21 +10,22 @@ class MoveGenerator {
    private:
     std::shared_ptr<Position> pos;
 
-    uint64_t computeAllSidesAttacks();
-    uint64_t computeAllSidesAttacks(Color color);
-    uint64_t computePieceAttacks(Piece piece);
-    uint64_t computePawnAttacks(const uint64_t squareBit, const bool white);
-    uint64_t computeKnightAttacks(const uint64_t squareBit);
-    uint64_t computeBishopAttacks(const uint64_t squareBit);
-    uint64_t computeRookAttacks(const uint64_t squareBit);
-    uint64_t computeQueenAttacks(const uint64_t squareBit);
-    uint64_t computeKingAttacks(const uint64_t squareBit);
-    bool underAttack(const uint64_t squareBit, const bool white);
-    bool underAttack(const uint64_t squareBit);
-    bool insufficientMaterial();
-    bool isTerminal();
-    bool isCheck();
-    bool isMoveLegal(Position &copy, const uint64_t kingBit, const Move &move, bool white);
+    Bitboard computeAllSidesAttacks();
+    Bitboard computeAllSidesAttacks(Color color);
+    Bitboard computePieceAttacks(Piece piece);
+    constexpr Bitboard computePawnAttacks(Square sq, Color side);
+    constexpr Bitboard computeKnightAttacks(Square sq);
+    constexpr Bitboard computeBishopAttacks(Square sq);
+    constexpr Bitboard computeRookAttacks(Square sq);
+    constexpr Bitboard computeQueenAttacks(Square sq);
+    constexpr Bitboard computeKingAttacks(Square sq);
+
+    constexpr bool underAttack(Square sq, Color side);
+    constexpr bool underAttack(Square sq);
+    constexpr bool insufficientMaterial();
+    constexpr bool isTerminal();
+    constexpr bool isCheck();
+    constexpr bool isMoveLegal(Position &copy, Square kingSq, Move &move, Color side);
 
    public:
     MoveGenerator(std::shared_ptr<Position> pos);

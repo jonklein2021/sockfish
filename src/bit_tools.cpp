@@ -1,128 +1,11 @@
 #include "bit_tools.h"
+
 #include "types.h"
 
 #include <iostream>
 #include <sstream>
 
-/*** MOVE GENERATION TOOLS ***/
-
-uint64_t computePawnAttacks(const uint64_t squareBit, const bool white) {
-    if (white) {
-        return ((squareBit & not_file_h) >> 7) |
-               ((squareBit & not_file_a) >> 9);  // up right, up left
-    } else {
-        return ((squareBit & not_file_a) << 7) |
-               ((squareBit & not_file_h) << 9);  // down left, down right
-    }
-}
-
-uint64_t computeKnightAttacks(const uint64_t squareBit) {
-    const uint64_t ddl = (squareBit & not_rank_12 & not_file_a) << 15;  // down 2, left 1
-    const uint64_t ddr = (squareBit & not_rank_12 & not_file_h) << 17;  // down 2, right 1
-    const uint64_t drr = (squareBit & not_rank_1 & not_file_gh) << 10;  // down 1, right 2
-    const uint64_t dll = (squareBit & not_rank_1 & not_file_ab) << 6;   // down 1, left 2
-    const uint64_t uur = (squareBit & not_rank_78 & not_file_h) >> 15;  // up 2, right 1
-    const uint64_t uul = (squareBit & not_rank_78 & not_file_a) >> 17;  // up 2, left 1
-    const uint64_t ull = (squareBit & not_rank_8 & not_file_ab) >> 10;  // up 1, left 2
-    const uint64_t urr = (squareBit & not_rank_8 & not_file_gh) >> 6;   // up 1, right 2
-
-    return ddl | ddr | drr | dll | uur | uul | ull | urr;
-}
-
-uint64_t computeBishopAttacks(const uint64_t squareBit) {
-    uint64_t attacks = 0;
-    uint64_t mask = squareBit;
-    uint64_t filteredMask;
-
-    // up right
-    while (filteredMask = (mask & not_rank_8 & not_file_h)) {
-        mask = filteredMask >> 7;
-        attacks |= mask;
-    }
-
-    mask = squareBit;
-
-    // up left
-    while (filteredMask = (mask & not_rank_8 & not_file_a)) {
-        mask = filteredMask >> 9;
-        attacks |= mask;
-    }
-
-    mask = squareBit;
-
-    // down right
-    while (filteredMask = (mask & not_rank_1 & not_file_h)) {
-        mask = filteredMask << 9;
-        attacks |= mask;
-    }
-
-    mask = squareBit;
-
-    // down left
-    while (filteredMask = (mask & not_rank_1 & not_file_a)) {
-        mask = filteredMask << 7;
-        attacks |= mask;
-    }
-
-    return attacks;
-}
-
-uint64_t computeRookAttacks(const uint64_t squareBit) {
-    uint64_t attacks = 0;
-    uint64_t mask = squareBit;
-    uint64_t filteredMask;
-
-    // up
-    while (filteredMask = (mask & not_rank_8)) {
-        mask = filteredMask >> 8;
-        attacks |= mask;
-    }
-
-    mask = squareBit;
-
-    // down
-    while (filteredMask = (mask & not_rank_1)) {
-        mask = filteredMask << 8;
-        attacks |= mask;
-    }
-
-    mask = squareBit;
-
-    // left
-    while (filteredMask = (mask & not_file_a)) {
-        mask = filteredMask >> 1;
-        attacks |= mask;
-    }
-
-    mask = squareBit;
-
-    // right
-    while (filteredMask = (mask & not_file_h)) {
-        mask = filteredMask << 1;
-        attacks |= mask;
-    }
-
-    return attacks;
-}
-
-uint64_t computeQueenAttacks(const uint64_t squareBit) {
-    return computeBishopAttacks(squareBit) | computeRookAttacks(squareBit);  // heheh
-}
-
-uint64_t computeKingAttacks(const uint64_t squareBit) {
-    const uint64_t d = (squareBit & not_rank_1) << 8;                // down
-    const uint64_t u = (squareBit & not_rank_8) >> 8;                // up
-    const uint64_t l = (squareBit & not_file_a) >> 1;                // left
-    const uint64_t r = (squareBit & not_file_h) << 1;                // right
-    const uint64_t dl = (squareBit & not_rank_1 & not_file_a) << 7;  // down left
-    const uint64_t dr = (squareBit & not_rank_1 & not_file_h) << 9;  // down right
-    const uint64_t ul = (squareBit & not_rank_8 & not_file_a) >> 9;  // up left
-    const uint64_t ur = (squareBit & not_rank_8 & not_file_h) >> 7;  // up right
-
-    return d | u | l | r | dl | dr | ul | ur;
-}
-
-void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
+void prettyPrintPosition(const Bitboard pieceBits[12], const bool noFlip) {
     std::ostringstream out;
     out << "\n";
 
@@ -172,7 +55,7 @@ void prettyPrintPosition(const uint64_t pieceBits[12], const bool noFlip) {
     std::cout << out.str() << std::endl;
 }
 
-void printBitboard(const uint64_t bitboard) {
+void printBitboard(const Bitboard bitboard) {
     std::ostringstream out;
     for (int y = 0; y < 8; y++) {
         out << (8 - y) << "  ";
@@ -186,7 +69,7 @@ void printBitboard(const uint64_t bitboard) {
     std::cout << out.str() << std::endl;
 }
 
-void printBoards(const uint64_t pieceBits[12]) {
+void printBoards(const Bitboard pieceBits[12]) {
     for (int i = 0; i < 12; i++) {
         std::cout << pieceFilenames[i] << std::endl;
         printBitboard(pieceBits[i]);
