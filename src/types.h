@@ -15,6 +15,10 @@ using Eval = int32_t;
  */
 enum Color { WHITE, BLACK };
 
+constexpr static inline Color otherColor(Color c) {
+    return Color((c + 1) % 2);
+}
+
 /**
  * Used to index into the occupancies array
  */
@@ -29,6 +33,10 @@ enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
  * Represents each possible piece, including color
  */
 enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NONE };
+
+constexpr static inline Piece ptToPiece(PieceType pt, Color side) {
+    return Piece(pt + 6 * side);
+}
 
 constexpr std::array<Piece, 6> WHITE_PIECES = {WP, WN, WB, WR, WQ, WK};
 
@@ -127,6 +135,8 @@ constexpr Bitboard not_rank_8 = 18446744073709551360ull;
 constexpr Bitboard not_rank_78 = 18446744073709486080ull;
 constexpr Bitboard rank1 = 18374686479671623680ull;
 constexpr Bitboard rank2 = 71776119061217280ull;
+constexpr Bitboard rank4 = 1095216660480ull;
+constexpr Bitboard rank5 = 4278190080ull;
 constexpr Bitboard rank7 = 65280ull;
 constexpr Bitboard rank8 = 255ull;
 

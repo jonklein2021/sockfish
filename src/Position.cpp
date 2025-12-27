@@ -106,12 +106,12 @@ Position::Metadata Position::makeMove(const Move &move) {
     /*** BITBOARD CHANGES ***/
 
     const Square from = move.fromSquare(), to = move.toSquare();
-    const Piece pieceMoved = board.pieceAt(move.fromSquare());
+    const Piece pieceMoved = board.pieceAt(from);
     Bitboard &pieceMovedBB = board.getPieces(pieceMoved);
 
     // useful constants
-    const Bitboard fromBB = 1ull << move.fromSquare();
-    const Bitboard toBB = 1ull << move.toSquare();
+    const Bitboard fromBB = 1ull << from;
+    const Bitboard toBB = 1ull << to;
     const Bitboard fromTo = fromBB | toBB;
 
     // "move" the bit of the piece's old location to its new location
