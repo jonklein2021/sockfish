@@ -1,32 +1,36 @@
 #pragma once
 
-#include "BoardRenderer.h"
 #include "GameController.h"
 #include "PromotionMenu.h"
+#include "VisualPiece.h"
 
 #include <SFML/Graphics.hpp>
 
 class GuiFrontend {
    private:
-    // visual stuff
-    sf::RenderWindow window;
-    sf::View view;
-    sf::Vector2<int> mousePos;
-
-    // pieces on the board
-    // std::list<Piece> pieces;
-
-    PromotionMenu promotionMenu;
-    BoardRenderer boardRenderer;
-
+    // game logic orchestrator
     GameController game;
 
-    // drag-and-drop variables
-    Piece *selectedPiece = nullptr;
-    bool isDragging = false;
+    // SFML formalities
+    sf::RenderWindow window;
+    sf::View view;
 
-    // 1-1 mapping from each piece to its texture
-    // std::unordered_map<Piece, sf::Texture> pieceTextures;
+    // visual theme variables
+    std::string themeName;
+    sf::Texture boardTexture;
+    sf::Sprite boardSprite;
+
+    // array of pieces on the screen alongside their sprites
+    std::array<sf::Texture, 12> pieceTextures;
+    std::unordered_map<Square, VisualPiece> visualPieces;
+
+    // self-explanatory
+    PromotionMenu promotionMenu;
+
+    // drag-and-drop variables
+    sf::Vector2i mousePos;
+    VisualPiece *selectedPiece = nullptr;
+    bool isDragging = false;
 
     /**
      * Sets up window and textures
@@ -37,6 +41,16 @@ class GuiFrontend {
      * Loads piece textures from disk and populates the pieceTextures map
      */
     void loadPieceTextures();
+
+    /**
+     * Draws the current position on the screen
+     */
+    void draw();
+
+    /**
+     * Returns the Square the mouse is hovering over
+     */
+    Square squareUnderMouse(sf::Vector2i mouse) const;
 
     /**
      * Primary event loop; handles window resizing,

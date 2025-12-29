@@ -1,83 +1,51 @@
 #include "GuiFrontend.h"
 
+#include "VisualPiece.h"
+#include "bit_tools.h"
+#include "types.h"
+
 #include <iostream>
 
 GuiFrontend::GuiFrontend(GameController &game)
-    : game(game),
+    : game(std::move(game)),
       window(sf::VideoMode({BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE}), "Cheese", sf::Style::Resize),
       view(sf::Vector2f(0, 0), sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
-      promotionMenu(pieceTheme, game.humanSide()) {
+      themeName(DEFAULT_PIECE_THEME),
+      boardTexture(BOARD_TEXTURE_PATH),
+      boardSprite(boardTexture),
+      promotionMenu(std::string(DEFAULT_PIECE_THEME), game.getHumanSide()) {
     window.setView(view);
+
+    for (Piece p : ALL_PIECES) {
+        const std::string pieceFilename =
+            std::string(PIECE_TEXTURE_PATH) + themeName + std::string(pieceFilenames[p]) + ".png";
+        if (!pieceTextures[p].loadFromFile(pieceFilename)) {
+            std::cerr << "Error loading piece texture: " << pieceFilenames[p] << std::endl;
+            exit(1);
+        }
+    }
 }
 
 void GuiFrontend::run() {
     while (window.isOpen()) {
-        if (!playersTurn) {
+        if (game.getHumanSide() != game.getSideToMove()) {
             // get move from engine
-            Move move = cpu.getMove(state, legalMoves);
+            game.makeAIMove();
 
-            int displayX = move.to.x;
-            int displayY = move.to.y;
-
-            // render move to screen
-            for (Piece &p : pieces) {
-                if (p.position == move.from) {
-                    p.position = move.to;
-                    if (p.sprite) {
-                        p.sprite->setPosition(
-                            sf::Vector2f(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
-                    }
-                    break;
-                }
-            }
-
-            // remove captured piece from display list
-            if (move.capturedPiece != NO_PIECE) {
-                auto it = std::find_if(pieces.begin(), pieces.end(), [move](const Piece &p) {
-                    return p.type != move.piece && p.position == move.to;
-                });
-                pieces.erase(it);
-            }
-
-            // handle pawn promotion
-            if (move.promotionPiece != NO_PIECE) {
-                auto it = std::find_if(pieces.begin(), pieces.end(), [move](const Piece &p) {
-                    return p.type == move.piece && p.position == move.to;
-                });
-                it->type = move.promotionPiece;
-                if (it->sprite) {
-                    it->sprite->setTexture(pieceTextures[move.promotionPiece]);
-                }
-            }
-
-            // update state
-            state.makeMove(move);
-            state.md.history.push_back(state.hash());
-            state.print();
-            playersTurn = true;
-
-            // get new legal moves for the next turn
-            legalMoves = state.generateMoves();
+            // update sprites with this move
+            // N.B: does this need to go here?
+            draw();
 
             // check if game has ended
-            if (state.isTerminal()) {
-                if (legalMoves.empty()) {
-                    if (state.isCheck()) {
-                        std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White")
-                                  << " wins!" << std::endl;
-                    } else {
-                        std::cout << "Stalemate!" << std::endl;
-                    }
-                } else {
-                    std::cout << "Draw!" << std::endl;
-                }
+            if (game.isGameOver()) {
                 window.close();
             } else {
-                state.whiteToMove ? std::cout << "White to move" << std::endl
-                                  : std::cout << "Black to move" << std::endl;
+                game.getSideToMove() == WHITE ? std::cout << "White to move" << std::endl
+                                              : std::cout << "Black to move" << std::endl;
             }
         }
 
+        // getting player's move is handled here
         handleEvents();
         update();
         render();
@@ -86,6 +54,7 @@ void GuiFrontend::run() {
 
 void GuiFrontend::handleEvents() {
     mousePos = sf::Mouse::getPosition(window);
+    Move candidate;
 
     // SFML 3.0 event handling
     while (auto event = window.pollEvent()) {
@@ -115,42 +84,26 @@ void GuiFrontend::handleEvents() {
 
         // if promotion menu is open, process its events exclusively
         if (promotionMenu.isVisible) {
-            auto callback = [this](const Piece p) {
+            auto callback = [&](const Piece p) {
                 // update the selected piece to the promoted piece
-                selectedPiece->type = p;
-                if (selectedPiece->sprite) {
-                    selectedPiece->sprite->setTexture(pieceTextures[p]);
-                }
+                // N.B: texture change should be handled by boardRenderer
+                selectedPiece->piece = p;
 
-                candidate.promotionPiece = p;
+                candidate.setPromotedPiece(pieceToPT(p));
 
                 std::cout << candidate.toString() << std::endl;
 
                 // apply move to internal game state
-                state.makeMove(candidate);
-                state.md.history.push_back(state.hash());
-                playersTurn = false;
-                state.print();
+                game.makeHumanMove(candidate);
 
                 // get new legal moves for the next turn
-                legalMoves = state.generateMoves();
-
                 // check if game has ended
-                if (state.isTerminal()) {
-                    if (legalMoves.empty()) {
-                        if (state.isCheck()) {
-                            std::cout << "Checkmate! " << (state.whiteToMove ? "Black" : "White")
-                                      << " wins!" << std::endl;
-                        } else {
-                            std::cout << "Stalemate!" << std::endl;
-                        }
-                    } else {
-                        std::cout << "Draw!" << std::endl;
-                    }
+                if (game.isGameOver()) {
+                    game.handleEnd();
                     window.close();
                 } else {
-                    state.whiteToMove ? std::cout << "White to move" << std::endl
-                                      : std::cout << "Black to move" << std::endl;
+                    game.getSideToMove() == WHITE ? std::cout << "White to move" << std::endl
+                                                  : std::cout << "Black to move" << std::endl;
                 }
 
                 std::cout << "Promoted to piece " << pieceFilenames[p] << std::endl;
@@ -164,35 +117,34 @@ void GuiFrontend::handleEvents() {
         if (const auto *mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
             if (mouseReleased->button == sf::Mouse::Button::Left) {
                 isDragging = false;
-                if (playersTurn && selectedPiece) {
-                    int oldX = selectedPiece->position.x, oldY = selectedPiece->position.y;
-
+                if (game.getHumanSide() == game.getSideToMove() && selectedPiece) {
                     // snap to nearest tile
                     int newX = mousePos.x / TILE_PIXEL_SIZE, newY = mousePos.y / TILE_PIXEL_SIZE;
 
-                    // rotate 180 degrees if player is black
-                    int displayX = playerIsWhite ? newX : 7 - newX;
-                    int displayY = playerIsWhite ? newY : 7 - newY;
+                    Square oldSq = selectedPiece->sq;
+                    Square newSq = xyToSquare(newX, newY);
 
-                    bool pawnPromoting = (selectedPiece->type == WP && newY == 0) ||
-                                         (selectedPiece->type == BP && newY == 7);
+                    // TODO: rotate 180 degrees if player is black
+                    int displayX = newX;
+                    int displayY = newY;
 
-                    // create move object, isCapture and promotionPiece will be
-                    // overridden later
-                    candidate =
-                        Move({oldX, oldY}, {newX, newY}, selectedPiece->type, NO_PIECE, NO_PIECE);
+                    bool pawnPromoting = (selectedPiece->piece == WP && newY == 0) ||
+                                         (selectedPiece->piece == BP && newY == 7);
+
+                    candidate = Move(oldSq, newSq);
 
                     // necessary to match with a legal move
                     if (pawnPromoting) {
-                        candidate.promotionPiece = state.whiteToMove ? WQ : BQ;
+                        candidate.setFlag(Move::Type::PROMOTION);
+                        candidate.setPromotedPiece(QUEEN);
                     }
 
                     // check this move against set of legal moves
                     bool validMove = false;
                     std::cout << "LEGAL MOVES:" << std::endl;
-                    for (const Move &m : legalMoves) {
+                    for (const Move &m : game.legalMoves()) {
                         std::cout << m.toString() << std::endl;
-                        if (candidate.equals(m)) {
+                        if (candidate == m) {
                             candidate = m;
                             validMove = true;
                             break;
@@ -203,26 +155,15 @@ void GuiFrontend::handleEvents() {
                               << candidate.toString() << std::endl;
 
                     if (validMove) {
-                        // remove captured piece from display list
-                        if (candidate.capturedPiece != NO_PIECE) {
-                            auto it =
-                                std::find_if(pieces.begin(), pieces.end(), [this](const Piece &p) {
-                                    return p.type != candidate.piece &&
-                                           p.position.x == candidate.to.x &&
-                                           p.position.y == candidate.to.y;
-                                });
-
-                            pieces.erase(it);
-                            std::cout << pieceFilenames[it->type] << "on (" << it->position.x
-                                      << ", " << it->position.y << ") captured" << std::endl;
-                        }
+                        // update board with new move
+                        draw();
 
                         // show promotion menu if pawn is promoting
                         if (pawnPromoting) {
                             promotionMenu.show(displayX);
 
                             // snap to grid
-                            selectedPiece->position = {displayX, displayY};
+                            selectedPiece->sq = xyToSquare(displayX, displayY);
                             if (selectedPiece->sprite) {
                                 selectedPiece->sprite->setPosition(sf::Vector2f(
                                     displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
@@ -232,38 +173,28 @@ void GuiFrontend::handleEvents() {
                         }
 
                         // apply move to internal game state
-                        state.makeMove(candidate);
-                        state.md.history.push_back(state.hash());
-                        state.print();
-                        playersTurn = false;
-
-                        // get new legal moves for the next turn
-                        legalMoves = state.generateMoves();
+                        game.makeHumanMove(candidate);
 
                         // check if game has ended
-                        if (state.isTerminal()) {
-                            if (state.isCheck()) {
-                                std::cout << "Checkmate! "
-                                          << (state.whiteToMove ? "Black" : "White") << " wins!"
-                                          << std::endl;
-                            } else {
-                                std::cout << "Draw!" << std::endl;
-                            }
-                            window.close();
+                        if (game.isGameOver()) {
+                            game.handleEnd();
                         } else {
-                            state.whiteToMove ? std::cout << "White to move" << std::endl
-                                              : std::cout << "Black to move" << std::endl;
+                            game.getSideToMove() == WHITE
+                                ? std::cout << "White to move" << std::endl
+                                : std::cout << "Black to move" << std::endl;
                         }
                     } else {
                         // reset piece position if move is invalid
-                        newX = oldX;
-                        newY = oldY;
-                        displayX = playerIsWhite ? newX : 7 - newX;
-                        displayY = playerIsWhite ? newY : 7 - newY;
+                        newX = oldSq % 8;
+                        newY = oldSq / 3;
+                        // displayX = playerIsWhite ? newX : 7 - newX;
+                        // displayY = playerIsWhite ? newY : 7 - newY;
+                        displayX = newX;
+                        displayY = newY;
                     }
 
                     // update this piece's position
-                    selectedPiece->position = {displayX, displayY};
+                    selectedPiece->sq = xyToSquare(displayX, displayY);
                     if (selectedPiece->sprite) {
                         selectedPiece->sprite->setPosition(
                             sf::Vector2f(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
@@ -275,6 +206,45 @@ void GuiFrontend::handleEvents() {
     }
 }
 
+void GuiFrontend::draw() {
+    // window.clear(sf::Color(50, 50, 50)); // used to have this line of code here for some reason?
+
+    // draw the board
+    window.draw(boardSprite);
+
+    // for each piece in the current position, draw its sprite in the correct location on the board
+    for (Piece p : ALL_PIECES) {
+        auto bb = game.getPosition().board.getPieces(p);
+        while (bb) {
+            const Bitboard pieceSqBB = bb & -bb;  // isolate LSB
+            const Square pieceSq = Square(indexOfLs1b(pieceSqBB));
+
+            // create entry or update existing entry if invalid
+            if (!visualPieces.count(pieceSq) || visualPieces[pieceSq].piece != p) {
+                visualPieces[pieceSq] = VisualPiece(p, pieceSq, pieceTextures[p]);
+            }
+
+            // set position of sprite
+            const float displayX = TILE_PIXEL_SIZE * pieceSq % 8;
+            const float displayY = TILE_PIXEL_SIZE * pieceSq >> 3;  // same as ... * pieceSq / 8
+            visualPieces[pieceSq].sprite->setPosition({displayX, displayY});
+
+            // draw sprite on the window
+            window.draw(*visualPieces[pieceSq].sprite);
+
+            bb ^= pieceSqBB;  // pop LSB
+        }
+    }
+
+    // TODO: highlight the current square that the mouse hovers over
+
+    window.display();
+}
+
+Square GuiFrontend::squareUnderMouse(sf::Vector2i mouse) const {
+    return Square(8 * mouse.y / TILE_PIXEL_SIZE + mouse.x / TILE_PIXEL_SIZE);
+}
+
 void GuiFrontend::update() {
     // pause normal updates when promotion menu is open
     if (promotionMenu.isVisible) {
@@ -282,15 +252,13 @@ void GuiFrontend::update() {
     }
 
     // mouse hovers over a piece
-    for (auto &piece : pieces) {
-        if (piece.sprite &&
-            piece.sprite->getGlobalBounds().contains(sf::Vector2f(mousePos.x, mousePos.y))) {
+    Square hovered = squareUnderMouse(mousePos);
+    if (visualPieces.find(hovered) != visualPieces.end()) {
 
-            // drag-and-drop logic: select piece with mouse
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !isDragging) {
-                selectedPiece = &piece;
-                isDragging = true;
-            }
+        // drag-and-drop logic: select piece with mouse
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !isDragging) {
+            selectedPiece = &visualPieces[hovered];
+            isDragging = true;
         }
     }
 
@@ -303,12 +271,7 @@ void GuiFrontend::update() {
 
 void GuiFrontend::render() {
     window.clear(sf::Color(50, 50, 50));
-    window.draw(boardSprite);
-    for (const auto &p : pieces) {
-        if (p.sprite) {
-            window.draw(*p.sprite);
-        }
-    }
+    draw();
     promotionMenu.render(window);
     window.display();
 }

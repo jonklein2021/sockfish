@@ -22,13 +22,21 @@ class GameController {
                    std::unique_ptr<Engine> engine,
                    Color humanSide);
 
-    constexpr Color getHumanSide() const;
-    constexpr Color getSideToMove() const;
+    constexpr Color getHumanSide() const {
+        return humanSide;
+    }
+
+    constexpr Color getSideToMove() const {
+        return sideToMove;
+    }
+
     bool isGameOver();
 
     const Position &getPosition() const;
     const std::vector<Move> legalMoves();
 
     void makeHumanMove(Move move);
-    void makeAIMove();
+    Move makeAIMove();
+
+    void handleEnd();
 };

@@ -11,7 +11,8 @@ class Board {
     Bitboard occupancies[4];
 
    public:
-    Bitboard &getPieces(Piece p);
+    // returns a COPY of the bitboard's pieces
+    Bitboard getPieces(Piece p) const;
     Bitboard getOccupancy(OccupancyType c) const;
 
     Piece pieceAt(Square sq) const;

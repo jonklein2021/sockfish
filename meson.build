@@ -23,7 +23,6 @@ sfml_libs = [
 common_sources = [
   'src/bit_tools.cpp',
   'src/Board.cpp',
-  'src/BoardRenderer.cpp',
   'src/CliFrontend.cpp',
   'src/Engine.cpp',
   'src/GameController.cpp',

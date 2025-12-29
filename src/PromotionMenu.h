@@ -25,7 +25,7 @@ class PromotionMenu {
      *
      * @param white true if the promotion menu is for white pieces
      */
-    PromotionMenu(const std::string &theme, bool white);
+    PromotionMenu(const std::string &theme, Color side);
 
     // Public Methods
     void render(sf::RenderWindow &window);

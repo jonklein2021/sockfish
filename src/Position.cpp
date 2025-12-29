@@ -99,6 +99,7 @@ void Position::parseFen(const std::string &fen) {
     // 6: fullmove number (not used)
 }
 
+// TODO: Fix the misusage of board.getPieces()
 Position::Metadata Position::makeMove(const Move &move) {
     // save metadata about this state before making move
     Metadata oldMD = md;

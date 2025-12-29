@@ -30,31 +30,50 @@ class Move {
    public:
     Move();
 
-    constexpr explicit Move(uint16_t _data);
+    constexpr Move(uint16_t _data)
+        : data(_data) {}
 
-    constexpr Move(Square from, Square to);
+    constexpr Move(Square from, Square to)
+        : data(from | (to << 6)) {}
 
-    constexpr Move(Square from, Square to, Type moveType, PieceType promotedPieceType = KNIGHT);
+    constexpr Move(Square from, Square to, Type moveType, PieceType promotedPieceType)
+        : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 11)) {}
 
     static Move fromCoordinateString(const std::string &coords);
 
+    void setFlag(Type t);
+
     void setPromotedPiece(PieceType promotedPieceType);
 
-    constexpr uint16_t raw() const;
+    constexpr uint16_t raw() const {
+        return data;
+    }
 
-    constexpr Square fromSquare() const;
+    constexpr Square fromSquare() const {
+        return Square(data & 0x3F);
+    }
 
-    constexpr Square toSquare() const;
+    constexpr Square toSquare() const {
+        return Square((data >> 6) & 0x3F);
+    }
 
-    constexpr Piece promotedPieceType() const;
+    constexpr Piece promotedPieceType() const {
+        return Piece(((data >> 11) & 0x3) + KNIGHT);
+    }
 
-    constexpr bool isPromotion() const;
+    constexpr bool isPromotion() const {
+        return (data & (3 << 14)) == PROMOTION;
+    }
 
-    constexpr bool isEnPassant() const;
+    constexpr bool isEnPassant() const {
+        return (data & (3 << 14)) == EN_PASSANT;
+    }
 
     // Note: When true, the type of castle can be determined by which rook moves, which is
     // represented in the from/to squares
-    constexpr bool isCastles() const;
+    constexpr bool isCastles() const {
+        return (data & (3 << 14)) == CASTLING;
+    }
 
     std::string toCoordinateString() const;
 

@@ -38,9 +38,15 @@ constexpr static inline Piece ptToPiece(PieceType pt, Color side) {
     return Piece(pt + 6 * side);
 }
 
+constexpr static inline PieceType pieceToPT(Piece p) {
+    return PieceType(p % 6);
+}
+
 constexpr std::array<Piece, 6> WHITE_PIECES = {WP, WN, WB, WR, WQ, WK};
 
 constexpr std::array<Piece, 6> BLACK_PIECES = {BP, BN, BB, BR, BQ, BK};
+
+constexpr std::array<Piece, 12> ALL_PIECES = {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK};
 
 /**
  * List of all piece filenames, mainly used for loading textures
@@ -149,7 +155,9 @@ enum Square : uint8_t {
     a4, b4, c4, d4, e4, f4, g4, h4,
     a3, b3, c3, d3, e3, f3, g3, h3,
     a2, b2, c2, d2, e2, f2, g2, h2,
-    a1, b1, c1, d1, e1, f1, g1, h1
+    a1, b1, c1, d1, e1, f1, g1, h1,
+
+    NO_SQ
 };
 
 // clang-format on
@@ -210,7 +218,7 @@ constexpr static inline void removeCastleRights(CastleRights &current,
 
 // GUI Constants
 constexpr std::string_view PIECE_TEXTURE_PATH = "../assets/pieces/";
-constexpr std::string_view DEFAULT_THEME_PATH = "../assets/pieces/horsey/";
+constexpr std::string_view DEFAULT_PIECE_THEME = "horsey";
 constexpr std::string_view BOARD_TEXTURE_PATH = "../assets/board.png";
 constexpr int32_t BOARD_PIXEL_SIZE = 512;
 constexpr int32_t TILE_PIXEL_SIZE = 64;

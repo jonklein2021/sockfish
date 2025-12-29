@@ -5,7 +5,7 @@
 
 struct Config {
     std::string fen = std::string(STARTING_POSITION_FEN);
-    std::string pieceTheme = std::string(DEFAULT_THEME_PATH);
+    std::string pieceTheme = std::string(DEFAULT_PIECE_THEME);
     int searchDepth = 4;
     Color humanSide = WHITE;
     bool randomColor = true;
