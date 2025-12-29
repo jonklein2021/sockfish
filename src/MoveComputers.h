@@ -172,17 +172,17 @@ Bitboard computePieceAttacks(std::shared_ptr<Position> pos, Piece piece) {
         // compute attacks for this piece
         switch (piece) {
             case WP:
-            case BP: attacks |= computePawnAttacks(sq, piece == WP ? WHITE : BLACK); break;
+            case BP: attacks |= computePawnAttacks(pos, sq); break;
             case WN:
-            case BN: attacks |= computeKnightAttacks(sq); break;
+            case BN: attacks |= computeKnightAttacks(pos, sq); break;
             case WB:
-            case BB: attacks |= computeBishopAttacks(sq); break;
+            case BB: attacks |= computeBishopAttacks(pos, sq); break;
             case WR:
-            case BR: attacks |= computeRookAttacks(sq); break;
+            case BR: attacks |= computeRookAttacks(pos, sq); break;
             case WQ:
-            case BQ: attacks |= computeQueenAttacks(sq); break;
+            case BQ: attacks |= computeQueenAttacks(pos, sq); break;
             case WK:
-            case BK: attacks |= computeKingAttacks(sq); break;
+            case BK: attacks |= computeKingAttacks(pos, sq); break;
             default: return 0;
         }
 

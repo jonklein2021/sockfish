@@ -108,3 +108,8 @@ void CliFrontend::run() {
 
     std::cout << "Game over!" << std::endl;
 }
+
+// TODO
+void CliFrontend::printBoard() {
+    std::cout << "Board\n";
+}
