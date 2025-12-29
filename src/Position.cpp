@@ -48,6 +48,8 @@ void Position::parseFen(const std::string &fen) {
         }
     }
 
+    board.updateOccupancies();
+
     if (i >= n) {
         return;
     }

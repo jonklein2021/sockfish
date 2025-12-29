@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <memory>
 
 int main(int argc, char **argv) {
@@ -29,6 +30,12 @@ int main(int argc, char **argv) {
     std::unique_ptr<MoveGenerator> engineMG = std::make_unique<MoveGenerator>(pos);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(std::move(engineMG), cfg.searchDepth);
     GameController gameController(pos, moveGenerator, std::move(engine), cfg.humanSide);
+
+    // DEBUG
+    // for (OccupancyType o = OccupancyType(0); int(o) < 4; o = OccupancyType(o + 1)) {
+    //     printBitboard(pos->getBoard().getOccupancy(o));
+    // }
+    // exit(0);
 
     // create and launch game
     if (cfg.useGui) {
