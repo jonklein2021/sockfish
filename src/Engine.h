@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MoveGenerator.h"
 #include "Position.h"
 
 #include <unordered_map>
@@ -12,7 +13,7 @@ class Engine {
     /**
      * Transposition table entry
      *
-     * Stores the evaluation of a given state at some depth,
+     * Stores the evaluation of a given position at some depth,
      * as well as whether that evaluation is an upper/lower
      * bound or an exact evaluation
      */
@@ -23,8 +24,12 @@ class Engine {
         enum Flag { EXACT, LOWERBOUND, UPPERBOUND } flag;
     };
 
+    // Importantly, this is the engine's exclusive copy.
+    // GameController has a different MoveGenerator.
+    std::unique_ptr<MoveGenerator> moveGenerator;
+
     /**
-     * Stores previously evaluated states
+     * Stores previously evaluated positions
      */
     std::unordered_map<uint64_t, TTEntry> transpositionTable;
 
@@ -144,85 +149,84 @@ class Engine {
 
     /**
      * Assigns a move a value based on how promising
-     * it looks in that state; useful for move ordering
+     * it looks in that position; useful for move ordering
      * before alpha-beta search
      *
-     * @param state The state in which that move should be judged
+     * @param pos in which a move should be judged
      * @param move The move to rate
      * @return A value representing how promising the move is
      */
-    eval_t rateMove(const Position &state, const Move &move);
+    eval_t rateMove(Position &pos, const Move &move);
 
     /**
-     * Calculates heuristic value of state
+     * Calculates heuristic value of a position
      *
-     * @param state The state to evaluate
-     * @return The heuristic value of the state
+     * @param pos to evaluate
+     * @return The heuristic value of the position
      */
-    eval_t evaluate(const Position &state);
+    eval_t evaluate(const Position &pos);
 
     /**
-     * Calculates heuristic value of state
+     * Calculates heuristic value of a position
      *
-     * @param state The state to evaluate
-     * @param legalMoves The possible legal moves from that state
-     * @return The heuristic value of the state
+     * @param pos to evaluate
+     * @param legalMoves The possible legal moves from that position
+     * @return The heuristic value of the position
      */
-    eval_t evaluate(const Position &state, const std::vector<Move> &legalMoves);
+    eval_t evaluate(const Position &pos, const std::vector<Move> &legalMoves);
 
     /**
      * Minimax algorithm with alpha-beta pruning
      *
-     * @param state The state to evaluate
+     * @param pos to evaluate
      * @param alpha The alpha value
      * @param beta The beta value
-     * @return The heuristic value of the state to move to
+     * @return The heuristic value of the position to move to
      */
-    eval_t negamax(Position &state, eval_t alpha, eval_t beta, int depth);
+    eval_t negamax(Position &pos, eval_t alpha, eval_t beta, int depth);
 
     /**
      * Iterative deepening search (basically BFS)
      *
-     * @param state The state to evaluate
-     * @return The heuristic value of the state to move to
+     * @param pos to evaluate
+     * @return The heuristic value of the position to move to
      */
-    eval_t iterativeDeepening(const Position &state);
+    eval_t iterativeDeepening(const Position &pos);
 
    public:
-    Engine();
-    Engine(int depth);
+    Engine(std::unique_ptr<MoveGenerator> moveGenerator, int depth);
 
     /**
      * for testing
      */
-    eval_t get_eval(const Position &state) {
-        return evaluate(state);
+    eval_t get_eval(const Position &pos) {
+        return evaluate(pos);
     }
 
     /**
-     * Counts the number of positions that can be reached from the current state
+     * Counts the number of positions that can be reached from the current position
      *
-     * @param state The state to evaluate
+     * @param pos to evaluate
      * @param depth The depth to search
      * @return The number of positions that can be reached
      */
-    void countPositions(Position &state, int depth) const;
+    void countPositions(Position &pos, int depth) const;
 
     /**
      * Counts the number of positions with depth 1, 2, ..., maxDepth
      * usng iterative deepening and prints the results in perft format
      *
-     * @param state The state to evaluate
+     * @param pos to evaluate
      * @param maxDepth The maximum depth to search
      */
-    void countPositionsBuildup(const Position &state, int maxDepth) const;
+    void countPositionsBuildup(const Position &pos, int maxDepth) const;
 
     /**
-     * Gets the best move for the current state
+     * Gets the best move in a certain position
      *
-     * @param state The state to evaluate
-     * @param legalMoves The possible legal moves from that state
+     * @param pos to evaluate
+     * @param legalMoves The possible legal moves from that position
      * @return The best move to make
      */
-    Move getMove(Position &state, const std::vector<Move> &legalMoves);
+    Move getMove(Position &pos, std::vector<Move> &&legalMoves);
 };

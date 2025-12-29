@@ -57,8 +57,8 @@ class Move {
         return Square((data >> 6) & 0x3F);
     }
 
-    constexpr Piece promotedPieceType() const {
-        return Piece(((data >> 11) & 0x3) + KNIGHT);
+    constexpr PieceType promotedPieceType() const {
+        return PieceType(((data >> 11) & 0x3) + KNIGHT);
     }
 
     constexpr bool isPromotion() const {

@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+// TODO: Make this Stateless
+
 class MoveGenerator {
    private:
     std::shared_ptr<Position> pos;

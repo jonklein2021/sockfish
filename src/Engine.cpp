@@ -6,20 +6,17 @@
 #include <limits>
 #include <queue>
 
-Engine::Engine()
-    : Engine(4) {}
+Engine::Engine(std::unique_ptr<MoveGenerator> moveGenerator, int depth)
+    : moveGenerator(std::move(moveGenerator)), maxDepth(depth) {}
 
-Engine::Engine(int depth)
-    : maxDepth(depth) {}
-
-void Engine::countPositionsBuildup(const Position &state, int maxDepth) const {
+void Engine::countPositionsBuildup(const Position &pos, int maxDepth) const {
     struct Node {
-        Position state;
+        Position pos;
         int depth;
     };
 
     std::queue<Node> q;
-    q.push({state, 0});
+    q.push({pos, 0});
 
     std::vector<uint64_t> depthCounts(maxDepth + 1, 0);
 
@@ -27,18 +24,18 @@ void Engine::countPositionsBuildup(const Position &state, int maxDepth) const {
         Node current = q.front();
         q.pop();
 
-        // as soon as we reach maxDepth we can stop
+        // stop once we reach maxDepth
         if (current.depth >= maxDepth) {
             break;
         }
 
-        std::vector<Move> legalMoves = current.state.generateMoves();
+        std::vector<Move> legalMoves = moveGenerator->generateLegal();
 
         for (const Move &move : legalMoves) {
-            const Metadata md = current.state.makeMove(move);
+            const Position::Metadata md = current.pos.makeMove(move);
             depthCounts[current.depth + 1]++;
-            q.push({current.state, current.depth + 1});
-            current.state.unmakeMove(move, md);
+            q.push({current.pos, current.depth + 1});
+            current.pos.unmakeMove(move, md);
         }
     }
 
@@ -59,13 +56,14 @@ void Engine::countPositions(Position &state, int depth) const {
     uint64_t checkmates = 0;
 
     std::function<uint64_t(Position &, int)> countPositionsHelper = [&](Position &state,
-                                                                         int depth) -> uint64_t {
-        if (depth == 0 || state.isTerminal()) {
+                                                                        int depth) -> uint64_t {
+        // TODO: Also check if this state is terminal
+        if (depth == 0) {
             return 1;  // Base case: count this position
         }
 
         uint64_t count = 0;
-        std::vector<Move> legalMoves = state.generateMoves();
+        std::vector<Move> legalMoves = moveGenerator->generateLegal();
 
         std::cout << legalMoves.size() << " legal moves\n";
         for (const Move &m : legalMoves) {
@@ -73,33 +71,31 @@ void Engine::countPositions(Position &state, int depth) const {
         }
 
         for (const Move &move : legalMoves) {
-            const Metadata md = state.makeMove(move);
-
-            state.print();
+            const Piece capturedPiece = state.getBoard().pieceAt(move.toSquare());
+            const Position::Metadata md = state.makeMove(move);
 
             count += countPositionsHelper(state, depth - 1);
             total += count;  // Accumulate total count
 
-            if (move.capturedPiece != NO_PIECE) {
+            if (capturedPiece != NONE) {
                 captures++;
             }
-            if (abs(move.from.x - move.to.x) >= 2 && (move.piece == WK || move.piece == BK)) {
+            if (move.isCastles()) {
                 castles++;
             }
-            if (move.isEnPassant) {
+            if (move.isEnPassant()) {
                 eps++;
             }
-            if (move.promotionPiece != NO_PIECE) {
+            if (move.isPromotion()) {
                 promotions++;
             }
-            if (state.isCheck()) {
-                checks++;
-                if (state.isTerminal()) {
-                    // std::cout << moveToCoords(move) << " is checkmate\n";
-                    // state.print();
-                    checkmates++;
-                }
-            }
+            // TODO:
+            // if (state.isCheck()) {
+            //     checks++;
+            //     if (state.isTerminal()) {
+            //         checkmates++;
+            //     }
+            // }
 
             state.unmakeMove(move, md);
         }
@@ -118,36 +114,40 @@ void Engine::countPositions(Position &state, int depth) const {
     std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
 }
 
-eval_t Engine::rateMove(const Position &state, const Move &move) {
+eval_t Engine::rateMove(Position &pos, const Move &move) {
+    Piece movedPiece = pos.getBoard().pieceAt(move.fromSquare());
+    Piece capturedPiece = pos.getBoard().pieceAt(move.toSquare());
+
     // capture moves are promising
     eval_t rating = 0;
-    if (move.capturedPiece != NO_PIECE) {
-        rating += pieceValues[move.capturedPiece] - pieceValues[move.piece];
+    if (capturedPiece != NONE) {
+        rating += pieceValues[capturedPiece] - pieceValues[movedPiece];
     }
 
     // pawn promotion moves are likely to be good
-    if (move.promotionPiece != NO_PIECE) {
-        rating += pieceValues[move.promotionPiece] - pieceValues[move.piece];
+    if (move.isPromotion()) {
+        rating += pieceValues[move.promotedPieceType()] - pieceValues[movedPiece];
     }
 
     // moves that put the opponent in check should be checked early
-    Position temp(state);
-    temp.makeMove(move);
-    temp.whiteToMove = !temp.whiteToMove;
-    if (temp.isCheck()) {
+    /*
+    pos.makeMove(move);
+    if (pos.isCheck()) {
         rating += 10;
     }
+    */
 
     return rating;
 }
 
-eval_t Engine::evaluate(const Position &state) {
-    return evaluate(state, state.generateMoves());
+eval_t Engine::evaluate(const Position &pos) {
+    return evaluate(pos, moveGenerator->generateLegal());
 }
 
-eval_t Engine::evaluate(const Position &state, const std::vector<Move> &legalMoves) {
-    if (legalMoves.empty() && state.isCheck()) {
-        return state.whiteToMove ? 1738 : -1738;
+eval_t Engine::evaluate(const Position &pos, const std::vector<Move> &legalMoves) {
+    // TODO: Check if checkmate
+    if (legalMoves.empty()) {
+        return pos.getSideToMove() == WHITE ? 1738 : -1738;
     }
 
     const eval_t piecePositionWeight = 0.5;
@@ -156,8 +156,8 @@ eval_t Engine::evaluate(const Position &state, const std::vector<Move> &legalMov
 
     // total up pieces, scaling by piece value and position in piece-square
     // board
-    for (Piece p : {WP, WN, WB, WR, WQ, WK}) {
-        uint64_t pieces = state.pieceBit(p);
+    for (Piece p : WHITE_PIECES) {
+        uint64_t pieces = pos.getBoard().getPieces(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
@@ -170,8 +170,8 @@ eval_t Engine::evaluate(const Position &state, const std::vector<Move> &legalMov
         }
     }
 
-    for (Piece p : {BP, BN, BB, BR, BQ, BK}) {
-        uint64_t pieces = state.pieceBit(p);
+    for (Piece p : BLACK_PIECES) {
+        uint64_t pieces = pos.getBoard().getPieces(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
@@ -185,11 +185,11 @@ eval_t Engine::evaluate(const Position &state, const std::vector<Move> &legalMov
     }
 
     // return score relative to the current player for negamax
-    return state.whiteToMove ? score : -score;
+    return pos.getSideToMove() == WHITE ? score : -score;
 }
 
-eval_t Engine::negamax(Position &state, eval_t alpha, eval_t beta, int depth) {
-    uint64_t h = state.hash();
+eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
+    uint64_t h = pos.hash();
     if (transpositionTable.find(h) != transpositionTable.end()) {
         const TTEntry &entry = transpositionTable[h];
         if (entry.depth >= depth) {
@@ -206,18 +206,18 @@ eval_t Engine::negamax(Position &state, eval_t alpha, eval_t beta, int depth) {
     }
 
     // base case
-    if (depth >= maxDepth || state.isTerminal()) {
-        return evaluate(state);
+    if (depth >= maxDepth /* || pos.isTerminal() */) {
+        return evaluate(pos);
     }
 
-    std::vector<Move> legalMoves = state.generateMoves();
+    std::vector<Move> legalMoves = moveGenerator->generateLegal();
 
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
     for (const Move &move : legalMoves) {
-        const Metadata md = state.makeMove(move);
+        const Position::Metadata md = pos.makeMove(move);
 
-        eval_t eval = -negamax(state, -beta, -alpha, depth + 1);
+        eval_t eval = -negamax(pos, -beta, -alpha, depth + 1);
 
         // save result in transposition table
         TTEntry newEntry{eval, depth, TTEntry::EXACT};
@@ -229,7 +229,7 @@ eval_t Engine::negamax(Position &state, eval_t alpha, eval_t beta, int depth) {
         }
         transpositionTable[h] = newEntry;
 
-        state.unmakeMove(move, md);
+        pos.unmakeMove(move, md);
 
         bestEval = std::max(bestEval, eval);
         alpha = std::max(alpha, eval);
@@ -257,10 +257,10 @@ eval_t Engine::iterativeDeepening(const Position &state) {
         Node current = q.front();
         q.pop();
 
-        std::vector<Move> legalMoves = current.state.generateMoves();
+        std::vector<Move> legalMoves = moveGenerator->generateLegal();
 
         // evaluate terminal nodes
-        if (current.depth >= maxDepth || current.state.isTerminal()) {
+        if (current.depth >= maxDepth /* || current.state.isTerminal() */) {
             eval_t evalScore = evaluate(current.state, {});
             if (evalScore > bestEval) {
                 bestEval = evalScore;
@@ -278,15 +278,13 @@ eval_t Engine::iterativeDeepening(const Position &state) {
     return bestEval;
 }
 
-Move Engine::getMove(Position &state, std::vector<Move> &legalMoves) {
+Move Engine::getMove(Position &pos, std::vector<Move> &&legalMoves) {
     if (legalMoves.empty()) {
         return Move();
     }
 
     // sort moves by how promising they seem
-    auto cmp = [&](const Move &a, const Move &b) {
-        return rateMove(state, a) > rateMove(state, b);
-    };
+    auto cmp = [&](const Move &a, const Move &b) { return rateMove(pos, a) > rateMove(pos, b); };
 
     std::sort(legalMoves.begin(), legalMoves.end(), cmp);
 
@@ -296,16 +294,16 @@ Move Engine::getMove(Position &state, std::vector<Move> &legalMoves) {
     Move bestMove;
 
     for (const Move &move : legalMoves) {
-        const Metadata md = state.makeMove(move);
+        const Position::Metadata md = pos.makeMove(move);
 
         // state.board.prettyPrint();
         std::cout << "  " << move.toString() << std::endl;
 
-        eval_t eval = -negamax(state, std::numeric_limits<eval_t>::lowest(),
+        eval_t eval = -negamax(pos, std::numeric_limits<eval_t>::lowest(),
                                std::numeric_limits<eval_t>::max(), 0);
 
         std::cout << "\teval = " << eval << std::endl;
-        state.unmakeMove(move, md);
+        pos.unmakeMove(move, md);
 
         if (eval > bestEval) {
             bestEval = eval;

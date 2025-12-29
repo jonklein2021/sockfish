@@ -2,23 +2,21 @@
 
 #include <iostream>
 
-PromotionMenu::PromotionMenu()
-    : PromotionMenu("horsey/", true) {}
-
-PromotionMenu::PromotionMenu(const std::string &theme, bool white)
-    : selectedPiece(NO_PIECE), isVisible(false) {
+PromotionMenu::PromotionMenu(const std::string &theme, Color side)
+    : selectedPiece(NONE), isVisible(false) {
     // menu will take up the size of the board
     menu.setSize(sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
     menu.setPosition(sf::Vector2f(0, 0));
     menu.setFillColor(sf::Color(0, 0, 0, 200));
 
-    pieceOptions = white ? WHITE_PROMOTION_PIECES : promotionPiecesBlack;
+    pieceOptions = (side == WHITE) ? WHITE_PROMOTION_PIECES : BLACK_PROMOTION_PIECES;
 
     // load textures for the promotion pieces
     textures.resize(4);
     for (int i = 0; i < 4; i++) {
-        if (!textures[i].loadFromFile(PIECE_TEXTURE_PATH + theme + pieceFilenames[pieceOptions[i]] +
-                                      ".png")) {
+        const std::string filename = std::string(PIECE_TEXTURE_PATH) + theme +
+                                     std::string(pieceFilenames[pieceOptions[i]]) + ".png";
+        if (!textures[i].loadFromFile(filename)) {
             std::cerr << "Error loading promotion piece textures" << std::endl;
         }
     }

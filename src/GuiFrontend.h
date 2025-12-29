@@ -2,9 +2,24 @@
 
 #include "GameController.h"
 #include "PromotionMenu.h"
-#include "VisualPiece.h"
 
 #include <SFML/Graphics.hpp>
+
+/**
+ * Represents a chess piece on the board, visually
+ */
+struct VisualPiece {
+    Piece piece;
+    Square sq;
+    std::unique_ptr<sf::Sprite> sprite;
+
+    VisualPiece()
+        : piece(NONE), sprite(nullptr) {}
+
+    // Constructor with texture
+    explicit VisualPiece(Piece piece, Square sq, const sf::Texture &texture)
+        : piece(piece), sq(sq), sprite(std::make_unique<sf::Sprite>(texture)) {}
+};
 
 class GuiFrontend {
    private:

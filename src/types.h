@@ -168,7 +168,7 @@ constexpr static inline Square xyToSquare(int x, int y) {
 }
 
 // input is assumed to be in a2a4 format
-constexpr static inline Square coordinateStringToSquare(const std::string &str) {
+static inline Square coordinateStringToSquare(const std::string &str) {
     const int fileIndex = str[0] - 'a';
     const int rankIndex = 8 - str[1];
     return xyToSquare(fileIndex, rankIndex);

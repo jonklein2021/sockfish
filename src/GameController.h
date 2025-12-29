@@ -33,7 +33,7 @@ class GameController {
     bool isGameOver();
 
     const Position &getPosition() const;
-    const std::vector<Move> legalMoves();
+    std::vector<Move> legalMoves();
 
     void makeHumanMove(Move move);
     Move makeAIMove();

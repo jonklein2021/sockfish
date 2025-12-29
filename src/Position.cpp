@@ -108,39 +108,36 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     const Square from = move.fromSquare(), to = move.toSquare();
     const Piece pieceMoved = board.pieceAt(from);
-    Bitboard &pieceMovedBB = board.getPieces(pieceMoved);
 
     // useful constants
-    const Bitboard fromBB = 1ull << from;
     const Bitboard toBB = 1ull << to;
-    const Bitboard fromTo = fromBB | toBB;
 
     // "move" the bit of the piece's old location to its new location
-    pieceMovedBB ^= fromTo;
+    board.movePiece(pieceMoved, from, to);
 
     // handle king movement for castling, rook
     // has already moved at this point
     if (move.isCastles() && from == h1) {
         // white kingside castle
-        board.getPieces(WK) ^= (1ull << e1) | (1ull << g1);
+        board.movePiece(WK, e1, g1);
     } else if (move.isCastles() && from == a1) {
         // white queenside castle
-        board.getPieces(WK) ^= (1ull << e1) | (1ull << c1);
+        board.movePiece(WK, e1, c1);
     } else if (move.isCastles() && from == h8) {
         // black kingside castle
-        board.getPieces(BK) ^= (1ull << e8) | (1ull << g8);
+        board.movePiece(BK, e8, g8);
     } else if (move.isCastles() && from == a8) {
         // black kingside castle
-        board.getPieces(BK) ^= (1ull << e8) | (1ull << c8);
+        board.movePiece(BK, e8, c8);
     }
 
     // handle en passant
     if (move.isEnPassant()) {
         // represents the pawn to remove
-        const Bitboard removeBit = sideToMove == WHITE ? (1ull << (md.enPassantSquare + SOUTH))
-                                                       : (1ull << (md.enPassantSquare + NORTH));
+        Square removeSq = sideToMove == WHITE ? Square(md.enPassantSquare + SOUTH)
+                                              : Square(md.enPassantSquare + NORTH);
         // remove the captured pawn
-        board.getPieces(sideToMove == WHITE ? BP : WP) &= ~removeBit;
+        board.removePiece(sideToMove == WHITE ? BP : WP, removeSq);
     }
 
     // handle traditional captures
@@ -158,8 +155,8 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     // handle pawn promotion
     if (move.isPromotion()) {
-        pieceMovedBB &= ~to;                              // remove pawn
-        board.getPieces(move.promotedPieceType()) |= to;  // add promoted piece
+        board.removePiece(pieceMoved, to);
+        board.addPiece(ptToPiece(move.promotedPieceType(), sideToMove), to);  // add promoted piece
     }
 
     // update occupancies bitboards
@@ -226,51 +223,48 @@ Position::Metadata Position::makeMove(const Move &move) {
 void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     /* BITBOARD RESTORATION */
 
-    const Square from = move.fromSquare(), to = move.toSquare();
-    const Piece pieceMoved = board.pieceAt(move.fromSquare());
-    Bitboard &pieceMovedBB = board.getPieces(pieceMoved);
-
     // useful constants
-    const Bitboard fromBB = 1ull << move.fromSquare();
-    const Bitboard toBB = 1ull << move.toSquare();
-    const Bitboard fromTo = fromBB | toBB;
+    const Square from = move.fromSquare();
+    const Square to = move.toSquare();
+    const Piece pieceMoved = board.pieceAt(move.fromSquare());
 
-    // "Move" this piece's bit to its original position
-    pieceMovedBB ^= fromTo;
+    // "Move" this piece back to its original position
+    board.movePiece(pieceMoved, to, from);
 
     // restore king position if castled
+
+    // handle king movement for castling, rook
+    // has already moved at this point
     if (move.isCastles() && from == h1) {
         // white kingside castle
-        board.getPieces(WK) ^= (1ull << e1) | (1ull << g1);
+        board.movePiece(WK, e1, g1);
     } else if (move.isCastles() && from == a1) {
         // white queenside castle
-        board.getPieces(WK) ^= (1ull << e1) | (1ull << c1);
+        board.movePiece(WK, e1, c1);
     } else if (move.isCastles() && from == h8) {
         // black kingside castle
-        board.getPieces(BK) ^= (1ull << e8) | (1ull << g8);
+        board.movePiece(BK, e8, g8);
     } else if (move.isCastles() && from == a8) {
         // black kingside castle
-        board.getPieces(BK) ^= (1ull << e8) | (1ull << c8);
+        board.movePiece(BK, e8, c8);
     }
 
     // restore capture
     if (md.capturedPiece != NONE) {
-        const Bitboard capturedBit =
-            move.isEnPassant() ? (1ull << xyToSquare(to % 8, from / 8)) : toBB;
-        board.getPieces(md.capturedPiece) |= capturedBit;
+        const Square capturedSq = move.isEnPassant() ? xyToSquare(to % 8, from / 8) : to;
+        board.addPiece(md.capturedPiece, capturedSq);
     }
 
     // undo pawn promotion
     if (move.isPromotion()) {
-        pieceMovedBB |= fromBB;  // restore original pawn
-        pieceMovedBB &= ~toBB;   // compensate for pieces[move.piece] ^= fromTo;
+        // move pawn to its original square (may not be necessary?)
+        // board.movePiece(pieceMoved, to, from);
 
         // N.B: sideToMove holds the CURRENT player's turn; we need to restore the PREVIOUS player's
         // promotion
-        const Piece promotedPiece = sideToMove == WHITE ? Piece(move.promotedPieceType() + 6)
-                                                        : Piece(move.promotedPieceType());
+        const Piece promotedPiece = ptToPiece(move.promotedPieceType(), otherColor(sideToMove));
 
-        board.getPieces(promotedPiece) &= ~to;  // remove promoted piece
+        board.removePiece(promotedPiece, to);  // remove promoted piece
     }
 
     board.updateOccupancies();

@@ -69,4 +69,21 @@ class Position {
      * @param prevMD the old metadata to restore
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
+
+    // TODO: Improve this
+    uint64_t hash() {
+        uint64_t res = 0;
+
+        for (Piece p : ALL_PIECES) {
+            res ^= (board.getPieces(p) << p);
+        }
+
+        res ^= (sideToMove << 12);
+        res ^= (md.enPassantSquare << 13);
+        res ^= (md.capturedPiece << 14);
+        res ^= (md.movesSinceCapture << 15);
+        res ^= (md.castleRights << 16);
+
+        return res;
+    }
 };

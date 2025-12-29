@@ -4,7 +4,8 @@
 
 #include <sstream>
 
-Move::Move() = default;
+Move::Move()
+    : data(0ull) {}
 
 // constexpr Move::Move(uint16_t _data)
 //     : data(_data) {}

@@ -1,6 +1,5 @@
 #include "GuiFrontend.h"
 
-#include "VisualPiece.h"
 #include "bit_tools.h"
 #include "types.h"
 

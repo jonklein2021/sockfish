@@ -13,11 +13,10 @@ class PromotionMenu {
     std::vector<sf::Sprite> pieces;
     std::vector<sf::CircleShape> circles;
     Piece selectedPiece;
-    std::vector<Piece> pieceOptions;
+    std::array<Piece, 4> pieceOptions;
 
    public:
     bool isVisible;
-    PromotionMenu();
 
     /**
      * Constructor for the PromotionMenu class; recall that this

@@ -23,7 +23,7 @@ const Position &GameController::getPosition() const {
     return *pos;
 }
 
-const std::vector<Move> GameController::legalMoves() {
+std::vector<Move> GameController::legalMoves() {
     return moveGenerator->generateLegal();
 }
 

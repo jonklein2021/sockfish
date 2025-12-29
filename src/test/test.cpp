@@ -58,7 +58,8 @@ int main() {
 
     std::shared_ptr<Position> pos = std::make_shared<Position>(fen);
     std::shared_ptr<MoveGenerator> moveGen = std::make_shared<MoveGenerator>(pos);
-    std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
+    std::unique_ptr<MoveGenerator> engineMoveGen = std::make_unique<MoveGenerator>(pos);
+    std::unique_ptr<Engine> engine = std::make_unique<Engine>(std::move(engineMoveGen), 4);
     GameController game(pos, moveGen, std::move(engine), WHITE);
     CliFrontend cli(game);
 
