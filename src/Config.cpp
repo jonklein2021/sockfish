@@ -79,10 +79,12 @@ void Config::printUsage() {
 }
 
 void Config::print() const {
-    std::cout << "Initializing game in " << (useGui ? "CLI" : "GUI") << " mode...\n";
+    std::cout << "Initializing game in " << (useGui ? "GUI" : "CLI") << " mode...\n";
+    if (useGui) {
+        std::cout << "  Piece theme: " << pieceTheme << std::endl;
+    }
     std::cout << "  Player color: " << (humanSide == WHITE ? "white" : "black")
               << (randomColor ? " (random)" : "") << "\n";
     std::cout << "  FEN: " << fen << "\n";
-    std::cout << "  Depth: " << searchDepth << "\n";
-    std::cout << "  Piece theme: " << pieceTheme << std::endl;
+    std::cout << "  Search Depth: " << searchDepth << "\n";
 }

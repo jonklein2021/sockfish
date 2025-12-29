@@ -27,17 +27,17 @@ Bitboard computePawnAttacks(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard epBB = 1ull << pos->md.enPassantSquare;
     if (side == WHITE) {
         // up right, up left
-        return ((1 << (sq + NORTH_EAST)) & not_file_a & (oppPieces | epBB)) |
-               ((1 << (sq + NORTH_WEST)) & not_file_h & (oppPieces | epBB));
+        return ((1ull << (sq + NORTH_EAST)) & not_file_a & (oppPieces | epBB)) |
+               ((1ull << (sq + NORTH_WEST)) & not_file_h & (oppPieces | epBB));
     } else {
         // down right, down left
-        return ((1 << (sq + SOUTH_EAST)) & not_file_a & (oppPieces | epBB)) |
-               ((1 << (sq + SOUTH_WEST)) & not_file_h & (oppPieces | epBB));
+        return ((1ull << (sq + SOUTH_EAST)) & not_file_a & (oppPieces | epBB)) |
+               ((1ull << (sq + SOUTH_WEST)) & not_file_h & (oppPieces | epBB));
     }
 }
 
 Bitboard computeKnightAttacks(std::shared_ptr<Position> _, Square sq) {
-    const Bitboard sqBB = 1 << sq;
+    const Bitboard sqBB = 1ull << sq;
     const Bitboard ddl = (sqBB & not_rank_12 & not_file_a) << 15;  // down 2, left 1
     const Bitboard ddr = (sqBB & not_rank_12 & not_file_h) << 17;  // down 2, right 1
     const Bitboard drr = (sqBB & not_rank_1 & not_file_gh) << 10;  // down 1, right 2
@@ -60,7 +60,7 @@ Bitboard computeBishopAttacks(std::shared_ptr<Position> pos, Square sq) {
 
     // up right
     for (int r = r0 + 1, c = c0 + 1; r <= 7 && c <= 7; r++, c++) {
-        const Bitboard attackedSquare = (1 << xyToSquare(c, r));
+        const Bitboard attackedSquare = (1ull << xyToSquare(c, r));
         attacks |= attackedSquare;
         if (attackedSquare & board.getOccupancy(BOTH_OCCUPANCY)) {
             break;
@@ -69,7 +69,7 @@ Bitboard computeBishopAttacks(std::shared_ptr<Position> pos, Square sq) {
 
     // up left
     for (int r = r0 + 1, c = c0 - 1; r <= 7 && c >= 0; r++, c--) {
-        const Bitboard attackedSquare = (1 << xyToSquare(c, r));
+        const Bitboard attackedSquare = (1ull << xyToSquare(c, r));
         attacks |= attackedSquare;
         if (attackedSquare & board.getOccupancy(BOTH_OCCUPANCY)) {
             break;
@@ -107,7 +107,7 @@ Bitboard computeRookAttacks(std::shared_ptr<Position> pos, Square sq) {
 
     // up
     for (int r = r0 + 1; r <= 7; r++) {
-        const Bitboard attackedSquare = 1 << xyToSquare(c0, r);
+        const Bitboard attackedSquare = 1ull << xyToSquare(c0, r);
         attacks |= attackedSquare;
         if (attackedSquare & board.getOccupancy(BOTH_OCCUPANCY)) {
             break;
@@ -116,7 +116,7 @@ Bitboard computeRookAttacks(std::shared_ptr<Position> pos, Square sq) {
 
     // down
     for (int r = r0 - 1; r >= 0; r--) {
-        const Bitboard attackedSquare = 1 << xyToSquare(c0, r);
+        const Bitboard attackedSquare = 1ull << xyToSquare(c0, r);
         attacks |= attackedSquare;
         if (attackedSquare & board.getOccupancy(BOTH_OCCUPANCY)) {
             break;
@@ -125,7 +125,7 @@ Bitboard computeRookAttacks(std::shared_ptr<Position> pos, Square sq) {
 
     // left
     for (int c = c0 - 1; c >= 0; c--) {
-        const Bitboard attackedSquare = 1 << xyToSquare(c, r0);
+        const Bitboard attackedSquare = 1ull << xyToSquare(c, r0);
         attacks |= attackedSquare;
         if (attackedSquare & board.getOccupancy(BOTH_OCCUPANCY)) {
             break;
@@ -134,7 +134,7 @@ Bitboard computeRookAttacks(std::shared_ptr<Position> pos, Square sq) {
 
     // right
     for (int c = c0 + 1; c <= 7; c++) {
-        const Bitboard attackedSquare = 1 << xyToSquare(c, r0);
+        const Bitboard attackedSquare = 1ull << xyToSquare(c, r0);
         attacks |= attackedSquare;
         if (attackedSquare & board.getOccupancy(BOTH_OCCUPANCY)) {
             break;
@@ -149,7 +149,7 @@ Bitboard computeQueenAttacks(std::shared_ptr<Position> pos, Square sq) {
 }
 
 Bitboard computeKingAttacks(std::shared_ptr<Position> _, Square sq) {
-    const Bitboard sqBB = 1 << sq;
+    const Bitboard sqBB = 1ull << sq;
     const Bitboard d = (sqBB & not_rank_1) << 8;                // down
     const Bitboard u = (sqBB & not_rank_8) >> 8;                // up
     const Bitboard l = (sqBB & not_file_a) >> 1;                // left

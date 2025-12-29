@@ -32,21 +32,24 @@ Move Move::fromCoordinateString(const std::string &coords) {
 }
 
 std::string Move::toCoordinateString() const {
-    return squareToCoordinateString(fromSquare()) + " " + squareToCoordinateString(toSquare());
+    return squareToCoordinateString(fromSquare()) + squareToCoordinateString(toSquare());
 }
 
 std::string Move::toString() const {
-    std::stringstream ss(toCoordinateString());
+    std::stringstream ss;
+    if (data != 0) {
+        ss << toCoordinateString() << ", ";
+    }
     if (isPromotion()) {
-        ss << ", Promote to " << pieceTypeNames[promotedPieceType()].data();
+        ss << "Promote to " << pieceTypeNames[promotedPieceType()].data() << ", ";
     }
     if (isEnPassant()) {
-        ss << ", En Passant";
+        ss << "En Passant, ";
     }
     if (isCastles()) {
-        ss << ", Castles";
+        ss << "Castles, ";
     }
-    ss << ", data=" << data;
+    ss << "data=" << data;
     return ss.str();
 }
 

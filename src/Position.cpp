@@ -41,10 +41,9 @@ void Position::parseFen(const std::string &fen) {
             x += c - '0';
         } else {  // piece
             const Piece p = fenToPiece(c);
-            const Square sq = Square(8 * y + x);
+            const Square sq = xyToSquare(x, y);
 
             board.addPiece(p, sq);
-
             x++;
         }
     }

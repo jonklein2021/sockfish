@@ -175,7 +175,9 @@ static inline Square coordinateStringToSquare(const std::string &str) {
 }
 
 static inline std::string squareToCoordinateString(const Square &sq) {
-    return std::to_string('a' + sq % 8) + std::to_string(8 - sq / 8);
+    const char file = 'a' + (sq % 8);
+    const char rank = '8' - (sq / 8);
+    return std::string{file, rank};
 }
 
 enum Direction : int8_t {

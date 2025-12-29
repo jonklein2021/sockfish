@@ -22,7 +22,7 @@ class MoveGenerator {
      * side
      */
     bool underAttack(Square sq, Color side) {
-        // return (1 << sq) & (white ? (pieceAttacks[WP] | pieceAttacks[WN] | pieceAttacks[WB] |
+        // return (1ull << sq) & (white ? (pieceAttacks[WP] | pieceAttacks[WN] | pieceAttacks[WB] |
         //                              pieceAttacks[WR] | pieceAttacks[WQ] | pieceAttacks[WK])
         //                           : (pieceAttacks[BP] | pieceAttacks[BN] | pieceAttacks[BB] |
         //                              pieceAttacks[BR] | pieceAttacks[BQ] | pieceAttacks[BK]));

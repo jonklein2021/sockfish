@@ -13,8 +13,8 @@ Bitboard Board::getOccupancy(OccupancyType o) const {
 }
 
 Piece Board::pieceAt(Square sq) const {
-    for (Piece p = WP; p <= BK; p = Piece(p + 1)) {
-        if (pieces[p] & (1 << sq)) {
+    for (Piece p : ALL_PIECES) {
+        if (pieces[p] & (1ull << sq)) {
             return p;
         }
     }
@@ -23,15 +23,15 @@ Piece Board::pieceAt(Square sq) const {
 }
 
 void Board::addPiece(Piece p, Square sq) {
-    pieces[p] |= (1 << sq);
+    pieces[p] |= (1ull << sq);
 }
 
 void Board::removePiece(Piece p, Square sq) {
-    pieces[p] &= ~(1 << sq);
+    pieces[p] &= ~(1ull << sq);
 }
 
 void Board::movePiece(Piece p, Square from, Square to) {
-    pieces[p] ^= (1 << from) | (1 << to);
+    pieces[p] ^= (1ull << from) | (1ull << to);
 }
 
 void Board::updateOccupancies() {

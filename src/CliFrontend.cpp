@@ -5,6 +5,7 @@
 #include "types.h"
 
 #include <iostream>
+#include <sstream>
 
 CliFrontend::CliFrontend(GameController &game)
     : game(std::move(game)) {}
@@ -90,6 +91,11 @@ Move CliFrontend::getMoveFromStdin() {
 void CliFrontend::run() {
     auto legalMoves = game.legalMoves();
 
+    puts("legalMoves:");
+    for (Move &m : legalMoves) {
+        printf("%s\n", m.toString().c_str());
+    }
+
     while (!game.isGameOver()) {
         printBoard();
 
@@ -102,7 +108,8 @@ void CliFrontend::run() {
             game.makeHumanMove(getMoveFromStdin());
         } else {
             // get move from engine
-            game.makeAIMove();
+            // game.makeAIMove();
+            game.makeHumanMove(getMoveFromStdin());
         }
     }
 
@@ -110,6 +117,45 @@ void CliFrontend::run() {
 }
 
 // TODO
-void CliFrontend::printBoard() {
-    std::cout << "Board\n";
+void CliFrontend::printBoard(bool flip) {
+    std::ostringstream out("\n");
+
+    for (int i = 0; i < 8; i++) {
+        int rank = flip ? 7 - i : i;
+
+        // row border
+        out << "   +----+----+----+----+----+----+----+----+\n";
+
+        // rank number
+        out << " " << (8 - rank) << " ";
+
+        for (int j = 0; j < 8; j++) {
+            int file = flip ? 7 - j : j;
+            Square sq = xyToSquare(file, rank);
+
+            out << "| ";
+
+            Piece p = game.getPosition().getBoard().pieceAt(sq);
+            if (p == NONE) {
+                out << "   ";
+            } else {
+                out << pieceFilenames[p] << " ";
+            }
+        }
+
+        out << "|\n";
+    }
+
+    // bottom border
+    out << "   +----+----+----+----+----+----+----+----+\n";
+
+    // file indices
+    out << "     ";
+    if (flip) {
+        out << "h    g    f    e    d    c    b    a  \n";
+    } else {
+        out << "a    b    c    d    e    f    g    h  \n";
+    }
+
+    std::cout << out.str() << std::endl;
 }

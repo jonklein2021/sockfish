@@ -12,7 +12,7 @@ class CliFrontend {
      */
     Move getMoveFromStdin();
 
-    void printBoard();
+    void printBoard(bool flip = false);
 
    public:
     CliFrontend(GameController &game);
