@@ -1,7 +1,7 @@
 # Sockfish
 
 ## Dependencies
-- g++ 8 or higher
+- C++17 Compiler
 - SFML 3
 
 ## Build and Run Instructions

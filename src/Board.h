@@ -10,6 +10,8 @@ class Board {
     // indexes: WHITE, BLACK, BOTH, EMPTY
     Bitboard occupancies[4];
 
+    // TODO: Add a squareToPiece table to speed up pieceAt()
+
    public:
     // returns a COPY of the bitboard's pieces
     Bitboard getPieces(Piece p) const;

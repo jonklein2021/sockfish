@@ -100,7 +100,6 @@ void Position::parseFen(const std::string &fen) {
     // 6: fullmove number (not used)
 }
 
-// TODO: Fix the misusage of board.getPieces()
 Position::Metadata Position::makeMove(const Move &move) {
     // save metadata about this state before making move
     Metadata oldMD = md;
@@ -109,9 +108,6 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     const Square from = move.fromSquare(), to = move.toSquare();
     const Piece pieceMoved = board.pieceAt(from);
-
-    // useful constants
-    const Bitboard toBB = 1ull << to;
 
     // "move" the bit of the piece's old location to its new location
     board.movePiece(pieceMoved, from, to);
@@ -132,31 +128,30 @@ Position::Metadata Position::makeMove(const Move &move) {
         board.movePiece(BK, e8, c8);
     }
 
-    // handle en passant
-    if (move.isEnPassant()) {
-        // represents the pawn to remove
-        Square removeSq = sideToMove == WHITE ? Square(md.enPassantSquare + SOUTH)
-                                              : Square(md.enPassantSquare + NORTH);
-        // remove the captured pawn
-        board.removePiece(sideToMove == WHITE ? BP : WP, removeSq);
+    // handle traditional captures
+    Piece capturedPiece = board.pieceAt(to);
+    if (capturedPiece != NONE) {
+        board.removePiece(capturedPiece, to);
     }
 
-    // handle traditional captures
-    Piece capturedPiece = NONE;
-    Bitboard removedPieceBB;
-    const auto opponentPieces = sideToMove == WHITE ? BLACK_PIECES : WHITE_PIECES;
-    for (Piece p : opponentPieces) {
-        if ((removedPieceBB = board.getPieces(p)) & toBB) {
-            // zero out the captured piece's bit
-            removedPieceBB &= ~to;
-            capturedPiece = p;
-            break;
-        }
+    // handle en passant
+    if (move.isEnPassant()) {
+        static constexpr Direction SOUTH_NORTH[2] = {SOUTH, NORTH};
+        const Piece capturedPawn = ptToPiece(PAWN, otherColor(sideToMove));
+
+        // represents the pawn to remove
+        Square removeSq = Square(md.enPassantSquare + SOUTH_NORTH[sideToMove]);
+
+        // remove the captured pawn
+        board.removePiece(capturedPawn, removeSq);
+
+        // log capture for metadata capture
+        capturedPiece = capturedPawn;
     }
 
     // handle pawn promotion
     if (move.isPromotion()) {
-        board.removePiece(pieceMoved, to);
+        board.removePiece(pieceMoved, to);  // remove pawn from the edge
         board.addPiece(ptToPiece(move.promotedPieceType(), sideToMove), to);  // add promoted piece
     }
 
@@ -207,16 +202,18 @@ Position::Metadata Position::makeMove(const Move &move) {
         md.enPassantSquare = a1;
     }
 
+    // update capturedPiece; this will be NONE if there was no capture
+    md.capturedPiece = capturedPiece;
+
     // update 50 move rule and capturedPiece
     if (capturedPiece != NONE) {
         md.movesSinceCapture = 0;
-        md.capturedPiece = capturedPiece;
     } else {
         md.movesSinceCapture++;
     }
 
     // change turns
-    sideToMove = Color((sideToMove + 1) % 2);
+    sideToMove = otherColor(sideToMove);
 
     return oldMD;
 }
@@ -225,12 +222,8 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     /* BITBOARD RESTORATION */
 
     // useful constants
-    const Square from = move.fromSquare();
-    const Square to = move.toSquare();
-    const Piece pieceMoved = board.pieceAt(move.fromSquare());
-
-    // "Move" this piece back to its original position
-    board.movePiece(pieceMoved, to, from);
+    const Square from = move.fromSquare(), to = move.toSquare();
+    const Piece pieceMoved = board.pieceAt(to);
 
     // restore king position if castled
 
@@ -251,29 +244,35 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     }
 
     // restore capture
-    if (md.capturedPiece != NONE) {
-        const Square capturedSq = move.isEnPassant() ? xyToSquare(to % 8, from / 8) : to;
+    if (prevMD.capturedPiece != NONE) {
+        // flipped from makeMove because sideToMove did not make this move that we are undoing
+        static constexpr Direction NORTH_SOUTH[2] = {NORTH, SOUTH};
+        const Square capturedSq =
+            move.isEnPassant() ? Square(prevMD.enPassantSquare + NORTH_SOUTH[sideToMove]) : to;
         board.addPiece(md.capturedPiece, capturedSq);
     }
 
-    // undo pawn promotion
+    // undo pawn promotion in the reverse order done in makeMove
     if (move.isPromotion()) {
-        // move pawn to its original square (may not be necessary?)
-        // board.movePiece(pieceMoved, to, from);
-
         // N.B: sideToMove holds the CURRENT player's turn; we need to restore the PREVIOUS player's
         // promotion
         const Piece promotedPiece = ptToPiece(move.promotedPieceType(), otherColor(sideToMove));
 
         board.removePiece(promotedPiece, to);  // remove promoted piece
+
+        // replace promotedPiece with pawn
+        board.addPiece(pieceMoved, to);
     }
+
+    // finally, move the piece back to its original position
+    board.movePiece(pieceMoved, to, from);
 
     board.updateOccupancies();
 
     /* METADATA RESTORATION */
 
     // restore turn
-    sideToMove = Color((sideToMove + 1) % 2);
+    sideToMove = otherColor(sideToMove);
 
     // restore metadata
     md = prevMD;

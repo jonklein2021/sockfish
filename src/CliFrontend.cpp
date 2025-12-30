@@ -20,6 +20,9 @@ Move CliFrontend::getMoveFromStdin() {
         // pick a random move to suggest
         const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
 
+        // DEBUG: print legal moves
+        game.getPosition().printMoveList(legalMoves);
+
         // prompt user for input
         std::cout << "Enter move (example: " << sample << ") or q to quit: ";
         std::string input;
@@ -49,7 +52,7 @@ Move CliFrontend::getMoveFromStdin() {
             candidate.setPromotedPiece(QUEEN);
         }
 
-        for (const Move &move : legalMoves) {
+        for (Move move : legalMoves) {
             if (candidate == move) {
                 validMove = true;
                 candidate = move;
@@ -91,12 +94,8 @@ Move CliFrontend::getMoveFromStdin() {
 void CliFrontend::run() {
     auto legalMoves = game.legalMoves();
 
-    puts("legalMoves:");
-    for (Move &m : legalMoves) {
-        printf("%s\n", m.toString().c_str());
-    }
-
     while (!game.isGameOver()) {
+
         printBoard();
 
         // std::cout << cpu.get_eval(state) << std::endl;
@@ -116,7 +115,6 @@ void CliFrontend::run() {
     std::cout << "Game over!" << std::endl;
 }
 
-// TODO
 void CliFrontend::printBoard(bool flip) {
     std::ostringstream out("\n");
 

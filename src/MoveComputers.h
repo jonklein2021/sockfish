@@ -36,15 +36,17 @@ Bitboard computePawnAttacks(std::shared_ptr<Position> pos, Square sq) {
     };
 
     const Color side = pos->getSideToMove();
-    const Bitboard targets = pos->board.getOccupancy(OccupancyType(otherColor(side))) |
-                             (1ull << pos->md.enPassantSquare);
+    const Bitboard oppPieces = pos->board.getOccupancy(OccupancyType(otherColor(side)));
 
-    Bitboard bb = 0;
+    const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
+    const Bitboard targets = oppPieces | epSqBB;
 
-    bb |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & targets;
-    bb |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & targets;
+    Bitboard attacks = 0;
 
-    return bb;
+    attacks |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & targets;
+    attacks |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & targets;
+
+    return attacks;
 }
 
 Bitboard computeKnightAttacks(std::shared_ptr<Position> pos, Square sq) {

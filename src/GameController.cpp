@@ -1,22 +1,16 @@
-#pragma once
-
 #include "GameController.h"
+
+#include "MoveGenerator.h"
 
 #include <iostream>
 
 GameController::GameController(std::shared_ptr<Position> startPos,
-                               std::shared_ptr<MoveGenerator> moveGenerator,
                                std::unique_ptr<Engine> engine,
                                Color humanSide)
-    : pos(startPos),
-      moveGenerator(moveGenerator),
-      engine(std::move(engine)),
-      humanSide(humanSide),
-      sideToMove(WHITE) {}
+    : pos(startPos), engine(std::move(engine)), humanSide(humanSide), sideToMove(WHITE) {}
 
-// should GameController own this logic?
 bool GameController::isGameOver() {
-    return legalMoves().empty();
+    return PositionUtil::isTerminal(pos);
 }
 
 const Position &GameController::getPosition() const {
@@ -24,7 +18,7 @@ const Position &GameController::getPosition() const {
 }
 
 std::vector<Move> GameController::legalMoves() {
-    return moveGenerator->generateLegal();
+    return MoveGenerator::generateLegal(pos);
 }
 
 void GameController::makeHumanMove(Move move) {
@@ -33,7 +27,7 @@ void GameController::makeHumanMove(Move move) {
 
 // Returns the move made by the engine
 Move GameController::makeAIMove() {
-    Move best = engine->getMove(*pos, legalMoves());
+    Move best = engine->getMove(pos, legalMoves());
     pos->makeMove(best);
     return best;
 }

@@ -7,38 +7,9 @@
 
 using std::string, std::cin, std::cout, std::endl;
 
-void print_bitboard(Bitboard bitboard) {
-    // print offset
-    cout << "\n";
-
-    // loop over board ranks
-    for (int rank = 0; rank < 8; rank++) {
-        // loop over board files
-        for (int file = 0; file < 8; file++) {
-            // convert file & rank into square index
-            Square sq = xyToSquare(file, rank * 8);
-
-            // print ranks
-            if (!file) {
-                cout << "  " << 8 - rank << "  ";
-            }
-
-            // print bit state (either 1 or 0)
-            cout << " " << (bitboard & (1 << sq) ? 1 : 0);
-        }
-
-        // print new line every rank
-        cout << "\n";
-    }
-
-    // print board files
-    cout << "\n     a b c d e f g h\n\n";
-
-    // print bitboard as unsigned decimal number
-    cout << "     Bitboard: " << bitboard << "\n\n";
+void testMakeMove(CliFrontend &cli) {
+    cli.run();
 }
-
-void testMakeMove(CliFrontend &cli) {}
 
 void showLegalMoves(const std::vector<Move> &legalMoves) {
     cout << legalMoves.size() << " legal moves" << endl;
@@ -57,10 +28,8 @@ int main() {
     }
 
     std::shared_ptr<Position> pos = std::make_shared<Position>(fen);
-    std::shared_ptr<MoveGenerator> moveGen = std::make_shared<MoveGenerator>(pos);
-    std::unique_ptr<MoveGenerator> engineMoveGen = std::make_unique<MoveGenerator>(pos);
-    std::unique_ptr<Engine> engine = std::make_unique<Engine>(std::move(engineMoveGen), 4);
-    GameController game(pos, moveGen, std::move(engine), WHITE);
+    std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
+    GameController game(pos, std::move(engine), WHITE);
     CliFrontend cli(game);
 
     while (1) {

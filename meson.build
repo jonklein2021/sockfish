@@ -31,6 +31,7 @@ common_sources = [
   'src/Move.cpp',
   'src/MoveGenerator.cpp',
   'src/Position.cpp',
+  'src/PositionUtil.cpp',
   'src/PromotionMenu.cpp'
 ]
 

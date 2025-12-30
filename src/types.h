@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cstdint>
-#include <cwctype>
 #include <string>
 #include <string_view>
 
@@ -16,7 +16,7 @@ using Eval = int32_t;
 enum Color { WHITE, BLACK };
 
 constexpr static inline Color otherColor(Color c) {
-    return Color((c + 1) % 2);
+    return Color((c + 1) & 1);
 }
 
 /**
@@ -39,7 +39,13 @@ constexpr static inline Piece ptToPiece(PieceType pt, Color side) {
 }
 
 constexpr static inline PieceType pieceToPT(Piece p) {
+    assert(p != NONE);
     return PieceType(p % 6);
+}
+
+constexpr static inline Color pieceColor(Piece p) {
+    assert(p != NONE);
+    return Color(p / 6);
 }
 
 constexpr std::array<Piece, 6> WHITE_PIECES = {WP, WN, WB, WR, WQ, WK};
@@ -170,7 +176,7 @@ constexpr static inline Square xyToSquare(int x, int y) {
 // input is assumed to be in a2a4 format
 static inline Square coordinateStringToSquare(const std::string &str) {
     const int fileIndex = str[0] - 'a';
-    const int rankIndex = 8 - str[1];
+    const int rankIndex = 8 - (str[1] - '0');
     return xyToSquare(fileIndex, rankIndex);
 }
 

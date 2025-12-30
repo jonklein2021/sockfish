@@ -1,22 +1,24 @@
 #include "Engine.h"
 
+#include "MoveGenerator.h"
+
 #include <cstdint>
 #include <functional>
 #include <iostream>
 #include <limits>
 #include <queue>
 
-Engine::Engine(std::unique_ptr<MoveGenerator> moveGenerator, int depth)
-    : moveGenerator(std::move(moveGenerator)), maxDepth(depth) {}
+Engine::Engine(int depth)
+    : maxDepth(depth) {}
 
-void Engine::countPositionsBuildup(const Position &pos, int maxDepth) const {
+void Engine::countPositionsBuildup(const std::shared_ptr<Position> pos, int maxDepth) const {
     struct Node {
         Position pos;
         int depth;
     };
 
     std::queue<Node> q;
-    q.push({pos, 0});
+    q.push(Node{*pos, 0});
 
     std::vector<uint64_t> depthCounts(maxDepth + 1, 0);
 
@@ -29,7 +31,7 @@ void Engine::countPositionsBuildup(const Position &pos, int maxDepth) const {
             break;
         }
 
-        std::vector<Move> legalMoves = moveGenerator->generateLegal();
+        std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
 
         for (const Move &move : legalMoves) {
             const Position::Metadata md = current.pos.makeMove(move);
@@ -46,7 +48,7 @@ void Engine::countPositionsBuildup(const Position &pos, int maxDepth) const {
     std::cout << std::endl;
 }
 
-void Engine::countPositions(Position &state, int depth) const {
+void Engine::countPositions(std::shared_ptr<Position> pos, int depth) const {
     uint64_t total = 0;
     uint64_t captures = 0;
     uint64_t eps = 0;
@@ -63,7 +65,7 @@ void Engine::countPositions(Position &state, int depth) const {
         }
 
         uint64_t count = 0;
-        std::vector<Move> legalMoves = moveGenerator->generateLegal();
+        std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
 
         std::cout << legalMoves.size() << " legal moves\n";
         for (const Move &m : legalMoves) {
@@ -103,7 +105,7 @@ void Engine::countPositions(Position &state, int depth) const {
         return count;
     };
 
-    total = countPositionsHelper(state, depth);  // Start recursion
+    total = countPositionsHelper(*pos, depth);  // Start recursion
 
     std::cout << "Total positions: " << total << "\n";
     std::cout << "Total captures: " << captures << "\n";
@@ -114,9 +116,9 @@ void Engine::countPositions(Position &state, int depth) const {
     std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
 }
 
-eval_t Engine::rateMove(Position &pos, const Move &move) {
-    Piece movedPiece = pos.getBoard().pieceAt(move.fromSquare());
-    Piece capturedPiece = pos.getBoard().pieceAt(move.toSquare());
+eval_t Engine::rateMove(std::shared_ptr<Position> pos, const Move &move) {
+    Piece movedPiece = pos->getBoard().pieceAt(move.fromSquare());
+    Piece capturedPiece = pos->getBoard().pieceAt(move.toSquare());
 
     // capture moves are promising
     eval_t rating = 0;
@@ -131,8 +133,8 @@ eval_t Engine::rateMove(Position &pos, const Move &move) {
 
     // moves that put the opponent in check should be checked early
     /*
-    pos.makeMove(move);
-    if (pos.isCheck()) {
+    pos->makeMove(move);
+    if (pos->isCheck()) {
         rating += 10;
     }
     */
@@ -140,14 +142,14 @@ eval_t Engine::rateMove(Position &pos, const Move &move) {
     return rating;
 }
 
-eval_t Engine::evaluate(const Position &pos) {
-    return evaluate(pos, moveGenerator->generateLegal());
+eval_t Engine::evaluate(const std::shared_ptr<Position> pos) {
+    return evaluate(pos, MoveGenerator::generateLegal(pos));
 }
 
-eval_t Engine::evaluate(const Position &pos, const std::vector<Move> &legalMoves) {
+eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<Move> &&legalMoves) {
     // TODO: Check if checkmate
     if (legalMoves.empty()) {
-        return pos.getSideToMove() == WHITE ? 1738 : -1738;
+        return pos->getSideToMove() == WHITE ? 1738 : -1738;
     }
 
     const eval_t piecePositionWeight = 0.5;
@@ -157,7 +159,7 @@ eval_t Engine::evaluate(const Position &pos, const std::vector<Move> &legalMoves
     // total up pieces, scaling by piece value and position in piece-square
     // board
     for (Piece p : WHITE_PIECES) {
-        uint64_t pieces = pos.getBoard().getPieces(p);
+        uint64_t pieces = pos->getBoard().getPieces(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
@@ -171,7 +173,7 @@ eval_t Engine::evaluate(const Position &pos, const std::vector<Move> &legalMoves
     }
 
     for (Piece p : BLACK_PIECES) {
-        uint64_t pieces = pos.getBoard().getPieces(p);
+        uint64_t pieces = pos->getBoard().getPieces(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
@@ -185,11 +187,11 @@ eval_t Engine::evaluate(const Position &pos, const std::vector<Move> &legalMoves
     }
 
     // return score relative to the current player for negamax
-    return pos.getSideToMove() == WHITE ? score : -score;
+    return pos->getSideToMove() == WHITE ? score : -score;
 }
 
-eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
-    uint64_t h = pos.hash();
+eval_t Engine::negamax(std::shared_ptr<Position> pos, eval_t alpha, eval_t beta, int depth) {
+    uint64_t h = pos->hash();
     if (transpositionTable.find(h) != transpositionTable.end()) {
         const TTEntry &entry = transpositionTable[h];
         if (entry.depth >= depth) {
@@ -206,16 +208,16 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
     }
 
     // base case
-    if (depth >= maxDepth /* || pos.isTerminal() */) {
+    if (depth >= maxDepth /* || pos->isTerminal() */) {
         return evaluate(pos);
     }
 
-    std::vector<Move> legalMoves = moveGenerator->generateLegal();
+    std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
 
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
     for (const Move &move : legalMoves) {
-        const Position::Metadata md = pos.makeMove(move);
+        const Position::Metadata md = pos->makeMove(move);
 
         eval_t eval = -negamax(pos, -beta, -alpha, depth + 1);
 
@@ -229,7 +231,7 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
         }
         transpositionTable[h] = newEntry;
 
-        pos.unmakeMove(move, md);
+        pos->unmakeMove(move, md);
 
         bestEval = std::max(bestEval, eval);
         alpha = std::max(alpha, eval);
@@ -242,26 +244,26 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
     return bestEval;
 }
 
-eval_t Engine::iterativeDeepening(const Position &state) {
+eval_t Engine::iterativeDeepening(std::shared_ptr<Position> pos) {
     eval_t bestEval = std::numeric_limits<eval_t>::lowest();
 
     struct Node {
-        Position state;
+        Position pos;
         int depth;
     };
 
     std::queue<Node> q;
-    q.push({state, 0});
+    q.push(Node{*pos, 0});
 
     while (!q.empty()) {
         Node current = q.front();
         q.pop();
 
-        std::vector<Move> legalMoves = moveGenerator->generateLegal();
+        std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
 
         // evaluate terminal nodes
         if (current.depth >= maxDepth /* || current.state.isTerminal() */) {
-            eval_t evalScore = evaluate(current.state, {});
+            eval_t evalScore = evaluate(std::make_shared<Position>(current.pos), {});
             if (evalScore > bestEval) {
                 bestEval = evalScore;
             }
@@ -269,7 +271,7 @@ eval_t Engine::iterativeDeepening(const Position &state) {
 
         // evaluate non-terminal nodes
         for (const Move &move : legalMoves) {
-            Position nextState = current.state;
+            Position nextState = current.pos;
             nextState.makeMove(move);
             q.push({nextState, current.depth + 1});
         }
@@ -278,7 +280,7 @@ eval_t Engine::iterativeDeepening(const Position &state) {
     return bestEval;
 }
 
-Move Engine::getMove(Position &pos, std::vector<Move> &&legalMoves) {
+Move Engine::getMove(std::shared_ptr<Position> pos, std::vector<Move> &&legalMoves) {
     if (legalMoves.empty()) {
         return Move();
     }
@@ -294,7 +296,7 @@ Move Engine::getMove(Position &pos, std::vector<Move> &&legalMoves) {
     Move bestMove;
 
     for (const Move &move : legalMoves) {
-        const Position::Metadata md = pos.makeMove(move);
+        const Position::Metadata md = pos->makeMove(move);
 
         // state.board.prettyPrint();
         std::cout << "  " << move.toString() << std::endl;
@@ -303,7 +305,7 @@ Move Engine::getMove(Position &pos, std::vector<Move> &&legalMoves) {
                                std::numeric_limits<eval_t>::max(), 0);
 
         std::cout << "\teval = " << eval << std::endl;
-        pos.unmakeMove(move, md);
+        pos->unmakeMove(move, md);
 
         if (eval > bestEval) {
             bestEval = eval;
