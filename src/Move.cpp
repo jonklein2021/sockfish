@@ -20,8 +20,8 @@ void Move::setFlag(Type t) {
     data |= t;
 }
 
-void Move::setPromotedPiece(PieceType promotedPieceType) {
-    data |= ((promotedPieceType - KNIGHT) << 11);  // set piece
+void Move::setPromotedPieceType(PieceType promotedPieceType) {
+    data |= ((promotedPieceType - KNIGHT) << 12);  // set piece
     data |= PROMOTION;                             // set flag
 }
 
@@ -32,7 +32,7 @@ Move Move::fromCoordinateString(const std::string &coords) {
 }
 
 std::string Move::toCoordinateString() const {
-    return squareToCoordinateString(fromSquare()) + squareToCoordinateString(toSquare());
+    return squareToCoordinateString(getFromSquare()) + squareToCoordinateString(getToSquare());
 }
 
 std::string Move::toString() const {
@@ -41,7 +41,7 @@ std::string Move::toString() const {
         ss << toCoordinateString() << ", ";
     }
     if (isPromotion()) {
-        ss << "Promote to " << pieceTypeNames[promotedPieceType()].data() << ", ";
+        ss << "Promote to " << pieceTypeNames[getPromotedPieceType()].data() << ", ";
     }
     if (isEnPassant()) {
         ss << "En Passant, ";

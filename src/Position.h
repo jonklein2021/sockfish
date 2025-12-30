@@ -96,9 +96,9 @@ class Position {
 
         // group moves by the piece moved
         for (const Move &m : moveList) {
-            Piece moved = board.pieceAt(m.fromSquare());
-            movesFromSquares[m.fromSquare()].first = moved;
-            movesFromSquares[m.fromSquare()].second.push_back(m.toSquare());
+            Piece moved = board.pieceAt(m.getFromSquare());
+            movesFromSquares[m.getFromSquare()].first = moved;
+            movesFromSquares[m.getFromSquare()].second.push_back(m.getToSquare());
         }
 
         // build output string

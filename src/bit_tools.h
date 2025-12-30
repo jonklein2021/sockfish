@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Position.h"
 #include "types.h"
-#include <cstdint>
 
 #include <SFML/System/Vector2.hpp>
+#include <cstdint>
+#include <memory>
 
 /**
  * Returns index of the least significant bit
@@ -179,8 +181,8 @@ Bitboard computeKingAttacks(const Bitboard squareBit);
  *
  * @param bb the bitboard to print
  */
-void prettyPrintPosition(const Bitboard pieceBits[12], const bool noFlip);
+void prettyPrintPosition(std::shared_ptr<Position> pos, bool flip = false);
 
 void printBitboard(const Bitboard bb);
 
-void printBoards(const Bitboard pieceBits[12]);
+void printPieceValues(std::shared_ptr<Position> pos);

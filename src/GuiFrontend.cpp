@@ -88,7 +88,7 @@ void GuiFrontend::handleEvents() {
                 // N.B: texture change should be handled by boardRenderer
                 selectedPiece->piece = p;
 
-                candidate.setPromotedPiece(pieceToPT(p));
+                candidate.setPromotedPieceType(pieceToPT(p));
 
                 std::cout << candidate.toString() << std::endl;
 
@@ -135,7 +135,7 @@ void GuiFrontend::handleEvents() {
                     // necessary to match with a legal move
                     if (pawnPromoting) {
                         candidate.setFlag(Move::Type::PROMOTION);
-                        candidate.setPromotedPiece(QUEEN);
+                        candidate.setPromotedPieceType(QUEEN);
                     }
 
                     // check this move against set of legal moves

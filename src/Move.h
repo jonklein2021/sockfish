@@ -13,8 +13,8 @@ class Move {
    private:
     /**
      * data[0:5]: from Square (6 bits)
-     * data[6:10]: to Square (6 bits)
-     * data[11:13]: promotedPieceType (2 bits)
+     * data[6:11]: to Square (6 bits)
+     * data[12:13]: promotedPieceType (2 bits)
      *  0b00 -> Knight
      *  0b01 -> Bishop
      *  0b10 -> Rook
@@ -37,28 +37,28 @@ class Move {
         : data(from | (to << 6)) {}
 
     constexpr Move(Square from, Square to, Type moveType, PieceType promotedPieceType)
-        : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 11)) {}
+        : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 12)) {}
 
     static Move fromCoordinateString(const std::string &coords);
 
     void setFlag(Type t);
 
-    void setPromotedPiece(PieceType promotedPieceType);
+    void setPromotedPieceType(PieceType promotedPieceType);
 
     constexpr uint16_t raw() const {
         return data;
     }
 
-    constexpr Square fromSquare() const {
+    constexpr Square getFromSquare() const {
         return Square(data & 0x3F);
     }
 
-    constexpr Square toSquare() const {
+    constexpr Square getToSquare() const {
         return Square((data >> 6) & 0x3F);
     }
 
-    constexpr PieceType promotedPieceType() const {
-        return PieceType(((data >> 11) & 0x3) + KNIGHT);
+    constexpr PieceType getPromotedPieceType() const {
+        return PieceType(((data >> 12) & 0x3) + KNIGHT);
     }
 
     constexpr bool isPromotion() const {

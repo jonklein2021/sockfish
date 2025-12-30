@@ -29,6 +29,8 @@ enum OccupancyType { WHITE_OCCUPANCY, BLACK_OCCUPANCY, BOTH_OCCUPANCY, EMPTY_OCC
  */
 enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
 
+constexpr std::array<PieceType, 6> PIECE_TYPES = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
+
 /**
  * Represents each possible piece, including color
  */

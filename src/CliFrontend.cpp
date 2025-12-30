@@ -40,7 +40,7 @@ Move CliFrontend::getMoveFromStdin() {
         // check if the move is legal before returning it
         // todo: check for castling
         candidate = Move::fromCoordinateString(input);
-        const Square from = candidate.fromSquare(), to = candidate.toSquare();
+        const Square from = candidate.getFromSquare(), to = candidate.getToSquare();
         const Piece pieceMoved = game.getPosition().getBoard().pieceAt(from);
 
         // check for pawn promotion
@@ -49,7 +49,7 @@ Move CliFrontend::getMoveFromStdin() {
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
         if (pawnPromoting) {
-            candidate.setPromotedPiece(QUEEN);
+            candidate.setPromotedPieceType(QUEEN);
         }
 
         for (Move move : legalMoves) {
@@ -71,16 +71,16 @@ Move CliFrontend::getMoveFromStdin() {
             std::string promotion;
             std::getline(std::cin, promotion);
             if (promotion == "Q" || promotion == "q") {
-                candidate.setPromotedPiece(QUEEN);
+                candidate.setPromotedPieceType(QUEEN);
                 break;
             } else if (promotion == "N" || promotion == "n") {
-                candidate.setPromotedPiece(KNIGHT);
+                candidate.setPromotedPieceType(KNIGHT);
                 break;
             } else if (promotion == "R" || promotion == "r") {
-                candidate.setPromotedPiece(ROOK);
+                candidate.setPromotedPieceType(ROOK);
                 break;
             } else if (promotion == "B" || promotion == "b") {
-                candidate.setPromotedPiece(BISHOP);
+                candidate.setPromotedPieceType(BISHOP);
                 break;
             } else {
                 std::cout << "Error: Invalid promotion piece" << std::endl;

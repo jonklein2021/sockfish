@@ -73,7 +73,7 @@ void Engine::countPositions(std::shared_ptr<Position> pos, int depth) const {
         }
 
         for (const Move &move : legalMoves) {
-            const Piece capturedPiece = state.getBoard().pieceAt(move.toSquare());
+            const Piece capturedPiece = state.getBoard().pieceAt(move.getToSquare());
             const Position::Metadata md = state.makeMove(move);
 
             count += countPositionsHelper(state, depth - 1);
@@ -117,8 +117,8 @@ void Engine::countPositions(std::shared_ptr<Position> pos, int depth) const {
 }
 
 eval_t Engine::rateMove(std::shared_ptr<Position> pos, const Move &move) {
-    Piece movedPiece = pos->getBoard().pieceAt(move.fromSquare());
-    Piece capturedPiece = pos->getBoard().pieceAt(move.toSquare());
+    Piece movedPiece = pos->getBoard().pieceAt(move.getFromSquare());
+    Piece capturedPiece = pos->getBoard().pieceAt(move.getToSquare());
 
     // capture moves are promising
     eval_t rating = 0;
@@ -128,7 +128,7 @@ eval_t Engine::rateMove(std::shared_ptr<Position> pos, const Move &move) {
 
     // pawn promotion moves are likely to be good
     if (move.isPromotion()) {
-        rating += pieceValues[move.promotedPieceType()] - pieceValues[movedPiece];
+        rating += pieceValues[move.getPromotedPieceType()] - pieceValues[movedPiece];
     }
 
     // moves that put the opponent in check should be checked early

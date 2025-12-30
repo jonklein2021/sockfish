@@ -2,15 +2,16 @@
 
 #include "types.h"
 
+#include <bitset>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 
-void prettyPrintPosition(const Bitboard pieceBits[12], const bool noFlip) {
-    std::ostringstream out;
-    out << "\n";
+void prettyPrintPosition(std::shared_ptr<Position> pos, bool flip) {
+    std::ostringstream out("\n");
 
     for (int i = 0; i < 8; i++) {
-        int rank = noFlip ? i : 7 - i;
+        int rank = flip ? 7 - i : i;
 
         // row border
         out << "   +----+----+----+----+----+----+----+----+\n";
@@ -19,22 +20,16 @@ void prettyPrintPosition(const Bitboard pieceBits[12], const bool noFlip) {
         out << " " << (8 - rank) << " ";
 
         for (int j = 0; j < 8; j++) {
-            int file = noFlip ? j : 7 - j;
-            int squareIndex = rank * 8 + file;
-            bool found = false;
+            int file = flip ? 7 - j : j;
+            Square sq = xyToSquare(file, rank);
 
             out << "| ";
 
-            for (int p = 0; p < 12; p++) {
-                if (pieceBits[p] & (1ull << squareIndex)) {
-                    out << pieceFilenames[p] << " ";
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            Piece p = pos->getBoard().pieceAt(sq);
+            if (p == NONE) {
                 out << "   ";
+            } else {
+                out << pieceFilenames[p] << " ";
             }
         }
 
@@ -46,13 +41,21 @@ void prettyPrintPosition(const Bitboard pieceBits[12], const bool noFlip) {
 
     // file indices
     out << "     ";
-    if (noFlip) {
-        out << "a    b    c    d    e    f    g    h  \n";
-    } else {
+    if (flip) {
         out << "h    g    f    e    d    c    b    a  \n";
+    } else {
+        out << "a    b    c    d    e    f    g    h  \n";
     }
 
-    std::cout << out.str() << std::endl;
+    // print metadata
+    const Position::Metadata md = pos->getMetadata();
+    out << "\nCaptured piece: " << pieceNames[md.capturedPiece];
+    out << "\nMoves since capture: " << md.movesSinceCapture;
+    out << "\nCastle rights: 0b" << std::bitset<8>(md.castleRights);
+    out << "\nEn passant square: "
+        << ((md.enPassantSquare == a1) ? "-" : squareToCoordinateString(md.enPassantSquare));
+
+    std::cout << out.str() << "\n" << std::endl;
 }
 
 void printBitboard(const Bitboard bitboard) {
@@ -69,9 +72,20 @@ void printBitboard(const Bitboard bitboard) {
     std::cout << out.str() << std::endl;
 }
 
-void printBoards(const Bitboard pieceBits[12]) {
-    for (int i = 0; i < 12; i++) {
-        std::cout << pieceFilenames[i] << std::endl;
-        printBitboard(pieceBits[i]);
+void printPieceValues(std::shared_ptr<Position> pos) {
+    std::ostringstream out;
+    for (PieceType pt : PIECE_TYPES) {
+        const Piece white = ptToPiece(pt, WHITE);
+        const Bitboard whiteBB = pos->getBoard().getPieces(white);
+        out << pieceFilenames[white] << ":";
+        out << "0x" << std::hex << std::setw(16) << std::setfill('0') << whiteBB;
+        out << "\t";
+
+        const Piece black = ptToPiece(pt, BLACK);
+        const Bitboard blackBB = pos->getBoard().getPieces(black);
+        out << pieceFilenames[black] << ":";
+        out << "0x" << std::hex << std::setw(16) << std::setfill('0') << blackBB;
+        out << "\n";
     }
+    std::cout << out.str() << std::endl;
 }
