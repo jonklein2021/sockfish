@@ -246,13 +246,13 @@ void GuiFrontend::draw() {
 
             if (!visualPieces.count(pieceSq) || visualPieces[pieceSq].piece != p) {
                 visualPieces[pieceSq] = VisualPiece(p, pieceSq, pieceTextures[p]);
+
+                const int file = pieceSq % 8;
+                const int rank = pieceSq / 8;
+
+                visualPieces[pieceSq].sprite->setPosition(
+                    sf::Vector2f(file * TILE_SIZE, rank * TILE_SIZE));
             }
-
-            const int file = pieceSq % 8;
-            const int rank = pieceSq / 8;
-
-            visualPieces[pieceSq].sprite->setPosition(
-                sf::Vector2f(file * TILE_SIZE, rank * TILE_SIZE));
 
             // draw sprite on the window
             window.draw(*visualPieces[pieceSq].sprite);
@@ -275,7 +275,8 @@ void GuiFrontend::update() {
     // mouse hovers over a piece
     const Square hovered = squareUnderMouse();
     if (visualPieces.count(hovered) && visualPieces[hovered].sprite &&
-        visualPieces[hovered].sprite->getGlobalBounds().contains(mousePos)) {
+        visualPieces[hovered].sprite->getGlobalBounds().contains(
+            sf::Vector2f(mousePos.x, mousePos.y))) {
         window.setMouseCursor(handCursor);
 
         // drag-and-drop logic: select piece with mouse
