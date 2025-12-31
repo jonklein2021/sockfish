@@ -35,15 +35,18 @@ class GuiFrontend {
     sf::Texture boardTexture;
     sf::Sprite boardSprite;
 
-    // array of pieces on the screen alongside their sprites
+    // stores texture for each Piece enum
     std::array<sf::Texture, 12> pieceTextures;
+
+    // stores on-screen pieces and their corresponding sprites
     std::unordered_map<Square, VisualPiece> visualPieces;
 
     // self-explanatory
+    sf::Cursor arrowCursor, handCursor;  // make this static?
     PromotionMenu promotionMenu;
 
     // drag-and-drop variables
-    sf::Vector2i mousePos;
+    sf::Vector2f mousePos;
     VisualPiece *selectedPiece = nullptr;
     bool isDragging = false;
 
@@ -58,6 +61,11 @@ class GuiFrontend {
     void loadPieceTextures();
 
     /**
+     * Syncs the visual pieces with the current position
+     */
+    // void syncVisualPieces();
+
+    /**
      * Draws the current position on the screen
      */
     void draw();
@@ -65,7 +73,7 @@ class GuiFrontend {
     /**
      * Returns the Square the mouse is hovering over
      */
-    Square squareUnderMouse(sf::Vector2i mouse) const;
+    Square squareUnderMouse() const;
 
     /**
      * Primary event loop; handles window resizing,

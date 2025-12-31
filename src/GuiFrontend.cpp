@@ -7,22 +7,46 @@
 
 GuiFrontend::GuiFrontend(GameController &game)
     : game(std::move(game)),
-      window(sf::VideoMode({BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE}), "Cheese", sf::Style::Resize),
-      view(sf::Vector2f(0, 0), sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)),
+      window(sf::VideoMode({BOARD_SIZE, BOARD_SIZE}), "Cheese", sf::Style::Resize),
+      view({BOARD_SIZE / 2.f, BOARD_SIZE / 2.f}, {BOARD_SIZE, BOARD_SIZE}),
       themeName(DEFAULT_PIECE_THEME),
       boardTexture(BOARD_TEXTURE_PATH),
       boardSprite(boardTexture),
+      arrowCursor(sf::Cursor::Type::Arrow),
+      handCursor(sf::Cursor::Type::Hand),
       promotionMenu(std::string(DEFAULT_PIECE_THEME), game.getHumanSide()) {
+    initializeScreen();
+}
+
+void GuiFrontend::initializeScreen() {
     window.setView(view);
 
+    // load piece textures
     for (Piece p : ALL_PIECES) {
-        const std::string pieceFilename =
-            std::string(PIECE_TEXTURE_PATH) + themeName + std::string(pieceFilenames[p]) + ".png";
+        const std::string pieceFilename = std::string(PIECE_TEXTURE_PATH) + themeName + "/" +
+                                          std::string(pieceFilenames[p]) + ".png";
         if (!pieceTextures[p].loadFromFile(pieceFilename)) {
             std::cerr << "Error loading piece texture: " << pieceFilenames[p] << std::endl;
             exit(1);
         }
     }
+
+    // load board texture
+    if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
+        std::cerr << "Error loading board texture" << std::endl;
+        exit(1);
+    }
+
+    // set up board sprite
+    boardSprite.setTexture(boardTexture);
+    boardSprite.setPosition({0.0, 0.0});
+    sf::Vector2u texSize = boardTexture.getSize();
+    boardSprite.setScale({float(BOARD_SIZE) / texSize.x, float(BOARD_SIZE) / texSize.y});
+
+    // set up cursors
+    arrowCursor = arrowCursor.createFromSystem(sf::Cursor::Type::Arrow).value();
+    handCursor = handCursor.createFromSystem(sf::Cursor::Type::Hand).value();
+    window.setMouseCursor(arrowCursor);
 }
 
 void GuiFrontend::run() {
@@ -33,7 +57,7 @@ void GuiFrontend::run() {
 
             // update sprites with this move
             // N.B: does this need to go here?
-            draw();
+            // draw();
 
             // check if game has ended
             if (game.isGameOver()) {
@@ -52,7 +76,7 @@ void GuiFrontend::run() {
 }
 
 void GuiFrontend::handleEvents() {
-    mousePos = sf::Mouse::getPosition(window);
+    mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     Move candidate;
 
     // SFML 3.0 event handling
@@ -68,11 +92,11 @@ void GuiFrontend::handleEvents() {
             float windowHeight = resized->size.y;
 
             // compute the new view size; ensure the board remains square
-            float scale = std::min(windowWidth / BOARD_PIXEL_SIZE, windowHeight / BOARD_PIXEL_SIZE);
-            float newWidth = scale * BOARD_PIXEL_SIZE, newHeight = scale * BOARD_PIXEL_SIZE;
+            float scale = std::min(windowWidth / BOARD_SIZE, windowHeight / BOARD_SIZE);
+            float newWidth = scale * BOARD_SIZE, newHeight = scale * BOARD_SIZE;
 
             // center board viewport wrt the window
-            view.setSize(sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
+            view.setSize(sf::Vector2f(BOARD_SIZE, BOARD_SIZE));
             view.setViewport(
                 sf::FloatRect(sf::Vector2f((windowWidth - newWidth) / (2.0f * windowWidth),
                                            (windowHeight - newHeight) / (2.0f * windowHeight)),
@@ -89,8 +113,6 @@ void GuiFrontend::handleEvents() {
                 selectedPiece->piece = p;
 
                 candidate.setPromotedPieceType(pieceToPT(p));
-
-                std::cout << candidate.toString() << std::endl;
 
                 // apply move to internal game state
                 game.makeHumanMove(candidate);
@@ -116,9 +138,15 @@ void GuiFrontend::handleEvents() {
         if (const auto *mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
             if (mouseReleased->button == sf::Mouse::Button::Left) {
                 isDragging = false;
+
+                // DEBUG
+                printf("Clicked square %s, mousePos=(%.2f, %.2f)\n",
+                       squareToCoordinateString(squareUnderMouse()).c_str(), mousePos.x,
+                       mousePos.y);
+
                 if (game.getHumanSide() == game.getSideToMove() && selectedPiece) {
                     // snap to nearest tile
-                    int newX = mousePos.x / TILE_PIXEL_SIZE, newY = mousePos.y / TILE_PIXEL_SIZE;
+                    int newX = mousePos.x / TILE_SIZE, newY = mousePos.y / TILE_SIZE;
 
                     Square oldSq = selectedPiece->sq;
                     Square newSq = xyToSquare(newX, newY);
@@ -140,9 +168,9 @@ void GuiFrontend::handleEvents() {
 
                     // check this move against set of legal moves
                     bool validMove = false;
-                    std::cout << "LEGAL MOVES:" << std::endl;
+                    // std::cout << "LEGAL MOVES:" << std::endl;
                     for (const Move &m : game.legalMoves()) {
-                        std::cout << m.toString() << std::endl;
+                        // std::cout << m.toString() << std::endl;
                         if (candidate == m) {
                             candidate = m;
                             validMove = true;
@@ -155,7 +183,7 @@ void GuiFrontend::handleEvents() {
 
                     if (validMove) {
                         // update board with new move
-                        draw();
+                        // draw();
 
                         // show promotion menu if pawn is promoting
                         if (pawnPromoting) {
@@ -164,8 +192,8 @@ void GuiFrontend::handleEvents() {
                             // snap to grid
                             selectedPiece->sq = xyToSquare(displayX, displayY);
                             if (selectedPiece->sprite) {
-                                selectedPiece->sprite->setPosition(sf::Vector2f(
-                                    displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
+                                selectedPiece->sprite->setPosition(
+                                    sf::Vector2f(displayX * TILE_SIZE, displayY * TILE_SIZE));
                             }
 
                             return;
@@ -185,7 +213,7 @@ void GuiFrontend::handleEvents() {
                     } else {
                         // reset piece position if move is invalid
                         newX = oldSq % 8;
-                        newY = oldSq / 3;
+                        newY = oldSq / 8;
                         // displayX = playerIsWhite ? newX : 7 - newX;
                         // displayY = playerIsWhite ? newY : 7 - newY;
                         displayX = newX;
@@ -196,7 +224,7 @@ void GuiFrontend::handleEvents() {
                     selectedPiece->sq = xyToSquare(displayX, displayY);
                     if (selectedPiece->sprite) {
                         selectedPiece->sprite->setPosition(
-                            sf::Vector2f(displayX * TILE_PIXEL_SIZE, displayY * TILE_PIXEL_SIZE));
+                            sf::Vector2f(displayX * TILE_SIZE, displayY * TILE_SIZE));
                     }
                     selectedPiece = nullptr;
                 }
@@ -206,42 +234,36 @@ void GuiFrontend::handleEvents() {
 }
 
 void GuiFrontend::draw() {
-    // window.clear(sf::Color(50, 50, 50)); // used to have this line of code here for some reason?
-
     // draw the board
     window.draw(boardSprite);
 
-    // for each piece in the current position, draw its sprite in the correct location on the board
+    // sync the visual pieces with the current position
     for (Piece p : ALL_PIECES) {
         auto bb = game.getPosition().board.getPieces(p);
         while (bb) {
-            const Bitboard pieceSqBB = bb & -bb;  // isolate LSB
+            const Bitboard pieceSqBB = bb & -bb;
             const Square pieceSq = Square(indexOfLs1b(pieceSqBB));
 
-            // create entry or update existing entry if invalid
             if (!visualPieces.count(pieceSq) || visualPieces[pieceSq].piece != p) {
                 visualPieces[pieceSq] = VisualPiece(p, pieceSq, pieceTextures[p]);
             }
 
-            // set position of sprite
-            const float displayX = TILE_PIXEL_SIZE * pieceSq % 8;
-            const float displayY = TILE_PIXEL_SIZE * pieceSq >> 3;  // same as ... * pieceSq / 8
-            visualPieces[pieceSq].sprite->setPosition({displayX, displayY});
+            const int file = pieceSq % 8;
+            const int rank = pieceSq / 8;
+
+            visualPieces[pieceSq].sprite->setPosition(
+                sf::Vector2f(file * TILE_SIZE, rank * TILE_SIZE));
 
             // draw sprite on the window
             window.draw(*visualPieces[pieceSq].sprite);
 
-            bb ^= pieceSqBB;  // pop LSB
+            bb ^= pieceSqBB;
         }
     }
-
-    // TODO: highlight the current square that the mouse hovers over
-
-    window.display();
 }
 
-Square GuiFrontend::squareUnderMouse(sf::Vector2i mouse) const {
-    return Square(8 * mouse.y / TILE_PIXEL_SIZE + mouse.x / TILE_PIXEL_SIZE);
+Square GuiFrontend::squareUnderMouse() const {
+    return xyToSquare(mousePos.x / TILE_SIZE, mousePos.y / TILE_SIZE);
 }
 
 void GuiFrontend::update() {
@@ -251,20 +273,24 @@ void GuiFrontend::update() {
     }
 
     // mouse hovers over a piece
-    Square hovered = squareUnderMouse(mousePos);
-    if (visualPieces.find(hovered) != visualPieces.end()) {
+    const Square hovered = squareUnderMouse();
+    if (visualPieces.count(hovered) && visualPieces[hovered].sprite &&
+        visualPieces[hovered].sprite->getGlobalBounds().contains(mousePos)) {
+        window.setMouseCursor(handCursor);
 
         // drag-and-drop logic: select piece with mouse
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !isDragging) {
             selectedPiece = &visualPieces[hovered];
             isDragging = true;
         }
+    } else {
+        window.setMouseCursor(arrowCursor);
     }
 
     // drag-and-drop logic: move piece with mouse
     if (isDragging && selectedPiece && selectedPiece->sprite) {
         selectedPiece->sprite->setPosition(
-            sf::Vector2f(mousePos.x - 0.5 * TILE_PIXEL_SIZE, mousePos.y - 0.5 * TILE_PIXEL_SIZE));
+            sf::Vector2f(mousePos.x - 0.5 * TILE_SIZE, mousePos.y - 0.5 * TILE_SIZE));
     }
 }
 

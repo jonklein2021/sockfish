@@ -5,7 +5,7 @@
 PromotionMenu::PromotionMenu(const std::string &theme, Color side)
     : selectedPiece(NONE), isVisible(false) {
     // menu will take up the size of the board
-    menu.setSize(sf::Vector2f(BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE));
+    menu.setSize(sf::Vector2f(BOARD_SIZE, BOARD_SIZE));
     menu.setPosition(sf::Vector2f(0, 0));
     menu.setFillColor(sf::Color(0, 0, 0, 200));
 
@@ -14,7 +14,7 @@ PromotionMenu::PromotionMenu(const std::string &theme, Color side)
     // load textures for the promotion pieces
     textures.resize(4);
     for (int i = 0; i < 4; i++) {
-        const std::string filename = std::string(PIECE_TEXTURE_PATH) + theme +
+        const std::string filename = std::string(PIECE_TEXTURE_PATH) + theme + "/" +
                                      std::string(pieceFilenames[pieceOptions[i]]) + ".png";
         if (!textures[i].loadFromFile(filename)) {
             std::cerr << "Error loading promotion piece textures" << std::endl;
@@ -24,28 +24,33 @@ PromotionMenu::PromotionMenu(const std::string &theme, Color side)
     // create circle shapes under each texture
     circles.resize(4);
     for (int i = 0; i < 4; i++) {
-        circles[i].setRadius(TILE_PIXEL_SIZE * 0.48);
+        circles[i].setRadius(TILE_SIZE * 0.48);
         circles[i].setFillColor(sf::Color(255, 255, 255, 127));
         circles[i].setOutlineThickness(0);
         circles[i].setOutlineColor(sf::Color::White);
-        circles[i].setPosition(sf::Vector2f(0, TILE_PIXEL_SIZE * i));
+        circles[i].setPosition(sf::Vector2f(0, TILE_SIZE * i));
     }
 
     // create sprites for each texture - need to initialize with textures
     pieces.reserve(4);
     for (int i = 0; i < 4; i++) {
         pieces.emplace_back(textures[i]);
-        pieces[i].setPosition(sf::Vector2f(0, TILE_PIXEL_SIZE * i));
+        pieces[i].setPosition(sf::Vector2f(0, TILE_SIZE * i));
     }
 }
 
 void PromotionMenu::render(sf::RenderWindow &window) {
-    if (isVisible) {
-        window.draw(menu);  // draw the background of the menu
-        for (int i = 0; i < 4; i++) {
-            window.draw(circles[i]);
-            window.draw(pieces[i]);
-        }
+    if (!isVisible) {
+        return;
+    }
+
+    // draw the menu background
+    window.draw(menu);
+
+    // draw the pieces
+    for (int i = 0; i < 4; i++) {
+        window.draw(circles[i]);
+        window.draw(pieces[i]);
     }
 }
 
@@ -77,8 +82,8 @@ void PromotionMenu::handleEvents(sf::RenderWindow &window,
 
 void PromotionMenu::show(int col) {
     for (int i = 0; i < 4; i++) {
-        circles[i].setPosition(sf::Vector2f(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i));
-        pieces[i].setPosition(sf::Vector2f(col * TILE_PIXEL_SIZE, TILE_PIXEL_SIZE * i));
+        circles[i].setPosition(sf::Vector2f(col * TILE_SIZE, TILE_SIZE * i));
+        pieces[i].setPosition(sf::Vector2f(col * TILE_SIZE, TILE_SIZE * i));
     }
     isVisible = true;
 }

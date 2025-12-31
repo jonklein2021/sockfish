@@ -217,18 +217,17 @@ enum CastleRights : int8_t {
 };
 
 // only used in FEN parsing
-constexpr static inline void addCastleRights(CastleRights &current, const CastleRights &toAdd) {
+constexpr static inline void addCastleRights(CastleRights &current, CastleRights toAdd) {
     current = CastleRights(current | toAdd);
 }
 
-constexpr static inline void removeCastleRights(CastleRights &current,
-                                                const CastleRights &toRemove) {
+constexpr static inline void removeCastleRights(CastleRights &current, CastleRights toRemove) {
     current = CastleRights(current & ~toRemove);
 }
 
 // GUI Constants
-constexpr std::string_view PIECE_TEXTURE_PATH = "../assets/pieces/";
+constexpr std::string_view PIECE_TEXTURE_PATH = "../src/assets/pieces/";
 constexpr std::string_view DEFAULT_PIECE_THEME = "horsey";
-constexpr std::string_view BOARD_TEXTURE_PATH = "../assets/board.png";
-constexpr int32_t BOARD_PIXEL_SIZE = 512;
-constexpr int32_t TILE_PIXEL_SIZE = 64;
+constexpr std::string_view BOARD_TEXTURE_PATH = "../src/assets/board.png";
+constexpr int32_t BOARD_SIZE = 512;
+constexpr int32_t TILE_SIZE = 64;
