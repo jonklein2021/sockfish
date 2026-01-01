@@ -4,35 +4,32 @@
 #include "types.h"
 
 #include <SFML/System/Vector2.hpp>
-#include <cstdint>
 #include <memory>
 
 /**
- * Returns index of the least significant bit
- *
- * Equivalently, the number of trailing 0s
+ * Returns the least significant bit as a Square
  */
-#define indexOfLs1b(bb) __builtin_ctzll(bb)
+#define getLsbIndex(bb) __builtin_ctzll(bb)
 
 /**
  * Returns the bit at the given index
  *
  * @param bitboard the relevant bitboard
- * @param index the index of that bitboard to check
+ * @param sq the square (index) of that bitboard to check
  * @return the bit at the given index
  */
-inline static Bitboard getBit(Bitboard bb, int index) {
-    return bb & (1ull << index);
+inline static constexpr Bitboard getBit(Bitboard bb, Square sq) {
+    return bb & (1ull << sq);
 }
 
 /**
  * Sets the bit at the given index
  *
  * @param bb the relevant bitboard
- * @param index the index of that bitboard to set
+ * @param sq the square (index) of that bitboard to set
  */
-inline static void setBit(Bitboard &bb, int index) {
-    bb |= (1ull << index);
+inline static constexpr void setBit(Bitboard &bb, Square sq) {
+    bb |= (1ull << sq);
 }
 
 /**
@@ -42,7 +39,7 @@ inline static void setBit(Bitboard &bb, int index) {
  * @param y the y coordinate
  * @return the bit corresponding to the coordinates
  */
-inline static Bitboard coordsToBit(int x, int y) {
+inline static constexpr Bitboard coordsToBit(int x, int y) {
     return 1ull << (y * 8 + x);
 }
 
@@ -52,47 +49,10 @@ inline static Bitboard coordsToBit(int x, int y) {
  * @param bb the relevant bitboard
  * @param index the index of that bitboard to pop
  */
-inline static void popBit(Bitboard &bb, int index) {
-    if (getBit(bb, index)) {
-        bb ^= (1ull << index);
+inline static constexpr void popBit(Bitboard &bb, Square sq) {
+    if (getBit(bb, sq)) {
+        bb ^= (1ull << sq);
     }
-}
-
-/**
- * Converts a pair of coordinates (x, y) to an offset
- * in a bitboard (1 << offset is the bit in the bitboard)
- */
-inline static uint8_t coordsToOffset(sf::Vector2<int> coords) {
-    return coords.y * 8 + coords.x;
-}
-
-/**
- * Converts an offset (1 << offset is the bit in the bitboard)
- * to a pair of coordinates (x, y)
- */
-inline static sf::Vector2<int> offsetToCoords(uint8_t offset) {
-    return {offset % 8, offset / 8};
-}
-
-/**
- * Converts a pair of coordinates to a bit
- *
- * @param coords the coordinates to convert (x, y)
- * @return the bit corresponding to the coordinates
- */
-inline static Bitboard coordsToBit(sf::Vector2<int> coords) {
-    return coordsToBit(coords.x, coords.y);
-}
-
-/**
- * Converts a bit to a pair of coordinates
- *
- * @param bit the bit to convert
- * @return the corresponding coordinates (x, y)
- */
-inline static sf::Vector2<int> bitToCoords(Bitboard bit) {
-    int offset = indexOfLs1b(bit);
-    return offsetToCoords(offset);
 }
 
 /*** MOVE GENERATION TOOLS ***/
@@ -125,55 +85,6 @@ inline static sf::Vector2<int> bitToCoords(Bitboard bit) {
     Move one square right: (x & not_file_h) << 1
 
 */
-
-/**
- * Computes the attacks of a pawn on the given square
- *
- * @param squareBit the bit denoting where the pawn is
- * @param white true iff the pawn is white
- * @return the bitboard of the pawn's attacks
- */
-Bitboard computePawnAttacks(const Bitboard squareBit, const bool white);
-
-/**
- * Computes the attacks of a knight on the given square
- *
- * @param squareBit the bit denoting where the knight is
- * @return the bitboard of the knight's attacks
- */
-Bitboard computeKnightAttacks(const Bitboard squareBit);
-
-/**
- * Computes the attacks of a bishop on the given square
- *
- * @param squareBit the bit denoting where the bishop is
- * @return the bitboard of the bishop's attacks
- */
-Bitboard computeBishopAttacks(const Bitboard squareBit);
-
-/**
- * Computes the attacks of a rook on the given square
- *
- * @param squareBit the bit denoting where the rook is
- * @return the bitboard of the rook's attacks
- */
-Bitboard computeRookAttacks(const Bitboard squareBit);
-
-/**
- * Computes the attacks of a queen on the given square
- *
- * @param squareBit the bit denoting where the queen is
- * @return the bitboard of the queen's attacks
- */
-Bitboard computeQueenAttacks(const Bitboard squareBit);
-
-/**
- * Computes the attacks of a king on the given square
- *
- * @param squareBit the bit denoting where the king is
- * @return the bitboard of the king's attacks
- */
-Bitboard computeKingAttacks(const Bitboard squareBit);
 
 /**
  * Converts the piece bitboards to a human-readable

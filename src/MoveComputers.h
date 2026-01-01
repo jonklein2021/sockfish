@@ -217,10 +217,10 @@ Bitboard computeKingAttacks(std::shared_ptr<Position> pos, Square sq) {
 
 Bitboard computePieceAttacks(std::shared_ptr<Position> pos, Piece piece) {
     Bitboard attacks = 0;
-    Bitboard pieceBitboard = pos->board.getPieces(piece);
+    Bitboard pieceBitboard = pos->getPieces(piece);
     while (pieceBitboard) {
         const Bitboard sqBB = pieceBitboard & -pieceBitboard;  // isolate the LSB
-        const Square sq = Square(indexOfLs1b(sqBB));
+        const Square sq = Square(getLsbIndex(sqBB));
 
         // compute attacks for this piece
         switch (piece) {

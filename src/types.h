@@ -8,7 +8,7 @@
 
 using Bitboard = uint64_t;
 
-using Eval = int32_t;
+using Eval = int;
 
 /**
  * Conveys the player's pieces during game initialization
@@ -229,5 +229,5 @@ constexpr static inline void removeCastleRights(CastleRights &current, CastleRig
 constexpr std::string_view PIECE_TEXTURE_PATH = "../src/assets/pieces/";
 constexpr std::string_view DEFAULT_PIECE_THEME = "horsey";
 constexpr std::string_view BOARD_TEXTURE_PATH = "../src/assets/board.png";
-constexpr int32_t BOARD_SIZE = 512;
-constexpr int32_t TILE_SIZE = 64;
+constexpr int BOARD_SIZE = 512;
+constexpr int TILE_SIZE = 64;

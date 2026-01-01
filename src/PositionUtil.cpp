@@ -8,8 +8,8 @@ bool PositionUtil::isUnderAttack(std::shared_ptr<Position> pos, Square sq, Color
 }
 
 bool PositionUtil::isCheck(std::shared_ptr<Position> pos, Color defender) {
-    const Bitboard kingBB = pos->board.getPieces(ptToPiece(KING, defender));
-    const Square kingSq = Square(indexOfLs1b(kingBB));
+    const Bitboard kingBB = pos->getPieces(ptToPiece(KING, defender));
+    const Square kingSq = Square(getLsbIndex(kingBB));
 
     return isUnderAttack(pos, kingSq, otherColor(defender));
 }
@@ -20,19 +20,18 @@ bool PositionUtil::isCheck(std::shared_ptr<Position> pos) {
 
 bool PositionUtil::insufficientMaterial(std::shared_ptr<Position> pos) {
     // count all pieces
-    auto board = pos->board;
     const int pieceCount[12] = {
-        __builtin_popcountll(board.getPieces(WP)),
-        __builtin_popcountll(board.getPieces(WN)),
-        __builtin_popcountll(board.getPieces(WB)),
-        __builtin_popcountll(board.getPieces(WR)),
-        __builtin_popcountll(board.getPieces(WQ)),
+        __builtin_popcountll(pos->getPieces(WP)),
+        __builtin_popcountll(pos->getPieces(WN)),
+        __builtin_popcountll(pos->getPieces(WB)),
+        __builtin_popcountll(pos->getPieces(WR)),
+        __builtin_popcountll(pos->getPieces(WQ)),
         1,  // always 1 white king
-        __builtin_popcountll(board.getPieces(BP)),
-        __builtin_popcountll(board.getPieces(BN)),
-        __builtin_popcountll(board.getPieces(BB)),
-        __builtin_popcountll(board.getPieces(BR)),
-        __builtin_popcountll(board.getPieces(BQ)),
+        __builtin_popcountll(pos->getPieces(BP)),
+        __builtin_popcountll(pos->getPieces(BN)),
+        __builtin_popcountll(pos->getPieces(BB)),
+        __builtin_popcountll(pos->getPieces(BR)),
+        __builtin_popcountll(pos->getPieces(BQ)),
         1  // always 1 black king
     };
 

@@ -159,7 +159,7 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
     // total up pieces, scaling by piece value and position in piece-square
     // board
     for (Piece p : WHITE_PIECES) {
-        uint64_t pieces = pos->getBoard().getPieces(p);
+        uint64_t pieces = pos->getPieces(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
@@ -173,7 +173,7 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
     }
 
     for (Piece p : BLACK_PIECES) {
-        uint64_t pieces = pos->getBoard().getPieces(p);
+        uint64_t pieces = pos->getPieces(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;

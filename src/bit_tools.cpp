@@ -60,10 +60,10 @@ void prettyPrintPosition(std::shared_ptr<Position> pos, bool flip) {
 
 void printBitboard(const Bitboard bitboard) {
     std::ostringstream out;
-    for (int y = 0; y < 8; y++) {
-        out << (8 - y) << "  ";
-        for (int x = 0; x < 8; x++) {
-            out << ((bitboard & coordsToBit(x, y)) ? "1" : "0") << " ";
+    for (int rank = 0; rank < 8; rank++) {
+        out << (8 - rank) << "  ";
+        for (int file = 0; file < 8; file++) {
+            out << (getBit(bitboard, xyToSquare(file, rank)) ? "1" : "0") << " ";
         }
         out << "\n";
     }
@@ -76,13 +76,13 @@ void printPieceValues(std::shared_ptr<Position> pos) {
     std::ostringstream out;
     for (PieceType pt : PIECE_TYPES) {
         const Piece white = ptToPiece(pt, WHITE);
-        const Bitboard whiteBB = pos->getBoard().getPieces(white);
+        const Bitboard whiteBB = pos->getPieces(white);
         out << pieceFilenames[white] << ":";
         out << "0x" << std::hex << std::setw(16) << std::setfill('0') << whiteBB;
         out << "\t";
 
         const Piece black = ptToPiece(pt, BLACK);
-        const Bitboard blackBB = pos->getBoard().getPieces(black);
+        const Bitboard blackBB = pos->getPieces(black);
         out << pieceFilenames[black] << ":";
         out << "0x" << std::hex << std::setw(16) << std::setfill('0') << blackBB;
         out << "\n";

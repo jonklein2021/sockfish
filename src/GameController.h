@@ -12,7 +12,6 @@ class GameController {
     std::vector<Move> moves;
     std::vector<Position::Metadata> hashHistory;
     Color humanSide;
-    Color sideToMove;
 
    public:
     GameController(std::shared_ptr<Position> startPos,
@@ -23,8 +22,9 @@ class GameController {
         return humanSide;
     }
 
-    constexpr Color getSideToMove() const {
-        return sideToMove;
+    // can't be constexpr because shared_ptr method access is not constexpr
+    Color getSideToMove() const {
+        return pos->getSideToMove();
     }
 
     bool isGameOver();

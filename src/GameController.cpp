@@ -7,7 +7,7 @@
 GameController::GameController(std::shared_ptr<Position> startPos,
                                std::unique_ptr<Engine> engine,
                                Color humanSide)
-    : pos(startPos), engine(std::move(engine)), humanSide(humanSide), sideToMove(WHITE) {}
+    : pos(startPos), engine(std::move(engine)), humanSide(humanSide) {}
 
 bool GameController::isGameOver() {
     return PositionUtil::isTerminal(pos);

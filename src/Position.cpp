@@ -14,18 +14,6 @@ Position::Position(const std::string &fen)
     parseFen(fen);
 }
 
-const Board &Position::getBoard() const {
-    return board;
-}
-
-Position::Metadata Position::getMetadata() const {
-    return md;
-}
-
-Color Position::getSideToMove() const {
-    return sideToMove;
-}
-
 void Position::parseFen(const std::string &fen) {
     const size_t n = fen.size();
 

@@ -43,11 +43,21 @@ class Position {
     Position(const std::string &fen);
 
     // Getters
-    const Board &getBoard() const;
+    constexpr const Board &getBoard() const {
+        return board;
+    }
 
-    Metadata getMetadata() const;
+    constexpr Bitboard getPieces(Piece p) const {
+        return board.getPieces(p);
+    }
 
-    Color getSideToMove() const;
+    constexpr Metadata getMetadata() const {
+        return md;
+    }
+
+    constexpr Color getSideToMove() const {
+        return sideToMove;
+    }
 
     /**
      * Parses a FEN string and updates this object
@@ -73,8 +83,8 @@ class Position {
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
 
-    // TODO: Improve this
-    uint64_t hash() {
+    // TODO: Replace this with Zobrist hashing
+    constexpr uint64_t hash() {
         uint64_t res = 0;
 
         for (Piece p : ALL_PIECES) {

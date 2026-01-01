@@ -1,5 +1,7 @@
 #include "types.h"
 
+#include <cstring>
+
 class Board {
    private:
     // represents the location of each piece, indexed by
@@ -10,20 +12,50 @@ class Board {
     // indexes: WHITE, BLACK, BOTH, EMPTY
     Bitboard occupancies[4];
 
-    // TODO: Add a squareToPiece table to speed up pieceAt()
-
    public:
-    // returns a COPY of the bitboard's pieces
-    Bitboard getPieces(Piece p) const;
-    Bitboard getOccupancy(OccupancyType c) const;
+    // all getters return copies, not references
 
-    Piece pieceAt(Square sq) const;
+    constexpr Bitboard getPieces(Piece p) const {
+        return pieces[p];
+    }
 
-    void addPiece(Piece p, Square sq);
-    void removePiece(Piece p, Square sq);
-    void movePiece(Piece p, Square from, Square to);
-    void updateOccupancies();
+    constexpr Bitboard getOccupancy(OccupancyType c) const {
+        return occupancies[c];
+    }
 
-    // do I need this?
-    void clear();
+    // TODO: Add a squareToPiece table to speed this up
+    constexpr Piece pieceAt(Square sq) const {
+        for (Piece p : ALL_PIECES) {
+            if (pieces[p] & (1ull << sq)) {
+                return p;
+            }
+        }
+
+        return NONE;
+    }
+
+    constexpr void addPiece(Piece p, Square sq) {
+        pieces[p] |= (1ull << sq);
+    }
+
+    constexpr void removePiece(Piece p, Square sq) {
+        pieces[p] &= ~(1ull << sq);
+    }
+
+    constexpr void movePiece(Piece p, Square from, Square to) {
+        pieces[p] ^= (1ull << from) | (1ull << to);
+    }
+
+    constexpr void updateOccupancies() {
+        occupancies[WHITE_OCCUPANCY] =
+            pieces[WP] | pieces[WN] | pieces[WB] | pieces[WR] | pieces[WQ] | pieces[WK];
+        occupancies[BLACK_OCCUPANCY] =
+            pieces[BP] | pieces[BN] | pieces[BB] | pieces[BR] | pieces[BQ] | pieces[BK];
+        occupancies[BOTH_OCCUPANCY] = occupancies[WHITE_OCCUPANCY] | occupancies[BLACK_OCCUPANCY];
+        occupancies[EMPTY_OCCUPANCY] = ~occupancies[BOTH_OCCUPANCY];
+    }
+
+    constexpr void clear() {
+        std::memset(pieces, 0, 12 * sizeof(Bitboard));
+    }
 };

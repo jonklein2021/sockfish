@@ -15,6 +15,8 @@ GuiFrontend::GuiFrontend(GameController &game)
       arrowCursor(sf::Cursor::Type::Arrow),
       handCursor(sf::Cursor::Type::Hand),
       promotionMenu(std::string(DEFAULT_PIECE_THEME), game.getHumanSide()) {
+    arrowCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow).value();
+    handCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand).value();
     initializeScreen();
 }
 
@@ -44,8 +46,8 @@ void GuiFrontend::initializeScreen() {
     boardSprite.setScale({float(BOARD_SIZE) / texSize.x, float(BOARD_SIZE) / texSize.y});
 
     // set up cursors
-    arrowCursor = arrowCursor.createFromSystem(sf::Cursor::Type::Arrow).value();
-    handCursor = handCursor.createFromSystem(sf::Cursor::Type::Hand).value();
+    arrowCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow).value();
+    handCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand).value();
     window.setMouseCursor(arrowCursor);
 }
 
@@ -239,10 +241,10 @@ void GuiFrontend::draw() {
 
     // sync the visual pieces with the current position
     for (Piece p : ALL_PIECES) {
-        auto bb = game.getPosition().board.getPieces(p);
+        auto bb = game.getPosition().getPieces(p);
         while (bb) {
             const Bitboard pieceSqBB = bb & -bb;
-            const Square pieceSq = Square(indexOfLs1b(pieceSqBB));
+            const Square pieceSq = Square(getLsbIndex(pieceSqBB));
 
             if (!visualPieces.count(pieceSq) || visualPieces[pieceSq].piece != p) {
                 visualPieces[pieceSq] = VisualPiece(p, pieceSq, pieceTextures[p]);

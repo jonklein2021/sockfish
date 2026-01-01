@@ -9,21 +9,19 @@
 #include <algorithm>
 
 bool MoveGenerator::isMoveLegal(std::shared_ptr<Position> pos, Move &move) {
-    return true;
-    // TODO: FIX Position::makeMove and Position::unmakeMove() before uncommenting the rest
-    // Color moveMaker = pos->getSideToMove();
-    //
-    // // simulate move on copied state
-    // Position::Metadata md = pos->makeMove(move);
-    //
-    // // test if king is in check after move
-    // bool isOurKingInCheck = PositionUtil::isCheck(pos, moveMaker);
-    //
-    // // unmake move to preserve original state
-    // pos->unmakeMove(move, md);
-    //
-    // // return true iff the move hasn't put its own king in check
-    // return !isOurKingInCheck;
+    Color moveMaker = pos->getSideToMove();
+
+    // simulate move on copied state
+    Position::Metadata md = pos->makeMove(move);
+
+    // test if king is in check after move
+    bool isOurKingInCheck = PositionUtil::isCheck(pos, moveMaker);
+
+    // unmake move to preserve original state
+    pos->unmakeMove(move, md);
+
+    // return true iff the move hasn't put its own king in check
+    return !isOurKingInCheck;
 }
 
 void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
@@ -31,7 +29,7 @@ void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
                                             Square srcSq) {
     while (moves) {
         const Bitboard destSqBB = moves & -moves;
-        const Square destSq = Square(indexOfLs1b(destSqBB));
+        const Square destSq = Square(getLsbIndex(destSqBB));
 
         // TODO: Encode special moves (promotions, en passant, castling)
         moveList.emplace_back(srcSq, destSq);
@@ -47,10 +45,10 @@ void MoveGenerator::appendMovesFromPiece(std::shared_ptr<Position> pos,
                                          MoveComputer moveComputer) {
     const Color toMove = pos->getSideToMove();
     const Piece piece = ptToPiece(pt, toMove);
-    auto bb = pos->board.getPieces(piece);  // N.B: this needs to make a copy
+    auto bb = pos->getPieces(piece);  // N.B: this needs to make a copy
     while (bb) {
         const Bitboard srcSqBB = bb & -bb;  // isolate the LSB
-        const Square srcSq = Square(indexOfLs1b(srcSqBB));
+        const Square srcSq = Square(getLsbIndex(srcSqBB));
 
         // compute a bitboard of all destination squares that this piece can go to,
         // according to the specified moveComputer

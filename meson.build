@@ -22,7 +22,6 @@ sfml_libs = [
 
 common_sources = [
   'src/bit_tools.cpp',
-  'src/Board.cpp',
   'src/Config.cpp',
   'src/CliFrontend.cpp',
   'src/Engine.cpp',
