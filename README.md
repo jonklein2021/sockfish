@@ -2,7 +2,8 @@
 
 ## Dependencies
 - C++17 Compiler
-- SFML 3
+- Meson
+- SFML 3+
 
 ## Build and Run Instructions
 ```

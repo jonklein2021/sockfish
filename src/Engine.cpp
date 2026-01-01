@@ -73,13 +73,13 @@ void Engine::countPositions(std::shared_ptr<Position> pos, int depth) const {
         }
 
         for (const Move &move : legalMoves) {
-            const Piece capturedPiece = state.getBoard().pieceAt(move.getToSquare());
+            const Piece capturedPiece = state.pieceAt(move.getToSquare());
             const Position::Metadata md = state.makeMove(move);
 
             count += countPositionsHelper(state, depth - 1);
             total += count;  // Accumulate total count
 
-            if (capturedPiece != NONE) {
+            if (capturedPiece != NO_PIECE) {
                 captures++;
             }
             if (move.isCastles()) {
@@ -117,12 +117,12 @@ void Engine::countPositions(std::shared_ptr<Position> pos, int depth) const {
 }
 
 eval_t Engine::rateMove(std::shared_ptr<Position> pos, const Move &move) {
-    Piece movedPiece = pos->getBoard().pieceAt(move.getFromSquare());
-    Piece capturedPiece = pos->getBoard().pieceAt(move.getToSquare());
+    Piece movedPiece = pos->pieceAt(move.getFromSquare());
+    Piece capturedPiece = pos->pieceAt(move.getToSquare());
 
     // capture moves are promising
     eval_t rating = 0;
-    if (capturedPiece != NONE) {
+    if (capturedPiece != NO_PIECE) {
         rating += pieceValues[capturedPiece] - pieceValues[movedPiece];
     }
 
@@ -159,7 +159,7 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
     // total up pieces, scaling by piece value and position in piece-square
     // board
     for (Piece p : WHITE_PIECES) {
-        uint64_t pieces = pos->getPieces(p);
+        uint64_t pieces = pos->getPieceBB(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;
@@ -173,7 +173,7 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
     }
 
     for (Piece p : BLACK_PIECES) {
-        uint64_t pieces = pos->getPieces(p);
+        uint64_t pieces = pos->getPieceBB(p);
         while (pieces) {
             int trailingZeros = __builtin_ctzll(pieces);
             int x = trailingZeros % 8;

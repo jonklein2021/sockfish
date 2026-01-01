@@ -3,7 +3,7 @@
 #include <iostream>
 
 PromotionMenu::PromotionMenu(const std::string &theme, Color side)
-    : selectedPiece(NONE), isVisible(false) {
+    : selectedPiece(NO_PIECE), isVisible(false) {
     // menu will take up the size of the board
     menu.setSize(sf::Vector2f(BOARD_SIZE, BOARD_SIZE));
     menu.setPosition(sf::Vector2f(0, 0));

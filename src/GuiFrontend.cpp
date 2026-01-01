@@ -241,7 +241,7 @@ void GuiFrontend::draw() {
 
     // sync the visual pieces with the current position
     for (Piece p : ALL_PIECES) {
-        auto bb = game.getPosition().getPieces(p);
+        auto bb = game.getPosition().getPieceBB(p);
         while (bb) {
             const Bitboard pieceSqBB = bb & -bb;
             const Square pieceSq = Square(getLsbIndex(pieceSqBB));

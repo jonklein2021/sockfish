@@ -14,7 +14,7 @@ struct VisualPiece {
     std::unique_ptr<sf::Sprite> sprite;
 
     VisualPiece()
-        : piece(NONE), sprite(nullptr) {}
+        : piece(NO_PIECE), sprite(nullptr) {}
 
     // Constructor with texture
     explicit VisualPiece(Piece piece, Square sq, const sf::Texture &texture)

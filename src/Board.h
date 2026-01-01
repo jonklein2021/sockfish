@@ -3,63 +3,74 @@
 #include "bit_tools.h"
 #include "types.h"
 
+#include <array>
 #include <cstring>
 
 class Board {
    private:
     // represents the location of each piece, indexed by
     // WP, ..., BK
-    Bitboard pieces[12];
+    std::array<Bitboard, 12> pieceBBs;
 
     // represents the joint occupancy of pieces on the board
     // indexes: WHITE, BLACK, BOTH, EMPTY
-    Bitboard occupancies[4];
+    std::array<Bitboard, 4> occupancies;
+
+    // maps each square to the piece residing on it
+    std::array<Piece, NO_SQ> squareToPiece;
 
    public:
-    // all getters return copies, not references
+    Board() {
+        pieceBBs.fill(0ull);
+        occupancies.fill(0ull);
+        squareToPiece.fill(NO_PIECE);
+    }
 
-    constexpr Bitboard getPieces(Piece p) const {
-        return pieces[p];
+    // all getters return copies, not references
+    constexpr Bitboard getPieceBB(Piece p) const {
+        return pieceBBs[p];
     }
 
     constexpr Bitboard getOccupancy(OccupancyType c) const {
         return occupancies[c];
     }
 
-    // TODO: Add a squareToPiece table to speed this up
     constexpr Piece pieceAt(Square sq) const {
-        for (Piece p : ALL_PIECES) {
-            if (pieces[p] & (1ull << sq)) {
-                return p;
-            }
-        }
-
-        return NONE;
+        return squareToPiece[sq];
     }
 
     constexpr void addPiece(Piece p, Square sq) {
-        setBit(pieces[p], sq);
-        pieces[p] |= (1ull << sq);
+        assert(squareToPiece[sq] == NO_PIECE);
+        squareToPiece[sq] = p;
+        setBit(pieceBBs[p], sq);
     }
 
     constexpr void removePiece(Piece p, Square sq) {
-        pieces[p] &= ~(1ull << sq);
+        assert(squareToPiece[sq] == p);
+        squareToPiece[sq] = NO_PIECE;
+        unsetBit(pieceBBs[p], sq);
     }
 
     constexpr void movePiece(Piece p, Square from, Square to) {
-        pieces[p] ^= (1ull << from) | (1ull << to);
+        assert(squareToPiece[from] == p && squareToPiece[to] == NO_PIECE);
+        my_swap(squareToPiece[from], squareToPiece[to]);
+        pieceBBs[p] ^= (1ull << from) | (1ull << to);
     }
 
+    constexpr void swapPiece(Square sq, Piece from, Piece to) {
+        assert(squareToPiece[sq] == from);
+        squareToPiece[sq] = to;
+        unsetBit(pieceBBs[from], sq);
+        setBit(pieceBBs[to], sq);
+    }
+
+    // allows for updating this table only when strictly necessary
     constexpr void updateOccupancies() {
         occupancies[WHITE_OCCUPANCY] =
-            pieces[WP] | pieces[WN] | pieces[WB] | pieces[WR] | pieces[WQ] | pieces[WK];
+            pieceBBs[WP] | pieceBBs[WN] | pieceBBs[WB] | pieceBBs[WR] | pieceBBs[WQ] | pieceBBs[WK];
         occupancies[BLACK_OCCUPANCY] =
-            pieces[BP] | pieces[BN] | pieces[BB] | pieces[BR] | pieces[BQ] | pieces[BK];
+            pieceBBs[BP] | pieceBBs[BN] | pieceBBs[BB] | pieceBBs[BR] | pieceBBs[BQ] | pieceBBs[BK];
         occupancies[BOTH_OCCUPANCY] = occupancies[WHITE_OCCUPANCY] | occupancies[BLACK_OCCUPANCY];
         occupancies[EMPTY_OCCUPANCY] = ~occupancies[BOTH_OCCUPANCY];
-    }
-
-    constexpr void clear() {
-        std::memset(pieces, 0, 12 * sizeof(Bitboard));
     }
 };

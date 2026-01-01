@@ -27,26 +27,26 @@ enum OccupancyType { WHITE_OCCUPANCY, BLACK_OCCUPANCY, BOTH_OCCUPANCY, EMPTY_OCC
 /**
  * Represents each type of piece without a color
  */
-enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
+enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PT };
 
 constexpr std::array<PieceType, 6> PIECE_TYPES = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 
 /**
  * Represents each possible piece, including color
  */
-enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NONE };
+enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NO_PIECE };
 
 constexpr static inline Piece ptToPiece(PieceType pt, Color side) {
     return Piece(pt + 6 * side);
 }
 
 constexpr static inline PieceType pieceToPT(Piece p) {
-    assert(p != NONE);
+    assert(p != NO_PIECE);
     return PieceType(p % 6);
 }
 
 constexpr static inline Color pieceColor(Piece p) {
-    assert(p != NONE);
+    assert(p != NO_PIECE);
     return Color(p / 6);
 }
 
@@ -99,7 +99,7 @@ constexpr Piece fenToPiece(char c) {
         case 'r': return BR;
         case 'q': return BQ;
         case 'k': return BK;
-        default: return NONE;
+        default: return NO_PIECE;
     }
 }
 
@@ -151,8 +151,8 @@ constexpr Bitboard rank1 = 18374686479671623680ull;
 constexpr Bitboard rank2 = 71776119061217280ull;
 constexpr Bitboard rank4 = 1095216660480ull;
 constexpr Bitboard rank5 = 4278190080ull;
-constexpr Bitboard rank7 = 65280ull;
 constexpr Bitboard rank8 = 255ull;
+constexpr Bitboard rank7 = 65280ull;
 
 // clang-format off
 enum Square : uint8_t {
@@ -168,6 +168,16 @@ enum Square : uint8_t {
     NO_SQ
 };
 
+constexpr std::array<Square, 64> ALL_SQUARES = {
+    a8, b8, c8, d8, e8, f8, g8, h8,
+    a7, b7, c7, d7, e7, f7, g7, h7,
+    a6, b6, c6, d6, e6, f6, g6, h6,
+    a5, b5, c5, d5, e5, f5, g5, h5,
+    a4, b4, c4, d4, e4, f4, g4, h4,
+    a3, b3, c3, d3, e3, f3, g3, h3,
+    a2, b2, c2, d2, e2, f2, g2, h2,
+    a1, b1, c1, d1, e1, f1, g1, h1,
+};
 // clang-format on
 
 // x and y are 0-indexed, where (0, 0) is the top-left square (a8)
@@ -178,7 +188,7 @@ constexpr static inline Square xyToSquare(int x, int y) {
 // input is assumed to be in a2a4 format
 static inline Square coordinateStringToSquare(const std::string &str) {
     const int fileIndex = str[0] - 'a';
-    const int rankIndex = 8 - (str[1] - '0');
+    const int rankIndex = '8' - str[1];
     return xyToSquare(fileIndex, rankIndex);
 }
 
@@ -203,17 +213,16 @@ enum Direction : int8_t {
 // Credit:
 // https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L126
 enum CastleRights : int8_t {
-    NO_CASTLING,                                     // 0b00000000
-    WHITE_OO,                                        // 0b00000001
-    WHITE_OOO = WHITE_OO << 1,                       // 0b00000010
-    BLACK_OO = WHITE_OO << 2,                        // 0b00000100
-    BLACK_OOO = WHITE_OO << 3,                       // 0b00001000
-    KING_SIDE = WHITE_OO | BLACK_OO,                 // 0b00000101
-    QUEEN_SIDE = WHITE_OOO | BLACK_OOO,              // 0b00001010
-    WHITE_CASTLING = WHITE_OO | WHITE_OOO,           // 0b00000011
-    BLACK_CASTLING = BLACK_OO | BLACK_OOO,           // 0b00001100
-    ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING,  // 0b00001111
-    CASTLING_RIGHT_NB = 16                           // 0b00010000
+    NO_CASTLING,                                    // 0b00000000
+    WHITE_OO,                                       // 0b00000001
+    WHITE_OOO = WHITE_OO << 1,                      // 0b00000010
+    BLACK_OO = WHITE_OO << 2,                       // 0b00000100
+    BLACK_OOO = WHITE_OO << 3,                      // 0b00001000
+    KING_SIDE = WHITE_OO | BLACK_OO,                // 0b00000101
+    QUEEN_SIDE = WHITE_OOO | BLACK_OOO,             // 0b00001010
+    WHITE_CASTLING = WHITE_OO | WHITE_OOO,          // 0b00000011
+    BLACK_CASTLING = BLACK_OO | BLACK_OOO,          // 0b00001100
+    ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING  // 0b00001111
 };
 
 // only used in FEN parsing

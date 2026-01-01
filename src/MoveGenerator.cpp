@@ -45,7 +45,7 @@ void MoveGenerator::appendMovesFromPiece(std::shared_ptr<Position> pos,
                                          MoveComputer moveComputer) {
     const Color toMove = pos->getSideToMove();
     const Piece piece = ptToPiece(pt, toMove);
-    auto bb = pos->getPieces(piece);  // N.B: this needs to make a copy
+    auto bb = pos->getPieceBB(piece);  // N.B: this needs to make a copy
     while (bb) {
         const Bitboard srcSqBB = bb & -bb;  // isolate the LSB
         const Square srcSq = Square(getLsbIndex(srcSqBB));

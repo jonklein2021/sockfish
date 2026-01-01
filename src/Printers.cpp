@@ -35,8 +35,8 @@ void Printers::prettyPrintPosition(const Position &pos, bool flip) {
 
             out << "| ";
 
-            Piece p = pos.getBoard().pieceAt(sq);
-            if (p == NONE) {
+            Piece p = pos.pieceAt(sq);
+            if (p == NO_PIECE) {
                 out << "   ";
             } else {
                 out << pieceFilenames[p] << " ";
@@ -75,13 +75,13 @@ void Printers::printPieceValues(const Position &pos) {
     std::ostringstream out;
     for (PieceType pt : PIECE_TYPES) {
         const Piece white = ptToPiece(pt, WHITE);
-        const Bitboard whiteBB = pos.getPieces(white);
+        const Bitboard whiteBB = pos.getPieceBB(white);
         out << pieceFilenames[white] << ":";
         out << "0x" << std::hex << std::setw(16) << std::setfill('0') << whiteBB;
         out << "\t";
 
         const Piece black = ptToPiece(pt, BLACK);
-        const Bitboard blackBB = pos.getPieces(black);
+        const Bitboard blackBB = pos.getPieceBB(black);
         out << pieceFilenames[black] << ":";
         out << "0x" << std::hex << std::setw(16) << std::setfill('0') << blackBB;
         out << "\n";

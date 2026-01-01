@@ -10,7 +10,6 @@ project(
 )
 
 cc = meson.get_compiler('cpp')
-cxx_args = ['-Wno-parentheses']
 
 # SFML libraries (link statically or dynamically depending on install)
 sfml_libs = [
@@ -37,7 +36,6 @@ common_sources = [
 main_exe = executable(
   'main',
   [ 'src/main.cpp', common_sources ],
-  cpp_args : cxx_args,
   dependencies : sfml_libs,
   install : false
 )
@@ -46,7 +44,6 @@ main_exe = executable(
 test_exe = executable(
   'test_test',
   [ 'src/test/test.cpp', common_sources ],
-  cpp_args : cxx_args,
   dependencies : sfml_libs,
   install : false
 )

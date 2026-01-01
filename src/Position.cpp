@@ -4,8 +4,8 @@
 
 Position::Position(const std::string &fen)
     : md({
-          a1,                         // enPassantSquare
-          NONE,                       // capturedPiece
+          NO_SQ,                      // enPassantSquare
+          NO_PIECE,                   // capturedPiece
           0,                          // movesSinceCapture
           CastleRights::NO_CASTLING,  // castleRights
       }) {
@@ -68,9 +68,7 @@ void Position::parseFen(const std::string &fen) {
 
     // 4: en passant square
     if (fen[++i] != '-') {
-        const int file = fen[i] - 'a';
-        const int rank = '8' - fen[i + 1];
-        md.enPassantSquare = Square(rank * 8 + file);
+        md.enPassantSquare = coordinateStringToSquare(fen.substr(i, i + 2));
     }
 
     if (i >= n) {
@@ -99,7 +97,8 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     // handle traditional captures first
     Piece capturedPiece = board.pieceAt(to);
-    if (capturedPiece != NONE) {
+    if (capturedPiece != NO_PIECE) {
+        // note that this wont run for en passant captures
         board.removePiece(capturedPiece, to);
     }
 
@@ -140,9 +139,8 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     // finally, handle pawn promotion
     if (move.isPromotion()) {
-        board.removePiece(pieceMoved, to);  // remove pawn from the edge
-        board.addPiece(ptToPiece(move.getPromotedPieceType(), sideToMove),
-                       to);  // add promoted piece
+        // removes pawn from the edge and add promoted piece
+        board.swapPiece(to, pieceMoved, ptToPiece(move.getPromotedPieceType(), sideToMove));
     }
 
     // update occupancies bitboards
@@ -189,18 +187,14 @@ Position::Metadata Position::makeMove(const Move &move) {
         md.enPassantSquare = Square(from + SOUTH);
     } else {
         // ensure no stale en passant squares
-        md.enPassantSquare = a1;
+        md.enPassantSquare = NO_SQ;
     }
 
     // update capturedPiece; this will be NONE if there was no capture
     md.capturedPiece = capturedPiece;
 
-    // update 50 move rule and capturedPiece
-    if (capturedPiece != NONE) {
-        md.movesSinceCapture = 0;
-    } else {
-        md.movesSinceCapture++;
-    }
+    // update 50 move rule
+    md.movesSinceCapture = capturedPiece != NO_PIECE ? 0 : md.movesSinceCapture + 1;
 
     // change turns
     sideToMove = otherColor(sideToMove);
@@ -223,10 +217,9 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
         const Piece promotedPiece = pieceMoved;
 
         // replace promoted piece with pawn
-        board.removePiece(promotedPiece, to);
-        board.addPiece(pawn, to);
+        board.swapPiece(to, promotedPiece, pawn);
 
-        // without this line, pieceMoved stores the promotedPiece
+        // without this line, pieceMoved will continue to store the promotedPiece
         pieceMoved = pawn;
     }
 
@@ -251,7 +244,7 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     }
 
     // finally, restore captures, including en passant
-    if (md.capturedPiece != NONE) {
+    if (md.capturedPiece != NO_PIECE) {
         // flipped from makeMove because sideToMove did not make this move that we are undoing
         static constexpr Direction NORTH_SOUTH[2] = {NORTH, SOUTH};
         const Square capturedSq =

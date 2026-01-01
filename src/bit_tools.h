@@ -4,6 +4,14 @@
 
 #include <SFML/System/Vector2.hpp>
 
+// minimal swap implementation so I don't need to include the entire utility header
+template<typename T>
+inline static constexpr void my_swap(T &x, T &y) {
+    T temp = x;
+    x = y;
+    y = temp;
+}
+
 /**
  * Returns the least significant bit as a Square
  */
@@ -28,6 +36,16 @@ inline static constexpr Bitboard getBit(Bitboard bb, Square sq) {
  */
 inline static constexpr void setBit(Bitboard &bb, Square sq) {
     bb |= (1ull << sq);
+}
+
+/**
+ * Unsets the bit at the given index
+ *
+ * @param bb the relevant bitboard
+ * @param sq the square (index) of that bitboard to set
+ */
+inline static constexpr void unsetBit(Bitboard &bb, Square sq) {
+    bb &= ~(1ull << sq);
 }
 
 /**

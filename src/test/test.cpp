@@ -40,7 +40,7 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
         // todo: check for castling
         candidate = Move::fromCoordinateString(input);
         const Square from = candidate.getFromSquare(), to = candidate.getToSquare();
-        const Piece pieceMoved = pos->getBoard().pieceAt(from);
+        const Piece pieceMoved = pos->pieceAt(from);
 
         // check for pawn promotion
         pawnPromoting = (pieceMoved == WP && to <= h8) || (pieceMoved == BP && to >= a1);

@@ -47,8 +47,12 @@ class Position {
         return board;
     }
 
-    constexpr Bitboard getPieces(Piece p) const {
-        return board.getPieces(p);
+    constexpr Bitboard getPieceBB(Piece p) const {
+        return board.getPieceBB(p);
+    }
+
+    constexpr Piece pieceAt(Square sq) const {
+        return board.pieceAt(sq);
     }
 
     constexpr Metadata getMetadata() const {
@@ -88,7 +92,7 @@ class Position {
         uint64_t res = 0;
 
         for (Piece p : ALL_PIECES) {
-            res ^= (board.getPieces(p) << p);
+            res ^= (board.getPieceBB(p) << p);
         }
 
         res ^= (sideToMove << 12);
