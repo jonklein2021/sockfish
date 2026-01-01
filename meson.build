@@ -1,8 +1,7 @@
-
 project(
   'sockfish',
   'cpp',
-  version : '0.1',
+  version : '0.2',
   default_options : [
     'cpp_std=c++17',
     'warning_level=3',
@@ -21,7 +20,6 @@ sfml_libs = [
 ]
 
 common_sources = [
-  'src/bit_tools.cpp',
   'src/Config.cpp',
   'src/CliFrontend.cpp',
   'src/Engine.cpp',
@@ -31,6 +29,7 @@ common_sources = [
   'src/MoveGenerator.cpp',
   'src/Position.cpp',
   'src/PositionUtil.cpp',
+  'src/Printers.cpp',
   'src/PromotionMenu.cpp'
 ]
 

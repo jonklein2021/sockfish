@@ -1,5 +1,6 @@
 #include "../GameController.h"
 #include "../Position.h"
+#include "../Printers.h"
 #include "../bit_tools.h"
 
 #include <iostream>
@@ -46,8 +47,8 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
 
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
+        // TODO: Uncomment this once move generation is complete
         // if (pawnPromoting) {
-        //     candidate.setFlag(Move::Type::PROMOTION);
         //     candidate.setPromotedPiece(QUEEN);
         // }
 
@@ -92,8 +93,8 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
 
 void testMakeMove(std::shared_ptr<Position> pos) {
     cout << "Initially:\n";
-    prettyPrintPosition(pos);
-    printPieceValues(pos);
+    Printers::prettyPrintPosition(*pos);
+    Printers::printPieceValues(*pos);
 
     // get move
     Move m = getMoveFromStdin(pos);
@@ -102,8 +103,8 @@ void testMakeMove(std::shared_ptr<Position> pos) {
     // make move
     Position::Metadata md = pos->makeMove(m);
     cout << "After making:\n";
-    prettyPrintPosition(pos);
-    printPieceValues(pos);
+    Printers::prettyPrintPosition(*pos);
+    Printers::printPieceValues(*pos);
 
     cout << "Unmake this move? (y/n)\n";
     string choice;
@@ -115,8 +116,8 @@ void testMakeMove(std::shared_ptr<Position> pos) {
     // unmake move
     pos->unmakeMove(m, md);
     cout << "After unmaking:\n";
-    prettyPrintPosition(pos);
-    printPieceValues(pos);
+    Printers::prettyPrintPosition(*pos);
+    Printers::printPieceValues(*pos);
 }
 
 int main() {

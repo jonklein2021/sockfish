@@ -1,3 +1,6 @@
+#pragma once
+
+#include "bit_tools.h"
 #include "types.h"
 
 #include <cstring>
@@ -35,6 +38,7 @@ class Board {
     }
 
     constexpr void addPiece(Piece p, Square sq) {
+        setBit(pieces[p], sq);
         pieces[p] |= (1ull << sq);
     }
 

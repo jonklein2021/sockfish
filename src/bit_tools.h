@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Position.h"
 #include "types.h"
 
 #include <SFML/System/Vector2.hpp>
-#include <memory>
 
 /**
  * Returns the least significant bit as a Square
@@ -85,15 +83,3 @@ inline static constexpr void popBit(Bitboard &bb, Square sq) {
     Move one square right: (x & not_file_h) << 1
 
 */
-
-/**
- * Converts the piece bitboards to a human-readable
- * board and prints it to stdout
- *
- * @param bb the bitboard to print
- */
-void prettyPrintPosition(std::shared_ptr<Position> pos, bool flip = false);
-
-void printBitboard(const Bitboard bb);
-
-void printPieceValues(std::shared_ptr<Position> pos);

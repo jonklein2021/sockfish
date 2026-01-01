@@ -12,8 +12,6 @@ class CliFrontend {
      */
     Move getMoveFromStdin();
 
-    void printBoard(bool flip = false);
-
    public:
     CliFrontend(GameController &game);
 
