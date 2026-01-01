@@ -6,8 +6,10 @@
 
 ## Build and Run Instructions
 ```
-cd src && make
-./build/main.exe
+meson setup build
+cd build
+meson compile
+./main
 ```
 
 ## Credits
