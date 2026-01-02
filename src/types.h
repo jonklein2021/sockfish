@@ -31,6 +31,8 @@ enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PT };
 
 constexpr std::array<PieceType, 6> PIECE_TYPES = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 
+constexpr std::array<PieceType, 4> PROMOTION_PIECE_TYPES = {KNIGHT, BISHOP, ROOK, QUEEN};
+
 /**
  * Represents each possible piece, including color
  */

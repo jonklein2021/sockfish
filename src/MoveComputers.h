@@ -23,8 +23,30 @@ Bitboard computePawnMoves(std::shared_ptr<Position> pos, Square sq) {
     return singlePush | (doublePush & -!!singlePush);
 }
 
-// ensure that there is a piece to capture
-Bitboard computePawnAttacks(std::shared_ptr<Position> pos, Square sq) {
+// doesn't cover en passant captures
+Bitboard computePawnCaptures(std::shared_ptr<Position> pos, Square sq) {
+    static constexpr int ATTACKS[2][2] = {
+        {NORTH_EAST, NORTH_WEST},  // white
+        {SOUTH_EAST, SOUTH_WEST}   // black
+    };
+
+    static constexpr Bitboard FILE_MASKS[2] = {
+        not_file_a,  // east moves
+        not_file_h   // west moves
+    };
+
+    const Color side = pos->getSideToMove();
+    const Bitboard oppPieces = pos->board.getOccupancy(OccupancyType(otherColor(side)));
+
+    Bitboard attacks = 0;
+
+    attacks |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & oppPieces;
+    attacks |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & oppPieces;
+
+    return attacks;
+}
+
+Bitboard computePawnEnPassantCaptures(std::shared_ptr<Position> pos, Square sq) {
     static constexpr int ATTACKS[2][2] = {
         {NORTH_EAST, NORTH_WEST},  // white
         {SOUTH_EAST, SOUTH_WEST}   // black
@@ -39,17 +61,16 @@ Bitboard computePawnAttacks(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard oppPieces = pos->board.getOccupancy(OccupancyType(otherColor(side)));
 
     const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
-    const Bitboard targets = oppPieces | epSqBB;
 
     Bitboard attacks = 0;
 
-    attacks |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & targets;
-    attacks |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & targets;
+    attacks |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & epSqBB;
+    attacks |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & epSqBB;
 
     return attacks;
 }
 
-Bitboard computeKnightAttacks(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeKnightMoves(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard sqBB = 1ull << sq;
 
     const Bitboard ddl = (sqBB & not_rank_12 & not_file_a) << 15;  // down 2, left 1
@@ -68,7 +89,7 @@ Bitboard computeKnightAttacks(std::shared_ptr<Position> pos, Square sq) {
     return (ddl | ddr | drr | dll | uur | uul | ull | urr) & landingSqBB;
 }
 
-Bitboard computeBishopAttacks(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeBishopMoves(std::shared_ptr<Position> pos, Square sq) {
     Bitboard attacks = 0;
     const Color side = pos->getSideToMove();
     const OccupancyType friendlyOcc = OccupancyType(side);
@@ -130,7 +151,7 @@ Bitboard computeBishopAttacks(std::shared_ptr<Position> pos, Square sq) {
     return attacks;
 }
 
-Bitboard computeRookAttacks(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeRookMoves(std::shared_ptr<Position> pos, Square sq) {
     Bitboard attacks = 0;
     const Color side = pos->getSideToMove();
     const OccupancyType friendlyOcc = OccupancyType(side);
@@ -192,11 +213,11 @@ Bitboard computeRookAttacks(std::shared_ptr<Position> pos, Square sq) {
     return attacks;
 }
 
-Bitboard computeQueenAttacks(std::shared_ptr<Position> pos, Square sq) {
-    return computeBishopAttacks(pos, sq) | computeRookAttacks(pos, sq);  // heheh
+Bitboard computeQueenMoves(std::shared_ptr<Position> pos, Square sq) {
+    return computeBishopMoves(pos, sq) | computeRookMoves(pos, sq);  // heheh
 }
 
-Bitboard computeKingAttacks(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeKingMoves(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard sqBB = 1ull << sq;
 
     const Bitboard d = (sqBB & not_rank_1) << 8;                // down
@@ -213,46 +234,6 @@ Bitboard computeKingAttacks(std::shared_ptr<Position> pos, Square sq) {
         pos->board.getOccupancy(EMPTY_OCCUPANCY) | pos->board.getOccupancy(enemyOcc);
 
     return (d | u | l | r | dl | dr | ul | ur) & landingSqBB;
-}
-
-Bitboard computePieceAttacks(std::shared_ptr<Position> pos, Piece piece) {
-    Bitboard attacks = 0;
-    Bitboard pieceBitboard = pos->getPieceBB(piece);
-    while (pieceBitboard) {
-        const Bitboard sqBB = pieceBitboard & -pieceBitboard;  // isolate the LSB
-        const Square sq = Square(getLsbIndex(sqBB));
-
-        // compute attacks for this piece
-        switch (piece) {
-            case WP:
-            case BP: attacks |= computePawnAttacks(pos, sq); break;
-            case WN:
-            case BN: attacks |= computeKnightAttacks(pos, sq); break;
-            case WB:
-            case BB: attacks |= computeBishopAttacks(pos, sq); break;
-            case WR:
-            case BR: attacks |= computeRookAttacks(pos, sq); break;
-            case WQ:
-            case BQ: attacks |= computeQueenAttacks(pos, sq); break;
-            case WK:
-            case BK: attacks |= computeKingAttacks(pos, sq); break;
-            default: return 0;
-        }
-
-        pieceBitboard ^= sqBB;  // remove the LSB from the bitboard
-    }
-    return attacks;
-}
-
-Bitboard computeAllSidesAttacks(std::shared_ptr<Position> pos) {
-    Bitboard attacks = 0;
-    const Color color = pos->getSideToMove();
-    const int startIndex = (color == WHITE) ? 0 : 6;
-    const int endIndex = (color == WHITE) ? 6 : 12;
-    for (int p = startIndex; p < endIndex; p++) {
-        attacks |= computePieceAttacks(pos, static_cast<Piece>(p));
-    }
-    return attacks;
 }
 
 }  // namespace MoveComputers

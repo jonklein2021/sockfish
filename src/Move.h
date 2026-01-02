@@ -36,8 +36,11 @@ class Move {
     constexpr Move(Square from, Square to)
         : data(from | (to << 6)) {}
 
-    constexpr Move(Square from, Square to, Type moveType, PieceType promotedPieceType)
-        : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 12)) {}
+    template<Type moveType>
+    inline static constexpr Move
+    create(Square from, Square to, PieceType promotedPieceType = KNIGHT) {
+        return Move(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 12));
+    }
 
     static Move fromCoordinateString(const std::string &coords);
 
