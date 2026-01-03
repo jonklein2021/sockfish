@@ -1,5 +1,7 @@
 #include "Position.h"
 
+#include <vector>
+
 namespace Printers {
 
 void printBitboard(Bitboard bb);
@@ -10,7 +12,7 @@ void printBitboard(Bitboard bb);
  *
  * @param bb the bitboard to print
  */
-void prettyPrintPosition(const Position &pos, bool flip = false);
+void prettyPrintPosition(const Position &pos, bool flip = false, bool debug = false);
 
 void printPieceValues(const Position &pos);
 

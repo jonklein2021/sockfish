@@ -1,73 +1,9 @@
 #include "Position.h"
-#include "bit_tools.h"
 #include "types.h"
 
 #include <memory>
 
 namespace MoveComputers {
-
-Bitboard computePawnMoves(std::shared_ptr<Position> pos, Square sq) {
-    static constexpr Direction DIR[2] = {NORTH, SOUTH};
-    static constexpr Bitboard DBL[2] = {rank4, rank5};
-
-    const Color side = pos->getSideToMove();
-    const Bitboard emptySquares = pos->board.getOccupancy(EMPTY_OCCUPANCY);
-
-    // destination square must be empty
-    const Bitboard singlePush = (1ull << (sq + DIR[side])) & emptySquares;
-
-    // double pawn push requires pawn to land on the 4th rank
-    // AND 2 empty squares in front of it
-    const Bitboard doublePush = (1ull << (sq + 2 * DIR[side])) & emptySquares & DBL[side];
-
-    return singlePush | (doublePush & -!!singlePush);
-}
-
-// doesn't cover en passant captures
-Bitboard computePawnCaptures(std::shared_ptr<Position> pos, Square sq) {
-    static constexpr int ATTACKS[2][2] = {
-        {NORTH_EAST, NORTH_WEST},  // white
-        {SOUTH_EAST, SOUTH_WEST}   // black
-    };
-
-    static constexpr Bitboard FILE_MASKS[2] = {
-        not_file_a,  // east moves
-        not_file_h   // west moves
-    };
-
-    const Color side = pos->getSideToMove();
-    const Bitboard oppPieces = pos->board.getOccupancy(OccupancyType(otherColor(side)));
-
-    Bitboard attacks = 0;
-
-    attacks |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & oppPieces;
-    attacks |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & oppPieces;
-
-    return attacks;
-}
-
-Bitboard computePawnEnPassantCaptures(std::shared_ptr<Position> pos, Square sq) {
-    static constexpr int ATTACKS[2][2] = {
-        {NORTH_EAST, NORTH_WEST},  // white
-        {SOUTH_EAST, SOUTH_WEST}   // black
-    };
-
-    static constexpr Bitboard FILE_MASKS[2] = {
-        not_file_a,  // east moves
-        not_file_h   // west moves
-    };
-
-    const Color side = pos->getSideToMove();
-
-    const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
-
-    Bitboard attacks = 0;
-
-    attacks |= (1ull << (sq + ATTACKS[side][0])) & FILE_MASKS[0] & epSqBB;
-    attacks |= (1ull << (sq + ATTACKS[side][1])) & FILE_MASKS[1] & epSqBB;
-
-    return attacks;
-}
 
 Bitboard computeKnightMoves(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard sqBB = 1ull << sq;

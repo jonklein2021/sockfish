@@ -39,7 +39,7 @@ class Board {
         return squareToPiece[sq];
     }
 
-    void addPiece(Piece p, Square sq) {
+    constexpr void addPiece(Piece p, Square sq) {
         assert(squareToPiece[sq] == NO_PIECE);
         squareToPiece[sq] = p;
         // printf("squareToPiece[%s] = %s\n", squareToCoordinateString(sq).c_str(),
@@ -53,14 +53,14 @@ class Board {
         unsetBit(pieceBBs[p], sq);
     }
 
-    void movePiece(Piece p, Square from, Square to) {
+    constexpr void movePiece(Piece p, Square from, Square to) {
         // DEBUG
-        printf("movePiece(%s, %s, %s)\n", pieceNames[p].data(),
-               squareToCoordinateString(from).c_str(), squareToCoordinateString(to).c_str());
-        printf("squareToPiece[%s] = %s\n", squareToCoordinateString(from).c_str(),
-               pieceNames[squareToPiece[from]].data());
-        printf("squareToPiece[%s] = %s\n", squareToCoordinateString(to).c_str(),
-               pieceNames[squareToPiece[to]].data());
+        // printf("movePiece(%s, %s, %s)\n", pieceNames[p].data(),
+        //        squareToCoordinateString(from).c_str(), squareToCoordinateString(to).c_str());
+        // printf("squareToPiece[%s] = %s\n", squareToCoordinateString(from).c_str(),
+        //        pieceNames[squareToPiece[from]].data());
+        // printf("squareToPiece[%s] = %s\n", squareToCoordinateString(to).c_str(),
+        //        pieceNames[squareToPiece[to]].data());
         assert(squareToPiece[from] == p);
         assert(squareToPiece[to] == NO_PIECE);
         my_swap(squareToPiece[from], squareToPiece[to]);

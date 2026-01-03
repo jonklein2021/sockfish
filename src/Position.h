@@ -4,10 +4,7 @@
 #include "Move.h"
 
 #include <cstdint>
-#include <iostream>
-#include <sstream>
 #include <string>
-#include <vector>
 
 /**
  * The game state includes the current position
@@ -88,7 +85,7 @@ class Position {
     void unmakeMove(const Move &move, const Metadata &prevMD);
 
     // TODO: Replace this with Zobrist hashing
-    constexpr uint64_t hash() {
+    constexpr uint64_t hash() const {
         uint64_t res = 0;
 
         for (Piece p : ALL_PIECES) {
@@ -103,4 +100,6 @@ class Position {
 
         return res;
     }
+
+    std::string toFenString();
 };

@@ -58,12 +58,16 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
         // check for pawn promotion
         pawnPromoting = (pieceMoved == WP && to <= h8) || (pieceMoved == BP && to >= a1);
 
+        // check for en passant
+        if (pieceToPT(pieceMoved) == PAWN && to == pos->getMetadata().enPassantSquare) {
+            candidate.setFlag(Move::EN_PASSANT);
+        }
+
         // temporarily set the promotion piece to a queen
         // so that it can match a legal move
-        // TODO: Uncomment this once move generation is complete
-        // if (pawnPromoting) {
-        //     candidate.setPromotedPiece(QUEEN);
-        // }
+        if (pawnPromoting) {
+            candidate.setPromotedPieceType(QUEEN);
+        }
 
         for (Move move : legalMoves) {
             if (candidate == move) {
@@ -106,7 +110,7 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
 
 void testMakeMove(std::shared_ptr<Position> pos) {
     cout << "Initially:\n";
-    Printers::prettyPrintPosition(*pos);
+    Printers::prettyPrintPosition(*pos, false, true);
     Printers::printPieceValues(*pos);
 
     // get move
@@ -116,7 +120,7 @@ void testMakeMove(std::shared_ptr<Position> pos) {
     // make move
     Position::Metadata md = pos->makeMove(m);
     cout << "After making:\n";
-    Printers::prettyPrintPosition(*pos);
+    Printers::prettyPrintPosition(*pos, false, true);
     Printers::printPieceValues(*pos);
 
     cout << "Unmake this move? (y/n)\n";
@@ -129,7 +133,7 @@ void testMakeMove(std::shared_ptr<Position> pos) {
     // unmake move
     pos->unmakeMove(m, md);
     cout << "After unmaking:\n";
-    Printers::prettyPrintPosition(*pos);
+    Printers::prettyPrintPosition(*pos, false, true);
     Printers::printPieceValues(*pos);
 }
 

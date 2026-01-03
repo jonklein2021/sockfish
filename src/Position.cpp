@@ -2,6 +2,8 @@
 
 #include "src/types.h"
 
+#include <sstream>
+
 Position::Position(const std::string &fen)
     : md({
           NO_SQ,                      // enPassantSquare
@@ -87,7 +89,6 @@ void Position::parseFen(const std::string &fen) {
 }
 
 Position::Metadata Position::makeMove(const Move &move) {
-    puts("Position::makeMove");
     // save metadata about this state before making move
     Metadata oldMD = md;
 
@@ -203,7 +204,6 @@ Position::Metadata Position::makeMove(const Move &move) {
 }
 
 void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
-    puts("Position::unmakeMove");
     /* BITBOARD RESTORATION */
 
     // useful constants
@@ -262,4 +262,11 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
 
     // restore metadata
     md = prevMD;
+}
+
+// TODO
+std::string Position::toFenString() {
+    std::ostringstream out;
+
+    return out.str();
 }

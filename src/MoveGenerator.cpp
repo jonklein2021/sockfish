@@ -24,6 +24,91 @@ bool MoveGenerator::isMoveLegal(std::shared_ptr<Position> pos, Move &move) {
     return !isOurKingInCheck;
 }
 
+void appendPawnMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos) {
+    static constexpr Direction DIR[2] = {NORTH, SOUTH};
+
+    // double pawn pushes must land on these ranks
+    static constexpr Bitboard DBL[2] = {rank4, rank5};
+
+    static constexpr int ATTACKS[2][2] = {
+        {NORTH_EAST, NORTH_WEST},  // white
+        {SOUTH_EAST, SOUTH_WEST}   // black
+    };
+
+    static constexpr Bitboard FILE_MASKS[2] = {
+        not_file_a,  // east moves
+        not_file_h   // west moves
+    };
+
+    const Color side = pos->getSideToMove();
+    const Bitboard oppPieces = pos->getBoard().getOccupancy(OccupancyType(otherColor(side)));
+    const Bitboard emptySquares = pos->getBoard().getOccupancy(EMPTY_OCCUPANCY);
+    const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
+
+    Bitboard pawnBB = pos->getPieceBB(ptToPiece(PAWN, side));
+
+    while (pawnBB) {
+        Bitboard srcSqBB = pawnBB & -pawnBB;
+        Square srcSq = Square(getLsbIndex(srcSqBB));
+
+        // destination square must be empty
+        const Square singlePushDstSq = Square(srcSq + DIR[side]);
+
+        // ensure pawn isn't blocked
+        if ((1ull << singlePushDstSq) & emptySquares) {
+            // check for promotion
+            if (singlePushDstSq <= h8 || singlePushDstSq >= a1) {
+                for (PieceType pt : PROMOTION_PIECE_TYPES) {
+                    moveList.emplace_back(
+                        Move::create<Move::PROMOTION>(srcSq, singlePushDstSq, pt));
+                }
+            } else {
+                moveList.emplace_back(srcSq, singlePushDstSq);
+            }
+        }
+
+        // double pawn push requires pawn to land on the 4th rank
+        // AND 2 empty squares in front of it
+        const Square doublePushDstSq = Square(singlePushDstSq + DIR[side]);
+        if ((1ull << doublePushDstSq) & emptySquares & DBL[side]) {
+            moveList.emplace_back(srcSq, doublePushDstSq);
+        }
+
+        const Square eastCaptureSq = Square(srcSq + ATTACKS[side][0]);
+        const Square westCaptureSq = Square(srcSq + ATTACKS[side][1]);
+
+        if ((1ull << eastCaptureSq) & FILE_MASKS[0] & oppPieces) {
+            if (eastCaptureSq <= h8 || eastCaptureSq >= a1) {
+                for (PieceType pt : PROMOTION_PIECE_TYPES) {
+                    moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, eastCaptureSq, pt));
+                }
+            } else {
+                moveList.emplace_back(srcSq, eastCaptureSq);
+            }
+        }
+
+        if ((1ull << westCaptureSq) & FILE_MASKS[1] & oppPieces) {
+            if (westCaptureSq <= h8 || westCaptureSq >= a1) {
+                for (PieceType pt : PROMOTION_PIECE_TYPES) {
+                    moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, westCaptureSq, pt));
+                }
+            } else {
+                moveList.emplace_back(srcSq, westCaptureSq);
+            }
+        }
+
+        if ((1ull << eastCaptureSq) & FILE_MASKS[0] & epSqBB) {
+            moveList.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, eastCaptureSq));
+        }
+
+        if ((1ull << westCaptureSq) & FILE_MASKS[1] & epSqBB) {
+            moveList.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, westCaptureSq));
+        }
+
+        pawnBB ^= srcSqBB;
+    }
+}
+
 template<Move::Type moveType>
 void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
                                             Bitboard moves,
@@ -128,10 +213,7 @@ std::vector<Move> MoveGenerator::generatePseudolegal(std::shared_ptr<Position> p
 
     /* PAWNS */
     // TODO: Handle pawn promotions
-    appendMovesFromPiece<Move::NORMAL, PAWN>(pos, moveList, MoveComputers::computePawnMoves);
-    appendMovesFromPiece<Move::NORMAL, PAWN>(pos, moveList, MoveComputers::computePawnCaptures);
-    appendMovesFromPiece<Move::EN_PASSANT, PAWN>(pos, moveList,
-                                                 MoveComputers::computePawnEnPassantCaptures);
+    appendPawnMoves(moveList, pos);
 
     /* KNIGHTS */
     appendMovesFromPiece<Move::NORMAL, KNIGHT>(pos, moveList, MoveComputers::computeKnightMoves);

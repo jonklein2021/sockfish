@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <iomanip>
+#include <iostream>
 
 void Printers::printBitboard(const Bitboard bitboard) {
     std::ostringstream out;
@@ -17,7 +18,7 @@ void Printers::printBitboard(const Bitboard bitboard) {
     std::cout << out.str() << std::endl;
 }
 
-void Printers::prettyPrintPosition(const Position &pos, bool flip) {
+void Printers::prettyPrintPosition(const Position &pos, bool flip, bool debug) {
     std::ostringstream out("\n");
 
     for (int i = 0; i < 8; i++) {
@@ -60,13 +61,16 @@ void Printers::prettyPrintPosition(const Position &pos, bool flip) {
     // print turn
     out << (pos.getSideToMove() == WHITE ? "\nWhite" : "\nBlack") << " to move\n";
 
-    // print metadata
-    const Position::Metadata md = pos.getMetadata();
-    out << "\nCaptured piece: " << pieceNames[md.capturedPiece];
-    out << "\nMoves since capture: " << md.movesSinceCapture;
-    out << "\nCastle rights: 0b" << std::bitset<8>(md.castleRights);
-    out << "\nEn passant square: "
-        << ((md.enPassantSquare == NO_SQ) ? "-" : squareToCoordinateString(md.enPassantSquare));
+    // print debug data
+    if (debug) {
+        const Position::Metadata md = pos.getMetadata();
+        out << "\nCaptured piece: " << pieceNames[md.capturedPiece];
+        out << "\nMoves since capture: " << md.movesSinceCapture;
+        out << "\nCastle rights: 0b" << std::bitset<4>(md.castleRights);
+        out << "\nEn passant square: "
+            << ((md.enPassantSquare == NO_SQ) ? "-" : squareToCoordinateString(md.enPassantSquare));
+        out << "\nHash: 0x" << std::hex << std::setw(16) << std::setfill('0') << pos.hash();
+    }
 
     std::cout << out.str() << std::endl;
 }
