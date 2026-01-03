@@ -13,4 +13,6 @@ void printBitboard(Bitboard bb);
 void prettyPrintPosition(const Position &pos, bool flip = false);
 
 void printPieceValues(const Position &pos);
+
+void printMoveList(const std::vector<Move> &moveList, const Position &pos);
 };  // namespace Printers

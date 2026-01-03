@@ -103,35 +103,4 @@ class Position {
 
         return res;
     }
-
-    void printMoveList(const std::vector<Move> &moveList) const {
-        // srcSq -> {Piece, {dstSq0, ..., dstSqN}}
-        std::array<std::pair<Piece, std::vector<Square>>, 64> movesFromSquares;
-
-        // group moves by the piece moved
-        for (const Move &m : moveList) {
-            Piece moved = board.pieceAt(m.getFromSquare());
-            movesFromSquares[m.getFromSquare()].first = moved;
-            movesFromSquares[m.getFromSquare()].second.push_back(m.getToSquare());
-        }
-
-        // build output string
-        std::ostringstream ss;
-        ss << std::to_string(moveList.size()) + " Moves:\n";
-        for (Square sq = a8; sq <= h1; sq = Square(sq + 1)) {
-            if (movesFromSquares[sq].second.empty()) {
-                continue;
-            }
-            Piece moved = movesFromSquares[sq].first;
-            ss << pieceNames[moved] << " on " << squareToCoordinateString(sq) << " -> { ";
-
-            for (Square dst : movesFromSquares[sq].second) {
-                ss << squareToCoordinateString(dst) << " ";
-            }
-
-            ss << "}\n";
-        }
-
-        std::cout << ss.str();
-    }
 };

@@ -1,6 +1,6 @@
 #include "Printers.h"
 
-// #include <bitset>
+#include <bitset>
 #include <iomanip>
 
 void Printers::printBitboard(const Bitboard bitboard) {
@@ -61,12 +61,12 @@ void Printers::prettyPrintPosition(const Position &pos, bool flip) {
     out << (pos.getSideToMove() == WHITE ? "\nWhite" : "\nBlack") << " to move\n";
 
     // print metadata
-    // const Position::Metadata md = pos.getMetadata();
-    // out << "\nCaptured piece: " << pieceNames[md.capturedPiece];
-    // out << "\nMoves since capture: " << md.movesSinceCapture;
-    // out << "\nCastle rights: 0b" << std::bitset<8>(md.castleRights);
-    // out << "\nEn passant square: "
-    //     << ((md.enPassantSquare == a1) ? "-" : squareToCoordinateString(md.enPassantSquare));
+    const Position::Metadata md = pos.getMetadata();
+    out << "\nCaptured piece: " << pieceNames[md.capturedPiece];
+    out << "\nMoves since capture: " << md.movesSinceCapture;
+    out << "\nCastle rights: 0b" << std::bitset<8>(md.castleRights);
+    out << "\nEn passant square: "
+        << ((md.enPassantSquare == NO_SQ) ? "-" : squareToCoordinateString(md.enPassantSquare));
 
     std::cout << out.str() << std::endl;
 }
@@ -87,4 +87,54 @@ void Printers::printPieceValues(const Position &pos) {
         out << "\n";
     }
     std::cout << out.str() << std::endl;
+}
+
+void Printers::printMoveList(const std::vector<Move> &moveList, const Position &pos) {
+    // srcSq -> {Piece, {dstSq0, ..., dstSqN}}
+    std::array<std::pair<Piece, std::vector<Square>>, 64> movesFromSquares;
+    bool kCastle = false, qCastle = false;
+
+    // group moves by the piece moved
+    for (const Move &m : moveList) {
+        const Square from = m.getFromSquare();
+        const Square to = m.getToSquare();
+        const Piece pieceMoved = pos.getBoard().pieceAt(from);
+        if (m.isCastles()) {
+            if (from == h1 || from == h8) {
+                kCastle = true;
+            } else {
+                qCastle = true;
+            }
+        } else {
+            movesFromSquares[from].first = pieceMoved;
+            movesFromSquares[from].second.push_back(to);
+        }
+    }
+
+    // build output string
+    std::ostringstream ss;
+    ss << std::to_string(moveList.size()) + " Moves:\n";
+    for (Square sq : ALL_SQUARES) {
+        if (movesFromSquares[sq].second.empty()) {
+            continue;
+        }
+        Piece moved = movesFromSquares[sq].first;
+        ss << pieceNames[moved] << " on " << squareToCoordinateString(sq) << " -> { ";
+
+        for (Square dst : movesFromSquares[sq].second) {
+            ss << squareToCoordinateString(dst) << " ";
+        }
+
+        ss << "}\n";
+    }
+
+    if (kCastle) {
+        ss << "O-O\n";
+    }
+
+    if (qCastle) {
+        ss << "O-O-O\n";
+    }
+
+    std::cout << ss.str();
 }

@@ -87,11 +87,11 @@ void Position::parseFen(const std::string &fen) {
 }
 
 Position::Metadata Position::makeMove(const Move &move) {
+    puts("Position::makeMove");
     // save metadata about this state before making move
     Metadata oldMD = md;
 
     /*** BITBOARD CHANGES ***/
-
     const Square from = move.getFromSquare(), to = move.getToSquare();
     const Piece pieceMoved = board.pieceAt(from);
 
@@ -149,13 +149,13 @@ Position::Metadata Position::makeMove(const Move &move) {
     /*** METADATA CHANGES ***/
 
     // white cannot castle to either side
-    if (pieceMoved == WK || move.isCastles()) {
-        md.castleRights = NO_CASTLING;
+    if (pieceMoved == WK || (sideToMove == WHITE && move.isCastles())) {
+        removeCastleRights(md.castleRights, WHITE_CASTLING);
     }
 
     // black cannot castle to either side
-    if (pieceMoved == BK || move.isCastles()) {
-        md.castleRights = NO_CASTLING;
+    if (pieceMoved == BK || (sideToMove == BLACK && move.isCastles())) {
+        removeCastleRights(md.castleRights, BLACK_CASTLING);
     }
 
     // prevent black queenside castle
@@ -203,6 +203,7 @@ Position::Metadata Position::makeMove(const Move &move) {
 }
 
 void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
+    puts("Position::unmakeMove");
     /* BITBOARD RESTORATION */
 
     // useful constants
@@ -230,16 +231,16 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     if (move.isCastles()) {
         if (from == h1) {
             // white kingside castle
-            board.movePiece(WK, e1, g1);
+            board.movePiece(WK, g1, e1);
         } else if (from == a1) {
             // white queenside castle
-            board.movePiece(WK, e1, c1);
+            board.movePiece(WK, c1, e1);
         } else if (from == h8) {
             // black kingside castle
-            board.movePiece(BK, e8, g8);
+            board.movePiece(BK, g8, e8);
         } else if (from == a8) {
             // black kingside castle
-            board.movePiece(BK, e8, c8);
+            board.movePiece(BK, c8, e8);
         }
     }
 

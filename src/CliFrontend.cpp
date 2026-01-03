@@ -27,7 +27,7 @@ Move CliFrontend::getMoveFromStdin() {
         const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
 
         // DEBUG: print legal moves
-        game.getPosition().printMoveList(legalMoves);
+        Printers::printMoveList(legalMoves, game.getPosition());
 
         // prompt user for input
         std::cout << "Enter move (example: " << sample << ") or q to quit: ";

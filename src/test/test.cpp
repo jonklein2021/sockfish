@@ -1,7 +1,7 @@
 #include "../GameController.h"
+#include "../MoveGenerator.h"
 #include "../Position.h"
 #include "../Printers.h"
-#include "../bit_tools.h"
 
 #include <iostream>
 #include <vector>
@@ -20,7 +20,7 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
         const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
 
         // DEBUG: print legal moves
-        pos->printMoveList(legalMoves);
+        Printers::printMoveList(legalMoves, *pos);
 
         // prompt user for input
         std::cout << "Enter move (example: " << sample << ") or q to quit: ";
@@ -31,14 +31,27 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
             exit(0);
         }
 
-        if (!validateCoords(input)) {
+        if (!validateCoords(input) &&
+            !((input == "O-O") || (input == "OO") || (input == "O-O-O") || (input == "OOO"))) {
             std::cout << "Error: Invalid input" << std::endl;
             continue;
         }
 
         // check if the move is legal before returning it
         // todo: check for castling
-        candidate = Move::fromCoordinateString(input);
+        if (validateCoords(input)) {
+            candidate = Move::fromCoordinateString(input);
+        } else {
+            // must be a castling move
+            if (input == "O-O" || input == "OO") {
+                // Kingside
+                candidate = MoveGenerator::createCastlingMove(false, pos->getSideToMove());
+            } else {
+                // Queenside
+                candidate = MoveGenerator::createCastlingMove(true, pos->getSideToMove());
+            }
+        }
+
         const Square from = candidate.getFromSquare(), to = candidate.getToSquare();
         const Piece pieceMoved = pos->pieceAt(from);
 
@@ -133,6 +146,8 @@ int main() {
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
     GameController game(pos, std::move(engine), WHITE);
 
+    Printers::prettyPrintPosition(*pos);
+
     while (1) {
         string choice;
         cout << "===============================\n"
@@ -149,7 +164,11 @@ int main() {
         switch (choice[0]) {
             case 'q': return 0;
             case '1': testMakeMove(pos); break;
-            case '2': pos->printMoveList(legalMoves); break;
+            case '2': {
+                Printers::prettyPrintPosition(*pos);
+                Printers::printMoveList(legalMoves, *pos);
+                break;
+            }
             case '3':
                 // evaluate this position
                 break;
