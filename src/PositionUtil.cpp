@@ -1,5 +1,6 @@
 #include "PositionUtil.h"
 
+#include "MoveGenerator.h"
 #include "bit_tools.h"
 
 // TODO
@@ -43,9 +44,8 @@ bool PositionUtil::insufficientMaterial(std::shared_ptr<Position> pos) {
              pieceCount[BQ]);
 }
 
-// TODO
 bool PositionUtil::isCheckmate(std::shared_ptr<Position> pos) {
-    return isCheck(pos);
+    return isCheck(pos) && MoveGenerator::generateLegal(pos).empty();
 }
 
 bool PositionUtil::isTerminal(std::shared_ptr<Position> pos) {
