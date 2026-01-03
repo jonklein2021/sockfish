@@ -69,15 +69,21 @@ void MoveGenerator::appendMovesFromPiece(std::shared_ptr<Position> pos,
     }
 }
 
+Move MoveGenerator::createCastlingMove(bool isQueenside, Color side) {
+    // {kingside: {white, black}, queenside: {white, black}}
+    static constexpr Square ROOK_FROM[2][2] = {{h1, h8}, {a1, a8}};
+    static constexpr Square ROOK_TO[2][2] = {{f1, f8}, {d1, d8}};
+
+    return Move::create<Move::CASTLING>(ROOK_FROM[isQueenside][side], ROOK_TO[isQueenside][side]);
+}
+
 void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
                                         std::shared_ptr<Position> pos) {
+    // for each of the following constexpr arrays, the 1st element is relevant for white, and the
+    // 2nd for black. this helps avoid branching
+
     static constexpr std::array<CastleRights, 2> KINGSIDE = {WHITE_OO, BLACK_OO};
     static constexpr std::array<CastleRights, 2> QUEENSIDE = {WHITE_OOO, BLACK_OOO};
-
-    static constexpr Square KING_FROM[2] = {e1, e8};
-
-    static constexpr Square KING_TO_K[2] = {g1, g8};
-    static constexpr Square KING_TO_Q[2] = {c1, c8};
 
     static constexpr Bitboard EMPTY_K[2] = {(1ull << f1) | (1ull << g1),
                                             (1ull << f8) | (1ull << g8)};
@@ -85,10 +91,7 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
     static constexpr Bitboard EMPTY_Q[2] = {(1ull << d1) | (1ull << c1) | (1ull << b1),
                                             (1ull << d8) | (1ull << c8) | (1ull << b8)};
 
-    static constexpr Square PASS_K[2][2] = {
-        {f1, g1},  // white
-        {f8, g8}   // black
-    };
+    static constexpr Square PASS_K[2][2] = {{f1, g1}, {f8, g8}};
 
     static constexpr Square PASS_Q[2][2] = {{d1, c1}, {d8, c8}};
 
@@ -96,29 +99,25 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
     const CastleRights cr = pos->getMetadata().castleRights;
     const Bitboard empty = pos->getBoard().getOccupancy(EMPTY_OCCUPANCY);
 
-    // King must not currently be in check
+    // cannot castling out of check
     if (PositionUtil::isCheck(pos, side)) {
         return;
     }
 
     // --- Kingside ---
-    if (cr & KINGSIDE[side]) {
-        if ((empty & EMPTY_K[side]) == EMPTY_K[side] &&
-            !PositionUtil::isUnderAttack(pos, PASS_K[side][0], otherColor(side)) &&
-            !PositionUtil::isUnderAttack(pos, PASS_K[side][1], otherColor(side))) {
+    if ((cr & KINGSIDE[side]) && (empty & EMPTY_K[side]) == EMPTY_K[side] &&
+        !PositionUtil::isUnderAttack(pos, PASS_K[side][0], otherColor(side)) &&
+        !PositionUtil::isUnderAttack(pos, PASS_K[side][1], otherColor(side))) {
 
-            moveList.push_back(Move::create<Move::CASTLING>(KING_FROM[side], KING_TO_K[side]));
-        }
+        moveList.push_back(createCastlingMove(false, side));
     }
 
     // --- Queenside ---
-    if (cr & QUEENSIDE[side]) {
-        if ((empty & EMPTY_Q[side]) == EMPTY_Q[side] &&
-            !PositionUtil::isUnderAttack(pos, PASS_Q[side][0], otherColor(side)) &&
-            !PositionUtil::isUnderAttack(pos, PASS_Q[side][1], otherColor(side))) {
+    if ((cr & QUEENSIDE[side]) && (empty & EMPTY_Q[side]) == EMPTY_Q[side] &&
+        !PositionUtil::isUnderAttack(pos, PASS_Q[side][0], otherColor(side)) &&
+        !PositionUtil::isUnderAttack(pos, PASS_Q[side][1], otherColor(side))) {
 
-            moveList.push_back(Move::create<Move::CASTLING>(KING_FROM[side], KING_TO_Q[side]));
-        }
+        moveList.push_back(createCastlingMove(true, side));
     }
 }
 

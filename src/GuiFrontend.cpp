@@ -1,5 +1,6 @@
 #include "GuiFrontend.h"
 
+#include "MoveGenerator.h"
 #include "bit_tools.h"
 #include "types.h"
 
@@ -161,6 +162,21 @@ void GuiFrontend::handleEvents() {
                                          (selectedPiece->piece == BP && newY == 7);
 
                     candidate = Move(oldSq, newSq);
+
+                    // check for castling
+                    if (pieceToPT(selectedPiece->piece) == KING) {
+                        // kingside
+                        if ((oldSq == e1 && newSq == g1) || (oldSq == e8 && newSq == g8)) {
+                            candidate =
+                                MoveGenerator::createCastlingMove(false, game.getHumanSide());
+                        }
+
+                        // queenside
+                        if ((oldSq == e1 && newSq == c1) || (oldSq == e8 && newSq == c8)) {
+                            candidate =
+                                MoveGenerator::createCastlingMove(true, game.getHumanSide());
+                        }
+                    }
 
                     // necessary to match with a legal move
                     if (pawnPromoting) {

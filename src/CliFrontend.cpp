@@ -2,6 +2,7 @@
 
 #include "GameController.h"
 #include "Move.h"
+#include "MoveGenerator.h"
 #include "Printers.h"
 #include "types.h"
 
@@ -9,6 +10,11 @@
 
 CliFrontend::CliFrontend(GameController &game)
     : game(std::move(game)) {}
+
+bool CliFrontend::validateMoveInput(const std::string &input) {
+    return validateCoords(input) || (input == "O-O") || (input == "OO") || (input == "O-O-O") ||
+           (input == "OOO");
+}
 
 Move CliFrontend::getMoveFromStdin() {
     const std::vector<Move> legalMoves = game.legalMoves();
@@ -32,14 +38,23 @@ Move CliFrontend::getMoveFromStdin() {
             exit(0);
         }
 
-        if (!validateCoords(input)) {
+        if (!validateMoveInput(input)) {
             std::cout << "Error: Invalid input" << std::endl;
             continue;
         }
 
-        // check if the move is legal before returning it
-        // todo: check for castling
-        candidate = Move::fromCoordinateString(input);
+        if (validateCoords(input)) {
+            candidate = Move::fromCoordinateString(input);
+        } else {
+            // must be a castling move
+            if (input == "O-O" || input == "OO") {
+                // Kingside
+                candidate = MoveGenerator::createCastlingMove(false, game.getHumanSide());
+            } else {
+                // Queenside
+                candidate = MoveGenerator::createCastlingMove(true, game.getHumanSide());
+            }
+        }
         const Square from = candidate.getFromSquare(), to = candidate.getToSquare();
         const Piece pieceMoved = game.getPosition().pieceAt(from);
 
@@ -53,6 +68,7 @@ Move CliFrontend::getMoveFromStdin() {
         //     candidate.setPromotedPieceType(QUEEN);
         // }
 
+        // check if the move is legal before returning it
         for (Move move : legalMoves) {
             if (candidate == move) {
                 validMove = true;

@@ -19,6 +19,8 @@ void appendMovesFromPiece(std::shared_ptr<Position> pos,
                           std::vector<Move> &moveList,
                           MoveComputer moveComputer);
 
+Move createCastlingMove(bool isQueenside, Color side);
+
 void appendCastlingMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos);
 
 std::vector<Move> generateLegal(std::shared_ptr<Position> pos);

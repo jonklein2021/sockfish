@@ -6,6 +6,8 @@ class CliFrontend {
    private:
     GameController game;
 
+    bool validateMoveInput(const std::string &input);
+
     /**
      * Get a move from stdin, loops until
      * a valid legal move is entered

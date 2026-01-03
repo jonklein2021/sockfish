@@ -25,7 +25,7 @@ void GameController::makeHumanMove(Move move) {
     pos->makeMove(move);
 }
 
-// Returns the move made by the engine
+// Returns the move made by the engine, might be able to make void
 Move GameController::makeAIMove() {
     Move best = engine->getMove(pos, legalMoves());
     pos->makeMove(best);

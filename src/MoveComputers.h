@@ -58,7 +58,6 @@ Bitboard computePawnEnPassantCaptures(std::shared_ptr<Position> pos, Square sq) 
     };
 
     const Color side = pos->getSideToMove();
-    const Bitboard oppPieces = pos->board.getOccupancy(OccupancyType(otherColor(side)));
 
     const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
 
