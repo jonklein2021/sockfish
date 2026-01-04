@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "GameController.h"
 #include "GuiFrontend.h"
+#include "Zobrist.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -26,6 +27,7 @@ int main(int argc, char **argv) {
     std::shared_ptr<Position> pos = std::make_shared<Position>(cfg.fen);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(cfg.searchDepth);
     GameController gameController(pos, std::move(engine), cfg.humanSide);
+    Zobrist::init();
 
     // create and launch game
     if (cfg.useGui) {

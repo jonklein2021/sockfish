@@ -17,15 +17,19 @@ class Position {
      * that is cannot be read from the board alone
      */
     struct Metadata {
-        Square enPassantSquare;
+        Square enPassantSquare = NO_SQ;
 
         // the last move (that led to this postion) captured this piece
-        Piece capturedPiece;
+        Piece capturedPiece = NO_PIECE;
 
         // used to check for 50 move rule
-        uint8_t movesSinceCapture;
+        int movesSinceCapture = 0;
 
-        CastleRights castleRights;
+        // represents who current has what castling rights
+        CastleRights castleRights = NO_CASTLING;
+
+        // maintained by ZobristHasher
+        uint64_t hash = 0ull;
     };
 
    private:
@@ -60,8 +64,12 @@ class Position {
         return sideToMove;
     }
 
+    constexpr uint64_t getHash() const {
+        return md.hash;
+    }
+
     /**
-     * Parses a FEN string and updates this object
+     * Parses a FEN string and updates member vars, including metadata,
      * with its contents
      */
     void parseFen(const std::string &fen);
@@ -83,23 +91,6 @@ class Position {
      * @param prevMD the old metadata to restore
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
-
-    // TODO: Replace this with Zobrist hashing
-    constexpr uint64_t hash() const {
-        uint64_t res = 0;
-
-        for (Piece p : ALL_PIECES) {
-            res ^= (board.getPieceBB(p) << p);
-        }
-
-        res ^= (sideToMove << 12);
-        res ^= (md.enPassantSquare << 13);
-        res ^= (md.capturedPiece << 14);
-        res ^= (md.movesSinceCapture << 15);
-        res ^= (md.castleRights << 16);
-
-        return res;
-    }
 
     std::string toFenString();
 };

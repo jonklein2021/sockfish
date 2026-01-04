@@ -230,8 +230,8 @@ void GuiFrontend::handleEvents() {
                         }
                     } else {
                         // reset piece position if move is invalid
-                        newX = oldSq % 8;
-                        newY = oldSq / 8;
+                        newX = fileOf(oldSq);
+                        newY = rankOf(oldSq);
                         // displayX = playerIsWhite ? newX : 7 - newX;
                         // displayY = playerIsWhite ? newY : 7 - newY;
                         displayX = newX;
@@ -264,12 +264,8 @@ void GuiFrontend::draw() {
 
             if (!visualPieces.count(pieceSq) || visualPieces[pieceSq].piece != p) {
                 visualPieces[pieceSq] = VisualPiece(p, pieceSq, pieceTextures[p]);
-
-                const int file = pieceSq % 8;
-                const int rank = pieceSq / 8;
-
                 visualPieces[pieceSq].sprite->setPosition(
-                    sf::Vector2f(file * TILE_SIZE, rank * TILE_SIZE));
+                    sf::Vector2f(fileOf(pieceSq) * TILE_SIZE, rankOf(pieceSq) * TILE_SIZE));
             }
 
             // draw sprite on the window

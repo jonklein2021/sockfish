@@ -11,8 +11,8 @@ struct Config {
     bool randomColor = true;
     bool useGui = false;
 
-    void parseArgs(int argc, char **argv);
     static void printUsage();
+    void parseArgs(int argc, char **argv);
     void print() const;
     void randomizeSides();
 };

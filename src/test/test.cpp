@@ -2,6 +2,7 @@
 #include "../MoveGenerator.h"
 #include "../Position.h"
 #include "../Printers.h"
+#include "../Zobrist.h"
 
 #include <iostream>
 #include <vector>
@@ -146,6 +147,7 @@ int main() {
         fen = STARTING_POSITION_FEN;
     }
 
+    Zobrist::init();
     std::shared_ptr<Position> pos = std::make_shared<Position>(fen);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
     GameController game(pos, std::move(engine), WHITE);

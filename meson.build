@@ -29,7 +29,8 @@ common_sources = [
   'src/Position.cpp',
   'src/PositionUtil.cpp',
   'src/Printers.cpp',
-  'src/PromotionMenu.cpp'
+  'src/PromotionMenu.cpp',
+  'src/Zobrist.cpp'
 ]
 
 # -------------------- EXECUTABLE: main --------------------

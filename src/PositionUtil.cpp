@@ -48,6 +48,7 @@ bool PositionUtil::isCheckmate(std::shared_ptr<Position> pos) {
     return isCheck(pos) && MoveGenerator::generateLegal(pos).empty();
 }
 
+// TODO: finish
 bool PositionUtil::isTerminal(std::shared_ptr<Position> pos) {
     return pos->getSideToMove() != WHITE && pos->getSideToMove() != BLACK;
     // return insufficientMaterial(pos) || isCheckmate(pos);

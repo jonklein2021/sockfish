@@ -69,7 +69,7 @@ void Printers::prettyPrintPosition(const Position &pos, bool flip, bool debug) {
         out << "\nCastle rights: 0b" << std::bitset<4>(md.castleRights);
         out << "\nEn passant square: "
             << ((md.enPassantSquare == NO_SQ) ? "-" : squareToCoordinateString(md.enPassantSquare));
-        out << "\nHash: 0x" << std::hex << std::setw(16) << std::setfill('0') << pos.hash();
+        out << "\nHash: 0x" << std::hex << std::setw(16) << std::setfill('0') << pos.getHash();
     }
 
     std::cout << out.str() << std::endl;

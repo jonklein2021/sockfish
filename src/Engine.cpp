@@ -191,7 +191,7 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
 }
 
 eval_t Engine::negamax(std::shared_ptr<Position> pos, eval_t alpha, eval_t beta, int depth) {
-    uint64_t h = pos->hash();
+    uint64_t h = pos->getHash();
     if (transpositionTable.find(h) != transpositionTable.end()) {
         const TTEntry &entry = transpositionTable[h];
         if (entry.depth >= depth) {
