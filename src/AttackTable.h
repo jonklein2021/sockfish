@@ -9,7 +9,7 @@ class AttackTable {
 
    public:
     constexpr int numAttackers(Square sq, Color attacker) {
-        const std::array<std::array<Piece, 6>, 2> attackers = {WHITE_PIECES, BLACK_PIECES};
+        constexpr std::array<std::array<Piece, 6>, 2> attackers = {WHITE_PIECES, BLACK_PIECES};
         int result = 0;
         for (Piece p : attackers[attacker]) {
             result += !!getBit(table[p], sq);

@@ -48,8 +48,7 @@ void appendPawnMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos)
     Bitboard pawnBB = pos->getPieceBB(ptToPiece(PAWN, side));
 
     while (pawnBB) {
-        Bitboard srcSqBB = pawnBB & -pawnBB;
-        Square srcSq = Square(getLsbIndex(srcSqBB));
+        Square srcSq = Square(getLsbIndex(pawnBB));
 
         // destination square must be empty
         const Square singlePushDstSq = Square(srcSq + DIR[side]);
@@ -105,52 +104,40 @@ void appendPawnMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos)
             moveList.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, westCaptureSq));
         }
 
-        pawnBB ^= srcSqBB;
+        pawnBB &= pawnBB - 1;
     }
 }
 
-template<Move::Type moveType>
+// only used for normal moves
 void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
                                             Bitboard moves,
                                             Square srcSq) {
     while (moves) {
-        const Bitboard destSqBB = moves & -moves;
-        const Square destSq = Square(getLsbIndex(destSqBB));
-
-        if (moveType == Move::PROMOTION) {
-            for (PieceType promotionPiece : PROMOTION_PIECE_TYPES) {
-                Move m = Move::create<Move::PROMOTION>(srcSq, destSq, promotionPiece);
-                moveList.push_back(std::move(m));
-            }
-        } else {
-            Move m = Move::create<moveType>(srcSq, destSq);
-            moveList.push_back(std::move(m));
-        }
-
-        moves ^= destSqBB;
+        const Square destSq = Square(getLsbIndex(moves));
+        moveList.emplace_back(srcSq, destSq);
+        moves &= moves - 1;
     }
 }
 
-template<Move::Type moveType, PieceType pt, typename MoveComputer>
+template<PieceType pt, typename MoveComputer>
 void MoveGenerator::appendMovesFromPiece(std::shared_ptr<Position> pos,
                                          std::vector<Move> &moveList,
                                          MoveComputer moveComputer) {
     const Color toMove = pos->getSideToMove();
     const Piece piece = ptToPiece(pt, toMove);
-    auto bb = pos->getPieceBB(piece);  // N.B: this needs to make a copy
+    Bitboard bb = pos->getPieceBB(piece);  // N.B: this needs to be a copy
     while (bb) {
-        const Bitboard srcSqBB = bb & -bb;  // isolate the LSB
-        const Square srcSq = Square(getLsbIndex(srcSqBB));
+        const Square srcSq = Square(getLsbIndex(bb));
 
         // compute a bitboard of all destination squares that this piece can go to,
         // according to the specified moveComputer
         Bitboard computedDstBB = moveComputer(pos, srcSq);
 
         // create and append moves to the moveList
-        appendMovesFromBitboard<moveType>(moveList, computedDstBB, srcSq);
+        appendMovesFromBitboard(moveList, computedDstBB, srcSq);
 
         // pop this bit
-        bb ^= srcSqBB;
+        bb &= bb - 1;
     }
 }
 
@@ -212,23 +199,24 @@ std::vector<Move> MoveGenerator::generatePseudolegal(std::shared_ptr<Position> p
     std::vector<Move> moveList;
 
     /* PAWNS */
-    // TODO: Handle pawn promotions
     appendPawnMoves(moveList, pos);
 
     /* KNIGHTS */
-    appendMovesFromPiece<Move::NORMAL, KNIGHT>(pos, moveList, MoveComputers::computeKnightMoves);
+    appendMovesFromPiece<KNIGHT>(pos, moveList, MoveComputers::computeKnightMoves);
+
+    // TODO: Speed up sliding piece move gen with magic numbers
 
     /* BISHOPS */
-    appendMovesFromPiece<Move::NORMAL, BISHOP>(pos, moveList, MoveComputers::computeBishopMoves);
+    appendMovesFromPiece<BISHOP>(pos, moveList, MoveComputers::computeBishopMoves);
 
     /* ROOKS */
-    appendMovesFromPiece<Move::NORMAL, ROOK>(pos, moveList, MoveComputers::computeRookMoves);
+    appendMovesFromPiece<ROOK>(pos, moveList, MoveComputers::computeRookMoves);
 
     /* QUEENS */
-    appendMovesFromPiece<Move::NORMAL, QUEEN>(pos, moveList, MoveComputers::computeQueenMoves);
+    appendMovesFromPiece<QUEEN>(pos, moveList, MoveComputers::computeQueenMoves);
 
     /* KING */
-    appendMovesFromPiece<Move::NORMAL, KING>(pos, moveList, MoveComputers::computeKingMoves);
+    appendMovesFromPiece<KING>(pos, moveList, MoveComputers::computeKingMoves);
 
     /* CASTLING */
     appendCastlingMoves(moveList, pos);

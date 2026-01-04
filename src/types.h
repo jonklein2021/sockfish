@@ -6,6 +6,34 @@
 #include <string>
 #include <string_view>
 
+/*
+
+    -- Bitboard Cheatsheet --
+
+    y increasing
+    |
+    v   8   R N B Q K B N R
+    |   7   P P P P P P P P
+    v   6   . . . . . . . .
+    |   5   . . . . . . . .
+    v   4   . . . . . . . .
+    |   3   . . . . . . . .
+    v   2   p p p p p p p p
+    |   1   r n b q k b n r
+    v
+            a b c d e f g h
+
+    x increasing ->->->->->
+
+    a8 is the 0th bit, h8 is the 7th bit
+    a1 is the 56th bit, h1 is the 63rd bit
+
+    Move one square up: x >> 8
+    Move one square down: x << 8
+    Move one square left: (x & not_file_a) >> 1
+    Move one square right: (x & not_file_h) << 1
+
+*/
 using Bitboard = uint64_t;
 
 using Eval = int;
@@ -14,6 +42,8 @@ using Eval = int;
  * Conveys the player's pieces during game initialization
  */
 enum Color { WHITE, BLACK };
+
+constexpr std::array<Color, 2> COLORS = {WHITE, BLACK};
 
 constexpr static inline Color otherColor(Color c) {
     return Color(c ^ 1);

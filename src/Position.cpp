@@ -142,7 +142,7 @@ Position::Metadata Position::makeMove(const Move &move) {
             kingFrom = e8, kingTo = c8;
             removeCastleRights(md.castleRights, BLACK_CASTLING);
         } else {
-            // unreachable so long as move gen is correct
+            // unreachable so long as move gen is correct; this is included only to avoid a warning
             throw std::runtime_error("Unreachable castle branch in Position::makeMove");
         }
         board.movePiece(king, kingFrom, kingTo);

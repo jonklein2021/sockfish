@@ -2,8 +2,6 @@
 
 #include "types.h"
 
-#include <SFML/System/Vector2.hpp>
-
 // minimal swap implementation so I don't need to include the entire utility header
 template<typename T>
 inline static constexpr void my_swap(T &x, T &y) {
@@ -70,34 +68,3 @@ inline static constexpr void popBit(Bitboard &bb, Square sq) {
         bb ^= (1ull << sq);
     }
 }
-
-/*** MOVE GENERATION TOOLS ***/
-
-/*
-
-    -- Bitboard Cheatsheet --
-
-    y increasing
-    |
-    v   8   R N B Q K B N R
-    |   7   P P P P P P P P
-    v   6   . . . . . . . .
-    |   5   . . . . . . . .
-    v   4   . . . . . . . .
-    |   3   . . . . . . . .
-    v   2   p p p p p p p p
-    |   1   r n b q k b n r
-    v
-            a b c d e f g h
-
-    x increasing ->->->->->
-
-    a8 is the 0th bit, h8 is the 7th bit
-    a1 is the 56th bit, h1 is the 63rd bit
-
-    Move one square up: x >> 8
-    Move one square down: x << 8
-    Move one square left: (x & not_file_a) >> 1
-    Move one square right: (x & not_file_h) << 1
-
-*/

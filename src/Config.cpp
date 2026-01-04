@@ -59,7 +59,7 @@ void Config::parseArgs(int argc, char **argv) {
 }
 
 void Config::randomizeSides() {
-    humanSide = std::rand() % 2 == 0 ? WHITE : BLACK;
+    humanSide = COLORS[std::rand() & 1];
 }
 
 void Config::printUsage() {

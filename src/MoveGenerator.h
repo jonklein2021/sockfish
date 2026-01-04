@@ -11,10 +11,9 @@ namespace MoveGenerator {
 
 bool isMoveLegal(std::shared_ptr<Position> pos, Move &move);
 
-template<Move::Type moveType>
 void appendMovesFromBitboard(std::vector<Move> &moveList, Bitboard moves, Square srcSq);
 
-template<Move::Type moveType, PieceType pt, typename MoveComputer>
+template<PieceType pt, typename MoveComputer>
 void appendMovesFromPiece(std::shared_ptr<Position> pos,
                           std::vector<Move> &moveList,
                           MoveComputer moveComputer);

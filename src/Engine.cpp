@@ -59,8 +59,7 @@ void Engine::countPositions(std::shared_ptr<Position> pos, int depth) const {
 
     std::function<uint64_t(Position &, int)> countPositionsHelper = [&](Position &state,
                                                                         int depth) -> uint64_t {
-        // TODO: Also check if this state is terminal
-        if (depth == 0) {
+        if (depth == 0 || PositionUtil::isTerminal(std::make_shared<Position>(state))) {
             return 1;  // Base case: count this position
         }
 
@@ -148,11 +147,11 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos) {
 
 eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<Move> &&legalMoves) {
     // TODO: Check if checkmate
-    if (legalMoves.empty()) {
+    if (PositionUtil::isCheckmate(pos)) {
         return pos->getSideToMove() == WHITE ? 1738 : -1738;
     }
 
-    const eval_t piecePositionWeight = 0.5;
+    const float piecePositionWeight = 0.5;
 
     eval_t score = 0;
 
@@ -161,13 +160,9 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
     for (Piece p : WHITE_PIECES) {
         uint64_t pieces = pos->getPieceBB(p);
         while (pieces) {
-            int trailingZeros = __builtin_ctzll(pieces);
-            int x = trailingZeros % 8;
-            int y = trailingZeros / 8;
-            // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ":
-            // " << pieceValues[p] << " + " << piecePositionWeight << "*" <<
-            // pieceSquareTables[p][y][x] << std::endl;
-            score += (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][y][x]);
+            Square sq = Square(getLsbIndex(pieces));
+            int file = fileOf(sq), rank = rankOf(sq);
+            score += (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][rank][file]);
             pieces &= pieces - 1;
         }
     }
@@ -175,16 +170,15 @@ eval_t Engine::evaluate(const std::shared_ptr<Position> pos, const std::vector<M
     for (Piece p : BLACK_PIECES) {
         uint64_t pieces = pos->getPieceBB(p);
         while (pieces) {
-            int trailingZeros = __builtin_ctzll(pieces);
-            int x = trailingZeros % 8;
-            int y = trailingZeros / 8;
-            // std::cout << pieceFilenames[p] << " at " << x << ", " << y << ":
-            // " << pieceValues[p] << " + " << piecePositionWeight << "*" <<
-            // pieceSquareTables[p][y][x] << std::endl;
-            score -= (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][y][x]);
+            Square sq = Square(getLsbIndex(pieces));
+            int file = fileOf(sq), rank = rankOf(sq);
+            score -= (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][rank][file]);
             pieces &= pieces - 1;
         }
     }
+
+    // mobility bonus
+    score += 0.1 * legalMoves.size();
 
     // return score relative to the current player for negamax
     return pos->getSideToMove() == WHITE ? score : -score;

@@ -28,7 +28,7 @@ Bitboard computeBishopMoves(std::shared_ptr<Position> pos, Square sq) {
 
     // initial row and column
     // N.B: (0, 0) is top left corner
-    const int r0 = sq / 8, c0 = sq % 8;
+    const int r0 = rankOf(sq), c0 = fileOf(sq);
 
     // up right
     for (int r = r0 + 1, c = c0 + 1; r <= 7 && c <= 7; r++, c++) {
@@ -89,7 +89,7 @@ Bitboard computeRookMoves(std::shared_ptr<Position> pos, Square sq) {
 
     // initial row and column
     // N.B: (0, 0) is top left corner
-    const int r0 = sq / 8, c0 = sq % 8;
+    const int r0 = rankOf(sq), c0 = fileOf(sq);
 
     // up
     for (int r = r0 + 1; r <= 7; r++) {
