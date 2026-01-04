@@ -25,6 +25,7 @@ common_sources = [
   'src/GameController.cpp',
   'src/GuiFrontend.cpp',
   'src/Move.cpp',
+  'src/MoveComputers.cpp',
   'src/MoveGenerator.cpp',
   'src/Position.cpp',
   'src/PositionUtil.cpp',

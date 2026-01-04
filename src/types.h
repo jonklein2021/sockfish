@@ -16,13 +16,8 @@ using Eval = int;
 enum Color { WHITE, BLACK };
 
 constexpr static inline Color otherColor(Color c) {
-    return Color((c + 1) & 1);
+    return Color(c ^ 1);
 }
-
-/**
- * Used to index into the occupancies array
- */
-enum OccupancyType { WHITE_OCCUPANCY, BLACK_OCCUPANCY, BOTH_OCCUPANCY, EMPTY_OCCUPANCY };
 
 /**
  * Represents each type of piece without a color

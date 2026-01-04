@@ -280,7 +280,7 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
 }
 
 // TODO
-std::string Position::toFenString() {
+std::string Position::toFenString() const {
     std::ostringstream out;
 
     return out.str();

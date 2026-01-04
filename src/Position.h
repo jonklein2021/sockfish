@@ -77,7 +77,7 @@ class Position {
     // Other Methods
 
     /**
-     * Makes a move in the game state
+     * Makes a move in the current position
      *
      * @param move the move to apply to the game state
      * @return the metadata of the state before the move is made
@@ -85,12 +85,12 @@ class Position {
     Metadata makeMove(const Move &move);
 
     /**
-     * Undoes a move in the game state
-     *
-     * @param move the move to undo
+     * Undoes a move in the current position
+     * *
+     * @param move the move to undo, assumed to be the most recent most played
      * @param prevMD the old metadata to restore
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
 
-    std::string toFenString();
+    std::string toFenString() const;
 };

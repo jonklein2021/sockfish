@@ -41,8 +41,8 @@ void appendPawnMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos)
     };
 
     const Color side = pos->getSideToMove();
-    const Bitboard oppPieces = pos->getBoard().getOccupancy(OccupancyType(otherColor(side)));
-    const Bitboard emptySquares = pos->getBoard().getOccupancy(EMPTY_OCCUPANCY);
+    const Bitboard oppPieces = pos->getBoard().getOccupancy(otherColor(side));
+    const Bitboard emptySquares = pos->getBoard().getEmptySquares();
     const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
 
     Bitboard pawnBB = pos->getPieceBB(ptToPiece(PAWN, side));
@@ -182,7 +182,7 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
 
     const Color side = pos->getSideToMove();
     const CastleRights cr = pos->getMetadata().castleRights;
-    const Bitboard empty = pos->getBoard().getOccupancy(EMPTY_OCCUPANCY);
+    const Bitboard empty = pos->getBoard().getEmptySquares();
 
     // cannot castling out of check
     if (PositionUtil::isCheck(pos, side)) {

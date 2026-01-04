@@ -10,11 +10,11 @@ class Board {
    private:
     // represents the location of each piece, indexed by
     // WP, ..., BK
-    std::array<Bitboard, 12> pieceBBs;
+    std::array<Bitboard, NO_PIECE> pieceBBs;
 
     // represents the joint occupancy of pieces on the board
-    // indexes: WHITE, BLACK, BOTH, EMPTY
-    std::array<Bitboard, 4> occupancies;
+    // indexes: WHITE, BLACK
+    std::array<Bitboard, 2> occupancies;
 
     // maps each square to the piece residing on it
     std::array<Piece, NO_SQ> squareToPiece;
@@ -31,8 +31,16 @@ class Board {
         return pieceBBs[p];
     }
 
-    constexpr Bitboard getOccupancy(OccupancyType c) const {
+    inline constexpr Bitboard getOccupancy(Color c) const {
         return occupancies[c];
+    }
+
+    inline constexpr Bitboard getOccupancies() const {
+        return getOccupancy(WHITE) | getOccupancy(BLACK);
+    }
+
+    inline constexpr Bitboard getEmptySquares() const {
+        return ~getOccupancies();
     }
 
     constexpr Piece pieceAt(Square sq) const {
@@ -76,11 +84,9 @@ class Board {
 
     // allows for updating this table only when strictly necessary
     constexpr void updateOccupancies() {
-        occupancies[WHITE_OCCUPANCY] =
+        occupancies[WHITE] =
             pieceBBs[WP] | pieceBBs[WN] | pieceBBs[WB] | pieceBBs[WR] | pieceBBs[WQ] | pieceBBs[WK];
-        occupancies[BLACK_OCCUPANCY] =
+        occupancies[BLACK] =
             pieceBBs[BP] | pieceBBs[BN] | pieceBBs[BB] | pieceBBs[BR] | pieceBBs[BQ] | pieceBBs[BK];
-        occupancies[BOTH_OCCUPANCY] = occupancies[WHITE_OCCUPANCY] | occupancies[BLACK_OCCUPANCY];
-        occupancies[EMPTY_OCCUPANCY] = ~occupancies[BOTH_OCCUPANCY];
     }
 };
