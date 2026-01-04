@@ -12,10 +12,29 @@ class ZobristHasher {
     // Sixteen numbers to indicate the castling rights
     // Eight numbers to indicate the file of a valid En passant square, if any
     // 12*64 + 1 + 16 + 8 = 793 total
-    std::array<uint64_t, 793> hashes;
-    uint64_t currentHash;
+    static constexpr int ZOBRIST_ARRAY_SIZE = 793;
+    std::array<uint64_t, ZOBRIST_ARRAY_SIZE> hashes;
 
-    int getIndex(Piece p, Square sq, CastleRights cr, int epFile);
+    // represents the hash of the current position
+    uint64_t currentHash = 0ull;
+
+    constexpr int getIndex(Piece p, Square sq) const {
+        return p * sq;
+    }
+
+    // gets index of sideToMove. no argument because the hash's existence is enough to represent
+    // whose turn it is
+    constexpr int getSideToMoveIndex() const {
+        return NO_PIECE * NO_SQ;
+    }
+
+    constexpr int getIndex(CastleRights cr) const {
+        return NO_PIECE * NO_SQ + BLACK + cr;
+    }
+
+    constexpr int getIndex(int epFileIndex) const {
+        return NO_PIECE * NO_SQ + BLACK + CASTLING_SZ + epFileIndex;
+    }
 
    public:
     ZobristHasher(std::shared_ptr<Position> pos);

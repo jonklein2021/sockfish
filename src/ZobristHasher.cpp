@@ -3,14 +3,33 @@
 #include <random>
 
 ZobristHasher::ZobristHasher(std::shared_ptr<Position> pos) {
-    // initiallize array with random numbers
     std::mt19937_64 generator;
 
-    // compute currentHash of pos using array
-}
+    // initiallize array with random numbers
+    for (int i = 0; i < ZOBRIST_ARRAY_SIZE; i++) {
+        hashes[i] = generator();
+    }
 
-int getIndex(Piece p, Square sq, Color toMove, CastleRights cr, int epFile) {
-    return p * sq + toMove + cr + epFile;
+    // apply piece positions to hash
+    for (Square sq : ALL_SQUARES) {
+        Piece p = pos->pieceAt(sq);
+        currentHash ^= hashes[getIndex(p, sq)];
+    }
+
+    // apply sideToMove hash only if black's turn
+    if (pos->getSideToMove() == BLACK) {
+        currentHash ^= hashes[getSideToMoveIndex()];
+    }
+
+    // apply castle rights status to hash
+    const CastleRights cr = pos->getMetadata().castleRights;
+    currentHash ^= hashes[getIndex(cr)];
+
+    // apply en passant square to hash only if it exists
+    if (pos->getMetadata().enPassantSquare != NO_SQ) {
+        const int epFileIndex = fileOf(pos->getMetadata().enPassantSquare);
+        currentHash ^= hashes[getIndex(epFileIndex)];
+    }
 }
 
 uint64_t ZobristHasher::getHash() {

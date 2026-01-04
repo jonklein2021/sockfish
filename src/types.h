@@ -170,6 +170,14 @@ enum Square : uint8_t {
     NO_SQ
 };
 
+inline static constexpr int fileOf(Square sq) {
+    return sq & 7;
+}
+
+inline static constexpr int rankOf(Square sq) {
+    return sq >> 3;
+}
+
 constexpr std::array<Square, 64> ALL_SQUARES = {
     a8, b8, c8, d8, e8, f8, g8, h8,
     a7, b7, c7, d7, e7, f7, g7, h7,
@@ -215,16 +223,17 @@ enum Direction : int8_t {
 // Credit:
 // https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L126
 enum CastleRights : int8_t {
-    NO_CASTLING,                                    // 0b00000000
-    WHITE_OO,                                       // 0b00000001
-    WHITE_OOO = WHITE_OO << 1,                      // 0b00000010
-    BLACK_OO = WHITE_OO << 2,                       // 0b00000100
-    BLACK_OOO = WHITE_OO << 3,                      // 0b00001000
-    KING_SIDE = WHITE_OO | BLACK_OO,                // 0b00000101
-    QUEEN_SIDE = WHITE_OOO | BLACK_OOO,             // 0b00001010
-    WHITE_CASTLING = WHITE_OO | WHITE_OOO,          // 0b00000011
-    BLACK_CASTLING = BLACK_OO | BLACK_OOO,          // 0b00001100
-    ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING  // 0b00001111
+    NO_CASTLING,                                     // 0b00000000
+    WHITE_OO,                                        // 0b00000001
+    WHITE_OOO = WHITE_OO << 1,                       // 0b00000010
+    BLACK_OO = WHITE_OO << 2,                        // 0b00000100
+    BLACK_OOO = WHITE_OO << 3,                       // 0b00001000
+    KING_SIDE = WHITE_OO | BLACK_OO,                 // 0b00000101
+    QUEEN_SIDE = WHITE_OOO | BLACK_OOO,              // 0b00001010
+    WHITE_CASTLING = WHITE_OO | WHITE_OOO,           // 0b00000011
+    BLACK_CASTLING = BLACK_OO | BLACK_OOO,           // 0b00001100
+    ANY_CASTLING = WHITE_CASTLING | BLACK_CASTLING,  // 0b00001111
+    CASTLING_SZ                                      // 0b00010000
 };
 
 // only used in FEN parsing
