@@ -120,8 +120,8 @@ void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
 }
 
 template<PieceType pt, typename MoveComputer>
-void MoveGenerator::appendMovesFromPiece(Position &pos,
-                                         std::vector<Move> &moveList,
+void MoveGenerator::appendMovesFromPiece(std::vector<Move> &moveList,
+                                         Position &pos,
                                          MoveComputer moveComputer) {
     const Color toMove = pos.getSideToMove();
     const Piece piece = ptToPiece(pt, toMove);
@@ -200,21 +200,21 @@ std::vector<Move> MoveGenerator::generatePseudolegal(Position &pos) {
     appendPawnMoves(moveList, pos);
 
     /* KNIGHTS */
-    appendMovesFromPiece<KNIGHT>(pos, moveList, MoveComputers::computeKnightMoves);
+    appendMovesFromPiece<KNIGHT>(moveList, pos, MoveComputers::computeKnightMoves);
 
     // TODO: Speed up sliding piece move gen with magic numbers
 
     /* BISHOPS */
-    appendMovesFromPiece<BISHOP>(pos, moveList, MoveComputers::computeBishopMoves);
+    appendMovesFromPiece<BISHOP>(moveList, pos, MoveComputers::computeBishopMoves);
 
     /* ROOKS */
-    appendMovesFromPiece<ROOK>(pos, moveList, MoveComputers::computeRookMoves);
+    appendMovesFromPiece<ROOK>(moveList, pos, MoveComputers::computeRookMoves);
 
     /* QUEENS */
-    appendMovesFromPiece<QUEEN>(pos, moveList, MoveComputers::computeQueenMoves);
+    appendMovesFromPiece<QUEEN>(moveList, pos, MoveComputers::computeQueenMoves);
 
     /* KING */
-    appendMovesFromPiece<KING>(pos, moveList, MoveComputers::computeKingMoves);
+    appendMovesFromPiece<KING>(moveList, pos, MoveComputers::computeKingMoves);
 
     /* CASTLING */
     appendCastlingMoves(moveList, pos);

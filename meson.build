@@ -50,3 +50,11 @@ test_exe = executable(
   install : false
 )
 
+# -------------------- EXECUTABLE: test/perft --------------------
+test_exe = executable(
+  'perft',
+  [ 'src/test/perft.cpp', common_sources ],
+  dependencies : sfml_libs,
+  install : false
+)
+

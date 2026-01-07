@@ -18,5 +18,4 @@ static std::array<MoveComputerFunc, 6> moveAttackComputers = {
     MoveComputers::computePawnAttacks, MoveComputers::computeKnightMoves,
     MoveComputers::computeBishopMoves, MoveComputers::computeRookMoves,
     MoveComputers::computeQueenMoves,  MoveComputers::computeKingMoves};
-
 }  // namespace MoveComputers

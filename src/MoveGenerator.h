@@ -13,7 +13,7 @@ bool isMoveLegal(Position &pos, Move &move);
 void appendMovesFromBitboard(std::vector<Move> &moveList, Bitboard moves, Square srcSq);
 
 template<PieceType pt, typename MoveComputer>
-void appendMovesFromPiece(Position &pos, std::vector<Move> &moveList, MoveComputer moveComputer);
+void appendMovesFromPiece(std::vector<Move> &moveList, Position &pos, MoveComputer moveComputer);
 
 Move createCastlingMove(bool isQueenside, Color side);
 
