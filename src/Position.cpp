@@ -1,5 +1,6 @@
 #include "Position.h"
 
+#include "MoveComputers.h"
 #include "Zobrist.h"
 #include "src/types.h"
 
@@ -7,6 +8,8 @@
 
 Position::Position(const std::string &fen) {
     parseFen(fen);
+
+    updateAllAttacks();
 }
 
 void Position::parseFen(const std::string &fen) {
@@ -214,6 +217,9 @@ Position::Metadata Position::makeMove(const Move &move) {
     sideToMove = otherColor(sideToMove);
     md.hash ^= Zobrist::getSideToMoveHash();
 
+    // update attack table
+    updateAllAttacks();
+
     return oldMD;
 }
 
@@ -277,6 +283,29 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     // restore metadata
     // N.B: this takes care of md.hash for us
     md = prevMD;
+}
+
+void Position::updatePieceAttacks(Piece p) {
+    Bitboard pieceBB = board.getPieceBB(p);
+    md.attackTable[p] = 0ull;
+
+    while (pieceBB) {
+        Square sq = Square(getLsbIndex(pieceBB));
+        md.attackTable[p] |= MoveComputers::moveAttackComputers[p](*this, sq);
+        pieceBB &= pieceBB - 1;
+    }
+}
+
+void Position::updateSideAttacks(Color c) {
+    for (Piece p : COLOR_TO_PIECES[c]) {
+        updatePieceAttacks(p);
+    }
+}
+
+void Position::updateAllAttacks() {
+    for (Piece p : ALL_PIECES) {
+        updatePieceAttacks(p);
+    }
 }
 
 // TODO

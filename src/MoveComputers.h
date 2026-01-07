@@ -1,14 +1,22 @@
 #include "Position.h"
 #include "types.h"
 
-#include <memory>
+#include <functional>
 
 namespace MoveComputers {
 
-Bitboard computeKnightMoves(std::shared_ptr<Position> pos, Square sq);
-Bitboard computeBishopMoves(std::shared_ptr<Position> pos, Square sq);
-Bitboard computeRookMoves(std::shared_ptr<Position> pos, Square sq);
-Bitboard computeQueenMoves(std::shared_ptr<Position> pos, Square sq);
-Bitboard computeKingMoves(std::shared_ptr<Position> pos, Square sq);
+using MoveComputerFunc = std::function<Bitboard(const Position &, Square)>;
+
+Bitboard computePawnAttacks(const Position &pos, Square sq);
+Bitboard computeKnightMoves(const Position &pos, Square sq);
+Bitboard computeBishopMoves(const Position &pos, Square sq);
+Bitboard computeRookMoves(const Position &pos, Square sq);
+Bitboard computeQueenMoves(const Position &pos, Square sq);
+Bitboard computeKingMoves(const Position &pos, Square sq);
+
+static std::array<MoveComputerFunc, 6> moveAttackComputers = {
+    MoveComputers::computePawnAttacks, MoveComputers::computeKnightMoves,
+    MoveComputers::computeBishopMoves, MoveComputers::computeRookMoves,
+    MoveComputers::computeQueenMoves,  MoveComputers::computeKingMoves};
 
 }  // namespace MoveComputers

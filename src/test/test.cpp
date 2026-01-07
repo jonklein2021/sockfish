@@ -11,7 +11,7 @@ using std::string, std::cin, std::cout, std::endl;
 
 std::vector<Move> legalMoves;
 
-Move getMoveFromStdin(std::shared_ptr<Position> pos) {
+Move getMoveFromStdin(Position &pos) {
     Move candidate;
     bool validMove = false;
     bool pawnPromoting = false;
@@ -21,7 +21,7 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
         const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
 
         // DEBUG: print legal moves
-        Printers::printMoveList(legalMoves, *pos);
+        Printers::printMoveList(legalMoves, pos);
 
         // prompt user for input
         std::cout << "Enter move (example: " << sample << ") or q to quit: ";
@@ -46,21 +46,21 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
             // must be a castling move
             if (input == "O-O" || input == "OO") {
                 // Kingside
-                candidate = MoveGenerator::createCastlingMove(false, pos->getSideToMove());
+                candidate = MoveGenerator::createCastlingMove(false, pos.getSideToMove());
             } else {
                 // Queenside
-                candidate = MoveGenerator::createCastlingMove(true, pos->getSideToMove());
+                candidate = MoveGenerator::createCastlingMove(true, pos.getSideToMove());
             }
         }
 
         const Square from = candidate.getFromSquare(), to = candidate.getToSquare();
-        const Piece pieceMoved = pos->pieceAt(from);
+        const Piece pieceMoved = pos.pieceAt(from);
 
         // check for pawn promotion
         pawnPromoting = (pieceMoved == WP && to <= h8) || (pieceMoved == BP && to >= a1);
 
         // check for en passant
-        if (pieceToPT(pieceMoved) == PAWN && to == pos->getMetadata().enPassantSquare) {
+        if (pieceToPT(pieceMoved) == PAWN && to == pos.getMetadata().enPassantSquare) {
             candidate.setFlag(Move::EN_PASSANT);
         }
 
@@ -109,20 +109,20 @@ Move getMoveFromStdin(std::shared_ptr<Position> pos) {
     return candidate;
 }
 
-void testMakeMove(std::shared_ptr<Position> pos) {
+void testMakeMove(Position &pos) {
     cout << "Initially:\n";
-    Printers::prettyPrintPosition(*pos, false, true);
-    Printers::printPieceValues(*pos);
+    Printers::prettyPrintPosition(pos, false, true);
+    Printers::printPieceValues(pos);
 
     // get move
     Move m = getMoveFromStdin(pos);
     cout << "Move: " << m.toString() << "\n";
 
     // make move
-    Position::Metadata md = pos->makeMove(m);
+    Position::Metadata md = pos.makeMove(m);
     cout << "After making:\n";
-    Printers::prettyPrintPosition(*pos, false, true);
-    Printers::printPieceValues(*pos);
+    Printers::prettyPrintPosition(pos, false, true);
+    Printers::printPieceValues(pos);
 
     cout << "Unmake this move? (y/n)\n";
     string choice;
@@ -132,10 +132,10 @@ void testMakeMove(std::shared_ptr<Position> pos) {
     }
 
     // unmake move
-    pos->unmakeMove(m, md);
+    pos.unmakeMove(m, md);
     cout << "After unmaking:\n";
-    Printers::prettyPrintPosition(*pos, false, true);
-    Printers::printPieceValues(*pos);
+    Printers::prettyPrintPosition(pos, false, true);
+    Printers::printPieceValues(pos);
 }
 
 int main() {
@@ -148,11 +148,11 @@ int main() {
     }
 
     Zobrist::init();
-    std::shared_ptr<Position> pos = std::make_shared<Position>(fen);
+    Position pos(fen);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
     GameController game(pos, std::move(engine), WHITE);
 
-    Printers::prettyPrintPosition(*pos);
+    Printers::prettyPrintPosition(pos);
 
     while (1) {
         string choice;
@@ -171,8 +171,8 @@ int main() {
             case 'q': return 0;
             case '1': testMakeMove(pos); break;
             case '2': {
-                Printers::prettyPrintPosition(*pos);
-                Printers::printMoveList(legalMoves, *pos);
+                Printers::prettyPrintPosition(pos);
+                Printers::printMoveList(legalMoves, pos);
                 break;
             }
             case '3':

@@ -83,6 +83,8 @@ constexpr std::array<Piece, 6> BLACK_PIECES = {BP, BN, BB, BR, BQ, BK};
 
 constexpr std::array<Piece, 12> ALL_PIECES = {WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK};
 
+constexpr std::array<std::array<Piece, 6>, 2> COLOR_TO_PIECES = {WHITE_PIECES, BLACK_PIECES};
+
 /**
  * List of all piece filenames, mainly used for loading textures
  */

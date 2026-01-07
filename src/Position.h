@@ -3,7 +3,6 @@
 #include "Board.h"
 #include "Move.h"
 
-#include <cstdint>
 #include <string>
 
 /**
@@ -13,8 +12,8 @@
 class Position {
    public:
     /**
-     * Information about the game state
-     * that is cannot be read from the board alone
+     * Information about the current position
+     * that cannot be read from the board alone
      */
     struct Metadata {
         Square enPassantSquare = NO_SQ;
@@ -30,10 +29,25 @@ class Position {
 
         // maintained by ZobristHasher
         uint64_t hash = 0ull;
+
+        // maps pieces to the squares they control
+        std::array<Bitboard, NO_PIECE> attackTable;
     };
 
    private:
     Color sideToMove;
+
+    /**
+     * Parses a FEN string and updates member vars, including metadata,
+     * with its contents
+     */
+    void parseFen(const std::string &fen);
+
+    void updatePieceAttacks(Piece p);
+
+    void updateSideAttacks(Color c);
+
+    void updateAllAttacks();
 
    public:
     Board board;
@@ -68,12 +82,6 @@ class Position {
         return md.hash;
     }
 
-    /**
-     * Parses a FEN string and updates member vars, including metadata,
-     * with its contents
-     */
-    void parseFen(const std::string &fen);
-
     // Other Methods
 
     /**
@@ -91,6 +99,15 @@ class Position {
      * @param prevMD the old metadata to restore
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
+
+    constexpr bool isAttacked(Square sq, Color attacker) {
+        for (Piece p : COLOR_TO_PIECES[attacker]) {
+            if (getBit(md.attackTable[p], sq)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     std::string toFenString() const;
 };

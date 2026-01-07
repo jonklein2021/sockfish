@@ -8,23 +8,23 @@
 
 #include <algorithm>
 
-bool MoveGenerator::isMoveLegal(std::shared_ptr<Position> pos, Move &move) {
-    Color moveMaker = pos->getSideToMove();
+bool MoveGenerator::isMoveLegal(Position &pos, Move &move) {
+    Color moveMaker = pos.getSideToMove();
 
     // simulate move on copied state
-    Position::Metadata md = pos->makeMove(move);
+    Position::Metadata md = pos.makeMove(move);
 
     // test if king is in check after move
     bool isOurKingInCheck = PositionUtil::isCheck(pos, moveMaker);
 
     // unmake move to preserve original state
-    pos->unmakeMove(move, md);
+    pos.unmakeMove(move, md);
 
     // return true iff the move hasn't put its own king in check
     return !isOurKingInCheck;
 }
 
-void appendPawnMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos) {
+void appendPawnMoves(std::vector<Move> &moveList, Position &pos) {
     static constexpr Direction DIR[2] = {NORTH, SOUTH};
 
     // double pawn pushes must land on these ranks
@@ -40,12 +40,12 @@ void appendPawnMoves(std::vector<Move> &moveList, std::shared_ptr<Position> pos)
         not_file_h   // west moves
     };
 
-    const Color side = pos->getSideToMove();
-    const Bitboard oppPieces = pos->getBoard().getOccupancy(otherColor(side));
-    const Bitboard emptySquares = pos->getBoard().getEmptySquares();
-    const Bitboard epSqBB = (1ull << pos->md.enPassantSquare);
+    const Color side = pos.getSideToMove();
+    const Bitboard oppPieces = pos.getBoard().getOccupancy(otherColor(side));
+    const Bitboard emptySquares = pos.getBoard().getEmptySquares();
+    const Bitboard epSqBB = (1ull << pos.md.enPassantSquare);
 
-    Bitboard pawnBB = pos->getPieceBB(ptToPiece(PAWN, side));
+    Bitboard pawnBB = pos.getPieceBB(ptToPiece(PAWN, side));
 
     while (pawnBB) {
         Square srcSq = Square(getLsbIndex(pawnBB));
@@ -120,12 +120,12 @@ void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
 }
 
 template<PieceType pt, typename MoveComputer>
-void MoveGenerator::appendMovesFromPiece(std::shared_ptr<Position> pos,
+void MoveGenerator::appendMovesFromPiece(Position &pos,
                                          std::vector<Move> &moveList,
                                          MoveComputer moveComputer) {
-    const Color toMove = pos->getSideToMove();
+    const Color toMove = pos.getSideToMove();
     const Piece piece = ptToPiece(pt, toMove);
-    Bitboard bb = pos->getPieceBB(piece);  // N.B: this needs to be a copy
+    Bitboard bb = pos.getPieceBB(piece);  // N.B: this needs to be a copy
     while (bb) {
         const Square srcSq = Square(getLsbIndex(bb));
 
@@ -149,8 +149,7 @@ Move MoveGenerator::createCastlingMove(bool isQueenside, Color side) {
     return Move::create<Move::CASTLING>(ROOK_FROM[isQueenside][side], ROOK_TO[isQueenside][side]);
 }
 
-void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
-                                        std::shared_ptr<Position> pos) {
+void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList, Position &pos) {
     // for each of the following constexpr arrays, the 1st element is relevant for white, and the
     // 2nd for black. this helps avoid branching
 
@@ -167,9 +166,9 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
 
     static constexpr Square PASS_Q[2][2] = {{d1, c1}, {d8, c8}};
 
-    const Color side = pos->getSideToMove();
-    const CastleRights cr = pos->getMetadata().castleRights;
-    const Bitboard empty = pos->getBoard().getEmptySquares();
+    const Color side = pos.getSideToMove();
+    const CastleRights cr = pos.getMetadata().castleRights;
+    const Bitboard empty = pos.getBoard().getEmptySquares();
 
     // cannot castling out of check
     if (PositionUtil::isCheck(pos, side)) {
@@ -178,23 +177,22 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList,
 
     // --- Kingside ---
     if ((cr & KINGSIDE[side]) && (empty & EMPTY_K[side]) == EMPTY_K[side] &&
-        !PositionUtil::isUnderAttack(pos, PASS_K[side][0], otherColor(side)) &&
-        !PositionUtil::isUnderAttack(pos, PASS_K[side][1], otherColor(side))) {
+        !pos.isAttacked(PASS_K[side][0], otherColor(side)) &&
+        !pos.isAttacked(PASS_K[side][1], otherColor(side))) {
 
         moveList.push_back(createCastlingMove(false, side));
     }
 
     // --- Queenside ---
     if ((cr & QUEENSIDE[side]) && (empty & EMPTY_Q[side]) == EMPTY_Q[side] &&
-        !PositionUtil::isUnderAttack(pos, PASS_Q[side][0], otherColor(side)) &&
-        !PositionUtil::isUnderAttack(pos, PASS_Q[side][1], otherColor(side))) {
+        !pos.isAttacked(PASS_Q[side][0], otherColor(side)) &&
+        !pos.isAttacked(PASS_Q[side][1], otherColor(side))) {
 
         moveList.push_back(createCastlingMove(true, side));
     }
 }
 
-// TODO: Finish this
-std::vector<Move> MoveGenerator::generatePseudolegal(std::shared_ptr<Position> pos) {
+std::vector<Move> MoveGenerator::generatePseudolegal(Position &pos) {
     // cannot do 218 max move space optimization since these are pseudolegal moves
     std::vector<Move> moveList;
 
@@ -224,7 +222,7 @@ std::vector<Move> MoveGenerator::generatePseudolegal(std::shared_ptr<Position> p
     return moveList;
 }
 
-std::vector<Move> MoveGenerator::generateLegal(std::shared_ptr<Position> pos) {
+std::vector<Move> MoveGenerator::generateLegal(Position &pos) {
     std::vector<Move> pseudolegal = generatePseudolegal(pos);
     std::vector<Move> legal;
     legal.reserve(218);

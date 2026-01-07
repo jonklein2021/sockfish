@@ -2,7 +2,35 @@
 
 namespace MoveComputers {
 
-Bitboard computeKnightMoves(std::shared_ptr<Position> pos, Square sq) {
+// only used in AttackTable
+Bitboard computePawnAttacks(const Position &pos, Square sq) {
+    static constexpr int ATTACKS[2][2] = {
+        {NORTH_EAST, NORTH_WEST},  // white
+        {SOUTH_EAST, SOUTH_WEST}   // black
+    };
+
+    const Color side = pos.getSideToMove();
+    const Bitboard oppPieces = pos.getBoard().getOccupancy(otherColor(side));
+    const Bitboard epSqBB = (1ull << pos.md.enPassantSquare);
+    const Bitboard targets = oppPieces | epSqBB;
+
+    Bitboard attacks = 0ull;
+
+    const Square eastCaptureSq = Square(sq + ATTACKS[side][0]);
+    const Square westCaptureSq = Square(sq + ATTACKS[side][1]);
+
+    if ((1ull << eastCaptureSq) & not_file_a & targets) {
+        attacks |= (1 << eastCaptureSq);
+    }
+
+    if ((1ull << westCaptureSq) & not_file_h & targets) {
+        attacks |= (1 << westCaptureSq);
+    }
+
+    return attacks;
+}
+
+Bitboard computeKnightMoves(const Position &pos, Square sq) {
     const Bitboard sqBB = 1ull << sq;
 
     const Bitboard ddl = (sqBB & not_rank_12 & not_file_a) << 15;  // down 2, left 1
@@ -14,17 +42,17 @@ Bitboard computeKnightMoves(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard ull = (sqBB & not_rank_8 & not_file_ab) >> 10;  // up 1, left 2
     const Bitboard urr = (sqBB & not_rank_8 & not_file_gh) >> 6;   // up 1, right 2
 
-    const Color opponent = otherColor(pos->getSideToMove());
-    const Bitboard landingSqBB = pos->board.getEmptySquares() | pos->board.getOccupancy(opponent);
+    const Color opponent = otherColor(pos.getSideToMove());
+    const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return (ddl | ddr | drr | dll | uur | uul | ull | urr) & landingSqBB;
 }
 
-Bitboard computeBishopMoves(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeBishopMoves(const Position &pos, Square sq) {
     Bitboard attacks = 0;
-    const Color side = pos->getSideToMove();
+    const Color side = pos.getSideToMove();
     const Color opponentSide = otherColor(side);
-    const Board board = pos->getBoard();
+    const Board board = pos.getBoard();
 
     // initial row and column
     // N.B: (0, 0) is top left corner
@@ -81,11 +109,11 @@ Bitboard computeBishopMoves(std::shared_ptr<Position> pos, Square sq) {
     return attacks;
 }
 
-Bitboard computeRookMoves(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeRookMoves(const Position &pos, Square sq) {
     Bitboard attacks = 0;
-    const Color side = pos->getSideToMove();
+    const Color side = pos.getSideToMove();
     const Color opponentSide = otherColor(side);
-    const Board board = pos->getBoard();
+    const Board board = pos.getBoard();
 
     // initial row and column
     // N.B: (0, 0) is top left corner
@@ -142,11 +170,11 @@ Bitboard computeRookMoves(std::shared_ptr<Position> pos, Square sq) {
     return attacks;
 }
 
-Bitboard computeQueenMoves(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeQueenMoves(const Position &pos, Square sq) {
     return computeBishopMoves(pos, sq) | computeRookMoves(pos, sq);  // heheh
 }
 
-Bitboard computeKingMoves(std::shared_ptr<Position> pos, Square sq) {
+Bitboard computeKingMoves(const Position &pos, Square sq) {
     const Bitboard sqBB = 1ull << sq;
 
     const Bitboard d = (sqBB & not_rank_1) << 8;                // down
@@ -158,8 +186,8 @@ Bitboard computeKingMoves(std::shared_ptr<Position> pos, Square sq) {
     const Bitboard ul = (sqBB & not_rank_8 & not_file_a) >> 9;  // up left
     const Bitboard ur = (sqBB & not_rank_8 & not_file_h) >> 7;  // up right
 
-    const Color opponent = otherColor(pos->getSideToMove());
-    const Bitboard landingSqBB = pos->board.getEmptySquares() | pos->board.getOccupancy(opponent);
+    const Color opponent = otherColor(pos.getSideToMove());
+    const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return (d | u | l | r | dl | dr | ul | ur) & landingSqBB;
 }

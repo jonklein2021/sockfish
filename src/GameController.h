@@ -7,16 +7,14 @@
 
 class GameController {
    private:
-    std::shared_ptr<Position> pos;
+    Position pos;
     std::unique_ptr<Engine> engine;
     std::vector<Move> moves;
     std::vector<Position::Metadata> hashHistory;
     Color humanSide;
 
    public:
-    GameController(std::shared_ptr<Position> startPos,
-                   std::unique_ptr<Engine> engine,
-                   Color humanSide);
+    GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide);
 
     constexpr Color getHumanSide() const {
         return humanSide;
@@ -24,7 +22,7 @@ class GameController {
 
     // can't be constexpr because shared_ptr method access is not constexpr
     Color getSideToMove() const {
-        return pos->getSideToMove();
+        return pos.getSideToMove();
     }
 
     bool isGameOver();

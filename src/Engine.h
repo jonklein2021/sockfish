@@ -2,7 +2,6 @@
 
 #include "Position.h"
 
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -156,7 +155,7 @@ class Engine {
      * @param move The move to rate
      * @return A value representing how promising the move is
      */
-    eval_t rateMove(std::shared_ptr<Position> pos, const Move &move);
+    eval_t rateMove(Position &pos, const Move &move);
 
     /**
      * Calculates heuristic value of a position
@@ -164,7 +163,7 @@ class Engine {
      * @param pos to evaluate
      * @return The heuristic value of the position
      */
-    eval_t evaluate(std::shared_ptr<Position> pos);
+    eval_t evaluate(Position &pos);
 
     /**
      * Calculates heuristic value of a position
@@ -173,7 +172,7 @@ class Engine {
      * @param legalMoves The possible legal moves from that position
      * @return The heuristic value of the position
      */
-    eval_t evaluate(std::shared_ptr<Position> pos, const std::vector<Move> &&legalMoves);
+    eval_t evaluate(Position &pos, const std::vector<Move> &&legalMoves);
 
     /**
      * Minimax algorithm with alpha-beta pruning
@@ -183,7 +182,7 @@ class Engine {
      * @param beta The beta value
      * @return The heuristic value of the position to move to
      */
-    eval_t negamax(std::shared_ptr<Position> pos, eval_t alpha, eval_t beta, int depth);
+    eval_t negamax(Position &pos, eval_t alpha, eval_t beta, int depth);
 
     /**
      * Iterative deepening search (basically BFS)
@@ -191,7 +190,7 @@ class Engine {
      * @param pos to evaluate
      * @return The heuristic value of the position to move to
      */
-    eval_t iterativeDeepening(std::shared_ptr<Position> pos);
+    eval_t iterativeDeepening(Position &pos);
 
    public:
     Engine(int depth);
@@ -199,7 +198,7 @@ class Engine {
     /**
      * for testing
      */
-    // eval_t get_eval(std::shared_ptr<Position> pos) {
+    // eval_t get_eval(Position& pos) {
     //     return evaluate(pos);
     // }
 
@@ -210,7 +209,7 @@ class Engine {
      * @param depth The depth to search
      * @return The number of positions that can be reached
      */
-    void countPositions(std::shared_ptr<Position> pos, int depth) const;
+    void countPositions(Position &pos, int depth) const;
 
     /**
      * Counts the number of positions with depth 1, 2, ..., maxDepth
@@ -219,7 +218,7 @@ class Engine {
      * @param pos to evaluate
      * @param maxDepth The maximum depth to search
      */
-    void countPositionsBuildup(std::shared_ptr<Position> pos, int maxDepth) const;
+    void countPositionsBuildup(Position &pos, int maxDepth) const;
 
     /**
      * Gets the best move in a certain position
@@ -228,5 +227,5 @@ class Engine {
      * @param legalMoves The possible legal moves from that position
      * @return The best move to make
      */
-    Move getMove(std::shared_ptr<Position> pos, std::vector<Move> &&legalMoves);
+    Move getMove(Position &pos, std::vector<Move> &&legalMoves);
 };

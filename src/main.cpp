@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     cfg.print();
 
     // create base objects
-    std::shared_ptr<Position> pos = std::make_shared<Position>(cfg.fen);
+    Position pos(cfg.fen);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(cfg.searchDepth);
     GameController gameController(pos, std::move(engine), cfg.humanSide);
     Zobrist::init();
