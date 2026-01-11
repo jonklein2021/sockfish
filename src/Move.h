@@ -86,9 +86,21 @@ class Move {
      */
     std::string toString() const;
 
-    bool operator==(const Move &other) const;
+    /**
+     * Checks equality between two moves by comparing
+     * their source and destination squares only
+     */
+    constexpr bool softEquals(const Move &other) const {
+        return (data & 0xFFF) == (other.raw() & 0xFFF);
+    }
 
-    bool operator!=(const Move &other) const;
+    bool operator==(const Move &other) const {
+        return data == other.raw();
+    }
+
+    bool operator!=(const Move &other) const {
+        return data != other.raw();
+    }
 };
 
 bool validateCoords(const std::string &input);

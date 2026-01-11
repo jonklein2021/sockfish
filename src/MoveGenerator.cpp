@@ -24,120 +24,71 @@ bool MoveGenerator::isMoveLegal(Position &pos, Move &move) {
     return !isOurKingInCheck;
 }
 
-void appendPawnMoves(std::vector<Move> &moveList, Position &pos) {
-    static constexpr Direction DIR[2] = {NORTH, SOUTH};
-
-    // double pawn pushes must land on these ranks
-    static constexpr Bitboard DBL[2] = {rank4, rank5};
-
-    static constexpr int ATTACKS[2][2] = {
-        {NORTH_EAST, NORTH_WEST},  // white
-        {SOUTH_EAST, SOUTH_WEST}   // black
-    };
-
-    static constexpr Bitboard FILE_MASKS[2] = {
-        not_file_a,  // east moves
-        not_file_h   // west moves
-    };
-
-    const Color side = pos.getSideToMove();
-    const Bitboard oppPieces = pos.getBoard().getOccupancy(otherColor(side));
-    const Bitboard emptySquares = pos.getBoard().getEmptySquares();
-    const Bitboard epSqBB = (1ull << pos.md.enPassantSquare);
-
-    Bitboard pawnBB = pos.getPieceBB(ptToPiece(PAWN, side));
-
-    while (pawnBB) {
-        Square srcSq = Square(getLsbIndex(pawnBB));
-
-        // destination square must be empty
-        const Square singlePushDstSq = Square(srcSq + DIR[side]);
-
-        // ensure pawn isn't blocked
-        if ((1ull << singlePushDstSq) & emptySquares) {
-            // check for promotion
-            if (singlePushDstSq <= h8 || singlePushDstSq >= a1) {
-                for (PieceType pt : PROMOTION_PIECE_TYPES) {
-                    moveList.emplace_back(
-                        Move::create<Move::PROMOTION>(srcSq, singlePushDstSq, pt));
-                }
-            } else {
-                moveList.emplace_back(srcSq, singlePushDstSq);
-            }
-        }
-
-        // double pawn push requires pawn to land on the 4th rank
-        // AND 2 empty squares in front of it
-        const Square doublePushDstSq = Square(singlePushDstSq + DIR[side]);
-        if ((1ull << doublePushDstSq) & emptySquares & DBL[side]) {
-            moveList.emplace_back(srcSq, doublePushDstSq);
-        }
-
-        const Square eastCaptureSq = Square(srcSq + ATTACKS[side][0]);
-        const Square westCaptureSq = Square(srcSq + ATTACKS[side][1]);
-
-        if ((1ull << eastCaptureSq) & FILE_MASKS[0] & oppPieces) {
-            if (eastCaptureSq <= h8 || eastCaptureSq >= a1) {
-                for (PieceType pt : PROMOTION_PIECE_TYPES) {
-                    moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, eastCaptureSq, pt));
-                }
-            } else {
-                moveList.emplace_back(srcSq, eastCaptureSq);
-            }
-        }
-
-        if ((1ull << westCaptureSq) & FILE_MASKS[1] & oppPieces) {
-            if (westCaptureSq <= h8 || westCaptureSq >= a1) {
-                for (PieceType pt : PROMOTION_PIECE_TYPES) {
-                    moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, westCaptureSq, pt));
-                }
-            } else {
-                moveList.emplace_back(srcSq, westCaptureSq);
-            }
-        }
-
-        if ((1ull << eastCaptureSq) & FILE_MASKS[0] & epSqBB) {
-            moveList.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, eastCaptureSq));
-        }
-
-        if ((1ull << westCaptureSq) & FILE_MASKS[1] & epSqBB) {
-            moveList.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, westCaptureSq));
-        }
-
-        pawnBB &= pawnBB - 1;
-    }
-}
-
-// only used for normal moves
+template<Move::Type moveType>
 void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
                                             Bitboard moves,
                                             Square srcSq) {
     while (moves) {
         const Square destSq = Square(getLsbIndex(moves));
-        moveList.emplace_back(srcSq, destSq);
+        moveList.emplace_back(Move::create<moveType>(srcSq, destSq));
         moves &= moves - 1;
     }
 }
 
-template<PieceType pt, typename MoveComputer>
+template<>
+void MoveGenerator::appendMovesFromBitboard<Move::PROMOTION>(std::vector<Move> &moveList,
+                                                             Bitboard moves,
+                                                             Square srcSq) {
+    while (moves) {
+        const Square destSq = Square(getLsbIndex(moves));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, KNIGHT));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, BISHOP));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, ROOK));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, QUEEN));
+        moves &= moves - 1;
+    }
+}
+
+template<PieceType pt, Move::Type moveType, typename MoveComputer>
 void MoveGenerator::appendMovesFromPiece(std::vector<Move> &moveList,
                                          Position &pos,
                                          MoveComputer moveComputer) {
     const Color toMove = pos.getSideToMove();
     const Piece piece = ptToPiece(pt, toMove);
     Bitboard bb = pos.getPieceBB(piece);  // N.B: this needs to be a copy
-    while (bb) {
-        const Square srcSq = Square(getLsbIndex(bb));
 
-        // compute a bitboard of all destination squares that this piece can go to,
-        // according to the specified moveComputer
-        Bitboard computedDstBB = moveComputer(pos, srcSq);
+    if constexpr (pt == PAWN) {
+        static constexpr Bitboard PROMOTING_RANKS[2] = {RANK_8, RANK_1};
+        while (bb) {
+            const Square srcSq = Square(getLsbIndex(bb));
 
-        // create and append moves to the moveList
-        appendMovesFromBitboard(moveList, computedDstBB, srcSq);
+            // for pawns, separate destination squares into promotion and normal moves
+            const Bitboard computedDstBB = moveComputer(pos, srcSq);
+            const Bitboard promotionsBB = computedDstBB & PROMOTING_RANKS[toMove];
+            const Bitboard nonPromotionsBB = computedDstBB & ~promotionsBB;
 
-        // pop this bit
-        bb &= bb - 1;
+            // create and append moves to the moveList; note that nothing will be added if the
+            // bitboard is 0
+            appendMovesFromBitboard<Move::PROMOTION>(moveList, promotionsBB, srcSq);
+            appendMovesFromBitboard<moveType>(moveList, nonPromotionsBB, srcSq);
+
+            // pop LSB
+            bb &= bb - 1;
+        }
+    } else {
+        while (bb) {
+            const Square srcSq = Square(getLsbIndex(bb));
+
+            // compute a bitboard of all destination squares that this piece can go to,
+            // according to the specified moveComputer
+            const Bitboard computedDstBB = moveComputer(pos, srcSq);
+
+            // create and append moves to the moveList
+            appendMovesFromBitboard<moveType>(moveList, computedDstBB, srcSq);
+
+            // pop LSB
+            bb &= bb - 1;
+        }
     }
 }
 
@@ -149,6 +100,7 @@ Move MoveGenerator::createCastlingMove(bool isQueenside, Color side) {
     return Move::create<Move::CASTLING>(ROOK_FROM[isQueenside][side], ROOK_TO[isQueenside][side]);
 }
 
+// consider creating a MoveComputer for this
 void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList, Position &pos) {
     // for each of the following constexpr arrays, the 1st element is relevant for white, and the
     // 2nd for black. this helps avoid branching
@@ -197,24 +149,25 @@ std::vector<Move> MoveGenerator::generatePseudolegal(Position &pos) {
     std::vector<Move> moveList;
 
     /* PAWNS */
-    appendPawnMoves(moveList, pos);
+    appendMovesFromPiece<PAWN, Move::NORMAL>(moveList, pos, MoveComputers::computePawnPushes);
+    appendMovesFromPiece<PAWN, Move::NORMAL>(moveList, pos, MoveComputers::computePawnCaptures);
+    appendMovesFromPiece<PAWN, Move::EN_PASSANT>(moveList, pos,
+                                                 MoveComputers::computePawnEnPassant);
 
     /* KNIGHTS */
-    appendMovesFromPiece<KNIGHT>(moveList, pos, MoveComputers::computeKnightMoves);
-
-    // TODO: Speed up sliding piece move gen with magic numbers
+    appendMovesFromPiece<KNIGHT, Move::NORMAL>(moveList, pos, MoveComputers::computeKnightMoves);
 
     /* BISHOPS */
-    appendMovesFromPiece<BISHOP>(moveList, pos, MoveComputers::computeBishopMoves);
+    appendMovesFromPiece<BISHOP, Move::NORMAL>(moveList, pos, MoveComputers::computeBishopMoves);
 
     /* ROOKS */
-    appendMovesFromPiece<ROOK>(moveList, pos, MoveComputers::computeRookMoves);
+    appendMovesFromPiece<ROOK, Move::NORMAL>(moveList, pos, MoveComputers::computeRookMoves);
 
     /* QUEENS */
-    appendMovesFromPiece<QUEEN>(moveList, pos, MoveComputers::computeQueenMoves);
+    appendMovesFromPiece<QUEEN, Move::NORMAL>(moveList, pos, MoveComputers::computeQueenMoves);
 
     /* KING */
-    appendMovesFromPiece<KING>(moveList, pos, MoveComputers::computeKingMoves);
+    appendMovesFromPiece<KING, Move::NORMAL>(moveList, pos, MoveComputers::computeKingMoves);
 
     /* CASTLING */
     appendCastlingMoves(moveList, pos);

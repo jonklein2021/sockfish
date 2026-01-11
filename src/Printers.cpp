@@ -40,7 +40,7 @@ void Printers::prettyPrintPosition(const Position &pos, bool flip, bool debug) {
             if (p == NO_PIECE) {
                 out << "   ";
             } else {
-                out << pieceFilenames[p] << " ";
+                out << PIECE_FILENAMES[p] << " ";
             }
         }
 
@@ -64,7 +64,7 @@ void Printers::prettyPrintPosition(const Position &pos, bool flip, bool debug) {
     // print debug data
     if (debug) {
         const Position::Metadata md = pos.getMetadata();
-        out << "\nCaptured piece: " << pieceNames[md.capturedPiece];
+        out << "\nCaptured piece: " << PIECE_NAMES[md.capturedPiece];
         out << "\nMoves since capture: " << md.movesSinceCapture;
         out << "\nCastle rights: 0b" << std::bitset<4>(md.castleRights);
         out << "\nEn passant square: "
@@ -80,13 +80,13 @@ void Printers::printPieceValues(const Position &pos) {
     for (PieceType pt : PIECE_TYPES) {
         const Piece white = ptToPiece(pt, WHITE);
         const Bitboard whiteBB = pos.getPieceBB(white);
-        out << pieceFilenames[white] << ":";
+        out << PIECE_FILENAMES[white] << ":";
         out << "0x" << std::hex << std::setw(16) << std::setfill('0') << whiteBB;
         out << "\t";
 
         const Piece black = ptToPiece(pt, BLACK);
         const Bitboard blackBB = pos.getPieceBB(black);
-        out << pieceFilenames[black] << ":";
+        out << PIECE_FILENAMES[black] << ":";
         out << "0x" << std::hex << std::setw(16) << std::setfill('0') << blackBB;
         out << "\n";
     }
@@ -123,7 +123,7 @@ void Printers::printMoveList(const std::vector<Move> &moveList, const Position &
             continue;
         }
         Piece moved = movesFromSquares[sq].first;
-        ss << pieceNames[moved] << " on " << squareToCoordinateString(sq) << " -> { ";
+        ss << PIECE_NAMES[moved] << " on " << squareToCoordinateString(sq) << " -> { ";
 
         for (Square dst : movesFromSquares[sq].second) {
             ss << squareToCoordinateString(dst) << " ";

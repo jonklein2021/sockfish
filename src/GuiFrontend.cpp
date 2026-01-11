@@ -27,9 +27,9 @@ void GuiFrontend::initializeScreen() {
     // load piece textures
     for (Piece p : ALL_PIECES) {
         const std::string pieceFilename = std::string(PIECE_TEXTURE_PATH) + themeName + "/" +
-                                          std::string(pieceFilenames[p]) + ".png";
+                                          std::string(PIECE_FILENAMES[p]) + ".png";
         if (!pieceTextures[p].loadFromFile(pieceFilename)) {
-            std::cerr << "Error loading piece texture: " << pieceFilenames[p] << std::endl;
+            std::cerr << "Error loading piece texture: " << PIECE_FILENAMES[p] << std::endl;
             exit(1);
         }
     }
@@ -126,11 +126,10 @@ void GuiFrontend::handleEvents() {
                     game.handleEnd();
                     window.close();
                 } else {
-                    game.getSideToMove() == WHITE ? std::cout << "White to move" << std::endl
-                                                  : std::cout << "Black to move" << std::endl;
+                    std::cout << COLOR_NAMES[game.getSideToMove()] << " to move" << std::endl;
                 }
 
-                std::cout << "Promoted to piece " << pieceFilenames[p] << std::endl;
+                std::cout << "Promoted to " << PIECE_NAMES[p] << std::endl;
             };
 
             promotionMenu.handleEvents(window, callback);
@@ -163,7 +162,7 @@ void GuiFrontend::handleEvents() {
 
                     candidate = Move(oldSq, newSq);
 
-                    // check for castling
+                    // check for castling; this step is necessary to match a legal move
                     if (pieceToPT(selectedPiece->piece) == KING) {
                         // kingside
                         if ((oldSq == e1 && newSq == g1) || (oldSq == e8 && newSq == g8)) {
@@ -178,18 +177,10 @@ void GuiFrontend::handleEvents() {
                         }
                     }
 
-                    // necessary to match with a legal move
-                    if (pawnPromoting) {
-                        candidate.setFlag(Move::Type::PROMOTION);
-                        candidate.setPromotedPieceType(QUEEN);
-                    }
-
                     // check this move against set of legal moves
                     bool validMove = false;
-                    // std::cout << "LEGAL MOVES:" << std::endl;
                     for (const Move &m : game.legalMoves()) {
-                        // std::cout << m.toString() << std::endl;
-                        if (candidate == m) {
+                        if (candidate.softEquals(m)) {
                             candidate = m;
                             validMove = true;
                             break;

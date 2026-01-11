@@ -41,7 +41,7 @@ std::string Move::toString() const {
         ss << toCoordinateString() << ", ";
     }
     if (isPromotion()) {
-        ss << "Promote to " << pieceTypeNames[getPromotedPieceType()].data() << ", ";
+        ss << "Promote to " << PIECE_TYPE_NAMES[getPromotedPieceType()].data() << ", ";
     }
     if (isEnPassant()) {
         ss << "En Passant, ";
@@ -51,14 +51,6 @@ std::string Move::toString() const {
     }
     ss << "data=" << data;
     return ss.str();
-}
-
-bool Move::operator==(const Move &other) const {
-    return data == other.raw();
-}
-
-bool Move::operator!=(const Move &other) const {
-    return data != other.raw();
 }
 
 bool validateCoords(const std::string &input) {

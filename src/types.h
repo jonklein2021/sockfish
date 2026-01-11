@@ -45,7 +45,9 @@ enum Color { WHITE, BLACK };
 
 constexpr std::array<Color, 2> COLORS = {WHITE, BLACK};
 
-constexpr static inline Color otherColor(Color c) {
+constexpr std::array<std::string_view, 2> COLOR_NAMES = {"White", "Black"};
+
+inline static constexpr Color otherColor(Color c) {
     return Color(c ^ 1);
 }
 
@@ -63,16 +65,16 @@ constexpr std::array<PieceType, 4> PROMOTION_PIECE_TYPES = {KNIGHT, BISHOP, ROOK
  */
 enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NO_PIECE };
 
-constexpr static inline Piece ptToPiece(PieceType pt, Color side) {
+inline static constexpr Piece ptToPiece(PieceType pt, Color side) {
     return Piece(pt + 6 * side);
 }
 
-constexpr static inline PieceType pieceToPT(Piece p) {
+inline static constexpr PieceType pieceToPT(Piece p) {
     assert(p != NO_PIECE);
     return PieceType(p % 6);
 }
 
-constexpr static inline Color pieceColor(Piece p) {
+inline static constexpr Color pieceColor(Piece p) {
     assert(p != NO_PIECE);
     return Color(p / 6);
 }
@@ -88,19 +90,19 @@ constexpr std::array<std::array<Piece, 6>, 2> COLOR_TO_PIECES = {WHITE_PIECES, B
 /**
  * List of all piece filenames, mainly used for loading textures
  */
-constexpr std::array<std::string_view, 12> pieceFilenames = {"wP", "wN", "wB", "wR", "wQ", "wK",
-                                                             "bP", "bN", "bB", "bR", "bQ", "bK"};
+constexpr std::array<std::string_view, 12> PIECE_FILENAMES = {"wP", "wN", "wB", "wR", "wQ", "wK",
+                                                              "bP", "bN", "bB", "bR", "bQ", "bK"};
 
 /**
  * Unicode pieces for pretty printing
  */
-constexpr std::array<std::string_view, 13> unicode_pieces = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎",
-                                                             "♞", "♝", "♜", "♛", "♚", "."};
+constexpr std::array<std::string_view, 13> PIECE_UNICODE_SYMBOLS = {
+    "♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚", "."};
 
 /**
  * Mainly used for debug output
  */
-constexpr std::array<std::string_view, 13> pieceNames = {
+constexpr std::array<std::string_view, 13> PIECE_NAMES = {
     "White Pawn",  "White Knight", "White Bishop", "White Rook",   "White Queen",
     "White King",  "Black Pawn",   "Black Knight", "Black Bishop", "Black Rook",
     "Black Queen", "Black King",   "None"};
@@ -108,8 +110,8 @@ constexpr std::array<std::string_view, 13> pieceNames = {
 /**
  * Mainly used for debug output
  */
-constexpr std::array<std::string_view, 7> pieceTypeNames = {"Pawn",  "Knight", "Bishop", "Rook",
-                                                            "Queen", "King",   "None"};
+constexpr std::array<std::string_view, 7> PIECE_TYPE_NAMES = {"Pawn",  "Knight", "Bishop", "Rook",
+                                                              "Queen", "King",   "None"};
 
 /**
  * Maps FEN character to PieceType enum
@@ -145,43 +147,26 @@ constexpr std::string_view STARTING_POSITION_FEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /**
- * Piece move constants
- */
-struct Offset {
-    int dx, dy;
-};
-
-constexpr std::array<Offset, 2> pawnCaptures = {{{1, 1}, {-1, 1}}};
-constexpr std::array<Offset, 8> knightMoves = {
-    {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}}};
-constexpr std::array<Offset, 4> bishopMoves = {{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}};
-constexpr std::array<Offset, 4> rookMoves = {{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}};
-constexpr std::array<Offset, 8> queenMoves = {
-    {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}}};
-constexpr std::array<Offset, 8> kingMoves = {
-    {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}}};
-
-/**
  * Piece values for material evaluation
  */
 constexpr std::array<Eval, 12> pieceValues = {100, 300, 300, 500, 900, 100000,
                                               100, 300, 300, 500, 900, 100000};
 
 // Bitboard Constants
-constexpr Bitboard not_file_a = 18374403900871474942ull;
-constexpr Bitboard not_file_h = 9187201950435737471ull;
-constexpr Bitboard not_file_gh = 4557430888798830399ull;
-constexpr Bitboard not_file_ab = 18229723555195321596ull;
-constexpr Bitboard not_rank_1 = 72057594037927935ull;
-constexpr Bitboard not_rank_12 = 281474976710655ull;
-constexpr Bitboard not_rank_8 = 18446744073709551360ull;
-constexpr Bitboard not_rank_78 = 18446744073709486080ull;
-constexpr Bitboard rank1 = 18374686479671623680ull;
-constexpr Bitboard rank2 = 71776119061217280ull;
-constexpr Bitboard rank4 = 1095216660480ull;
-constexpr Bitboard rank5 = 4278190080ull;
-constexpr Bitboard rank8 = 255ull;
-constexpr Bitboard rank7 = 65280ull;
+constexpr Bitboard NOT_FILE_A = 18374403900871474942ull;
+constexpr Bitboard NOT_FILE_H = 9187201950435737471ull;
+constexpr Bitboard NOT_FILE_GH = 4557430888798830399ull;
+constexpr Bitboard NOT_FILE_AB = 18229723555195321596ull;
+constexpr Bitboard NOT_RANK_1 = 72057594037927935ull;
+constexpr Bitboard NOT_RANK_1_NOR_2 = 281474976710655ull;
+constexpr Bitboard NOT_RANK_8 = 18446744073709551360ull;
+constexpr Bitboard NOT_RANK_7_NOR_8 = 18446744073709486080ull;
+constexpr Bitboard RANK_1 = 18374686479671623680ull;
+constexpr Bitboard RANK_2 = 71776119061217280ull;
+constexpr Bitboard RANK_4 = 1095216660480ull;
+constexpr Bitboard RANK_5 = 4278190080ull;
+constexpr Bitboard RANK_7 = 65280ull;
+constexpr Bitboard RANK_8 = 255ull;
 
 // clang-format off
 enum Square : uint8_t {
@@ -218,7 +203,7 @@ constexpr std::array<Square, 64> ALL_SQUARES = {
 // clang-format on
 
 // x and y are 0-indexed, where (0, 0) is the top-left square (a8)
-constexpr static inline Square xyToSquare(int x, int y) {
+inline static constexpr Square xyToSquare(int x, int y) {
     return Square(y * 8 + x);
 }
 
@@ -247,6 +232,19 @@ enum Direction : int8_t {
     NORTH_WEST = NORTH + WEST
 };
 
+inline constexpr Bitboard shift(Bitboard bb, Direction dir) {
+    switch (dir) {
+        case NORTH: return bb << 8;
+        case SOUTH: return bb >> 8;
+        case EAST: return (bb & NOT_FILE_H) << 1;
+        case WEST: return (bb & NOT_FILE_A) >> 1;
+        case NORTH_EAST: return (bb & NOT_FILE_H) << 9;
+        case NORTH_WEST: return (bb & NOT_FILE_A) << 7;
+        case SOUTH_EAST: return (bb & NOT_FILE_H) >> 7;
+        case SOUTH_WEST: return (bb & NOT_FILE_A) >> 9;
+    }
+}
+
 // Credit:
 // https://github.com/official-stockfish/Stockfish/blob/c109a88ebe93ab7652c7cb4694cfc405568e5e50/src/types.h#L126
 enum CastleRights : int8_t {
@@ -264,11 +262,11 @@ enum CastleRights : int8_t {
 };
 
 // only used in FEN parsing
-constexpr static inline void addCastleRights(CastleRights &current, CastleRights toAdd) {
+inline static constexpr void addCastleRights(CastleRights &current, CastleRights toAdd) {
     current = CastleRights(current | toAdd);
 }
 
-constexpr static inline void removeCastleRights(CastleRights &current, CastleRights toRemove) {
+inline static constexpr void removeCastleRights(CastleRights &current, CastleRights toRemove) {
     current = CastleRights(current & ~toRemove);
 }
 

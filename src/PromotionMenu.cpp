@@ -15,7 +15,7 @@ PromotionMenu::PromotionMenu(const std::string &theme, Color side)
     textures.resize(4);
     for (int i = 0; i < 4; i++) {
         const std::string filename = std::string(PIECE_TEXTURE_PATH) + theme + "/" +
-                                     std::string(pieceFilenames[pieceOptions[i]]) + ".png";
+                                     std::string(PIECE_FILENAMES[pieceOptions[i]]) + ".png";
         if (!textures[i].loadFromFile(filename)) {
             std::cerr << "Error loading promotion piece textures" << std::endl;
         }

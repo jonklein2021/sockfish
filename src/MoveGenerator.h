@@ -10,9 +10,10 @@ namespace MoveGenerator {
 
 bool isMoveLegal(Position &pos, Move &move);
 
+template<Move::Type moveType>
 void appendMovesFromBitboard(std::vector<Move> &moveList, Bitboard moves, Square srcSq);
 
-template<PieceType pt, typename MoveComputer>
+template<PieceType pt, Move::Type moveType, typename MoveComputer>
 void appendMovesFromPiece(std::vector<Move> &moveList, Position &pos, MoveComputer moveComputer);
 
 Move createCastlingMove(bool isQueenside, Color side);
