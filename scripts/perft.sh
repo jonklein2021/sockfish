@@ -9,7 +9,7 @@ declare -a failed
 SECONDS=0
 
 # Build project
-cd build
+cd ../build
 if ! meson compile; then
     echo "Build failed" >&2
     exit 1
@@ -41,4 +41,4 @@ fi
 # End timer
 elapsed=$SECONDS
 printf "\nTotal execution time: %02d:%02d\n" $((elapsed/60)) $((elapsed%60))
-cd ..
+cd ../scripts
