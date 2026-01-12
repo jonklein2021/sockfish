@@ -53,7 +53,11 @@ Bitboard computePawnCaptures(const Position &pos, Square sq) {
 }
 
 Bitboard computePawnEnPassant(const Position &pos, Square sq) {
-    const Bitboard epSqBB = 1ull << pos.getMetadata().enPassantSquare;
+    const Square epSq = pos.getMetadata().enPassantSquare;
+    if (epSq == NO_SQ) {
+        return 0ull;
+    }
+    const Bitboard epSqBB = 1ull << epSq;
     return computePawnAttacks(pos, sq) & epSqBB;
 }
 

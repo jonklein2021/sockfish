@@ -62,13 +62,13 @@ void MoveGenerator::appendMovesFromPiece(std::vector<Move> &moveList,
         while (bb) {
             const Square srcSq = Square(getLsbIndex(bb));
 
-            // for pawns, separate destination squares into promotion and normal moves
             const Bitboard computedDstBB = moveComputer(pos, srcSq);
-            const Bitboard promotionsBB = computedDstBB & PROMOTING_RANKS[toMove];
-            const Bitboard nonPromotionsBB = computedDstBB & ~promotionsBB;
 
-            // create and append moves to the moveList; note that nothing will be added if the
-            // bitboard is 0
+            // for pawns, separate destination squares into promotion and normal moves
+            const Bitboard promotionsBB = computedDstBB & PROMOTING_RANKS[toMove];
+            const Bitboard nonPromotionsBB = computedDstBB & ~PROMOTING_RANKS[toMove];
+
+            // create and append moves to the moveList
             appendMovesFromBitboard<Move::PROMOTION>(moveList, promotionsBB, srcSq);
             appendMovesFromBitboard<moveType>(moveList, nonPromotionsBB, srcSq);
 
@@ -128,14 +128,14 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList, Position &p
     }
 
     // --- Kingside ---
-    if ((cr & KINGSIDE[side]) && (empty & EMPTY_K[side]) == EMPTY_K[side] &&
+    if (hasCastleRights(cr, KINGSIDE[side]) && (empty & EMPTY_K[side]) == EMPTY_K[side] &&
         !pos.isAttacked(PASS_K[side][0], otherColor(side)) &&
         !pos.isAttacked(PASS_K[side][1], otherColor(side))) {
         moveList.push_back(createCastlingMove(false, side));
     }
 
     // --- Queenside ---
-    if ((cr & QUEENSIDE[side]) && (empty & EMPTY_Q[side]) == EMPTY_Q[side] &&
+    if (hasCastleRights(cr, QUEENSIDE[side]) && (empty & EMPTY_Q[side]) == EMPTY_Q[side] &&
         !pos.isAttacked(PASS_Q[side][0], otherColor(side)) &&
         !pos.isAttacked(PASS_Q[side][1], otherColor(side))) {
         moveList.push_back(createCastlingMove(true, side));

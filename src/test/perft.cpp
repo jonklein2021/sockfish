@@ -32,7 +32,7 @@ uint64_t perft(Position &pos, int depth) {
 
 void runPerftPosition(const std::string &fen, const std::vector<std::pair<int, uint64_t>> &tests) {
     Position pos(fen);
-    std::cout << "FEN: " << fen << '\n';
+    std::cout << fen << '\n';
 
     for (auto [depth, expected] : tests) {
         const auto start = std::chrono::high_resolution_clock::now();
@@ -86,6 +86,7 @@ void runPerftLine(const std::string &filename, int line_no) {
         tests.emplace_back(depth, nodes);
     }
 
+    std::cout << "Test " << line_no << ": ";
     runPerftPosition(fen, tests);
 }
 

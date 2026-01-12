@@ -1,4 +1,3 @@
-#include "../GameController.h"
 #include "../MoveGenerator.h"
 #include "../Position.h"
 #include "../Printers.h"
@@ -159,8 +158,7 @@ int main() {
 
     Zobrist::init();
     Position pos(fen);
-    std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
-    GameController game(pos, std::move(engine), WHITE);
+    legalMoves = MoveGenerator::generateLegal(pos);
 
     while (1) {
         Printers::prettyPrintPosition(pos);
@@ -170,11 +168,9 @@ int main() {
                 "q: Quit\n"
                 "1: Make a move\n"
                 "2: Show legal moves\n"
-                "3: Show attack map\n";
+                "3: Show attack map"
+             << endl;
         getline(cin, choice);
-
-        // refresh legal moves
-        legalMoves = game.getLegalMoves();
 
         switch (choice[0]) {
             case 'q': return 0;
@@ -187,5 +183,7 @@ int main() {
             case '3': printAttackMap(pos); break;
             default: break;
         }
+
+        legalMoves = MoveGenerator::generateLegal(pos);
     }
 }

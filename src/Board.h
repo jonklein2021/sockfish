@@ -5,7 +5,6 @@
 
 #include <array>
 #include <cstring>
-#include <sstream>
 
 class Board {
    private:
@@ -51,61 +50,16 @@ class Board {
     constexpr void addPiece(Piece p, Square sq) {
         assert(squareToPiece[sq] == NO_PIECE);
         squareToPiece[sq] = p;
-        // printf("squareToPiece[%s] = %s\n", squareToCoordinateString(sq).c_str(),
-        //        pieceNames[squareToPiece[sq]].data());
         setBit(pieceBBs[p], sq);
     }
 
-    void removePiece(Piece p, Square sq) {
-        // if (pieceToPT(p) == KING) {
-        //     printf("removePiece(%s, %s)\n", PIECE_NAMES[p].data(),
-        //            squareToCoordinateString(sq).c_str());
-        //     for (Piece p : ALL_PIECES) {
-        //         printf("%s bitboard:\n", PIECE_NAMES[p].data());
-        //         std::ostringstream out;
-        //         for (int rank = 0; rank < 8; rank++) {
-        //             out << (8 - rank) << "  ";
-        //             for (int file = 0; file < 8; file++) {
-        //                 out << (getBit(getPieceBB(p), xyToSquare(file, rank)) ? "1" : "0") << "
-        //                 ";
-        //             }
-        //             out << "\n";
-        //         }
-        //
-        //         out << "\n   a b c d e f g h\n";
-        //         printf("%s\n", out.str().c_str());
-        //     }
-        //     exit(1);
-        // }
-
+    constexpr void removePiece(Piece p, Square sq) {
         assert(squareToPiece[sq] == p);
         squareToPiece[sq] = NO_PIECE;
         unsetBit(pieceBBs[p], sq);
     }
 
-    void movePiece(Piece p, Square from, Square to) {
-        // DEBUG
-        // if (squareToPiece[from] != p) {
-        //     printf("movePiece(%s, %s, %s)\n", PIECE_NAMES[p].data(),
-        //            squareToCoordinateString(from).c_str(), squareToCoordinateString(to).c_str());
-        //     printf("squareToPiece[%s] = %s\n", squareToCoordinateString(from).c_str(),
-        //            PIECE_NAMES[squareToPiece[from]].data());
-        //     printf("squareToPiece[%s] = %s\n", squareToCoordinateString(to).c_str(),
-        //            PIECE_NAMES[squareToPiece[to]].data());
-        //
-        //     printf("%s bitboard:\n", PIECE_NAMES[p].data());
-        //     std::ostringstream out;
-        //     for (int rank = 0; rank < 8; rank++) {
-        //         out << (8 - rank) << "  ";
-        //         for (int file = 0; file < 8; file++) {
-        //             out << (getBit(getPieceBB(p), xyToSquare(file, rank)) ? "1" : "0") << " ";
-        //         }
-        //         out << "\n";
-        //     }
-        //
-        //     out << "\n   a b c d e f g h\n";
-        //     printf("%s\n", out.str().c_str());
-        // }
+    constexpr void movePiece(Piece p, Square from, Square to) {
         assert(squareToPiece[from] == p);
         assert(squareToPiece[to] == NO_PIECE);
         squareToPiece[from] = NO_PIECE;

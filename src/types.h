@@ -264,6 +264,10 @@ enum CastleRights : int8_t {
     CASTLING_SZ                                      // 0b00010000
 };
 
+inline static constexpr bool hasCastleRights(const CastleRights &current, CastleRights query) {
+    return current & query;
+}
+
 // only used in FEN parsing
 inline static constexpr void addCastleRights(CastleRights &current, CastleRights toAdd) {
     current = CastleRights(current | toAdd);

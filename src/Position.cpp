@@ -203,14 +203,14 @@ Position::Metadata Position::makeMove(const Move &move) {
     }
 
     // prevent white queenside castle
-    if (to == a1 || (from == h8 && pieceMoved == WR)) {
+    if (to == a1 || (from == a1 && pieceMoved == WR)) {
         removeCastleRights(md.castleRights, WHITE_OOO);
         md.hash ^= Zobrist::getCastleRightsHash(WHITE_OOO);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
     // prevent white kingside castle
-    if (to == a8 || (from == h8 && pieceMoved == WR)) {
+    if (to == h1 || (from == h1 && pieceMoved == WR)) {
         removeCastleRights(md.castleRights, WHITE_OO);
         md.hash ^= Zobrist::getCastleRightsHash(WHITE_OO);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
@@ -301,6 +301,7 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
         board.addPiece(md.capturedPiece, capturedSq);
     }
 
+    // update occupancies now that the board is restored
     board.updateOccupancies();
 
     /* METADATA RESTORATION */
