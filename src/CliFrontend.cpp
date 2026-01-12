@@ -118,10 +118,10 @@ void CliFrontend::run() {
             game.makeHumanMove(getMoveFromStdin());
         } else {
             // get move from engine
-            // game.makeAIMove();
-            game.makeHumanMove(getMoveFromStdin());
+            game.makeAIMove();
+            // game.makeHumanMove(getMoveFromStdin());
         }
     }
 
-    std::cout << "Game over!" << std::endl;
+    game.handleEnd();
 }

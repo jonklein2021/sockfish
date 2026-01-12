@@ -138,6 +138,16 @@ void testMakeMove(Position &pos) {
     Printers::printPieceValues(pos);
 }
 
+void printAttackMap(const Position &pos) {
+    puts("Attack map:\n");
+    for (Piece p : ALL_PIECES) {
+        printf("%s\n", PIECE_NAMES[p].data());
+        Bitboard attacks = pos.getMetadata().attackTable[p];
+        Printers::printBitboard(attacks);
+        puts("");
+    }
+}
+
 int main() {
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
@@ -152,16 +162,15 @@ int main() {
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(4);
     GameController game(pos, std::move(engine), WHITE);
 
-    Printers::prettyPrintPosition(pos);
-
     while (1) {
+        Printers::prettyPrintPosition(pos);
         string choice;
         cout << "===============================\n"
                 "Enter an operation:\n"
                 "q: Quit\n"
                 "1: Make a move\n"
-                "2: Show legal moves in this position\n"
-                "3: Evaluate this position\n";
+                "2: Show legal moves\n"
+                "3: Show attack map\n";
         getline(cin, choice);
 
         // refresh legal moves
@@ -175,9 +184,7 @@ int main() {
                 Printers::printMoveList(legalMoves, pos);
                 break;
             }
-            case '3':
-                // evaluate this position
-                break;
+            case '3': printAttackMap(pos); break;
             default: break;
         }
     }

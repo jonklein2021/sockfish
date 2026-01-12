@@ -4,11 +4,11 @@
 #include "Zobrist.h"
 #include "src/types.h"
 
+#include <ostream>
 #include <sstream>
 
 Position::Position(const std::string &fen) {
     parseFen(fen);
-
     updateAllAttacks();
 }
 
@@ -128,34 +128,37 @@ Position::Metadata Position::makeMove(const Move &move) {
     if (move.isCastles()) {
         const Piece king = ptToPiece(KING, sideToMove);
         Square kingFrom, kingTo;
+        CastleRights toRemove;
         if (from == h1) {
             // white kingside castle
             kingFrom = e1, kingTo = g1;
-            removeCastleRights(md.castleRights, WHITE_CASTLING);
+            toRemove = WHITE_CASTLING;
         } else if (from == a1) {
             // white queenside castle
             kingFrom = e1, kingTo = c1;
-            removeCastleRights(md.castleRights, WHITE_CASTLING);
+            toRemove = WHITE_CASTLING;
         } else if (from == h8) {
             // black kingside castle
             kingFrom = e8, kingTo = g8;
-            removeCastleRights(md.castleRights, BLACK_CASTLING);
+            toRemove = BLACK_CASTLING;
         } else if (from == a8) {
             // black kingside castle
             kingFrom = e8, kingTo = c8;
-            removeCastleRights(md.castleRights, BLACK_CASTLING);
+            toRemove = BLACK_CASTLING;
         } else {
             // unreachable so long as move gen is correct; this is included only to avoid a warning
             throw std::runtime_error("Unreachable castle branch in Position::makeMove");
         }
         board.movePiece(king, kingFrom, kingTo);
+        removeCastleRights(md.castleRights, toRemove);
         md.hash ^= Zobrist::getPieceSquareHash(king, from) ^ Zobrist::getPieceSquareHash(king, to);
+        md.hash ^= Zobrist::getCastleRightsHash(toRemove) ^ md.castleRights;
     }
 
     // move the piece to its new destination
     board.movePiece(pieceMoved, from, to);
-    md.hash ^=
-        Zobrist::getPieceSquareHash(pieceMoved, from) ^ Zobrist::getPieceSquareHash(pieceMoved, to);
+    md.hash ^= Zobrist::getPieceSquareHash(pieceMoved, from);
+    md.hash ^= Zobrist::getPieceSquareHash(pieceMoved, to);
 
     // finally, handle pawn promotion
     if (move.isPromotion()) {
@@ -171,30 +174,50 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     /*** OTHER METADATA CHANGES ***/
 
+    // prevent white castling
+    if (pieceMoved == WK && !move.isCastles()) {
+        removeCastleRights(md.castleRights, WHITE_CASTLING);
+        md.hash ^= Zobrist::getCastleRightsHash(WHITE_CASTLING);
+        md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
+    }
+
+    // prevent black castling
+    if (pieceMoved == BK && !move.isCastles()) {
+        removeCastleRights(md.castleRights, BLACK_CASTLING);
+        md.hash ^= Zobrist::getCastleRightsHash(BLACK_CASTLING);
+        md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
+    }
+
     // prevent black queenside castle
-    if (to == a8 || pieceMoved == BR) {
+    if (to == a8 || (from == a8 && pieceMoved == BR)) {
         removeCastleRights(md.castleRights, BLACK_OOO);
+        md.hash ^= Zobrist::getCastleRightsHash(BLACK_OOO);
+        md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
     // prevent black kingside castle
-    if (to == h8 || pieceMoved == BR) {
+    if (to == h8 || (from == h8 && pieceMoved == BR)) {
         removeCastleRights(md.castleRights, BLACK_OO);
+        md.hash ^= Zobrist::getCastleRightsHash(BLACK_OO);
+        md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
     // prevent white queenside castle
-    if (to == a1 || pieceMoved == WR) {
+    if (to == a1 || (from == h8 && pieceMoved == WR)) {
         removeCastleRights(md.castleRights, WHITE_OOO);
+        md.hash ^= Zobrist::getCastleRightsHash(WHITE_OOO);
+        md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
     // prevent white kingside castle
-    if (to == a8 || pieceMoved == WR) {
+    if (to == a8 || (from == h8 && pieceMoved == WR)) {
         removeCastleRights(md.castleRights, WHITE_OO);
+        md.hash ^= Zobrist::getCastleRightsHash(WHITE_OO);
+        md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
-    // update hash with new castle rights
-    md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
-
     // update en passant square
+    int oldEpSqFile = fileOf(md.enPassantSquare);
     if (pieceMoved == WP && from + 2 * NORTH == to) {
         // white pawn moved 2 squares
         md.enPassantSquare = Square(from + NORTH);
@@ -205,20 +228,25 @@ Position::Metadata Position::makeMove(const Move &move) {
         // ensure no stale en passant squares
         md.enPassantSquare = NO_SQ;
     }
+    md.hash ^= Zobrist::getEnPassantHash(oldEpSqFile);
     md.hash ^= Zobrist::getEnPassantHash(fileOf(md.enPassantSquare));
 
     // update capturedPiece; this will be NONE if there was no capture
     md.capturedPiece = capturedPiece;
 
     // update 50 move rule
-    md.movesSinceCapture = capturedPiece != NO_PIECE ? 0 : md.movesSinceCapture + 1;
+    if (capturedPiece != NO_PIECE || pieceMoved == WP || pieceMoved == BP) {
+        md.movesSinceCapture = 0;
+    } else {
+        md.movesSinceCapture++;
+    }
+
+    // update attack table
+    updateAllAttacks();
 
     // change turns
     sideToMove = otherColor(sideToMove);
     md.hash ^= Zobrist::getSideToMoveHash();
-
-    // update attack table
-    updateAllAttacks();
 
     return oldMD;
 }
@@ -281,7 +309,7 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     sideToMove = otherColor(sideToMove);
 
     // restore metadata
-    // N.B: this takes care of md.hash for us
+    // N.B: this takes care of the hash and attackTable
     md = prevMD;
 }
 

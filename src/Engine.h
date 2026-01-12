@@ -196,31 +196,6 @@ class Engine {
     Engine(int depth);
 
     /**
-     * for testing
-     */
-    // eval_t get_eval(Position& pos) {
-    //     return evaluate(pos);
-    // }
-
-    /**
-     * Counts the number of positions that can be reached from the current position
-     *
-     * @param pos to evaluate
-     * @param depth The depth to search
-     * @return The number of positions that can be reached
-     */
-    void countPositions(Position &pos, int depth) const;
-
-    /**
-     * Counts the number of positions with depth 1, 2, ..., maxDepth
-     * usng iterative deepening and prints the results in perft format
-     *
-     * @param pos to evaluate
-     * @param maxDepth The maximum depth to search
-     */
-    void countPositionsBuildup(Position &pos, int maxDepth) const;
-
-    /**
      * Gets the best move in a certain position
      *
      * @param pos to evaluate

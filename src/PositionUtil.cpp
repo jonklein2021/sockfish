@@ -43,8 +43,6 @@ bool PositionUtil::isCheckmate(Position &pos) {
     return isCheck(pos) && MoveGenerator::generateLegal(pos).empty();
 }
 
-// TODO: finish
 bool PositionUtil::isTerminal(Position &pos) {
-    return pos.getSideToMove() != WHITE && pos.getSideToMove() != BLACK;
-    // return insufficientMaterial(pos) || isCheckmate(pos);
+    return insufficientMaterial(pos) || isCheckmate(pos);
 }

@@ -12,7 +12,7 @@ Bitboard computePawnPushes(const Position &pos, Square sq) {
     // double pawn pushes must land on these ranks
     static constexpr Bitboard DBL[2] = {RANK_4, RANK_5};
 
-    const Color side = pos.getSideToMove();
+    const Color side = pieceColor(pos.pieceAt(sq));
     const Bitboard emptySquares = pos.getBoard().getEmptySquares();
 
     Bitboard moves = 0ull;
@@ -33,8 +33,7 @@ Bitboard computePawnAttacks(const Position &pos, Square sq) {
         {SOUTH_EAST, SOUTH_WEST}   // black
     };
 
-    const Color side = pos.getSideToMove();
-
+    const Color side = pieceColor(pos.pieceAt(sq));
     Bitboard attacks = 0ull;
 
     const Bitboard eastCaptureBB = 1ull << (sq + ATTACKS[side][0]);
@@ -48,7 +47,7 @@ Bitboard computePawnAttacks(const Position &pos, Square sq) {
 }
 
 Bitboard computePawnCaptures(const Position &pos, Square sq) {
-    const Color side = pos.getSideToMove();
+    const Color side = pieceColor(pos.pieceAt(sq));
     const Bitboard oppPieces = pos.getBoard().getOccupancy(otherColor(side));
     return computePawnAttacks(pos, sq) & oppPieces;
 }
@@ -70,7 +69,7 @@ Bitboard computeKnightMoves(const Position &pos, Square sq) {
     const Bitboard ull = (sqBB & NOT_RANK_8 & NOT_FILE_AB) >> 10;       // up 1, left 2
     const Bitboard urr = (sqBB & NOT_RANK_8 & NOT_FILE_GH) >> 6;        // up 1, right 2
 
-    const Color opponent = otherColor(pos.getSideToMove());
+    const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return (ddl | ddr | drr | dll | uur | uul | ull | urr) & landingSqBB;
@@ -88,7 +87,7 @@ Bitboard computeKingMoves(const Position &pos, Square sq) {
     const Bitboard ul = (sqBB & NOT_RANK_8 & NOT_FILE_A) >> 9;  // up left
     const Bitboard ur = (sqBB & NOT_RANK_8 & NOT_FILE_H) >> 7;  // up right
 
-    const Color opponent = otherColor(pos.getSideToMove());
+    const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return (d | u | l | r | dl | dr | ul | ur) & landingSqBB;
@@ -96,7 +95,7 @@ Bitboard computeKingMoves(const Position &pos, Square sq) {
 
 Bitboard computeBishopMoves(const Position &pos, Square sq) {
     Bitboard attacks = 0;
-    const Color side = pos.getSideToMove();
+    const Color side = pieceColor(pos.pieceAt(sq));
     const Color opponentSide = otherColor(side);
     const Board board = pos.getBoard();
 
@@ -157,7 +156,7 @@ Bitboard computeBishopMoves(const Position &pos, Square sq) {
 
 Bitboard computeRookMoves(const Position &pos, Square sq) {
     Bitboard attacks = 0;
-    const Color side = pos.getSideToMove();
+    const Color side = pieceColor(pos.pieceAt(sq));
     const Color opponentSide = otherColor(side);
     const Board board = pos.getBoard();
 

@@ -2,118 +2,15 @@
 
 #include "MoveGenerator.h"
 
+#include <algorithm>
 #include <cstdint>
-#include <functional>
+#include <cstdio>
 #include <iostream>
 #include <limits>
 #include <queue>
 
 Engine::Engine(int depth)
     : maxDepth(depth) {}
-
-void Engine::countPositionsBuildup(Position &pos, int maxDepth) const {
-    struct Node {
-        Position pos;
-        int depth;
-    };
-
-    std::queue<Node> q;
-    q.push(Node{pos, 0});
-
-    std::vector<uint64_t> depthCounts(maxDepth + 1, 0);
-
-    while (!q.empty()) {
-        Node current = q.front();
-        q.pop();
-
-        // stop once we reach maxDepth
-        if (current.depth >= maxDepth) {
-            break;
-        }
-
-        std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
-
-        for (const Move &move : legalMoves) {
-            const Position::Metadata md = current.pos.makeMove(move);
-            depthCounts[current.depth + 1]++;
-            q.push({current.pos, current.depth + 1});
-            current.pos.unmakeMove(move, md);
-        }
-    }
-
-    for (int d = 1; d <= maxDepth; d++) {
-        std::cout << ";D" << d << " " << depthCounts[d] << " ";
-    }
-
-    std::cout << std::endl;
-}
-
-void Engine::countPositions(Position &pos, int depth) const {
-    uint64_t total = 0;
-    uint64_t captures = 0;
-    uint64_t eps = 0;
-    uint64_t castles = 0;
-    uint64_t promotions = 0;
-    uint64_t checks = 0;
-    uint64_t checkmates = 0;
-
-    std::function<uint64_t(Position &, int)> countPositionsHelper = [&](Position &state,
-                                                                        int depth) -> uint64_t {
-        if (depth == 0 || PositionUtil::isTerminal(state)) {
-            return 1;  // Base case: count this position
-        }
-
-        uint64_t count = 0;
-        std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
-
-        std::cout << legalMoves.size() << " legal moves\n";
-        for (const Move &m : legalMoves) {
-            std::cout << m.toString() << "\n";
-        }
-
-        for (const Move &move : legalMoves) {
-            const Piece capturedPiece = state.pieceAt(move.getToSquare());
-            const Position::Metadata md = state.makeMove(move);
-
-            count += countPositionsHelper(state, depth - 1);
-            total += count;  // Accumulate total count
-
-            if (capturedPiece != NO_PIECE) {
-                captures++;
-            }
-            if (move.isCastles()) {
-                castles++;
-            }
-            if (move.isEnPassant()) {
-                eps++;
-            }
-            if (move.isPromotion()) {
-                promotions++;
-            }
-            // TODO:
-            // if (state.isCheck()) {
-            //     checks++;
-            //     if (state.isTerminal()) {
-            //         checkmates++;
-            //     }
-            // }
-
-            state.unmakeMove(move, md);
-        }
-
-        return count;
-    };
-
-    total = countPositionsHelper(pos, depth);  // Start recursion
-
-    std::cout << "Total positions: " << total << "\n";
-    std::cout << "Total captures: " << captures << "\n";
-    std::cout << "Total en passants: " << eps << "\n";
-    std::cout << "Total castles: " << castles << "\n";
-    std::cout << "Total promotions: " << promotions << "\n";
-    std::cout << "Total checks: " << checks << "\n";
-    std::cout << "Total checkmates: " << checkmates << "\n" << std::endl;
-}
 
 eval_t Engine::rateMove(Position &pos, const Move &move) {
     Piece movedPiece = pos.pieceAt(move.getFromSquare());
@@ -146,7 +43,6 @@ eval_t Engine::evaluate(Position &pos) {
 }
 
 eval_t Engine::evaluate(Position &pos, const std::vector<Move> &&legalMoves) {
-    // TODO: Check if checkmate
     if (PositionUtil::isCheckmate(pos)) {
         return pos.getSideToMove() == WHITE ? 1738 : -1738;
     }
@@ -185,24 +81,29 @@ eval_t Engine::evaluate(Position &pos, const std::vector<Move> &&legalMoves) {
 }
 
 eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
+    eval_t alphaOrig = alpha;
     uint64_t h = pos.getHash();
+    int remainingDepth = maxDepth - depth;
     if (transpositionTable.find(h) != transpositionTable.end()) {
-        const TTEntry &entry = transpositionTable[h];
-        if (entry.depth >= depth) {
-            if (entry.flag == TTEntry::EXACT) {
-                return entry.eval;
+        const TTEntry &e = transpositionTable[h];
+        if (e.depth >= remainingDepth) {
+            if (e.flag == TTEntry::EXACT) {
+                return e.eval;
             }
-            if (entry.flag == TTEntry::LOWERBOUND && entry.eval >= beta) {
-                return entry.eval;
+            if (e.flag == TTEntry::LOWERBOUND) {
+                alpha = std::max(alpha, e.eval);
             }
-            if (entry.flag == TTEntry::UPPERBOUND && entry.eval <= alpha) {
-                return entry.eval;
+            if (e.flag == TTEntry::UPPERBOUND) {
+                beta = std::max(beta, e.eval);
+            }
+            if (alpha >= beta) {
+                return e.eval;
             }
         }
     }
 
     // base case
-    if (depth >= maxDepth /* || pos.isTerminal() */) {
+    if (depth >= maxDepth || PositionUtil::isTerminal(pos)) {
         return evaluate(pos);
     }
 
@@ -215,16 +116,6 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
 
         eval_t eval = -negamax(pos, -beta, -alpha, depth + 1);
 
-        // save result in transposition table
-        TTEntry newEntry{eval, depth, TTEntry::EXACT};
-        if (eval <= alpha) {
-            newEntry.flag = TTEntry::UPPERBOUND;
-        }
-        if (eval >= beta) {
-            newEntry.flag = TTEntry::LOWERBOUND;
-        }
-        transpositionTable[h] = newEntry;
-
         pos.unmakeMove(move, md);
 
         bestEval = std::max(bestEval, eval);
@@ -234,6 +125,19 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
             break;
         }
     }
+
+    // save result in transposition table
+    TTEntry entry;
+    entry.eval = bestEval;
+    entry.depth = remainingDepth;
+    if (bestEval <= alphaOrig) {
+        entry.flag = TTEntry::UPPERBOUND;
+    } else if (bestEval >= beta) {
+        entry.flag = TTEntry::LOWERBOUND;
+    } else {
+        entry.flag = TTEntry::EXACT;
+    }
+    transpositionTable[h] = entry;
 
     return bestEval;
 }
@@ -256,7 +160,7 @@ eval_t Engine::iterativeDeepening(Position &pos) {
         std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
 
         // evaluate terminal nodes
-        if (current.depth >= maxDepth /* || current.state.isTerminal() */) {
+        if (current.depth >= maxDepth || PositionUtil::isTerminal(current.pos)) {
             eval_t evalScore = evaluate(current.pos, {});
             if (evalScore > bestEval) {
                 bestEval = evalScore;
@@ -265,9 +169,9 @@ eval_t Engine::iterativeDeepening(Position &pos) {
 
         // evaluate non-terminal nodes
         for (const Move &move : legalMoves) {
-            Position nextState = current.pos;
-            nextState.makeMove(move);
-            q.push({nextState, current.depth + 1});
+            Position nextPos = current.pos;
+            nextPos.makeMove(move);
+            q.push({nextPos, current.depth + 1});
         }
     }
 
@@ -276,7 +180,7 @@ eval_t Engine::iterativeDeepening(Position &pos) {
 
 Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
     if (legalMoves.empty()) {
-        return Move();
+        return Move::none();
     }
 
     // sort moves by how promising they seem
@@ -292,7 +196,6 @@ Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
     for (const Move &move : legalMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
-        // state.board.prettyPrint();
         std::cout << "  " << move.toString() << std::endl;
 
         eval_t eval = -negamax(pos, std::numeric_limits<eval_t>::lowest(),

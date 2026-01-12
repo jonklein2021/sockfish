@@ -131,7 +131,6 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList, Position &p
     if ((cr & KINGSIDE[side]) && (empty & EMPTY_K[side]) == EMPTY_K[side] &&
         !pos.isAttacked(PASS_K[side][0], otherColor(side)) &&
         !pos.isAttacked(PASS_K[side][1], otherColor(side))) {
-
         moveList.push_back(createCastlingMove(false, side));
     }
 
@@ -139,7 +138,6 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList, Position &p
     if ((cr & QUEENSIDE[side]) && (empty & EMPTY_Q[side]) == EMPTY_Q[side] &&
         !pos.isAttacked(PASS_Q[side][0], otherColor(side)) &&
         !pos.isAttacked(PASS_Q[side][1], otherColor(side))) {
-
         moveList.push_back(createCastlingMove(true, side));
     }
 }

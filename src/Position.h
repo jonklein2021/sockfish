@@ -2,6 +2,7 @@
 
 #include "Board.h"
 #include "Move.h"
+#include "src/types.h"
 
 #include <string>
 
