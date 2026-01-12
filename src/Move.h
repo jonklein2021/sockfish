@@ -28,7 +28,8 @@ class Move {
     uint16_t data;
 
    public:
-    Move();
+    constexpr Move()
+        : data(0u) {}
 
     constexpr Move(uint16_t _data)
         : data(_data) {}
@@ -40,6 +41,10 @@ class Move {
     inline static constexpr Move
     create(Square from, Square to, PieceType promotedPieceType = KNIGHT) {
         return Move(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 12));
+    }
+
+    inline static constexpr Move none() {
+        return Move();
     }
 
     static Move fromCoordinateString(const std::string &coords);
@@ -65,17 +70,17 @@ class Move {
     }
 
     constexpr bool isPromotion() const {
-        return (data & (3 << 14)) == PROMOTION;
+        return (data & (0x3 << 14)) == PROMOTION;
     }
 
     constexpr bool isEnPassant() const {
-        return (data & (3 << 14)) == EN_PASSANT;
+        return (data & (0x3 << 14)) == EN_PASSANT;
     }
 
     // Note: When true, the type of castle can be determined by which rook moves, which is
     // represented in the from/to squares
     constexpr bool isCastles() const {
-        return (data & (3 << 14)) == CASTLING;
+        return (data & (0x3 << 14)) == CASTLING;
     }
 
     std::string toCoordinateString() const;
@@ -94,11 +99,11 @@ class Move {
         return (data & 0xFFF) == (other.raw() & 0xFFF);
     }
 
-    bool operator==(const Move &other) const {
+    constexpr bool operator==(const Move &other) const {
         return data == other.raw();
     }
 
-    bool operator!=(const Move &other) const {
+    constexpr bool operator!=(const Move &other) const {
         return data != other.raw();
     }
 };

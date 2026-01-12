@@ -227,5 +227,5 @@ class Engine {
      * @param legalMoves The possible legal moves from that position
      * @return The best move to make
      */
-    Move getMove(Position &pos, std::vector<Move> &&legalMoves);
+    Move getMove(Position &pos, std::vector<Move> &legalMoves);
 };

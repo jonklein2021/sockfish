@@ -26,7 +26,7 @@ void Position::parseFen(const std::string &fen) {
         } else if (isdigit(c)) {  // empty square; skip x squares
             x += c - '0';
         } else {  // piece
-            const Piece p = fenToPiece(c);
+            const Piece p = fenCharToPiece(c);
             const Square sq = xyToSquare(x, y);
 
             board.addPiece(p, sq);
@@ -308,9 +308,73 @@ void Position::updateAllAttacks() {
     }
 }
 
-// TODO
+// TODO: thoroughly check for correctness
 std::string Position::toFenString() const {
-    std::ostringstream out;
+    std::ostringstream fen;
 
-    return out.str();
+    // 1. Board
+    for (int rank = 7; rank >= 0; rank--) {
+        int emptyCount = 0;
+
+        for (int file = 0; file < 8; file++) {
+            Square sq = xyToSquare(file, rank);
+            Piece p = pieceAt(sq);
+
+            if (p == NO_PIECE) {
+                emptyCount++;
+            } else {
+                if (emptyCount > 0) {
+                    fen << emptyCount;
+                    emptyCount = 0;
+                }
+                fen << pieceToFenChar[p];
+            }
+        }
+
+        if (emptyCount > 0) {
+            fen << emptyCount;
+        }
+
+        if (rank > 0) {
+            fen << '/';
+        }
+    }
+
+    // 2. Side to move
+    fen << ' ' << (sideToMove == WHITE ? 'w' : 'b');
+
+    // 3. Castling rights
+    fen << ' ';
+    if (md.castleRights == NO_CASTLING) {
+        fen << '-';
+    } else {
+        if (md.castleRights & WHITE_OO) {
+            fen << 'K';
+        }
+        if (md.castleRights & WHITE_OOO) {
+            fen << 'Q';
+        }
+        if (md.castleRights & BLACK_OO) {
+            fen << 'k';
+        }
+        if (md.castleRights & BLACK_OOO) {
+            fen << 'q';
+        }
+    }
+
+    // 4. En passant
+    fen << ' ';
+    if (md.enPassantSquare == NO_SQ) {
+        fen << '-';
+    } else {
+        fen << squareToCoordinateString(md.enPassantSquare);
+    }
+
+    // 5. Halfmove clock
+    fen << ' ' << md.movesSinceCapture;
+
+    // 6. Fullmove number (not tracked — default to 1)
+    fen << " 1";
+
+    return fen.str();
 }

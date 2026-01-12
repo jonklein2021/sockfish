@@ -4,7 +4,7 @@
 
 class CliFrontend {
    private:
-    GameController game;
+    GameController &game;
 
     bool validateMoveInput(const std::string &input);
 

@@ -3,35 +3,45 @@
 #include "Engine.h"
 #include "types.h"
 
+#include <fstream>
 #include <memory>
 
 class GameController {
    private:
     Position pos;
     std::unique_ptr<Engine> engine;
-    std::vector<Move> moves;
-    std::vector<Position::Metadata> hashHistory;
+    std::vector<Move> moveHistory;
+    std::vector<Move> legalMoves;
+    std::vector<uint64_t> hashHistory;
+    std::ofstream outFile;
+
     Color humanSide;
+
+    void initOutFile();
 
    public:
     GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide);
+
+    ~GameController();
 
     constexpr Color getHumanSide() const {
         return humanSide;
     }
 
-    // can't be constexpr because shared_ptr method access is not constexpr
-    Color getSideToMove() const {
+    constexpr Color getSideToMove() const {
         return pos.getSideToMove();
+    }
+
+    constexpr const Position &getPosition() const {
+        return pos;
     }
 
     bool isGameOver();
 
-    const Position &getPosition() const;
-    std::vector<Move> legalMoves();
+    std::vector<Move> getLegalMoves() const;
 
     void makeHumanMove(Move move);
-    Move makeAIMove();
+    void makeAIMove();
 
     void handleEnd();
 };

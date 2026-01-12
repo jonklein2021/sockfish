@@ -19,6 +19,7 @@ class Position {
         Square enPassantSquare = NO_SQ;
 
         // the last move (that led to this postion) captured this piece
+        // we can use this to conditionally render a capture sound in the GUI
         Piece capturedPiece = NO_PIECE;
 
         // used to check for 50 move rule

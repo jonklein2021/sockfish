@@ -113,10 +113,13 @@ constexpr std::array<std::string_view, 13> PIECE_NAMES = {
 constexpr std::array<std::string_view, 7> PIECE_TYPE_NAMES = {"Pawn",  "Knight", "Bishop", "Rook",
                                                               "Queen", "King",   "None"};
 
+constexpr std::array<char, NO_PIECE> pieceToFenChar = {'P', 'N', 'B', 'R', 'Q', 'K',
+                                                       'p', 'n', 'b', 'r', 'q', 'k'};
+
 /**
  * Maps FEN character to PieceType enum
  */
-constexpr Piece fenToPiece(char c) {
+constexpr Piece fenCharToPiece(char c) {
     switch (c) {
         case 'P': return WP;
         case 'N': return WN;
@@ -270,9 +273,11 @@ inline static constexpr void removeCastleRights(CastleRights &current, CastleRig
     current = CastleRights(current & ~toRemove);
 }
 
-// GUI Constants
+// file paths and GUI Constants
+constexpr std::string_view PGN_OUTPUT_PATH = "../games/";
+constexpr std::string_view DEFAULT_OUT_FILE = "../games/recent.txt";
 constexpr std::string_view PIECE_TEXTURE_PATH = "../src/assets/pieces/";
-constexpr std::string_view DEFAULT_PIECE_THEME = "horsey";
 constexpr std::string_view BOARD_TEXTURE_PATH = "../src/assets/board.png";
+constexpr std::string_view DEFAULT_PIECE_THEME = "horsey";
 constexpr int BOARD_SIZE = 512;
 constexpr int TILE_SIZE = 64;

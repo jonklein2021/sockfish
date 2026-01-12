@@ -24,7 +24,7 @@ struct VisualPiece {
 class GuiFrontend {
    private:
     // game logic orchestrator
-    GameController game;
+    GameController &game;
 
     // SFML formalities
     sf::RenderWindow window;
@@ -36,10 +36,14 @@ class GuiFrontend {
     sf::Sprite boardSprite;
 
     // stores texture for each Piece enum
-    std::array<sf::Texture, 12> pieceTextures;
+    std::array<sf::Texture, NO_PIECE> pieceTextures;
 
     // stores on-screen pieces and their corresponding sprites
-    std::unordered_map<Square, VisualPiece> visualPieces;
+    std::vector<VisualPiece> visualPieces;
+
+    // maps each square to where the piece on it can move in the current position
+    // used to render visual move hints
+    std::vector<std::vector<Square>> legalMovesBySrcSq;
 
     // self-explanatory
     sf::Cursor arrowCursor, handCursor;  // make this static?
@@ -61,14 +65,13 @@ class GuiFrontend {
     void loadPieceTextures();
 
     /**
-     * Syncs the visual pieces with the current position
-     */
-    // void syncVisualPieces();
-
-    /**
      * Draws the current position on the screen
      */
-    void draw();
+    void syncPositionToGUI();
+
+    Move buildCandidateMove(const VisualPiece *piece, Square dst) const;
+
+    Move validateMove(const Move &candidate);
 
     /**
      * Returns the Square the mouse is hovering over

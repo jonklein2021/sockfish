@@ -4,18 +4,6 @@
 
 #include <sstream>
 
-Move::Move()
-    : data(0ull) {}
-
-// constexpr Move::Move(uint16_t _data)
-//     : data(_data) {}
-//
-// constexpr Move::Move(Square from, Square to)
-//     : data(from | (to << 6)) {}
-//
-// constexpr Move::Move(Square from, Square to, Type moveType, PieceType promotedPieceType)
-//     : data(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 11)) {}
-
 void Move::setFlag(Type t) {
     data |= t;
 }

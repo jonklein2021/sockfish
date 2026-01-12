@@ -274,7 +274,7 @@ eval_t Engine::iterativeDeepening(Position &pos) {
     return bestEval;
 }
 
-Move Engine::getMove(Position &pos, std::vector<Move> &&legalMoves) {
+Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
     if (legalMoves.empty()) {
         return Move();
     }

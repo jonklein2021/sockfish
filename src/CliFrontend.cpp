@@ -9,7 +9,7 @@
 #include <iostream>
 
 CliFrontend::CliFrontend(GameController &game)
-    : game(std::move(game)) {}
+    : game(game) {}
 
 bool CliFrontend::validateMoveInput(const std::string &input) {
     return validateCoords(input) || (input == "O-O") || (input == "OO") || (input == "O-O-O") ||
@@ -17,20 +17,21 @@ bool CliFrontend::validateMoveInput(const std::string &input) {
 }
 
 Move CliFrontend::getMoveFromStdin() {
-    const std::vector<Move> legalMoves = game.legalMoves();
+    const std::vector<Move> legalMoves = game.getLegalMoves();
     Move candidate;
     bool validMove = false;
     bool pawnPromoting = false;
 
     while (!validMove) {
         // pick a random move to suggest
+        // TODO: pretty-print castling
         const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
+        std::cout << "Enter move (example: " << sample << ") or q to quit: ";
 
         // DEBUG: print legal moves
-        Printers::printMoveList(legalMoves, game.getPosition());
+        // Printers::printMoveList(legalMoves, game.getPosition());
 
         // prompt user for input
-        std::cout << "Enter move (example: " << sample << ") or q to quit: ";
         std::string input;
         std::getline(std::cin, input);
 
@@ -109,13 +110,8 @@ Move CliFrontend::getMoveFromStdin() {
 }
 
 void CliFrontend::run() {
-    auto legalMoves = game.legalMoves();
-
     while (!game.isGameOver()) {
         Printers::prettyPrintPosition(game.getPosition());
-
-        std::cout << (game.getSideToMove() == WHITE ? "White" : "Black") << " to move\n"
-                  << std::endl;
 
         if (game.getSideToMove() == game.getHumanSide()) {
             // get move from stdin

@@ -4,10 +4,12 @@
 #include "bit_tools.h"
 #include "types.h"
 
+#include <algorithm>
 #include <iostream>
+#include <vector>
 
 GuiFrontend::GuiFrontend(GameController &game)
-    : game(std::move(game)),
+    : game(game),
       window(sf::VideoMode({BOARD_SIZE, BOARD_SIZE}), "Cheese", sf::Style::Resize),
       view({BOARD_SIZE / 2.f, BOARD_SIZE / 2.f}, {BOARD_SIZE, BOARD_SIZE}),
       themeName(DEFAULT_PIECE_THEME),
@@ -19,6 +21,7 @@ GuiFrontend::GuiFrontend(GameController &game)
     arrowCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow).value();
     handCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand).value();
     initializeScreen();
+    syncPositionToGUI();
 }
 
 void GuiFrontend::initializeScreen() {
@@ -55,19 +58,17 @@ void GuiFrontend::initializeScreen() {
 void GuiFrontend::run() {
     while (window.isOpen()) {
         if (game.getHumanSide() != game.getSideToMove()) {
-            // get move from engine
+            // TODO: get move from engine in a separate worker thread so that this thread can handle
+            // GUI updates
             game.makeAIMove();
 
             // update sprites with this move
-            // N.B: does this need to go here?
-            // draw();
+            syncPositionToGUI();
 
             // check if game has ended
             if (game.isGameOver()) {
+                game.handleEnd();
                 window.close();
-            } else {
-                game.getSideToMove() == WHITE ? std::cout << "White to move" << std::endl
-                                              : std::cout << "Black to move" << std::endl;
             }
         }
 
@@ -78,12 +79,37 @@ void GuiFrontend::run() {
     }
 }
 
+Move GuiFrontend::buildCandidateMove(const VisualPiece *piece, Square dst) const {
+    Square src = piece->sq;
+
+    // Castling handling
+    if (pieceToPT(piece->piece) == KING) {
+        if ((src == e1 && dst == g1) || (src == e8 && dst == g8)) {
+            return MoveGenerator::createCastlingMove(false, game.getHumanSide());
+        }
+        if ((src == e1 && dst == c1) || (src == e8 && dst == c8)) {
+            return MoveGenerator::createCastlingMove(true, game.getHumanSide());
+        }
+    }
+
+    return Move(src, dst);
+}
+
+Move GuiFrontend::validateMove(const Move &candidate) {
+    for (const Move &m : game.getLegalMoves()) {
+        if (candidate.softEquals(m)) {
+            return m;  // return canonical legal move
+        }
+    }
+    return Move::none();
+}
+
 void GuiFrontend::handleEvents() {
-    mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
     Move candidate;
+    mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
     // SFML 3.0 event handling
-    while (auto event = window.pollEvent()) {
+    while (const auto event = window.pollEvent()) {
         // user quits
         if (event->is<sf::Event::Closed>()) {
             window.close();
@@ -95,7 +121,7 @@ void GuiFrontend::handleEvents() {
             float windowHeight = resized->size.y;
 
             // compute the new view size; ensure the board remains square
-            float scale = std::min(windowWidth / BOARD_SIZE, windowHeight / BOARD_SIZE);
+            float scale = std::min(windowWidth, windowHeight) / BOARD_SIZE;
             float newWidth = scale * BOARD_SIZE, newHeight = scale * BOARD_SIZE;
 
             // center board viewport wrt the window
@@ -120,13 +146,10 @@ void GuiFrontend::handleEvents() {
                 // apply move to internal game state
                 game.makeHumanMove(candidate);
 
-                // get new legal moves for the next turn
                 // check if game has ended
                 if (game.isGameOver()) {
                     game.handleEnd();
                     window.close();
-                } else {
-                    std::cout << COLOR_NAMES[game.getSideToMove()] << " to move" << std::endl;
                 }
 
                 std::cout << "Promoted to " << PIECE_NAMES[p] << std::endl;
@@ -146,63 +169,37 @@ void GuiFrontend::handleEvents() {
                        squareToCoordinateString(squareUnderMouse()).c_str(), mousePos.x,
                        mousePos.y);
 
-                if (game.getHumanSide() == game.getSideToMove() && selectedPiece) {
+                if (game.getHumanSide() == game.getSideToMove() && selectedPiece &&
+                    pieceColor(selectedPiece->piece) == game.getHumanSide()) {
                     // snap to nearest tile
                     int newX = mousePos.x / TILE_SIZE, newY = mousePos.y / TILE_SIZE;
 
-                    Square oldSq = selectedPiece->sq;
-                    Square newSq = xyToSquare(newX, newY);
+                    Square srcSq = selectedPiece->sq;
+                    Square dstSq = xyToSquare(newX, newY);
 
                     // TODO: rotate 180 degrees if player is black
-                    int displayX = newX;
-                    int displayY = newY;
 
                     bool pawnPromoting = (selectedPiece->piece == WP && newY == 0) ||
                                          (selectedPiece->piece == BP && newY == 7);
 
-                    candidate = Move(oldSq, newSq);
-
-                    // check for castling; this step is necessary to match a legal move
-                    if (pieceToPT(selectedPiece->piece) == KING) {
-                        // kingside
-                        if ((oldSq == e1 && newSq == g1) || (oldSq == e8 && newSq == g8)) {
-                            candidate =
-                                MoveGenerator::createCastlingMove(false, game.getHumanSide());
-                        }
-
-                        // queenside
-                        if ((oldSq == e1 && newSq == c1) || (oldSq == e8 && newSq == c8)) {
-                            candidate =
-                                MoveGenerator::createCastlingMove(true, game.getHumanSide());
-                        }
-                    }
+                    candidate = buildCandidateMove(selectedPiece, dstSq);
 
                     // check this move against set of legal moves
-                    bool validMove = false;
-                    for (const Move &m : game.legalMoves()) {
-                        if (candidate.softEquals(m)) {
-                            candidate = m;
-                            validMove = true;
-                            break;
-                        }
-                    }
+                    candidate = validateMove(candidate);
 
-                    std::cout << "[" << (validMove ? "V" : "Inv") << "alid Move] "
+                    std::cout << "[" << (candidate != Move::none() ? "V" : "Inv") << "alid Move] "
                               << candidate.toString() << std::endl;
 
-                    if (validMove) {
-                        // update board with new move
-                        // draw();
-
+                    if (candidate != Move::none()) {
                         // show promotion menu if pawn is promoting
                         if (pawnPromoting) {
-                            promotionMenu.show(displayX);
+                            promotionMenu.show(newX);
 
                             // snap to grid
-                            selectedPiece->sq = xyToSquare(displayX, displayY);
+                            selectedPiece->sq = dstSq;
                             if (selectedPiece->sprite) {
                                 selectedPiece->sprite->setPosition(
-                                    sf::Vector2f(displayX * TILE_SIZE, displayY * TILE_SIZE));
+                                    sf::Vector2f(newX * TILE_SIZE, newY * TILE_SIZE));
                             }
 
                             return;
@@ -211,30 +208,22 @@ void GuiFrontend::handleEvents() {
                         // apply move to internal game state
                         game.makeHumanMove(candidate);
 
+                        // update the GUI with this move
+                        syncPositionToGUI();
+
                         // check if game has ended
                         if (game.isGameOver()) {
                             game.handleEnd();
                         } else {
-                            game.getSideToMove() == WHITE
-                                ? std::cout << "White to move" << std::endl
-                                : std::cout << "Black to move" << std::endl;
+                            std::cout << COLOR_NAMES[game.getSideToMove()] << " to move"
+                                      << std::endl;
                         }
                     } else {
-                        // reset piece position if move is invalid
-                        newX = fileOf(oldSq);
-                        newY = rankOf(oldSq);
-                        // displayX = playerIsWhite ? newX : 7 - newX;
-                        // displayY = playerIsWhite ? newY : 7 - newY;
-                        displayX = newX;
-                        displayY = newY;
+                        // reset this piece's position
+                        selectedPiece->sprite->setPosition(
+                            sf::Vector2f(fileOf(srcSq) * TILE_SIZE, rankOf(srcSq) * TILE_SIZE));
                     }
 
-                    // update this piece's position
-                    selectedPiece->sq = xyToSquare(displayX, displayY);
-                    if (selectedPiece->sprite) {
-                        selectedPiece->sprite->setPosition(
-                            sf::Vector2f(displayX * TILE_SIZE, displayY * TILE_SIZE));
-                    }
                     selectedPiece = nullptr;
                 }
             }
@@ -242,28 +231,31 @@ void GuiFrontend::handleEvents() {
     }
 }
 
-void GuiFrontend::draw() {
-    // draw the board
-    window.draw(boardSprite);
-
-    // sync the visual pieces with the current position
+void GuiFrontend::syncPositionToGUI() {
+    // reset visualPieces to match the current position
+    visualPieces.clear();
     for (Piece p : ALL_PIECES) {
         auto bb = game.getPosition().getPieceBB(p);
         while (bb) {
-            const Bitboard pieceSqBB = bb & -bb;
-            const Square pieceSq = Square(getLsbIndex(pieceSqBB));
+            const Square pieceSq = Square(getLsbIndex(bb));
 
-            if (!visualPieces.count(pieceSq) || visualPieces[pieceSq].piece != p) {
-                visualPieces[pieceSq] = VisualPiece(p, pieceSq, pieceTextures[p]);
-                visualPieces[pieceSq].sprite->setPosition(
-                    sf::Vector2f(fileOf(pieceSq) * TILE_SIZE, rankOf(pieceSq) * TILE_SIZE));
-            }
+            VisualPiece vp(p, pieceSq, pieceTextures[p]);
+            vp.sprite->setPosition(
+                sf::Vector2f(fileOf(pieceSq) * TILE_SIZE, rankOf(pieceSq) * TILE_SIZE));
 
-            // draw sprite on the window
-            window.draw(*visualPieces[pieceSq].sprite);
+            // add visual piece to list to be continuously rendered
+            visualPieces.push_back(std::move(vp));
 
-            bb ^= pieceSqBB;
+            // pop LSB
+            bb &= bb - 1;
         }
+    }
+
+    // sync legalMovesBySq map
+    legalMovesBySrcSq = std::vector<std::vector<Square>>(NO_SQ);
+    std::vector<Move> legalMoves = game.getLegalMoves();
+    for (const Move &move : legalMoves) {
+        legalMovesBySrcSq[move.getFromSquare()].push_back(move.getToSquare());
     }
 }
 
@@ -279,14 +271,16 @@ void GuiFrontend::update() {
 
     // mouse hovers over a piece
     const Square hovered = squareUnderMouse();
-    if (visualPieces.count(hovered) && visualPieces[hovered].sprite &&
-        visualPieces[hovered].sprite->getGlobalBounds().contains(
-            sf::Vector2f(mousePos.x, mousePos.y))) {
+    auto it = std::find_if(visualPieces.begin(), visualPieces.end(),
+                           [hovered](const VisualPiece &vp) { return vp.sq == hovered; });
+    if (it != visualPieces.end() && it->sprite &&
+        it->sprite->getGlobalBounds().contains(sf::Vector2f(mousePos.x, mousePos.y))) {
         window.setMouseCursor(handCursor);
 
         // drag-and-drop logic: select piece with mouse
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !isDragging) {
-            selectedPiece = &visualPieces[hovered];
+            // https://stackoverflow.com/questions/743055/convert-iterator-to-pointer
+            selectedPiece = &*it;
             isDragging = true;
         }
     } else {
@@ -294,15 +288,23 @@ void GuiFrontend::update() {
     }
 
     // drag-and-drop logic: move piece with mouse
-    if (isDragging && selectedPiece && selectedPiece->sprite) {
+    if (isDragging && selectedPiece && pieceColor(selectedPiece->piece) == game.getHumanSide() &&
+        selectedPiece->sprite) {
         selectedPiece->sprite->setPosition(
             sf::Vector2f(mousePos.x - 0.5 * TILE_SIZE, mousePos.y - 0.5 * TILE_SIZE));
     }
 }
 
 void GuiFrontend::render() {
+    // draw the board
     window.clear(sf::Color(50, 50, 50));
-    draw();
+    window.draw(boardSprite);
+
+    // draw the pieces
+    for (const VisualPiece &vp : visualPieces) {
+        window.draw(*vp.sprite);
+    }
+
     promotionMenu.render(window);
     window.display();
 }

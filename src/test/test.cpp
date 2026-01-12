@@ -165,7 +165,7 @@ int main() {
         getline(cin, choice);
 
         // refresh legal moves
-        legalMoves = game.legalMoves();
+        legalMoves = game.getLegalMoves();
 
         switch (choice[0]) {
             case 'q': return 0;
