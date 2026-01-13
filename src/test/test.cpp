@@ -1,7 +1,10 @@
+#include "../Magic.h"
 #include "../MoveGenerator.h"
 #include "../Position.h"
 #include "../Printers.h"
 #include "../Zobrist.h"
+#include "src/bit_tools.h"
+#include "src/types.h"
 
 #include <iostream>
 #include <vector>
@@ -147,6 +150,24 @@ void printAttackMap(const Position &pos) {
     }
 }
 
+void magic() {
+    Bitboard blockers = 0ull;
+
+    setBit(blockers, d4);
+    setBit(blockers, b4);
+    setBit(blockers, e2);
+    setBit(blockers, a1);
+
+    puts("Blockers:");
+    Printers::printBitboard(blockers);
+
+    Square src = e4;
+    Bitboard attacks = Magic::getRookAttacks(src, blockers);
+
+    printf("Rook on %s:\n", squareToCoordinateString(src).c_str());
+    Printers::printBitboard(attacks);
+}
+
 int main() {
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
@@ -156,6 +177,7 @@ int main() {
         fen = STARTING_POSITION_FEN;
     }
 
+    Magic::init();
     Zobrist::init();
     Position pos(fen);
     legalMoves = MoveGenerator::generateLegal(pos);
@@ -168,7 +190,8 @@ int main() {
                 "q: Quit\n"
                 "1: Make a move\n"
                 "2: Show legal moves\n"
-                "3: Show attack map"
+                "3: Show attack map\n"
+                "4: Test magic bitboards"
              << endl;
         getline(cin, choice);
 
@@ -181,6 +204,7 @@ int main() {
                 break;
             }
             case '3': printAttackMap(pos); break;
+            case '4': magic(); break;
             default: break;
         }
 
