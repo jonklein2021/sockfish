@@ -6,7 +6,7 @@
 namespace MoveComputers {
 
 Bitboard computePawnPushes(const Position &pos, Square sq) {
-    static constexpr Direction DIR[2] = {NORTH, SOUTH};
+    static constexpr int DIR[2] = {NORTH, SOUTH};
 
     static constexpr Bitboard TOGGLE[2] = {0x0, 0xFFFFFFFFFFFFFFFF};
 

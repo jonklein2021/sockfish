@@ -3,16 +3,12 @@
 #include "Engine.h"
 #include "GameController.h"
 #include "GuiFrontend.h"
-#include "Zobrist.h"
 
 #include <cstdlib>
 #include <ctime>
 #include <memory>
 
 int main(int argc, char **argv) {
-    // initialize zobrist tables
-    Zobrist::init();
-
     // parse command line arguments
     Config cfg;
     cfg.parseArgs(argc, argv);

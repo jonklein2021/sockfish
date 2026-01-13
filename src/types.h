@@ -151,9 +151,9 @@ constexpr std::string_view STARTING_POSITION_FEN =
 
 /**
  * Piece values for material evaluation
+ * PAWN, KNIGHT, BISHOP, ROOK, KING, NO_PIECE
  */
-constexpr std::array<Eval, 12> pieceValues = {100, 300, 300, 500, 900, 100000,
-                                              100, 300, 300, 500, 900, 100000};
+constexpr std::array<Eval, 7> pieceValues = {100, 300, 320, 500, 900, 500000, 0};
 
 // Bitboard Constants
 constexpr Bitboard NOT_FILE_A = 18374403900871474942ull;

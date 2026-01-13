@@ -12,44 +12,41 @@
 Engine::Engine(int depth)
     : maxDepth(depth) {}
 
-eval_t Engine::rateMove(Position &pos, const Move &move) {
-    Piece movedPiece = pos.pieceAt(move.getFromSquare());
-    Piece capturedPiece = pos.pieceAt(move.getToSquare());
+Eval Engine::rateMove(Position &pos, const Move &move) {
+    Eval rating = 0;
+    const PieceType movedPT = pieceToPT(pos.pieceAt(move.getFromSquare()));
+    const PieceType capturedPT = pieceToPT(pos.pieceAt(move.getToSquare()));
 
-    // capture moves are promising
-    eval_t rating = 0;
-    if (capturedPiece != NO_PIECE) {
-        rating += pieceValues[capturedPiece] - pieceValues[movedPiece];
-    }
+    // MVV-LVA
+    rating += pieceValues[capturedPT] - pieceValues[movedPT];
 
     // pawn promotion moves are likely to be good
     if (move.isPromotion()) {
-        rating += pieceValues[move.getPromotedPieceType()] - pieceValues[movedPiece];
+        rating += 50 + pieceValues[move.getPromotedPieceType()] - pieceValues[movedPT];
     }
 
-    // moves that put the opponent in check should be checked early
-    /*
-    pos.makeMove(move);
-    if (pos.isCheck()) {
+    // moves that put the opponent in check should also be checked early
+    Position::Metadata prevMD = pos.makeMove(move);
+    if (PositionUtil::isCheck(pos)) {
         rating += 10;
     }
-    */
+    pos.unmakeMove(move, prevMD);
 
     return rating;
 }
 
-eval_t Engine::evaluate(Position &pos) {
+Eval Engine::evaluate(Position &pos) {
     return evaluate(pos, MoveGenerator::generateLegal(pos));
 }
 
-eval_t Engine::evaluate(Position &pos, const std::vector<Move> &&legalMoves) {
+Eval Engine::evaluate(Position &pos, const std::vector<Move> &&legalMoves) {
     if (PositionUtil::isCheckmate(pos)) {
         return pos.getSideToMove() == WHITE ? 1738 : -1738;
     }
 
     const float piecePositionWeight = 0.5;
 
-    eval_t score = 0;
+    Eval score = 0;
 
     // total up pieces, scaling by piece value and position in piece-square
     // board
@@ -80,8 +77,8 @@ eval_t Engine::evaluate(Position &pos, const std::vector<Move> &&legalMoves) {
     return pos.getSideToMove() == WHITE ? score : -score;
 }
 
-eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
-    eval_t alphaOrig = alpha;
+Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
+    Eval alphaOrig = alpha;
     uint64_t h = pos.getHash();
     int remainingDepth = maxDepth - depth;
     if (transpositionTable.find(h) != transpositionTable.end()) {
@@ -109,12 +106,12 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
 
     std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
 
-    eval_t bestEval = std::numeric_limits<eval_t>::lowest();
+    Eval bestEval = std::numeric_limits<Eval>::lowest();
 
     for (const Move &move : legalMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
-        eval_t eval = -negamax(pos, -beta, -alpha, depth + 1);
+        Eval eval = -negamax(pos, -beta, -alpha, depth + 1);
 
         pos.unmakeMove(move, md);
 
@@ -142,8 +139,8 @@ eval_t Engine::negamax(Position &pos, eval_t alpha, eval_t beta, int depth) {
     return bestEval;
 }
 
-eval_t Engine::iterativeDeepening(Position &pos) {
-    eval_t bestEval = std::numeric_limits<eval_t>::lowest();
+Eval Engine::iterativeDeepening(Position &pos) {
+    Eval bestEval = std::numeric_limits<Eval>::lowest();
 
     struct Node {
         Position pos;
@@ -161,7 +158,7 @@ eval_t Engine::iterativeDeepening(Position &pos) {
 
         // evaluate terminal nodes
         if (current.depth >= maxDepth || PositionUtil::isTerminal(current.pos)) {
-            eval_t evalScore = evaluate(current.pos, {});
+            Eval evalScore = evaluate(current.pos, {});
             if (evalScore > bestEval) {
                 bestEval = evalScore;
             }
@@ -190,7 +187,7 @@ Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
 
     std::cout << "Analyzing moves..." << std::endl;
 
-    eval_t bestEval = std::numeric_limits<eval_t>::lowest();
+    Eval bestEval = std::numeric_limits<Eval>::lowest();
     Move bestMove;
 
     for (const Move &move : legalMoves) {
@@ -198,8 +195,8 @@ Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
 
         std::cout << "  " << move.toString() << std::endl;
 
-        eval_t eval = -negamax(pos, std::numeric_limits<eval_t>::lowest(),
-                               std::numeric_limits<eval_t>::max(), 0);
+        Eval eval =
+            -negamax(pos, std::numeric_limits<Eval>::lowest(), std::numeric_limits<Eval>::max(), 0);
 
         std::cout << "\teval = " << eval << std::endl;
         pos.unmakeMove(move, md);

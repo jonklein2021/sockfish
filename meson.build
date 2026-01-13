@@ -1,7 +1,7 @@
 project(
   'sockfish',
   'cpp',
-  version : '0.2',
+  version : '0.3',
   default_options : [
     'cpp_std=c++17',
     'warning_level=3',
@@ -31,8 +31,7 @@ common_sources = [
   'src/Position.cpp',
   'src/PositionUtil.cpp',
   'src/Printers.cpp',
-  'src/PromotionMenu.cpp',
-  'src/Zobrist.cpp'
+  'src/PromotionMenu.cpp'
 ]
 
 # -------------------- EXECUTABLE: main --------------------

@@ -273,8 +273,9 @@ constexpr MagicTables createMagicTables() {
     return mt;
 }
 
-// N.B: all magic data is written here at compile time
-inline constexpr MagicTables MAGIC = createMagicTables();
+// N.B: this variable is const and not constexpr just to avoid the C++11 warning, but all magic
+// table data is initialized here at compile-time nonetheless
+inline const MagicTables MAGIC = createMagicTables();
 
 constexpr Bitboard getBishopAttacks(Square sq, Bitboard blockers) {
     // use blocker BB calculate magic index

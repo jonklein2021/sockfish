@@ -1,7 +1,6 @@
 #include "../MoveGenerator.h"
 #include "../Position.h"
 #include "../Printers.h"
-#include "../Zobrist.h"
 #include "src/types.h"
 
 #include <iostream>
@@ -149,8 +148,6 @@ void printAttackMap(const Position &pos) {
 }
 
 int main() {
-    Zobrist::init();
-
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
     string fen;

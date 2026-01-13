@@ -110,7 +110,7 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     // handle en passant
     if (move.isEnPassant()) {
-        static constexpr Direction SOUTH_NORTH[2] = {SOUTH, NORTH};
+        static constexpr int SOUTH_NORTH[2] = {SOUTH, NORTH};
         const Piece capturedPawn = ptToPiece(PAWN, otherColor(sideToMove));
 
         // represents the pawn to remove
@@ -220,10 +220,10 @@ Position::Metadata Position::makeMove(const Move &move) {
     int oldEpSqFile = fileOf(md.enPassantSquare);
     if (pieceMoved == WP && from + 2 * NORTH == to) {
         // white pawn moved 2 squares
-        md.enPassantSquare = Square(from + NORTH);
+        md.enPassantSquare = Square(+from + NORTH);
     } else if (pieceMoved == BP && from + 2 * SOUTH == to) {
         // black pawn moved 2 squares
-        md.enPassantSquare = Square(from + SOUTH);
+        md.enPassantSquare = Square(+from + SOUTH);
     } else {
         // ensure no stale en passant squares
         md.enPassantSquare = NO_SQ;
@@ -295,7 +295,7 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     // finally, restore captures, including en passant
     if (md.capturedPiece != NO_PIECE) {
         // flipped from makeMove because sideToMove did not make this move that we are undoing
-        static constexpr Direction NORTH_SOUTH[2] = {NORTH, SOUTH};
+        static constexpr int NORTH_SOUTH[2] = {NORTH, SOUTH};
         const Square capturedSq =
             move.isEnPassant() ? Square(prevMD.enPassantSquare + NORTH_SOUTH[sideToMove]) : to;
         board.addPiece(md.capturedPiece, capturedSq);
