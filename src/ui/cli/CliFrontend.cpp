@@ -1,10 +1,9 @@
 #include "CliFrontend.h"
 
-#include "GameController.h"
-#include "Move.h"
-#include "MoveGenerator.h"
-#include "Printers.h"
-#include "types.h"
+#include "src/core/Move.h"
+#include "src/core/Printers.h"
+#include "src/core/types.h"
+#include "src/movegen/MoveGenerator.h"
 
 #include <iostream>
 

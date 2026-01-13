@@ -1,7 +1,7 @@
 #include "MoveComputers.h"
 
-#include "Magic.h"
-#include "types.h"
+#include "src/bitboard/Magic.h"
+#include "src/core/types.h"
 
 namespace MoveComputers {
 

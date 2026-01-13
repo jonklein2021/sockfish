@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bit_tools.h"
-#include "types.h"
+#include "src/bitboard/bit_tools.h"
+#include "src/core/types.h"
 
 namespace Magic {
 constexpr std::array<uint64_t, NO_SQ> ROOK_MAGICS = {

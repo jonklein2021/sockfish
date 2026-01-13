@@ -1,7 +1,7 @@
 #include "GameController.h"
 
-#include "MoveGenerator.h"
-#include "src/types.h"
+#include "src/core/types.h"
+#include "src/movegen/MoveGenerator.h"
 
 #include <chrono>
 #include <iomanip>

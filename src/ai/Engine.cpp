@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-#include "MoveGenerator.h"
+#include "src/movegen/MoveGenerator.h"
 
 #include <algorithm>
 #include <cstdint>

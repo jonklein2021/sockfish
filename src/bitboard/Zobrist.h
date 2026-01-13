@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PRNG.h"
-#include "types.h"
+#include "src/bitboard/PRNG.h"
+#include "src/core/types.h"
 
 // https://www.chessprogramming.org/Zobrist_Hashing
 namespace Zobrist {

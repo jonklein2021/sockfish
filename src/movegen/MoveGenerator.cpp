@@ -1,10 +1,10 @@
 #include "MoveGenerator.h"
 
-#include "Move.h"
 #include "MoveComputers.h"
-#include "Position.h"
-#include "bit_tools.h"
-#include "src/types.h"
+#include "src/bitboard/bit_tools.h"
+#include "src/core/Move.h"
+#include "src/core/Position.h"
+#include "src/core/types.h"
 
 #include <algorithm>
 

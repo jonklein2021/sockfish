@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Board.h"
-#include "Move.h"
-#include "src/types.h"
+#include "src/core/Board.h"
+#include "src/core/Move.h"
+#include "src/core/types.h"
 
 #include <string>
 

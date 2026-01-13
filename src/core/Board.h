@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bit_tools.h"
-#include "types.h"
+#include "src/bitboard/bit_tools.h"
+#include "src/core/types.h"
 
 #include <array>
 #include <cstring>

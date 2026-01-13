@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Move.h"
-#include "Position.h"
-#include "PositionUtil.h"
+#include "src/core/Move.h"
+#include "src/core/Position.h"
+#include "src/core/PositionUtil.h"
 
 #include <vector>
 

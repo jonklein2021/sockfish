@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Engine.h"
-#include "types.h"
+#include "src/ai/Engine.h"
+#include "src/core/types.h"
 
 #include <fstream>
 #include <memory>

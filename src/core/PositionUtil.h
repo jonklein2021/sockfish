@@ -1,5 +1,5 @@
 #include "Position.h"
-#include "types.h"
+#include "src/core/types.h"
 
 namespace PositionUtil {
 

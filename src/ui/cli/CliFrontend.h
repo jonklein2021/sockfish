@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameController.h"
+#include "src/core/GameController.h"
 
 class CliFrontend {
    private:

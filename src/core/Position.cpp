@@ -1,8 +1,8 @@
 #include "Position.h"
 
-#include "MoveComputers.h"
-#include "Zobrist.h"
-#include "src/types.h"
+#include "src/bitboard/Zobrist.h"
+#include "src/core/types.h"
+#include "src/movegen/MoveComputers.h"
 
 #include <ostream>
 #include <sstream>

@@ -1,8 +1,8 @@
-#include "CliFrontend.h"
-#include "Config.h"
-#include "Engine.h"
-#include "GameController.h"
-#include "GuiFrontend.h"
+#include "src/ai/Engine.h"
+#include "src/config/Config.h"
+#include "src/core/GameController.h"
+#include "src/ui/cli/CliFrontend.h"
+#include "src/ui/gui/GuiFrontend.h"
 
 #include <cstdlib>
 #include <ctime>

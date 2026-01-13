@@ -1,5 +1,5 @@
-#include "../MoveGenerator.h"
-#include "../Position.h"
+#include "src/core/Position.h"
+#include "src/movegen/MoveGenerator.h"
 
 #include <chrono>
 #include <fstream>

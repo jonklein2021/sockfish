@@ -1,7 +1,7 @@
 #include "PositionUtil.h"
 
-#include "MoveGenerator.h"
-#include "bit_tools.h"
+#include "src/bitboard/bit_tools.h"
+#include "src/movegen/MoveGenerator.h"
 
 bool PositionUtil::isCheck(Position &pos, Color defender) {
     const Bitboard kingBB = pos.getPieceBB(ptToPiece(KING, defender));

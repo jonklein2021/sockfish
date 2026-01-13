@@ -1,6 +1,6 @@
 #include "Move.h"
 
-#include "types.h"
+#include "src/core/types.h"
 
 #include <sstream>
 

@@ -20,18 +20,18 @@ sfml_libs = [
 ]
 
 common_sources = [
-  'src/Config.cpp',
-  'src/CliFrontend.cpp',
-  'src/Engine.cpp',
-  'src/GameController.cpp',
-  'src/GuiFrontend.cpp',
-  'src/Move.cpp',
-  'src/MoveComputers.cpp',
-  'src/MoveGenerator.cpp',
-  'src/Position.cpp',
-  'src/PositionUtil.cpp',
-  'src/Printers.cpp',
-  'src/PromotionMenu.cpp'
+  'src/ai/Engine.cpp',
+  'src/core/GameController.cpp',
+  'src/core/Move.cpp',
+  'src/core/Position.cpp',
+  'src/core/PositionUtil.cpp',
+  'src/core/Printers.cpp',
+  'src/config/Config.cpp',
+  'src/ui/cli/CliFrontend.cpp',
+  'src/ui/gui/GuiFrontend.cpp',
+  'src/ui/gui/PromotionMenu.cpp',
+  'src/movegen/MoveComputers.cpp',
+  'src/movegen/MoveGenerator.cpp'
 ]
 
 # -------------------- EXECUTABLE: main --------------------

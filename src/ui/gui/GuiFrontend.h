@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameController.h"
 #include "PromotionMenu.h"
+#include "src/core/GameController.h"
 
 #include <SFML/Graphics.hpp>
 

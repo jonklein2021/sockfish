@@ -1,8 +1,8 @@
 #include "GuiFrontend.h"
 
-#include "MoveGenerator.h"
-#include "bit_tools.h"
-#include "types.h"
+#include "src/bitboard/bit_tools.h"
+#include "src/core/types.h"
+#include "src/movegen/MoveGenerator.h"
 
 #include <algorithm>
 #include <iostream>

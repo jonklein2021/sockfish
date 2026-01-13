@@ -1,7 +1,7 @@
-#include "../MoveGenerator.h"
-#include "../Position.h"
-#include "../Printers.h"
-#include "src/types.h"
+#include "src/core/Position.h"
+#include "src/core/Printers.h"
+#include "src/core/types.h"
+#include "src/movegen/MoveGenerator.h"
 
 #include <iostream>
 #include <vector>

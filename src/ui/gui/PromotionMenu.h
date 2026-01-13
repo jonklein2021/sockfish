@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.h"
+#include "src/core/types.h"
 
 #include <SFML/Graphics.hpp>
 #include <functional>
