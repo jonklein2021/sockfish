@@ -1,3 +1,5 @@
+#pragma once
+
 #include "bit_tools.h"
 #include "types.h"
 

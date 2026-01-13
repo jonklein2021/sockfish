@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "GameController.h"
 #include "GuiFrontend.h"
+#include "Magic.h"
 #include "Zobrist.h"
 
 #include <cstdlib>
@@ -10,13 +11,16 @@
 #include <memory>
 
 int main(int argc, char **argv) {
-    std::srand(std::time(nullptr));
+    // initialize magic and zobrist tables
+    Magic::init();
+    Zobrist::init();
 
     // parse command line arguments
     Config cfg;
     cfg.parseArgs(argc, argv);
 
     // randomly assign colors if no override
+    std::srand(std::time(nullptr));
     if (cfg.randomColor) {
         cfg.randomizeSides();
     }
@@ -27,7 +31,6 @@ int main(int argc, char **argv) {
     Position pos(cfg.fen);
     std::unique_ptr<Engine> engine = std::make_unique<Engine>(cfg.searchDepth);
     GameController gameController(pos, std::move(engine), cfg.humanSide);
-    Zobrist::init();
 
     // create and launch game
     if (cfg.useGui) {

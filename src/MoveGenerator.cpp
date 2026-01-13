@@ -145,6 +145,7 @@ void MoveGenerator::appendCastlingMoves(std::vector<Move> &moveList, Position &p
 std::vector<Move> MoveGenerator::generatePseudolegal(Position &pos) {
     // cannot do 218 max move space optimization since these are pseudolegal moves
     std::vector<Move> moveList;
+    pos.board.updateOccupancies();
 
     /* PAWNS */
     appendMovesFromPiece<PAWN, Move::NORMAL>(moveList, pos, MoveComputers::computePawnPushes);

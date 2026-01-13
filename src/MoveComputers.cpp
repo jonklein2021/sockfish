@@ -1,6 +1,7 @@
 #include "MoveComputers.h"
 
-#include "src/types.h"
+#include "Magic.h"
+#include "types.h"
 
 namespace MoveComputers {
 
@@ -98,125 +99,23 @@ Bitboard computeKingMoves(const Position &pos, Square sq) {
 }
 
 Bitboard computeBishopMoves(const Position &pos, Square sq) {
-    Bitboard attacks = 0;
     const Color side = pieceColor(pos.pieceAt(sq));
-    const Color opponentSide = otherColor(side);
-    const Board board = pos.getBoard();
+    const Bitboard blockers = pos.board.getOccupancies();
+    const Bitboard ourPieces = pos.board.getOccupancy(side);
+    const Bitboard moves = Magic::getBishopAttacks(sq, blockers);
 
-    // initial row and column
-    // N.B: (0, 0) is top left corner
-    const int r0 = rankOf(sq), c0 = fileOf(sq);
-
-    // up right
-    for (int r = r0 + 1, c = c0 + 1; r <= 7 && c <= 7; r++, c++) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c, r);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    // up left
-    for (int r = r0 + 1, c = c0 - 1; r <= 7 && c >= 0; r++, c--) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c, r);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    // down right
-    for (int r = r0 - 1, c = c0 + 1; r >= 0 && c <= 7; r--, c++) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c, r);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    // down left
-    for (int r = r0 - 1, c = c0 - 1; r >= 0 && c >= 0; r--, c--) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c, r);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    return attacks;
+    // prevent capturing own pieces
+    return moves & ~ourPieces;
 }
 
 Bitboard computeRookMoves(const Position &pos, Square sq) {
-    Bitboard attacks = 0;
     const Color side = pieceColor(pos.pieceAt(sq));
-    const Color opponentSide = otherColor(side);
-    const Board board = pos.getBoard();
+    const Bitboard blockers = pos.board.getOccupancies();
+    const Bitboard ourPieces = pos.board.getOccupancy(side);
+    const Bitboard moves = Magic::getRookAttacks(sq, blockers);
 
-    // initial row and column
-    // N.B: (0, 0) is top left corner
-    const int r0 = rankOf(sq), c0 = fileOf(sq);
-
-    // up
-    for (int r = r0 + 1; r <= 7; r++) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c0, r);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    // down
-    for (int r = r0 - 1; r >= 0; r--) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c0, r);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    // left
-    for (int c = c0 - 1; c >= 0; c--) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c, r0);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    // right
-    for (int c = c0 + 1; c <= 7; c++) {
-        const Bitboard attackedSquare = 1ull << xyToSquare(c, r0);
-        if (attackedSquare & board.getOccupancy(side)) {
-            break;
-        }
-        attacks |= attackedSquare;
-        if (attackedSquare & board.getOccupancy(opponentSide)) {
-            break;
-        }
-    }
-
-    return attacks;
+    // prevent capturing own pieces
+    return moves & ~ourPieces;
 }
 
 Bitboard computeQueenMoves(const Position &pos, Square sq) {

@@ -1,3 +1,4 @@
+#include "../Magic.h"
 #include "../MoveGenerator.h"
 #include "../Position.h"
 
@@ -125,6 +126,7 @@ void runPerftFile(const std::string &filename) {
 }
 
 int main(int argc, char **argv) {
+    Magic::init();
     const std::string input("../src/test/perft.in");
     if (argc == 2) {
         runPerftLine(input, std::stoi(argv[1]));

@@ -150,18 +150,13 @@ void printAttackMap(const Position &pos) {
     }
 }
 
-void magic() {
-    Bitboard blockers = 0ull;
-
-    setBit(blockers, d4);
-    setBit(blockers, b4);
-    setBit(blockers, e2);
-    setBit(blockers, a1);
+void magic(Position &pos) {
+    Bitboard blockers = pos.board.getOccupancies();
 
     puts("Blockers:");
     Printers::printBitboard(blockers);
 
-    Square src = e4;
+    Square src = h1;
     Bitboard attacks = Magic::getRookAttacks(src, blockers);
 
     printf("Rook on %s:\n", squareToCoordinateString(src).c_str());
@@ -204,7 +199,7 @@ int main() {
                 break;
             }
             case '3': printAttackMap(pos); break;
-            case '4': magic(); break;
+            case '4': magic(pos); break;
             default: break;
         }
 
