@@ -1,4 +1,3 @@
-#include "../Magic.h"
 #include "../MoveGenerator.h"
 #include "../Position.h"
 #include "../Printers.h"
@@ -149,32 +148,7 @@ void printAttackMap(const Position &pos) {
     }
 }
 
-void magic(Position &pos) {
-    Square sq = h1;
-    Bitboard ourPieces = pos.board.getOccupancy(pieceColor(pos.pieceAt(sq)));
-    Bitboard blockers = pos.board.getOccupancies();
-
-    printf("Magic::ROOK_MOVEMENT_MASKS[%s] = %lu\n", squareToCoordinateString(sq).c_str(),
-           Magic::ROOK_MOVEMENT_MASKS[sq]);
-    printf("Magic::ROOK_MAGICS[%s] = %lu\n", squareToCoordinateString(sq).c_str(),
-           Magic::ROOK_MAGICS[sq]);
-    printf("Magic::ROOK_RELEVANT_BITS[%s] = %d\n", squareToCoordinateString(sq).c_str(),
-           Magic::ROOK_RELEVANT_BITS[sq]);
-
-    puts("Our Pieces:");
-    Printers::printBitboard(ourPieces);
-
-    puts("Blockers:");
-    Printers::printBitboard(blockers);
-
-    Bitboard attacks = Magic::getRookAttacks(sq, blockers) & ~ourPieces;
-
-    printf("Rook on %s:\n", squareToCoordinateString(sq).c_str());
-    Printers::printBitboard(attacks);
-}
-
 int main() {
-    Magic::init();
     Zobrist::init();
 
     cout << "Welcome to the testing suite!\n";
@@ -196,8 +170,7 @@ int main() {
                 "q: Quit\n"
                 "1: Make a move\n"
                 "2: Show legal moves\n"
-                "3: Show attack map\n"
-                "4: Test magic bitboards"
+                "3: Show attack map"
              << endl;
         getline(cin, choice);
 
@@ -210,7 +183,6 @@ int main() {
                 break;
             }
             case '3': printAttackMap(pos); break;
-            case '4': magic(pos); break;
             default: break;
         }
 

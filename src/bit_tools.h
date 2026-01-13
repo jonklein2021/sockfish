@@ -15,6 +15,18 @@ inline static constexpr void my_swap(T &x, T &y) {
  */
 #define getLsbIndex(bb) __builtin_ctzll(bb)
 
+// constexpr popcount implementation based on Stanford's bit twiddling hacks:
+// https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+inline static constexpr int my_popcount(uint64_t x) {
+    x -= (x >> 1) & 0x5555555555555555ULL;
+    x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
+    x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
+    x = (x + (x >> 8));
+    x = (x + (x >> 16));
+    x = (x + (x >> 32));
+    return x & 0x000000000000007FULL;  // max count is 64 (fits in 7 bits)
+}
+
 /**
  * Returns the bit at the given index
  *

@@ -3,7 +3,6 @@
 #include "Engine.h"
 #include "GameController.h"
 #include "GuiFrontend.h"
-#include "Magic.h"
 #include "Zobrist.h"
 
 #include <cstdlib>
@@ -11,8 +10,7 @@
 #include <memory>
 
 int main(int argc, char **argv) {
-    // initialize magic and zobrist tables
-    Magic::init();
+    // initialize zobrist tables
     Zobrist::init();
 
     // parse command line arguments

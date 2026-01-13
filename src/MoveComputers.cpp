@@ -119,7 +119,13 @@ Bitboard computeRookMoves(const Position &pos, Square sq) {
 }
 
 Bitboard computeQueenMoves(const Position &pos, Square sq) {
-    return computeBishopMoves(pos, sq) | computeRookMoves(pos, sq);  // DRY
+    const Color side = pieceColor(pos.pieceAt(sq));
+    Bitboard blockers = pos.board.getOccupancies();
+    const Bitboard ourPieces = pos.board.getOccupancy(side);
+    const Bitboard moves = Magic::getQueenAttacks(sq, blockers);
+
+    // prevent capturing own pieces
+    return moves & ~ourPieces;
 }
 
 }  // namespace MoveComputers
