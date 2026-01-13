@@ -110,7 +110,7 @@ Bitboard computeBishopMoves(const Position &pos, Square sq) {
 
 Bitboard computeRookMoves(const Position &pos, Square sq) {
     const Color side = pieceColor(pos.pieceAt(sq));
-    const Bitboard blockers = pos.board.getOccupancies();
+    Bitboard blockers = pos.board.getOccupancies();
     const Bitboard ourPieces = pos.board.getOccupancy(side);
     const Bitboard moves = Magic::getRookAttacks(sq, blockers);
 

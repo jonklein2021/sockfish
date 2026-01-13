@@ -3,7 +3,6 @@
 #include "../Position.h"
 #include "../Printers.h"
 #include "../Zobrist.h"
-#include "src/bit_tools.h"
 #include "src/types.h"
 
 #include <iostream>
@@ -151,19 +150,33 @@ void printAttackMap(const Position &pos) {
 }
 
 void magic(Position &pos) {
+    Square sq = h1;
+    Bitboard ourPieces = pos.board.getOccupancy(pieceColor(pos.pieceAt(sq)));
     Bitboard blockers = pos.board.getOccupancies();
+
+    printf("Magic::ROOK_MOVEMENT_MASKS[%s] = %lu\n", squareToCoordinateString(sq).c_str(),
+           Magic::ROOK_MOVEMENT_MASKS[sq]);
+    printf("Magic::ROOK_MAGICS[%s] = %lu\n", squareToCoordinateString(sq).c_str(),
+           Magic::ROOK_MAGICS[sq]);
+    printf("Magic::ROOK_RELEVANT_BITS[%s] = %d\n", squareToCoordinateString(sq).c_str(),
+           Magic::ROOK_RELEVANT_BITS[sq]);
+
+    puts("Our Pieces:");
+    Printers::printBitboard(ourPieces);
 
     puts("Blockers:");
     Printers::printBitboard(blockers);
 
-    Square src = h1;
-    Bitboard attacks = Magic::getRookAttacks(src, blockers);
+    Bitboard attacks = Magic::getRookAttacks(sq, blockers) & ~ourPieces;
 
-    printf("Rook on %s:\n", squareToCoordinateString(src).c_str());
+    printf("Rook on %s:\n", squareToCoordinateString(sq).c_str());
     Printers::printBitboard(attacks);
 }
 
 int main() {
+    Magic::init();
+    Zobrist::init();
+
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
     string fen;
@@ -172,8 +185,6 @@ int main() {
         fen = STARTING_POSITION_FEN;
     }
 
-    Magic::init();
-    Zobrist::init();
     Position pos(fen);
     legalMoves = MoveGenerator::generateLegal(pos);
 

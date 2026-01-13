@@ -24,6 +24,7 @@ common_sources = [
   'src/Engine.cpp',
   'src/GameController.cpp',
   'src/GuiFrontend.cpp',
+  'src/Magic.cpp',
   'src/Move.cpp',
   'src/MoveComputers.cpp',
   'src/MoveGenerator.cpp',
