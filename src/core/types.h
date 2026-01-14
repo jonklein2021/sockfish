@@ -47,6 +47,8 @@ constexpr std::array<Color, 2> COLORS = {WHITE, BLACK};
 
 constexpr std::array<std::string_view, 2> COLOR_NAMES = {"White", "Black"};
 
+constexpr std::array<int, 2> SIGN = {1, -1};
+
 inline static constexpr Color otherColor(Color c) {
     return Color(c ^ 1);
 }
@@ -151,9 +153,9 @@ constexpr std::string_view STARTING_POSITION_FEN =
 
 /**
  * Piece values for material evaluation
- * PAWN, KNIGHT, BISHOP, ROOK, KING, NO_PIECE
+ * PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE
  */
-constexpr std::array<Eval, 7> pieceValues = {100, 300, 320, 500, 900, 500000, 0};
+constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, 500000, 0};
 
 // Bitboard Constants
 constexpr Bitboard NOT_FILE_A = 18374403900871474942ull;

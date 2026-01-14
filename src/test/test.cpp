@@ -1,3 +1,4 @@
+#include "src/ai/Engine.h"
 #include "src/core/Position.h"
 #include "src/core/Printers.h"
 #include "src/core/types.h"
@@ -147,6 +148,11 @@ void printAttackMap(const Position &pos) {
     }
 }
 
+void getEvaluation(Position &pos, Engine &engine) {
+    Eval evaluation = engine.getEval(pos);
+    printf("Final evaluation: %d\n", evaluation);
+}
+
 int main() {
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
@@ -157,6 +163,7 @@ int main() {
     }
 
     Position pos(fen);
+    Engine engine(4);
     legalMoves = MoveGenerator::generateLegal(pos);
 
     while (1) {
@@ -167,7 +174,8 @@ int main() {
                 "q: Quit\n"
                 "1: Make a move\n"
                 "2: Show legal moves\n"
-                "3: Show attack map"
+                "3: Show attack map\n"
+                "4: Evaluate this position"
              << endl;
         getline(cin, choice);
 
@@ -180,6 +188,7 @@ int main() {
                 break;
             }
             case '3': printAttackMap(pos); break;
+            case '4': getEvaluation(pos, engine); break;
             default: break;
         }
 

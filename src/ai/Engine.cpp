@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
 
 #include <algorithm>
@@ -15,14 +16,15 @@ Engine::Engine(int depth)
 Eval Engine::rateMove(Position &pos, const Move &move) {
     Eval rating = 0;
     const PieceType movedPT = pieceToPT(pos.pieceAt(move.getFromSquare()));
-    const PieceType capturedPT = pieceToPT(pos.pieceAt(move.getToSquare()));
+    const Piece capturedPiece = pos.pieceAt(move.getToSquare());
+    const PieceType capturedPT = capturedPiece == NO_PIECE ? NO_PT : pieceToPT(capturedPiece);
 
     // MVV-LVA
-    rating += pieceValues[capturedPT] - pieceValues[movedPT];
+    rating += pieceTypeValues[capturedPT] - pieceTypeValues[movedPT];
 
     // pawn promotion moves are likely to be good
     if (move.isPromotion()) {
-        rating += 50 + pieceValues[move.getPromotedPieceType()] - pieceValues[movedPT];
+        rating += 50 + pieceTypeValues[move.getPromotedPieceType()] - pieceTypeValues[movedPT];
     }
 
     // moves that put the opponent in check should also be checked early
@@ -40,41 +42,71 @@ Eval Engine::evaluate(Position &pos) {
 }
 
 Eval Engine::evaluate(Position &pos, const std::vector<Move> &&legalMoves) {
+    const int sign = SIGN[pos.getSideToMove()];
     if (PositionUtil::isCheckmate(pos)) {
-        return pos.getSideToMove() == WHITE ? 1738 : -1738;
+        return -sign * pieceTypeValues[KING];
     }
 
-    const float piecePositionWeight = 0.5;
+    // need to fine-tune this
+    const float piecePositionWeight = 0.05;
 
     Eval score = 0;
 
     // total up pieces, scaling by piece value and position in piece-square
     // board
-    for (Piece p : WHITE_PIECES) {
-        uint64_t pieces = pos.getPieceBB(p);
-        while (pieces) {
-            Square sq = Square(getLsbIndex(pieces));
-            int file = fileOf(sq), rank = rankOf(sq);
-            score += (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][rank][file]);
-            pieces &= pieces - 1;
+    for (Square sq : ALL_SQUARES) {
+        const Piece p = pos.pieceAt(sq);
+        if (p == NO_PIECE) {
+            continue;
         }
-    }
-
-    for (Piece p : BLACK_PIECES) {
-        uint64_t pieces = pos.getPieceBB(p);
-        while (pieces) {
-            Square sq = Square(getLsbIndex(pieces));
-            int file = fileOf(sq), rank = rankOf(sq);
-            score -= (pieceValues[p] + piecePositionWeight * pieceSquareTables[p][rank][file]);
-            pieces &= pieces - 1;
-        }
+        const Eval value =
+            pieceTypeValues[pieceToPT(p)] + piecePositionWeight * pieceSquareTables[p][sq];
+        const Color c = pieceColor(p);
+        score += SIGN[c] * value;
     }
 
     // mobility bonus
     score += 0.1 * legalMoves.size();
 
     // return score relative to the current player for negamax
-    return pos.getSideToMove() == WHITE ? score : -score;
+    return sign * score;
+}
+
+Eval Engine::getEval(Position &pos) {
+    const int sign = SIGN[pos.getSideToMove()];
+    if (PositionUtil::isCheckmate(pos)) {
+        return -sign * pieceTypeValues[KING];
+    }
+
+    // need to fine-tune this
+    const float piecePositionWeight = 0.05;
+
+    Eval score = 0;
+
+    // total up pieces, scaling by piece value and position in piece-square
+    // board
+    for (Square sq : ALL_SQUARES) {
+        const Piece p = pos.pieceAt(sq);
+        if (p == NO_PIECE) {
+            continue;
+        }
+        const Color c = pieceColor(p);
+        Eval value = pieceTypeValues[pieceToPT(p)] + piecePositionWeight * pieceSquareTables[p][sq];
+        score += (c == WHITE ? value : -value);
+
+        printf("\npieceValues[%s] = %d\n", PIECE_FILENAMES[p].data(), pieceTypeValues[p]);
+        printf("piecePositionWeight = %.1f\n", piecePositionWeight);
+        printf("pieceSquareTables[%s][%s] = %d\n", PIECE_FILENAMES[p].data(),
+               squareToCoordinateString(sq).c_str(), pieceSquareTables[p][sq]);
+        printf("value = %d\n", value);
+        printf("score = %d\n", score);
+    }
+
+    // mobility bonus
+    // score += 0.1 * legalMoves.size();
+
+    // return score relative to the current player for negamax
+    return sign * score;
 }
 
 Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
