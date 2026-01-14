@@ -178,7 +178,6 @@ void GuiFrontend::handleEvents() {
                     Square dstSq = xyToSquare(newX, newY);
 
                     // TODO: rotate 180 degrees if player is black
-
                     bool pawnPromoting = (selectedPiece->piece == WP && newY == 0) ||
                                          (selectedPiece->piece == BP && newY == 7);
 

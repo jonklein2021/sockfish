@@ -13,8 +13,6 @@ Bitboard computePawnCaptures(const Position &pos, Square sq);
 Bitboard computePawnEnPassant(const Position &pos, Square sq);
 Bitboard computeKnightMoves(const Position &pos, Square sq);
 Bitboard computeKingMoves(const Position &pos, Square sq);
-
-// TODO: Speed up sliding piece move gen with magic numbers
 Bitboard computeBishopMoves(const Position &pos, Square sq);
 Bitboard computeRookMoves(const Position &pos, Square sq);
 Bitboard computeQueenMoves(const Position &pos, Square sq);

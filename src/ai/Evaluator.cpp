@@ -5,7 +5,7 @@
 Eval Evaluator::run(Position &pos) {
     const int sign = SIGN[pos.getSideToMove()];
     if (PositionUtil::isCheckmate(pos)) {
-        return -sign * pieceTypeValues[KING];
+        return sign * pieceTypeValues[KING];
     }
 
     // need to fine-tune this
