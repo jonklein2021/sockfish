@@ -83,22 +83,22 @@ constexpr Bitboard computeRookMask(Square sq) {
 
     // down
     for (int r = r0 + 1; r <= 6; r++) {
-        allDstSqBB |= 1ull << xyToSquare(f0, r);
+        allDstSqBB |= xyToBit(f0, r);
     }
 
     // up
     for (int r = r0 - 1; r >= 1; r--) {
-        allDstSqBB |= 1ull << xyToSquare(f0, r);
+        allDstSqBB |= xyToBit(f0, r);
     }
 
     // left
     for (int f = f0 - 1; f >= 1; f--) {
-        allDstSqBB |= 1ull << xyToSquare(f, r0);
+        allDstSqBB |= xyToBit(f, r0);
     }
 
     // right
     for (int f = f0 + 1; f <= 6; f++) {
-        allDstSqBB |= 1ull << xyToSquare(f, r0);
+        allDstSqBB |= xyToBit(f, r0);
     }
 
     return allDstSqBB;
@@ -110,22 +110,22 @@ constexpr Bitboard computeBishopMask(Square sq) {
 
     // down right
     for (int r = r0 + 1, f = f0 + 1; r <= 6 && f <= 6; r++, f++) {
-        allDstSqBB |= 1ull << xyToSquare(f, r);
+        allDstSqBB |= xyToBit(f, r);
     }
 
     // up left
     for (int r = r0 + 1, f = f0 - 1; r <= 6 && f >= 1; r++, f--) {
-        allDstSqBB |= 1ull << xyToSquare(f, r);
+        allDstSqBB |= xyToBit(f, r);
     }
 
     // up right
     for (int r = r0 - 1, f = f0 + 1; r >= 1 && f <= 6; r--, f++) {
-        allDstSqBB |= 1ull << xyToSquare(f, r);
+        allDstSqBB |= xyToBit(f, r);
     }
 
     // down left
     for (int r = r0 - 1, f = f0 - 1; r >= 1 && f >= 1; r--, f--) {
-        allDstSqBB |= 1ull << xyToSquare(f, r);
+        allDstSqBB |= xyToBit(f, r);
     }
 
     return allDstSqBB;
@@ -137,7 +137,7 @@ constexpr Bitboard computeRookMovesNaively(Square sq, Bitboard blockers) {
 
     // down
     for (int r = r0 + 1; r <= 7; r++) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f0, r);
+        Bitboard dstSqBB = xyToBit(f0, r);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -146,7 +146,7 @@ constexpr Bitboard computeRookMovesNaively(Square sq, Bitboard blockers) {
 
     // up
     for (int r = r0 - 1; r >= 0; r--) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f0, r);
+        Bitboard dstSqBB = xyToBit(f0, r);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -155,7 +155,7 @@ constexpr Bitboard computeRookMovesNaively(Square sq, Bitboard blockers) {
 
     // left
     for (int f = f0 - 1; f >= 0; f--) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f, r0);
+        Bitboard dstSqBB = xyToBit(f, r0);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -164,7 +164,7 @@ constexpr Bitboard computeRookMovesNaively(Square sq, Bitboard blockers) {
 
     // right
     for (int f = f0 + 1; f <= 7; f++) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f, r0);
+        Bitboard dstSqBB = xyToBit(f, r0);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -180,7 +180,7 @@ constexpr Bitboard computeBishopMovesNaively(Square sq, Bitboard blockers) {
 
     // down right
     for (int r = r0 + 1, f = f0 + 1; r <= 7 && f <= 7; r++, f++) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f, r);
+        Bitboard dstSqBB = xyToBit(f, r);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -189,7 +189,7 @@ constexpr Bitboard computeBishopMovesNaively(Square sq, Bitboard blockers) {
 
     // up left
     for (int r = r0 + 1, f = f0 - 1; r <= 7 && f >= 0; r++, f--) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f, r);
+        Bitboard dstSqBB = xyToBit(f, r);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -198,7 +198,7 @@ constexpr Bitboard computeBishopMovesNaively(Square sq, Bitboard blockers) {
 
     // up right
     for (int r = r0 - 1, f = f0 + 1; r >= 0 && f <= 7; r--, f++) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f, r);
+        Bitboard dstSqBB = xyToBit(f, r);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -207,7 +207,7 @@ constexpr Bitboard computeBishopMovesNaively(Square sq, Bitboard blockers) {
 
     // down left
     for (int r = r0 - 1, f = f0 - 1; r >= 0 && f >= 0; r--, f--) {
-        Bitboard dstSqBB = 1ull << xyToSquare(f, r);
+        Bitboard dstSqBB = xyToBit(f, r);
         allDstSqBB |= dstSqBB;
         if (blockers & dstSqBB) {
             break;
@@ -224,7 +224,7 @@ constexpr Bitboard setOccupancy(uint64_t index, Bitboard movementMask) {
     while (movementMask) {
         Square square = Square(getLsbIndex(movementMask));
 
-        if (index & (1 << count)) {
+        if (index & (1ull << count)) {
             occupancy |= (1ull << square);
         }
 
@@ -244,7 +244,7 @@ constexpr MagicTables createMagicTables() {
         mt.bishopMasks[sq] = bishopMoveMask;
 
         // iterate over all 2^n variations, where n is the number of set 1s in this mask
-        const uint64_t occupancyVariations = 1 << my_popcount(bishopMoveMask);
+        const uint64_t occupancyVariations = 1ull << my_popcount(bishopMoveMask);
         for (uint64_t index = 0; index < occupancyVariations; index++) {
             // initialize attacks for this square at this magic index
             const uint64_t occupancy = setOccupancy(index, bishopMoveMask);
@@ -260,7 +260,7 @@ constexpr MagicTables createMagicTables() {
         mt.rookMasks[sq] = rookMoveMask;
 
         // iterate over all 2^n variations, where n is the number of set 1s in this mask
-        const uint64_t occupancyVariations = 1 << my_popcount(rookMoveMask);
+        const uint64_t occupancyVariations = 1ull << my_popcount(rookMoveMask);
         for (uint64_t index = 0; index < occupancyVariations; index++) {
             // initialize attacks for this square at this magic index
             const Bitboard occupancy = setOccupancy(index, rookMoveMask);

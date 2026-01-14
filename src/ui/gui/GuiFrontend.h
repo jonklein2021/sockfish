@@ -31,7 +31,6 @@ class GuiFrontend {
     sf::View view;
 
     // visual theme variables
-    std::string themeName;
     sf::Texture boardTexture;
     sf::Sprite boardSprite;
 
@@ -57,7 +56,7 @@ class GuiFrontend {
     /**
      * Sets up window and textures
      */
-    void initializeScreen();
+    void initializeScreen(const std::string &themeName);
 
     /**
      * Loads piece textures from disk and populates the pieceTextures map
@@ -96,6 +95,6 @@ class GuiFrontend {
     void render();
 
    public:
-    GuiFrontend(GameController &game);
+    GuiFrontend(GameController &game, const std::string &theme);
     void run();
 };

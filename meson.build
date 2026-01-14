@@ -21,6 +21,8 @@ sfml_libs = [
 
 common_sources = [
   'src/ai/Engine.cpp',
+  'src/ai/Evaluator.cpp',
+  'src/ai/MoveSorter.cpp',
   'src/core/GameController.cpp',
   'src/core/Move.cpp',
   'src/core/Position.cpp',

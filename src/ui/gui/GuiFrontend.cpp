@@ -8,23 +8,22 @@
 #include <iostream>
 #include <vector>
 
-GuiFrontend::GuiFrontend(GameController &game)
+GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
     : game(game),
       window(sf::VideoMode({BOARD_SIZE, BOARD_SIZE}), "Cheese", sf::Style::Resize),
       view({BOARD_SIZE / 2.f, BOARD_SIZE / 2.f}, {BOARD_SIZE, BOARD_SIZE}),
-      themeName(DEFAULT_PIECE_THEME),
       boardTexture(BOARD_TEXTURE_PATH),
       boardSprite(boardTexture),
       arrowCursor(sf::Cursor::Type::Arrow),
       handCursor(sf::Cursor::Type::Hand),
-      promotionMenu(std::string(DEFAULT_PIECE_THEME), game.getHumanSide()) {
+      promotionMenu(std::string(themeName), game.getHumanSide()) {
     arrowCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow).value();
     handCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand).value();
-    initializeScreen();
+    initializeScreen(themeName);
     syncPositionToGUI();
 }
 
-void GuiFrontend::initializeScreen() {
+void GuiFrontend::initializeScreen(const std::string &themeName) {
     window.setView(view);
 
     // load piece textures

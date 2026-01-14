@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 
     // create and launch game
     if (cfg.useGui) {
-        GuiFrontend gui(gameController);
+        GuiFrontend gui(gameController, cfg.pieceTheme);
         gui.run();
     } else {
         CliFrontend cli(gameController);

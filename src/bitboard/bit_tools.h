@@ -65,7 +65,7 @@ inline static constexpr void unsetBit(Bitboard &bb, Square sq) {
  * @param y the y coordinate
  * @return the bit corresponding to the coordinates
  */
-inline static constexpr Bitboard coordsToBit(int x, int y) {
+inline static constexpr Bitboard xyToBit(int x, int y) {
     return 1ull << (y * 8 + x);
 }
 

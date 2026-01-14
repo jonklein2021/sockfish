@@ -148,8 +148,8 @@ void printAttackMap(const Position &pos) {
     }
 }
 
-void getEvaluation(Position &pos, Engine &engine) {
-    Eval evaluation = engine.getEval(pos);
+void getEvaluation(Position &pos, Evaluator &evaluator) {
+    Eval evaluation = evaluator.run(pos);
     printf("Final evaluation: %d\n", evaluation);
 }
 
@@ -162,6 +162,7 @@ int main() {
         fen = STARTING_POSITION_FEN;
     }
 
+    Evaluator evaluator;
     Position pos(fen);
     Engine engine(4);
     legalMoves = MoveGenerator::generateLegal(pos);
@@ -188,7 +189,7 @@ int main() {
                 break;
             }
             case '3': printAttackMap(pos); break;
-            case '4': getEvaluation(pos, engine); break;
+            case '4': getEvaluation(pos, evaluator); break;
             default: break;
         }
 
