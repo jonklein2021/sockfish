@@ -8,6 +8,8 @@ class CliFrontend {
 
     bool validateMoveInput(const std::string &input);
 
+    std::string getMoveSuggestion(const std::vector<Move> &legalMoves);
+
     /**
      * Get a move from stdin, loops until
      * a valid legal move is entered

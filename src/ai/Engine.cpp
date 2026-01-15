@@ -80,7 +80,7 @@ Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
         return Move::none();
     }
 
-    // sort moves by how promising they seem
+    // sort moves by MVV-LVA
     moveSorter.run(pos, legalMoves);
 
     std::cout << "Analyzing moves..." << std::endl;
@@ -93,8 +93,7 @@ Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
 
         std::cout << "  " << move.toString() << std::endl;
 
-        Eval eval =
-            -negamax(pos, std::numeric_limits<Eval>::lowest(), std::numeric_limits<Eval>::max(), 0);
+        Eval eval = -negamax(pos, -pieceTypeValues[KING], pieceTypeValues[KING], 0);
 
         std::cout << "\teval = " << eval << std::endl;
         pos.unmakeMove(move, md);

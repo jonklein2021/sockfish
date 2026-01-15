@@ -39,10 +39,37 @@ bool PositionUtil::insufficientMaterial(Position &pos) {
              pieceCount[BQ]);
 }
 
+bool PositionUtil::is50MoveRuleDraw(const Position &pos) {
+    return pos.md.movesSinceCapture >= 50;
+}
+
+bool PositionUtil::isStalemate(const std::vector<Move> &legalMoves) {
+    return legalMoves.empty();
+}
+
+bool PositionUtil::isStalemate(Position &pos) {
+    return isStalemate(MoveGenerator::generateLegal(pos));
+}
+
 bool PositionUtil::isCheckmate(Position &pos) {
-    return isCheck(pos) && MoveGenerator::generateLegal(pos).empty();
+    return isCheck(pos) && isStalemate(pos);
 }
 
 bool PositionUtil::isTerminal(Position &pos) {
-    return insufficientMaterial(pos) || isCheckmate(pos);
+    // N.B. isStalemate covers checkmate cases as well
+    return isStalemate(pos) || insufficientMaterial(pos) || is50MoveRuleDraw(pos);
+}
+
+GameStatus PositionUtil::getGameStatus(Position &pos) {
+    if (isCheckmate(pos)) {
+        return CHECKMATE;
+    } else if (isStalemate(pos)) {
+        return DRAW_BY_STALEMATE;
+    } else if (insufficientMaterial(pos)) {
+        return DRAW_BY_INSUFFICIENT_MATERIAL;
+    } else if (is50MoveRuleDraw(pos)) {
+        return DRAW_BY_50_MOVE_RULE;
+    } else {
+        return IN_PROGRESS;
+    }
 }

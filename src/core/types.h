@@ -38,6 +38,14 @@ using Bitboard = uint64_t;
 
 using Eval = int;
 
+enum GameStatus {
+    IN_PROGRESS,
+    CHECKMATE,
+    DRAW_BY_STALEMATE,
+    DRAW_BY_INSUFFICIENT_MATERIAL,
+    DRAW_BY_50_MOVE_RULE
+};
+
 /**
  * Conveys the player's pieces during game initialization
  */

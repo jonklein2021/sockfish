@@ -15,6 +15,17 @@ bool CliFrontend::validateMoveInput(const std::string &input) {
            (input == "OOO");
 }
 
+std::string CliFrontend::getMoveSuggestion(const std::vector<Move> &legalMoves) {
+    Move random = legalMoves[std::rand() % legalMoves.size()];
+    if (random.isKCastles()) {
+        return "O-O";
+    } else if (random.isQCastles()) {
+        return "O-O-O";
+    } else {
+        return random.toCoordinateString();
+    }
+}
+
 Move CliFrontend::getMoveFromStdin() {
     const std::vector<Move> legalMoves = game.getLegalMoves();
     Move candidate;
@@ -23,9 +34,7 @@ Move CliFrontend::getMoveFromStdin() {
 
     while (!validMove) {
         // pick a random move to suggest
-        // TODO: pretty-print castling
-        const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
-        std::cout << "Enter move (example: " << sample << ") or q to quit: ";
+        std::cout << "Enter move (example: " << getMoveSuggestion(legalMoves) << ") or q to quit: ";
 
         // DEBUG: print legal moves
         // Printers::printMoveList(legalMoves, game.getPosition());
@@ -60,13 +69,6 @@ Move CliFrontend::getMoveFromStdin() {
 
         // check for pawn promotion
         pawnPromoting = (pieceMoved == WP && to <= h8) || (pieceMoved == BP && to >= a1);
-
-        // temporarily set the promotion piece to a queen
-        // so that it can match a legal move
-        // TODO: Uncomment this once move generation is complete
-        // if (pawnPromoting) {
-        //     candidate.setPromotedPieceType(QUEEN);
-        // }
 
         // check if the move is legal before returning it
         for (Move move : legalMoves) {
@@ -109,18 +111,21 @@ Move CliFrontend::getMoveFromStdin() {
 }
 
 void CliFrontend::run() {
-    while (!game.isGameOver()) {
-        Printers::prettyPrintPosition(game.getPosition());
+    // print initial position
+    Printers::prettyPrintPosition(game.getPosition());
 
+    // game loop
+    while (!game.isGameOver()) {
         if (game.getSideToMove() == game.getHumanSide()) {
             // get move from stdin
             game.makeHumanMove(getMoveFromStdin());
         } else {
             // get move from engine
             game.makeAIMove();
-            // game.makeHumanMove(getMoveFromStdin());
         }
     }
 
+    // print terminal position
+    Printers::prettyPrintPosition(game.getPosition());
     game.handleEnd();
 }

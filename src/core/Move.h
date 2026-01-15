@@ -77,10 +77,17 @@ class Move {
         return (data & (0x3 << 14)) == EN_PASSANT;
     }
 
-    // Note: When true, the type of castle can be determined by which rook moves, which is
-    // represented in the from/to squares
+    // Note: When true, the type of castle can be determined by which rook moves
     constexpr bool isCastles() const {
         return (data & (0x3 << 14)) == CASTLING;
+    }
+
+    constexpr bool isKCastles() const {
+        return isCastles() && (getFromSquare() == h1 || getFromSquare() == h8);
+    }
+
+    constexpr bool isQCastles() const {
+        return isCastles() && (getFromSquare() == a1 || getFromSquare() == a8);
     }
 
     std::string toCoordinateString() const;

@@ -64,7 +64,32 @@ void GameController::makeAIMove() {
     hashHistory.push_back(pos.getHash());
 }
 
-// TODO: print a user-friendly message depending on how the game ended
 void GameController::handleEnd() {
+    // exit early if position isn't terminal
+    if (!PositionUtil::isTerminal(pos)) {
+        return;
+    }
+
     std::cout << "Game over!\n";
+    switch (PositionUtil::getGameStatus(pos)) {
+        case CHECKMATE:
+            std::cout << COLOR_NAMES[otherColor(pos.getSideToMove())] << " won by checkmate.\n";
+            break;
+        case DRAW_BY_STALEMATE: {
+            std::cout << "Draw by stalemate.\n";
+            break;
+        }
+        case DRAW_BY_INSUFFICIENT_MATERIAL: {
+            std::cout << "Draw by insufficient material.\n";
+            break;
+        }
+        case DRAW_BY_50_MOVE_RULE: {
+            std::cout << "Draw by 50 move rule.\n";
+            break;
+        }
+        default: {
+            std::cout << "Not sure how the game ended but hope you had fun :)\n";
+            break;
+        }
+    }
 }

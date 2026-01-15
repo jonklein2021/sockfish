@@ -126,29 +126,32 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     // handle king movement for castling, rook movement is handled separately
     if (move.isCastles()) {
-        const Piece king = ptToPiece(KING, sideToMove);
         Square kingFrom, kingTo;
         CastleRights toRemove;
-        if (from == h1) {
-            // white kingside castle
-            kingFrom = e1, kingTo = g1;
+        if (sideToMove == WHITE) {
             toRemove = WHITE_CASTLING;
-        } else if (from == a1) {
-            // white queenside castle
-            kingFrom = e1, kingTo = c1;
-            toRemove = WHITE_CASTLING;
-        } else if (from == h8) {
-            // black kingside castle
-            kingFrom = e8, kingTo = g8;
-            toRemove = BLACK_CASTLING;
-        } else if (from == a8) {
-            // black kingside castle
-            kingFrom = e8, kingTo = c8;
-            toRemove = BLACK_CASTLING;
+            kingFrom = e1;
+            if (move.isKCastles()) {
+                // white kingside castle
+                kingTo = g1;
+            } else {
+                // white queenside castle
+                kingTo = c1;
+            }
         } else {
-            // unreachable so long as move gen is correct; this is included only to avoid a warning
-            throw std::runtime_error("Unreachable castle branch in Position::makeMove");
+            toRemove = BLACK_CASTLING;
+            kingFrom = e8;
+            if (move.isKCastles()) {
+                // black kingside castle
+                kingTo = g8;
+            } else {
+                // black kingside castle
+                kingTo = c8;
+            }
         }
+
+        // alter board, castle rights, and hash
+        const Piece king = ptToPiece(KING, sideToMove);
         board.movePiece(king, kingFrom, kingTo);
         removeCastleRights(md.castleRights, toRemove);
         md.hash ^= Zobrist::getPieceSquareHash(king, from) ^ Zobrist::getPieceSquareHash(king, to);
@@ -260,8 +263,8 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
 
     // first, undo pawn promotion in the reverse order done in makeMove
     if (move.isPromotion()) {
-        // N.B: sideToMove holds the CURRENT player's turn; we need to restore the PREVIOUS player's
-        // promotion
+        // N.B: sideToMove holds the CURRENT player's turn; we need to restore the PREVIOUS
+        // player's promotion
         const Piece pawn = ptToPiece(PAWN, otherColor(sideToMove));
         const Piece promotedPiece = pieceMoved;
 
