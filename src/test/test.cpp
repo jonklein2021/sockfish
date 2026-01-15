@@ -1,4 +1,5 @@
 #include "src/ai/Engine.h"
+#include "src/bitboard/bit_tools.h"
 #include "src/core/Position.h"
 #include "src/core/Printers.h"
 #include "src/core/types.h"

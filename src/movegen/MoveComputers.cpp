@@ -63,39 +63,25 @@ Bitboard computePawnEnPassant(const Position &pos, Square sq) {
 }
 
 Bitboard computeKnightMoves(const Position &pos, Square sq) {
-    const Bitboard sqBB = 1ull << sq;
+    // this represents all possible moves from sq on an empty board
+    const Bitboard knightMask = KNIGHT_MASKS[sq];
 
-    const Bitboard ddl = (sqBB & NOT_RANK_1_NOR_2 & NOT_FILE_A) << 15;  // down 2, left 1
-    const Bitboard ddr = (sqBB & NOT_RANK_1_NOR_2 & NOT_FILE_H) << 17;  // down 2, right 1
-    const Bitboard drr = (sqBB & NOT_RANK_1 & NOT_FILE_GH) << 10;       // down 1, right 2
-    const Bitboard dll = (sqBB & NOT_RANK_1 & NOT_FILE_AB) << 6;        // down 1, left 2
-    const Bitboard uur = (sqBB & NOT_RANK_7_NOR_8 & NOT_FILE_H) >> 15;  // up 2, right 1
-    const Bitboard uul = (sqBB & NOT_RANK_7_NOR_8 & NOT_FILE_A) >> 17;  // up 2, left 1
-    const Bitboard ull = (sqBB & NOT_RANK_8 & NOT_FILE_AB) >> 10;       // up 1, left 2
-    const Bitboard urr = (sqBB & NOT_RANK_8 & NOT_FILE_GH) >> 6;        // up 1, right 2
-
+    // ensure the knight can land on each square
     const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
-    return (ddl | ddr | drr | dll | uur | uul | ull | urr) & landingSqBB;
+    return knightMask & landingSqBB;
 }
 
 Bitboard computeKingMoves(const Position &pos, Square sq) {
-    const Bitboard sqBB = 1ull << sq;
+    // this represents all possible moves from sq on an empty board
+    const Bitboard kingMask = KING_MASKS[sq];
 
-    const Bitboard d = (sqBB & NOT_RANK_1) << 8;                // down
-    const Bitboard u = (sqBB & NOT_RANK_8) >> 8;                // up
-    const Bitboard l = (sqBB & NOT_FILE_A) >> 1;                // left
-    const Bitboard r = (sqBB & NOT_FILE_H) << 1;                // right
-    const Bitboard dl = (sqBB & NOT_RANK_1 & NOT_FILE_A) << 7;  // down left
-    const Bitboard dr = (sqBB & NOT_RANK_1 & NOT_FILE_H) << 9;  // down right
-    const Bitboard ul = (sqBB & NOT_RANK_8 & NOT_FILE_A) >> 9;  // up left
-    const Bitboard ur = (sqBB & NOT_RANK_8 & NOT_FILE_H) >> 7;  // up right
-
+    // ensure king can land on square
     const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
-    return (d | u | l | r | dl | dr | ul | ur) & landingSqBB;
+    return kingMask & landingSqBB;
 }
 
 Bitboard computeBishopMoves(const Position &pos, Square sq) {

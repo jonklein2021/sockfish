@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/bitboard/PieceMasks.h"
 #include "src/bitboard/bit_tools.h"
 #include "src/core/types.h"
 
@@ -67,69 +68,12 @@ constexpr std::array<int, NO_SQ> BISHOP_RELEVANT_BITS = {
 // clang-format on
 
 struct MagicTables {
-    std::array<Bitboard, NO_SQ> rookMasks{};
-    std::array<Bitboard, NO_SQ> bishopMasks{};
-
     // 4096 = 2^12 = 2^max(ROOK_RELEVANT_BITS)
     std::array<std::array<Bitboard, 4096>, NO_SQ> rookAttacks{};
 
     // 512 = 2^9 = 2^max(BISHOP_RELEVANT_BITS)
     std::array<std::array<Bitboard, 512>, NO_SQ> bishopAttacks{};
 };
-
-constexpr Bitboard computeRookMask(Square sq) {
-    Bitboard allDstSqBB = 0ull;
-    const int r0 = rankOf(sq), f0 = fileOf(sq);
-
-    // down
-    for (int r = r0 + 1; r <= 6; r++) {
-        allDstSqBB |= xyToBit(f0, r);
-    }
-
-    // up
-    for (int r = r0 - 1; r >= 1; r--) {
-        allDstSqBB |= xyToBit(f0, r);
-    }
-
-    // left
-    for (int f = f0 - 1; f >= 1; f--) {
-        allDstSqBB |= xyToBit(f, r0);
-    }
-
-    // right
-    for (int f = f0 + 1; f <= 6; f++) {
-        allDstSqBB |= xyToBit(f, r0);
-    }
-
-    return allDstSqBB;
-}
-
-constexpr Bitboard computeBishopMask(Square sq) {
-    Bitboard allDstSqBB = 0ull;
-    const int r0 = rankOf(sq), f0 = fileOf(sq);
-
-    // down right
-    for (int r = r0 + 1, f = f0 + 1; r <= 6 && f <= 6; r++, f++) {
-        allDstSqBB |= xyToBit(f, r);
-    }
-
-    // up left
-    for (int r = r0 + 1, f = f0 - 1; r <= 6 && f >= 1; r++, f--) {
-        allDstSqBB |= xyToBit(f, r);
-    }
-
-    // up right
-    for (int r = r0 - 1, f = f0 + 1; r >= 1 && f <= 6; r--, f++) {
-        allDstSqBB |= xyToBit(f, r);
-    }
-
-    // down left
-    for (int r = r0 - 1, f = f0 - 1; r >= 1 && f >= 1; r--, f--) {
-        allDstSqBB |= xyToBit(f, r);
-    }
-
-    return allDstSqBB;
-}
 
 constexpr Bitboard computeRookMovesNaively(Square sq, Bitboard blockers) {
     Bitboard allDstSqBB = 0ull;
@@ -240,8 +184,7 @@ constexpr MagicTables createMagicTables() {
 
     // bishop
     for (Square sq : ALL_SQUARES) {
-        const Bitboard bishopMoveMask = computeBishopMask(sq);
-        mt.bishopMasks[sq] = bishopMoveMask;
+        const Bitboard bishopMoveMask = BISHOP_MASKS[sq];
 
         // iterate over all 2^n variations, where n is the number of set 1s in this mask
         const uint64_t occupancyVariations = 1ull << my_popcount(bishopMoveMask);
@@ -256,8 +199,7 @@ constexpr MagicTables createMagicTables() {
 
     // rook (same steps)
     for (Square sq : ALL_SQUARES) {
-        const Bitboard rookMoveMask = computeRookMask(sq);
-        mt.rookMasks[sq] = rookMoveMask;
+        const Bitboard rookMoveMask = ROOK_MASKS[sq];
 
         // iterate over all 2^n variations, where n is the number of set 1s in this mask
         const uint64_t occupancyVariations = 1ull << my_popcount(rookMoveMask);
@@ -279,7 +221,7 @@ inline const MagicTables MAGIC = createMagicTables();
 
 constexpr Bitboard getBishopAttacks(Square sq, Bitboard blockers) {
     // use blocker BB calculate magic index
-    blockers &= MAGIC.bishopMasks[sq];
+    blockers &= BISHOP_MASKS[sq];
     blockers *= BISHOP_MAGICS[sq];
     blockers >>= 64 - BISHOP_RELEVANT_BITS[sq];
 
@@ -288,7 +230,7 @@ constexpr Bitboard getBishopAttacks(Square sq, Bitboard blockers) {
 
 constexpr Bitboard getRookAttacks(Square sq, Bitboard blockers) {
     // use blocker BB to calculate magic index
-    blockers &= MAGIC.rookMasks[sq];
+    blockers &= ROOK_MASKS[sq];
     blockers *= ROOK_MAGICS[sq];
     blockers >>= 64 - ROOK_RELEVANT_BITS[sq];
 

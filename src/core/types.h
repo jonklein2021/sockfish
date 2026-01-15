@@ -41,6 +41,7 @@ using Eval = int;
 enum GameStatus {
     IN_PROGRESS,
     CHECKMATE,
+    DRAW_BY_REPETITION,
     DRAW_BY_STALEMATE,
     DRAW_BY_INSUFFICIENT_MATERIAL,
     DRAW_BY_50_MOVE_RULE
@@ -165,21 +166,35 @@ constexpr std::string_view STARTING_POSITION_FEN =
  */
 constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, 500000, 0};
 
-// Bitboard Constants
+// File Constants
+constexpr Bitboard FILE_MASKS[8] = {
+    72340172838076673ull,    // A
+    144680345676153346ull,   // B
+    289360691352306692ull,   // C
+    578721382704613384ull,   // D
+    1157442765409226768ull,  // E
+    2314885530818453536ull,  // F
+    4629771061636907072ull,  // G
+    9259542123273814144ull   // H
+};
+
 constexpr Bitboard NOT_FILE_A = 18374403900871474942ull;
 constexpr Bitboard NOT_FILE_H = 9187201950435737471ull;
 constexpr Bitboard NOT_FILE_GH = 4557430888798830399ull;
 constexpr Bitboard NOT_FILE_AB = 18229723555195321596ull;
+
+// Rank Constants
+constexpr Bitboard RANK_1 = 18374686479671623680ull;
+constexpr Bitboard RANK_2 = 71776119061217280ull;
+constexpr Bitboard RANK_4 = 1095216660480ull;
+constexpr Bitboard RANK_7 = 65280ull;
+constexpr Bitboard RANK_5 = 4278190080ull;
+constexpr Bitboard RANK_8 = 255ull;
+
 constexpr Bitboard NOT_RANK_1 = 72057594037927935ull;
 constexpr Bitboard NOT_RANK_1_NOR_2 = 281474976710655ull;
 constexpr Bitboard NOT_RANK_8 = 18446744073709551360ull;
 constexpr Bitboard NOT_RANK_7_NOR_8 = 18446744073709486080ull;
-constexpr Bitboard RANK_1 = 18374686479671623680ull;
-constexpr Bitboard RANK_2 = 71776119061217280ull;
-constexpr Bitboard RANK_4 = 1095216660480ull;
-constexpr Bitboard RANK_5 = 4278190080ull;
-constexpr Bitboard RANK_7 = 65280ull;
-constexpr Bitboard RANK_8 = 255ull;
 
 // clang-format off
 enum Square : uint8_t {
@@ -244,6 +259,10 @@ enum Direction : int8_t {
     SOUTH_WEST = SOUTH + WEST,
     NORTH_WEST = NORTH + WEST
 };
+
+inline constexpr Direction otherDir(Direction dir) {
+    return Direction(-dir);
+}
 
 inline constexpr Bitboard shift(Bitboard bb, Direction dir) {
     switch (dir) {

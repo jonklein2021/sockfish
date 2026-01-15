@@ -24,6 +24,10 @@ bool MoveGenerator::isMoveLegal(Position &pos, Move &move) {
     return !isOurKingInCheck;
 }
 
+bool MoveGenerator::isCaptureMove(Position &pos, Move &move) {
+    return pos.pieceAt(move.getToSquare()) != NO_PIECE || move.isEnPassant();
+}
+
 template<Move::Type moveType>
 void MoveGenerator::appendMovesFromBitboard(std::vector<Move> &moveList,
                                             Bitboard moves,
@@ -182,6 +186,19 @@ std::vector<Move> MoveGenerator::generateLegal(Position &pos) {
     // only copy non-violating moves to legal vector
     std::copy_if(pseudolegal.begin(), pseudolegal.end(), std::back_inserter(legal),
                  [&](Move m) { return isMoveLegal(pos, m); });
+
+    return legal;
+}
+
+// used for quiescence search
+std::vector<Move> MoveGenerator::generateLegalCaptures(Position &pos) {
+    std::vector<Move> pseudolegal = generatePseudolegal(pos);
+    std::vector<Move> legal;
+    legal.reserve(218);
+
+    // only copy legal captures
+    std::copy_if(pseudolegal.begin(), pseudolegal.end(), std::back_inserter(legal),
+                 [&](Move m) { return isCaptureMove(pos, m) && isMoveLegal(pos, m); });
 
     return legal;
 }

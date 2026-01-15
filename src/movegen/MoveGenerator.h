@@ -9,6 +9,7 @@
 namespace MoveGenerator {
 
 bool isMoveLegal(Position &pos, Move &move);
+bool isCaptureMove(Position &pos, Move &move);
 
 template<Move::Type moveType>
 void appendMovesFromBitboard(std::vector<Move> &moveList, Bitboard moves, Square srcSq);
@@ -22,5 +23,6 @@ void appendCastlingMoves(std::vector<Move> &moveList, Position &pos);
 
 std::vector<Move> generateLegal(Position &pos);
 std::vector<Move> generatePseudolegal(Position &pos);
+std::vector<Move> generateLegalCaptures(Position &pos);
 
 }  // namespace MoveGenerator

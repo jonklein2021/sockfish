@@ -60,6 +60,7 @@ bool PositionUtil::isTerminal(Position &pos) {
     return isStalemate(pos) || insufficientMaterial(pos) || is50MoveRuleDraw(pos);
 }
 
+// TODO: Handle threefold repetition
 GameStatus PositionUtil::getGameStatus(Position &pos) {
     if (isCheckmate(pos)) {
         return CHECKMATE;

@@ -36,7 +36,7 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
 
     // base case
     if (depth >= maxDepth || PositionUtil::isTerminal(pos)) {
-        return evaluator.run(pos);
+        return quiescenceSearch(pos, alpha, beta);
     }
 
     std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
@@ -71,6 +71,38 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
         entry.flag = TTEntry::EXACT;
     }
     transpositionTable[h] = entry;
+
+    return bestEval;
+}
+
+Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
+    // initialize with static eval
+    int bestEval = evaluator.run(pos);
+    if (bestEval >= beta) {
+        return bestEval;
+    }
+    if (bestEval > alpha) {
+        alpha = bestEval;
+    }
+
+    std::vector<Move> captureMoves = MoveGenerator::generateLegalCaptures(pos);
+    moveSorter.run(pos, captureMoves);
+
+    // examine every capture
+    for (const Move &move : captureMoves) {
+        const Position::Metadata md = pos.makeMove(move);
+
+        Eval eval = -quiescenceSearch(pos, -beta, -alpha);
+
+        pos.unmakeMove(move, md);
+
+        bestEval = std::max(bestEval, eval);
+        alpha = std::max(alpha, eval);
+
+        if (alpha >= beta) {
+            break;
+        }
+    }
 
     return bestEval;
 }

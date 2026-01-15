@@ -38,7 +38,7 @@ class Engine {
     int maxDepth;
 
     /**
-     * Minimax algorithm with alpha-beta pruning
+     * Minimax variant with alpha-beta pruning
      *
      * @param pos to evaluate
      * @param alpha The alpha value
@@ -46,6 +46,8 @@ class Engine {
      * @return The heuristic value of the position to move to
      */
     Eval negamax(Position &pos, Eval alpha, Eval beta, int depth);
+
+    Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta);
 
    public:
     Engine(int depth);

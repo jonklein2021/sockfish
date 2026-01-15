@@ -75,6 +75,10 @@ void GameController::handleEnd() {
         case CHECKMATE:
             std::cout << COLOR_NAMES[otherColor(pos.getSideToMove())] << " won by checkmate.\n";
             break;
+        case DRAW_BY_REPETITION: {
+            std::cout << "Draw by threefold repetition.\n";
+            break;
+        }
         case DRAW_BY_STALEMATE: {
             std::cout << "Draw by stalemate.\n";
             break;
