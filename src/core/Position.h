@@ -39,12 +39,6 @@ class Position {
    private:
     Color sideToMove;
 
-    /**
-     * Parses a FEN string and updates member vars, including metadata,
-     * with its contents
-     */
-    void parseFen(const std::string &fen);
-
     void updatePieceAttacks(Piece p);
 
     void updateSideAttacks(Color c);
@@ -85,6 +79,12 @@ class Position {
     }
 
     // Other Methods
+
+    /**
+     * Parses a FEN string and updates member vars, including metadata,
+     * with its contents
+     */
+    void parseFen(const std::string &fen);
 
     /**
      * Makes a move in the current position

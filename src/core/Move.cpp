@@ -41,6 +41,22 @@ std::string Move::toString() const {
     return ss.str();
 }
 
+Move Move::fromUciString(const std::string &str) {
+    Move m = fromCoordinateString(str);
+    if (str.length() == 5) {
+        m.setPromotedPieceType(pieceToPT(fenCharToPiece(str[4])));
+    }
+    return m;
+}
+
+std::string Move::toUciString() const {
+    std::string uci = toCoordinateString();
+    if (isPromotion()) {
+        uci += pieceToFenChar[getPromotedPieceType() + 6];
+    }
+    return uci;
+}
+
 bool validateCoords(const std::string &input) {
     if (input.size() != 4) {
         return false;

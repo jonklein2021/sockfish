@@ -95,9 +95,8 @@ Move GuiFrontend::buildCandidateMove(const VisualPiece *piece, Square dst) const
 }
 
 Move GuiFrontend::validateMove(const Move &candidate) {
-    bool exactMatch = candidate.isCastles();
     for (const Move &m : game.getLegalMoves()) {
-        if (candidate.softEquals(m) && (!exactMatch || candidate == m)) {
+        if (candidate.softEquals(m)) {
             return m;  // return canonical legal move
         }
     }

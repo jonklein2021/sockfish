@@ -8,6 +8,8 @@ class CliFrontend {
 
     bool validateMoveInput(const std::string &input);
 
+    std::string formatMove(const Move m);
+
     std::string getMoveSuggestion(const std::vector<Move> &legalMoves);
 
     /**

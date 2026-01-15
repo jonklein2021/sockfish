@@ -45,6 +45,15 @@ main_exe = executable(
   install : false
 )
 
+# -------------------- EXECUTABLE: uci --------------------
+uci_exe = executable(
+  'uci',
+  [ 'src/uci.cpp', common_sources ],
+  dependencies : sfml_libs,
+  cpp_args: cxx_args,
+  install : false
+)
+
 # -------------------- EXECUTABLE: test/test --------------------
 test_exe = executable(
   'test_test',

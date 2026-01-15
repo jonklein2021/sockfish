@@ -124,38 +124,38 @@ Position::Metadata Position::makeMove(const Move &move) {
         capturedPiece = capturedPawn;
     }
 
-    // handle king movement for castling, rook movement is handled separately
+    // handle rook movement for castling, king movement is handled separately
     if (move.isCastles()) {
-        Square kingFrom, kingTo;
-        CastleRights toRemove;
+        Square rookFrom, rookTo;
+        Piece rook;
         if (sideToMove == WHITE) {
-            toRemove = WHITE_CASTLING;
-            kingFrom = e1;
+            rook = WR;
             if (move.isKCastles()) {
                 // white kingside castle
-                kingTo = g1;
+                rookFrom = h1;
+                rookTo = f1;
             } else {
                 // white queenside castle
-                kingTo = c1;
+                rookFrom = a1;
+                rookTo = d1;
             }
         } else {
-            toRemove = BLACK_CASTLING;
-            kingFrom = e8;
+            rook = BR;
             if (move.isKCastles()) {
                 // black kingside castle
-                kingTo = g8;
+                rookFrom = h8;
+                rookTo = f8;
             } else {
                 // black kingside castle
-                kingTo = c8;
+                rookFrom = a8;
+                rookTo = d8;
             }
         }
 
-        // alter board, castle rights, and hash
-        const Piece king = ptToPiece(KING, sideToMove);
-        board.movePiece(king, kingFrom, kingTo);
-        removeCastleRights(md.castleRights, toRemove);
-        md.hash ^= Zobrist::getPieceSquareHash(king, from) ^ Zobrist::getPieceSquareHash(king, to);
-        md.hash ^= Zobrist::getCastleRightsHash(toRemove) ^ md.castleRights;
+        // alter board and pieceSquare piece-square hash
+        // castle rights are removed in the next phase
+        board.movePiece(rook, rookFrom, rookTo);
+        md.hash ^= Zobrist::getPieceSquareHash(rook, from) ^ Zobrist::getPieceSquareHash(rook, to);
     }
 
     // move the piece to its new destination
@@ -177,42 +177,42 @@ Position::Metadata Position::makeMove(const Move &move) {
 
     /*** OTHER METADATA CHANGES ***/
 
-    // prevent white castling
-    if (pieceMoved == WK && !move.isCastles()) {
+    // king moved; prevent white castling
+    if (pieceMoved == WK) {
         removeCastleRights(md.castleRights, WHITE_CASTLING);
         md.hash ^= Zobrist::getCastleRightsHash(WHITE_CASTLING);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
-    // prevent black castling
-    if (pieceMoved == BK && !move.isCastles()) {
+    // king moved; prevent black castling
+    if (pieceMoved == BK) {
         removeCastleRights(md.castleRights, BLACK_CASTLING);
         md.hash ^= Zobrist::getCastleRightsHash(BLACK_CASTLING);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
-    // prevent black queenside castle
+    // a8 rook moved or captured; prevent black queenside castle
     if (to == a8 || (from == a8 && pieceMoved == BR)) {
         removeCastleRights(md.castleRights, BLACK_OOO);
         md.hash ^= Zobrist::getCastleRightsHash(BLACK_OOO);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
-    // prevent black kingside castle
+    // h8 rook moved or captured; prevent black kingside castle
     if (to == h8 || (from == h8 && pieceMoved == BR)) {
         removeCastleRights(md.castleRights, BLACK_OO);
         md.hash ^= Zobrist::getCastleRightsHash(BLACK_OO);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
-    // prevent white queenside castle
+    // a1 rook moed or captured; prevent white queenside castle
     if (to == a1 || (from == a1 && pieceMoved == WR)) {
         removeCastleRights(md.castleRights, WHITE_OOO);
         md.hash ^= Zobrist::getCastleRightsHash(WHITE_OOO);
         md.hash ^= Zobrist::getCastleRightsHash(md.castleRights);
     }
 
-    // prevent white kingside castle
+    // h1 rook moed or captured; prevent white kingside castle
     if (to == h1 || (from == h1 && pieceMoved == WR)) {
         removeCastleRights(md.castleRights, WHITE_OO);
         md.hash ^= Zobrist::getCastleRightsHash(WHITE_OO);
@@ -255,17 +255,19 @@ Position::Metadata Position::makeMove(const Move &move) {
 }
 
 void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
+    // restore turn first for less confusion
+    sideToMove = otherColor(sideToMove);
+
     /* BOARD RESTORATION */
 
     // useful constants
+    const Color moveMaker = sideToMove;  // correct since we just changed turns
     const Square from = move.getFromSquare(), to = move.getToSquare();
     Piece pieceMoved = board.pieceAt(to);
 
     // first, undo pawn promotion in the reverse order done in makeMove
     if (move.isPromotion()) {
-        // N.B: sideToMove holds the CURRENT player's turn; we need to restore the PREVIOUS
-        // player's promotion
-        const Piece pawn = ptToPiece(PAWN, otherColor(sideToMove));
+        const Piece pawn = ptToPiece(PAWN, moveMaker);
         const Piece promotedPiece = pieceMoved;
 
         // replace promoted piece with pawn
@@ -278,29 +280,42 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     // next, move the piece back to its original position
     board.movePiece(pieceMoved, to, from);
 
-    // restore king position if castled
+    // restore rook position if castled
     if (move.isCastles()) {
-        if (from == h1) {
-            // white kingside castle
-            board.movePiece(WK, g1, e1);
-        } else if (from == a1) {
-            // white queenside castle
-            board.movePiece(WK, c1, e1);
-        } else if (from == h8) {
-            // black kingside castle
-            board.movePiece(BK, g8, e8);
-        } else if (from == a8) {
-            // black kingside castle
-            board.movePiece(BK, c8, e8);
+        Piece rook;
+        Square rookFrom, rookTo;
+        if (sideToMove == WHITE) {
+            rook = WR;
+            if (move.isKCastles()) {
+                // white kingside castle
+                rookFrom = h1;
+                rookTo = f1;
+            } else {
+                // white queenside castle
+                rookFrom = a1;
+                rookTo = d1;
+            }
+        } else {
+            rook = BR;
+            if (move.isKCastles()) {
+                // black kingside castle
+                rookFrom = h8;
+                rookTo = f8;
+            } else {
+                // black kingside castle
+                rookFrom = a8;
+                rookTo = d8;
+            }
         }
+        // swapped from makeMove's configuration
+        board.movePiece(rook, rookTo, rookFrom);
     }
 
     // finally, restore captures, including en passant
     if (md.capturedPiece != NO_PIECE) {
-        // flipped from makeMove because sideToMove did not make this move that we are undoing
-        static constexpr int NORTH_SOUTH[2] = {NORTH, SOUTH};
+        static constexpr int SOUTH_NORTH[2] = {SOUTH, NORTH};
         const Square capturedSq =
-            move.isEnPassant() ? Square(prevMD.enPassantSquare + NORTH_SOUTH[sideToMove]) : to;
+            move.isEnPassant() ? Square(prevMD.enPassantSquare + SOUTH_NORTH[moveMaker]) : to;
         board.addPiece(md.capturedPiece, capturedSq);
     }
 
@@ -309,10 +324,6 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
 
     /* METADATA RESTORATION */
 
-    // restore turn
-    sideToMove = otherColor(sideToMove);
-
-    // restore metadata
     // N.B: this takes care of the hash and attackTable
     md = prevMD;
 }

@@ -55,13 +55,14 @@ void GameController::makeHumanMove(Move move) {
     hashHistory.push_back(pos.getHash());
 }
 
-void GameController::makeAIMove() {
+Move GameController::makeAIMove() {
     Move best = engine->getMove(pos, legalMoves);
     pos.makeMove(best);
     moveHistory.push_back(best);
     outFile << best.toString() << "\n";
     legalMoves = MoveGenerator::generateLegal(pos);
     hashHistory.push_back(pos.getHash());
+    return best;
 }
 
 void GameController::handleEnd() {

@@ -53,41 +53,43 @@ class Move {
 
     void setPromotedPieceType(PieceType promotedPieceType);
 
-    constexpr uint16_t raw() const {
+    inline constexpr uint16_t raw() const {
         return data;
     }
 
-    constexpr Square getFromSquare() const {
+    inline constexpr Square getFromSquare() const {
         return Square(data & 0x3F);
     }
 
-    constexpr Square getToSquare() const {
+    inline constexpr Square getToSquare() const {
         return Square((data >> 6) & 0x3F);
     }
 
-    constexpr PieceType getPromotedPieceType() const {
+    inline constexpr PieceType getPromotedPieceType() const {
         return PieceType(((data >> 12) & 0x3) + KNIGHT);
     }
 
-    constexpr bool isPromotion() const {
+    inline constexpr bool isPromotion() const {
         return (data & (0x3 << 14)) == PROMOTION;
     }
 
-    constexpr bool isEnPassant() const {
+    inline constexpr bool isEnPassant() const {
         return (data & (0x3 << 14)) == EN_PASSANT;
     }
 
-    // Note: When true, the type of castle can be determined by which rook moves
-    constexpr bool isCastles() const {
+    // Note: When true, the type of castle can be determined by where the king moves
+    inline constexpr bool isCastles() const {
         return (data & (0x3 << 14)) == CASTLING;
     }
 
-    constexpr bool isKCastles() const {
-        return isCastles() && (getFromSquare() == h1 || getFromSquare() == h8);
+    // N.B: This ASSUMES isCastles() is true
+    inline constexpr bool isKCastles() const {
+        return getToSquare() == g1 || getToSquare() == g8;
     }
 
-    constexpr bool isQCastles() const {
-        return isCastles() && (getFromSquare() == a1 || getFromSquare() == a8);
+    // N.B: This ASSUMES isCastles() is true
+    inline constexpr bool isQCastles() const {
+        return getToSquare() == c1 || getToSquare() == c8;
     }
 
     std::string toCoordinateString() const;
@@ -98,19 +100,23 @@ class Move {
      */
     std::string toString() const;
 
+    static Move fromUciString(const std::string &str);
+
+    std::string toUciString() const;
+
     /**
      * Checks equality between two moves by comparing
      * their source and destination squares only
      */
-    constexpr bool softEquals(const Move &other) const {
+    inline constexpr bool softEquals(const Move &other) const {
         return (data & 0xFFF) == (other.raw() & 0xFFF);
     }
 
-    constexpr bool operator==(const Move &other) const {
+    inline constexpr bool operator==(const Move &other) const {
         return data == other.raw();
     }
 
-    constexpr bool operator!=(const Move &other) const {
+    inline constexpr bool operator!=(const Move &other) const {
         return data != other.raw();
     }
 };

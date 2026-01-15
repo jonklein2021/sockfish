@@ -15,15 +15,19 @@ bool CliFrontend::validateMoveInput(const std::string &input) {
            (input == "OOO");
 }
 
-std::string CliFrontend::getMoveSuggestion(const std::vector<Move> &legalMoves) {
-    Move random = legalMoves[std::rand() % legalMoves.size()];
-    if (random.isKCastles()) {
+std::string CliFrontend::formatMove(const Move m) {
+    if (m.isKCastles()) {
         return "O-O";
-    } else if (random.isQCastles()) {
+    } else if (m.isQCastles()) {
         return "O-O-O";
     } else {
-        return random.toCoordinateString();
+        return m.toCoordinateString();
     }
+}
+
+std::string CliFrontend::getMoveSuggestion(const std::vector<Move> &legalMoves) {
+    Move random = legalMoves[std::rand() % legalMoves.size()];
+    return formatMove(random);
 }
 
 Move CliFrontend::getMoveFromStdin() {
@@ -35,9 +39,6 @@ Move CliFrontend::getMoveFromStdin() {
     while (!validMove) {
         // pick a random move to suggest
         std::cout << "Enter move (example: " << getMoveSuggestion(legalMoves) << ") or q to quit: ";
-
-        // DEBUG: print legal moves
-        // Printers::printMoveList(legalMoves, game.getPosition());
 
         // prompt user for input
         std::string input;
@@ -72,7 +73,7 @@ Move CliFrontend::getMoveFromStdin() {
 
         // check if the move is legal before returning it
         for (Move move : legalMoves) {
-            if (candidate == move) {
+            if (candidate.softEquals(move)) {
                 validMove = true;
                 candidate = move;
                 break;
@@ -102,7 +103,7 @@ Move CliFrontend::getMoveFromStdin() {
                 candidate.setPromotedPieceType(BISHOP);
                 break;
             } else {
-                std::cout << "Error: Invalid promotion piece" << std::endl;
+                std::cout << "Error: Invalid promotion piece. Please try again." << std::endl;
             }
         }
     }
@@ -116,16 +117,20 @@ void CliFrontend::run() {
 
     // game loop
     while (!game.isGameOver()) {
+        Move m;
         if (game.getSideToMove() == game.getHumanSide()) {
             // get move from stdin
-            game.makeHumanMove(getMoveFromStdin());
+            m = getMoveFromStdin();
+            game.makeHumanMove(m);
         } else {
             // get move from engine
-            game.makeAIMove();
+            m = game.makeAIMove();
         }
+
+        // print resultant position and move played
+        Printers::prettyPrintPosition(game.getPosition());
+        std::cout << formatMove(m) << " played\n";
     }
 
-    // print terminal position
-    Printers::prettyPrintPosition(game.getPosition());
     game.handleEnd();
 }

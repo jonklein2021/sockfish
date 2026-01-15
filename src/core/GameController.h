@@ -41,7 +41,7 @@ class GameController {
     std::vector<Move> getLegalMoves() const;
 
     void makeHumanMove(Move move);
-    void makeAIMove();
+    Move makeAIMove();
 
     void handleEnd();
 };

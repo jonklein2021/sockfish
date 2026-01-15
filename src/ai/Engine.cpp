@@ -9,6 +9,9 @@
 #include <iostream>
 #include <limits>
 
+Engine::Engine()
+    : maxDepth(4) {}
+
 Engine::Engine(int depth)
     : maxDepth(depth) {}
 
@@ -105,6 +108,11 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
     }
 
     return bestEval;
+}
+
+Move Engine::getMove(Position &pos) {
+    std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
+    return getMove(pos, legalMoves);
 }
 
 Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {

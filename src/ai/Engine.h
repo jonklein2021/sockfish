@@ -50,7 +50,15 @@ class Engine {
     Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta);
 
    public:
+    Engine();
+
     Engine(int depth);
+
+    constexpr void setDepth(int depth) {
+        maxDepth = depth;
+    }
+
+    Move getMove(Position &pos);
 
     /**
      * Gets the best move in a certain position

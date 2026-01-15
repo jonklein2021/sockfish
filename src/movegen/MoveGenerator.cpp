@@ -97,11 +97,13 @@ void MoveGenerator::appendMovesFromPiece(std::vector<Move> &moveList,
 }
 
 Move MoveGenerator::createCastlingMove(bool isQueenside, Color side) {
-    // {kingside: {white, black}, queenside: {white, black}}
-    static constexpr Square ROOK_FROM[2][2] = {{h1, h8}, {a1, a8}};
-    static constexpr Square ROOK_TO[2][2] = {{f1, f8}, {d1, d8}};
+    // {white, black}
+    static constexpr Square KING_FROM[2] = {e1, e8};
 
-    return Move::create<Move::CASTLING>(ROOK_FROM[isQueenside][side], ROOK_TO[isQueenside][side]);
+    // {kingside: {white, black}, queenside: {white, black}}
+    static constexpr Square KING_TO[2][2] = {{g1, g8}, {c1, c8}};
+
+    return Move::create<Move::CASTLING>(KING_FROM[side], KING_TO[isQueenside][side]);
 }
 
 // consider creating a MoveComputer for this
