@@ -102,13 +102,19 @@ class Position {
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
 
-    constexpr bool isAttacked(Square sq, Color attacker) {
+    constexpr bool isAttacked(Square sq, Color attacker) const {
         for (Piece p : COLOR_TO_PIECES[attacker]) {
             if (getBit(md.attackTable[p], sq)) {
                 return true;
             }
         }
         return false;
+    }
+
+    constexpr Bitboard getSlidingAttacks(Color attacker) const {
+        return md.attackTable[ptToPiece(BISHOP, attacker)] |
+               md.attackTable[ptToPiece(ROOK, attacker)] |
+               md.attackTable[ptToPiece(QUEEN, attacker)];
     }
 
     std::string toFenString() const;

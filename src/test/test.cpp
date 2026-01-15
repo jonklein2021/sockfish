@@ -146,6 +146,12 @@ void printAttackMap(const Position &pos) {
         Printers::printBitboard(attacks);
         puts("");
     }
+
+    puts("Sliding Attacks (White):\n");
+    Printers::printBitboard(pos.getSlidingAttacks(WHITE));
+
+    puts("Sliding Attacks (Black):\n");
+    Printers::printBitboard(pos.getSlidingAttacks(BLACK));
 }
 
 void getEvaluation(Position &pos, Evaluator &evaluator) {
@@ -162,10 +168,10 @@ int main() {
         fen = STARTING_POSITION_FEN;
     }
 
-    Evaluator evaluator;
     Position pos(fen);
+    Evaluator evaluator;
     Engine engine(4);
-    legalMoves = MoveGenerator::generateLegal(pos);
+    MoveGenerator::generateLegal(legalMoves, pos);
 
     while (1) {
         Printers::prettyPrintPosition(pos);
@@ -193,6 +199,6 @@ int main() {
             default: break;
         }
 
-        legalMoves = MoveGenerator::generateLegal(pos);
+        MoveGenerator::generateLegal(legalMoves, pos);
     }
 }

@@ -10,10 +10,10 @@
 GameController::GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide)
     : pos(startPos),
       engine(std::move(engine)),
-      legalMoves(MoveGenerator::generateLegal(startPos)),
       outFile(DEFAULT_OUT_FILE.data(), std::ios::out),
       humanSide(humanSide) {
     initOutFile();
+    MoveGenerator::generateLegal(legalMoves, startPos);
     hashHistory.push_back(startPos.getHash());
 }
 
@@ -50,7 +50,7 @@ std::vector<Move> GameController::getLegalMoves() const {
 void GameController::makeHumanMove(Move move) {
     pos.makeMove(move);
     moveHistory.push_back(move);
-    legalMoves = MoveGenerator::generateLegal(pos);
+    MoveGenerator::generateLegal(legalMoves, pos);
     outFile << move.toString() << "\n";
     hashHistory.push_back(pos.getHash());
 }
@@ -60,7 +60,7 @@ Move GameController::makeAIMove() {
     pos.makeMove(best);
     moveHistory.push_back(best);
     outFile << best.toString() << "\n";
-    legalMoves = MoveGenerator::generateLegal(pos);
+    MoveGenerator::generateLegal(legalMoves, pos);
     hashHistory.push_back(pos.getHash());
     return best;
 }

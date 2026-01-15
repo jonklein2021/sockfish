@@ -12,7 +12,8 @@ uint64_t perft(Position &pos, int depth) {
     }
 
     uint64_t nodes = 0;
-    std::vector<Move> moves = MoveGenerator::generateLegal(pos);
+    std::vector<Move> moves;
+    MoveGenerator::generateLegal(moves, pos);
     Color moveMaker = pos.getSideToMove();
 
     for (const Move &m : moves) {

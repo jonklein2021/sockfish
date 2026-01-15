@@ -43,12 +43,15 @@ bool PositionUtil::is50MoveRuleDraw(const Position &pos) {
     return pos.md.movesSinceCapture >= 50;
 }
 
+// TODO: Add more conditions to ensure this doesn't run for checkmate situations
 bool PositionUtil::isStalemate(const std::vector<Move> &legalMoves) {
     return legalMoves.empty();
 }
 
 bool PositionUtil::isStalemate(Position &pos) {
-    return isStalemate(MoveGenerator::generateLegal(pos));
+    std::vector<Move> moves;
+    MoveGenerator::generateLegal(moves, pos);
+    return isStalemate(moves);
 }
 
 bool PositionUtil::isCheckmate(Position &pos) {

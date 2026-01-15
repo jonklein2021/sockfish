@@ -42,7 +42,8 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
         return quiescenceSearch(pos, alpha, beta);
     }
 
-    std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
+    std::vector<Move> legalMoves;
+    MoveGenerator::generateLegal(legalMoves, pos);
     moveSorter.run(pos, legalMoves);
 
     Eval bestEval = std::numeric_limits<Eval>::lowest();
@@ -88,7 +89,8 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
         alpha = bestEval;
     }
 
-    std::vector<Move> captureMoves = MoveGenerator::generateLegalCaptures(pos);
+    std::vector<Move> captureMoves;
+    MoveGenerator::generateLegalCaptures(captureMoves, pos);
     moveSorter.run(pos, captureMoves);
 
     // examine every capture
@@ -111,7 +113,8 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
 }
 
 Move Engine::getMove(Position &pos) {
-    std::vector<Move> legalMoves = MoveGenerator::generateLegal(pos);
+    std::vector<Move> legalMoves;
+    MoveGenerator::generateLegal(legalMoves, pos);
     return getMove(pos, legalMoves);
 }
 
