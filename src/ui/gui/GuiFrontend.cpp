@@ -194,6 +194,9 @@ void GuiFrontend::update() {
         // update sprites with this move
         syncPositionToGUI();
 
+        // reset highlighted squares
+        currentlyHighlightedTiles.clear();
+
         // check if game has ended
         if (game.isGameOver()) {
             game.handleEnd();
