@@ -2,31 +2,14 @@
 
 #include "src/ai/Evaluator.h"
 #include "src/ai/MoveSorter.h"
+#include "src/ai/TranspositionTable.h"
 #include "src/core/Position.h"
 
-#include <unordered_map>
 #include <vector>
 
 class Engine {
    private:
-    /**
-     * Transposition table entry
-     *
-     * Stores the evaluation of a given position at some depth,
-     * as well as whether that evaluation is an upper/lower
-     * bound or an exact evaluation
-     */
-    struct TTEntry {
-        Eval eval;
-        int depth;
-
-        enum Flag { EXACT, LOWERBOUND, UPPERBOUND } flag;
-    };
-
-    /**
-     * Stores previously evaluated positions
-     */
-    std::unordered_map<uint64_t, TTEntry> transpositionTable;
+    TranspositionTable tt;
 
     MoveSorter moveSorter;
 

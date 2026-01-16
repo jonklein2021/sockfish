@@ -23,6 +23,7 @@ common_sources = [
   'src/ai/Engine.cpp',
   'src/ai/Evaluator.cpp',
   'src/ai/MoveSorter.cpp',
+  'src/ai/TranspositionTable.cpp',
   'src/core/GameController.cpp',
   'src/core/Move.cpp',
   'src/core/Position.cpp',
