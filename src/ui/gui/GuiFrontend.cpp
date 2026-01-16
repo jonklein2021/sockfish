@@ -1,11 +1,12 @@
 #include "GuiFrontend.h"
 
-#include "src/bitboard/bit_tools.h"
 #include "src/core/types.h"
-#include "src/movegen/MoveGenerator.h"
 
+#include <SFML/Window/Mouse.hpp>
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
+#include <optional>
 #include <vector>
 
 GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
@@ -17,8 +18,6 @@ GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
       arrowCursor(sf::Cursor::Type::Arrow),
       handCursor(sf::Cursor::Type::Hand),
       promotionMenu(std::string(themeName), game.getHumanSide()) {
-    arrowCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow).value();
-    handCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand).value();
     initializeScreen(themeName);
     syncPositionToGUI();
 }
@@ -48,28 +47,12 @@ void GuiFrontend::initializeScreen(const std::string &themeName) {
     sf::Vector2u texSize = boardTexture.getSize();
     boardSprite.setScale({float(BOARD_SIZE) / texSize.x, float(BOARD_SIZE) / texSize.y});
 
-    // set up cursors
-    arrowCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Arrow).value();
-    handCursor = sf::Cursor::createFromSystem(sf::Cursor::Type::Hand).value();
+    // set up cursor
     window.setMouseCursor(arrowCursor);
 }
 
 void GuiFrontend::run() {
     while (window.isOpen()) {
-        if (game.getHumanSide() != game.getSideToMove()) {
-            // TODO: get move from engine in a separate worker thread so that this thread can handle
-            // GUI updates
-            game.makeAIMove();
-
-            // update sprites with this move
-            syncPositionToGUI();
-
-            // check if game has ended
-            if (game.isGameOver()) {
-                game.handleEnd();
-                window.close();
-            }
-        }
 
         // getting player's move is handled here
         handleEvents();
@@ -78,20 +61,11 @@ void GuiFrontend::run() {
     }
 }
 
-Move GuiFrontend::buildCandidateMove(const VisualPiece *piece, Square dst) const {
-    Square src = piece->sq;
+Move GuiFrontend::buildCandidateMove(Square from, Square to) {
+    Move candidate(from, to);
 
-    // Castling handling
-    if (pieceToPT(piece->piece) == KING) {
-        if ((src == e1 && dst == g1) || (src == e8 && dst == g8)) {
-            return MoveGenerator::createCastlingMove(false, game.getHumanSide());
-        }
-        if ((src == e1 && dst == c1) || (src == e8 && dst == c8)) {
-            return MoveGenerator::createCastlingMove(true, game.getHumanSide());
-        }
-    }
-
-    return Move(src, dst);
+    // check this move against set of legal moves
+    return validateMove(candidate);
 }
 
 Move GuiFrontend::validateMove(const Move &candidate) {
@@ -104,7 +78,6 @@ Move GuiFrontend::validateMove(const Move &candidate) {
 }
 
 void GuiFrontend::handleEvents() {
-    Move candidate;
     mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
     // SFML 3.0 event handling
@@ -133,98 +106,20 @@ void GuiFrontend::handleEvents() {
             window.setView(view);
         }
 
-        // if promotion menu is open, process its events exclusively
+        // handle promotionMenu's events exclusively when open
         if (promotionMenu.isVisible) {
-            auto callback = [&](const Piece p) {
-                // update the selected piece to the promoted piece
-                // N.B: texture change should be handled by boardRenderer
-                selectedPiece->piece = p;
-
-                candidate.setPromotedPieceType(pieceToPT(p));
-
-                // apply move to internal game state
-                game.makeHumanMove(candidate);
-
-                // check if game has ended
-                if (game.isGameOver()) {
-                    game.handleEnd();
-                    window.close();
-                }
-
-                std::cout << "Promoted to " << PIECE_NAMES[p] << std::endl;
-            };
-
-            promotionMenu.handleEvents(window, callback);
-            return;  // prevent normal game event handling
+            promotionMenu.handleEvent(event, window);
+            return;
         }
 
-        // piece release
-        if (const auto *mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
-            if (mouseReleased->button == sf::Mouse::Button::Left) {
-                isDragging = false;
-
-                // DEBUG
-                printf("Clicked square %s, mousePos=(%.2f, %.2f)\n",
-                       squareToCoordinateString(squareUnderMouse()).c_str(), mousePos.x,
-                       mousePos.y);
-
-                if (game.getHumanSide() == game.getSideToMove() && selectedPiece &&
-                    pieceColor(selectedPiece->piece) == game.getHumanSide()) {
-                    // snap to nearest tile
-                    int newX = mousePos.x / TILE_SIZE, newY = mousePos.y / TILE_SIZE;
-
-                    Square srcSq = selectedPiece->sq;
-                    Square dstSq = xyToSquare(newX, newY);
-
-                    // TODO: rotate 180 degrees if player is black
-                    bool pawnPromoting = (selectedPiece->piece == WP && newY == 0) ||
-                                         (selectedPiece->piece == BP && newY == 7);
-
-                    candidate = buildCandidateMove(selectedPiece, dstSq);
-
-                    // check this move against set of legal moves
-                    candidate = validateMove(candidate);
-
-                    std::cout << "[" << (candidate != Move::none() ? "V" : "Inv") << "alid Move] "
-                              << candidate.toString() << std::endl;
-
-                    if (candidate != Move::none()) {
-                        // show promotion menu if pawn is promoting
-                        if (pawnPromoting) {
-                            promotionMenu.show(newX);
-
-                            // snap to grid
-                            selectedPiece->sq = dstSq;
-                            if (selectedPiece->sprite) {
-                                selectedPiece->sprite->setPosition(
-                                    sf::Vector2f(newX * TILE_SIZE, newY * TILE_SIZE));
-                            }
-
-                            return;
-                        }
-
-                        // apply move to internal game state
-                        game.makeHumanMove(candidate);
-
-                        // update the GUI with this move
-                        syncPositionToGUI();
-
-                        // check if game has ended
-                        if (game.isGameOver()) {
-                            game.handleEnd();
-                        } else {
-                            std::cout << COLOR_NAMES[game.getSideToMove()] << " to move"
-                                      << std::endl;
-                        }
-                    } else {
-                        // reset this piece's position
-                        selectedPiece->sprite->setPosition(
-                            sf::Vector2f(fileOf(srcSq) * TILE_SIZE, rankOf(srcSq) * TILE_SIZE));
-                    }
-
-                    selectedPiece = nullptr;
-                }
-            }
+        // mouse events
+        if (const auto *mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+            mouseButtonStatus =
+                mousePressed->button == sf::Mouse::Button::Left ? LMB_DOWN : RMB_DOWN;
+        } else if (const auto *mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
+            mouseButtonStatus = mouseReleased->button == sf::Mouse::Button::Left ? LMB_UP : RMB_UP;
+        } else {
+            mouseButtonStatus = NO_BUTTON;
         }
     }
 }
@@ -232,20 +127,15 @@ void GuiFrontend::handleEvents() {
 void GuiFrontend::syncPositionToGUI() {
     // reset visualPieces to match the current position
     visualPieces.clear();
-    for (Piece p : ALL_PIECES) {
-        auto bb = game.getPosition().getPieceBB(p);
-        while (bb) {
-            const Square pieceSq = Square(getLsbIndex(bb));
-
-            VisualPiece vp(p, pieceSq, pieceTextures[p]);
-            vp.sprite->setPosition(
-                sf::Vector2f(fileOf(pieceSq) * TILE_SIZE, rankOf(pieceSq) * TILE_SIZE));
+    for (Square sq : ALL_SQUARES) {
+        Piece p = game.getPosition().pieceAt(sq);
+        if (p != NO_PIECE) {
+            // create VisualPiece with this piece's sprite
+            VisualPiece vp(p, sq, pieceTextures[p]);
+            vp.sprite->setPosition(sf::Vector2f(fileOf(sq) * TILE_SIZE, rankOf(sq) * TILE_SIZE));
 
             // add visual piece to list to be continuously rendered
             visualPieces.push_back(std::move(vp));
-
-            // pop LSB
-            bb &= bb - 1;
         }
     }
 
@@ -262,34 +152,116 @@ Square GuiFrontend::squareUnderMouse() const {
 }
 
 void GuiFrontend::update() {
-    // pause normal updates when promotion menu is open
     if (promotionMenu.isVisible) {
+        promotionMenu.update(arrowCursor, handCursor, window);
+        Piece promotion = promotionMenu.getPromotionPiece();
+        if (promotion != NO_PIECE) {
+            candidate.setPromotedPieceType(pieceToPT(promotion));
+
+            // apply move to internal game state
+            game.makeHumanMove(candidate);
+
+            // update the GUI with this move
+            syncPositionToGUI();
+
+            // hide promotionMenu
+            promotionMenu.isVisible = false;
+
+            // check if game has ended
+            if (game.isGameOver()) {
+                game.handleEnd();
+            } else {
+                std::cout << COLOR_NAMES[game.getSideToMove()] << " to move" << std::endl;
+            }
+        }
+
+        // pause normal updates when promotion menu is open
         return;
     }
 
-    // mouse hovers over a piece
-    const Square hovered = squareUnderMouse();
-    auto it = std::find_if(visualPieces.begin(), visualPieces.end(),
-                           [hovered](const VisualPiece &vp) { return vp.sq == hovered; });
-    if (it != visualPieces.end() && it->sprite &&
-        it->sprite->getGlobalBounds().contains(sf::Vector2f(mousePos.x, mousePos.y))) {
-        window.setMouseCursor(handCursor);
+    if (game.getHumanSide() != game.getSideToMove() && !game.isGameOver()) {
+        // TODO: get move from engine in a separate worker thread so that this thread can handle
+        // GUI updates
+        game.makeAIMove();
 
-        // drag-and-drop logic: select piece with mouse
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && !isDragging) {
-            // https://stackoverflow.com/questions/743055/convert-iterator-to-pointer
-            selectedPiece = &*it;
-            isDragging = true;
+        // update sprites with this move
+        syncPositionToGUI();
+
+        // check if game has ended
+        if (game.isGameOver()) {
+            game.handleEnd();
+            window.close();
         }
+    }
+
+    // mouse hovers over a piece
+    const Square underMouse = squareUnderMouse();
+    const Piece hoveredPiece = game.getPosition().pieceAt(underMouse);
+    if (hoveredPiece != NO_PIECE) {
+        window.setMouseCursor(handCursor);
     } else {
         window.setMouseCursor(arrowCursor);
     }
 
     // drag-and-drop logic: move piece with mouse
-    if (isDragging && selectedPiece && pieceColor(selectedPiece->piece) == game.getHumanSide() &&
-        selectedPiece->sprite) {
+    if (isDragging && selectedPiece && pieceColor(selectedPiece->piece) == game.getHumanSide()) {
         selectedPiece->sprite->setPosition(
             sf::Vector2f(mousePos.x - 0.5 * TILE_SIZE, mousePos.y - 0.5 * TILE_SIZE));
+    }
+
+    // move selection logic
+    if (mouseButtonStatus == LMB_DOWN || mouseButtonStatus == LMB_UP) {
+        // cancel dragging
+        if (mouseButtonStatus == LMB_UP) {
+            if (selectedPiece) {
+                selectedPiece->snapToSquare(selectedPiece->sq);
+            }
+            isDragging = false;
+        }
+
+        // drag-and-drop logic: select piece with mouse
+        auto it = std::find_if(visualPieces.begin(), visualPieces.end(),
+                               [underMouse](const VisualPiece &vp) { return vp.sq == underMouse; });
+        if (it != visualPieces.end() && mouseButtonStatus == LMB_DOWN && !isDragging) {
+            // https://stackoverflow.com/questions/743055/convert-iterator-to-pointer
+            selectedPiece = &*it;
+            isDragging = true;
+        }
+
+        // clicked our own pieces
+        if (hoveredPiece != NO_PIECE && pieceColor(hoveredPiece) == game.getHumanSide()) {
+            selectedSq = underMouse;
+        }
+
+        // clicked a destination square
+        if (selectedSq != NO_SQ && selectedSq != underMouse) {
+            candidate = buildCandidateMove(selectedSq, underMouse);
+            if (candidate != Move::none()) {
+                // show promotion menu if pawn is promoting
+                if (candidate.isPromotion()) {
+                    promotionMenu.show(fileOf(candidate.getToSquare()));
+                    return;
+                }
+
+                // apply move to internal game state
+                game.makeHumanMove(candidate);
+
+                // update the GUI with this move
+                syncPositionToGUI();
+
+                // check if game has ended
+                if (game.isGameOver()) {
+                    game.handleEnd();
+                } else {
+                    std::cout << COLOR_NAMES[game.getSideToMove()] << " to move" << std::endl;
+                }
+            } else {
+                // reset this piece's position
+                selectedPiece->snapToSquare(selectedSq);
+            }
+            selectedPiece = nullptr;
+            selectedSq = NO_SQ;
+        }
     }
 }
 
@@ -303,6 +275,9 @@ void GuiFrontend::render() {
         window.draw(*vp.sprite);
     }
 
+    // draw the promotionMenu (only visible when open)
     promotionMenu.render(window);
+
+    // display the window
     window.display();
 }

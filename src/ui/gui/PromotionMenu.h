@@ -3,7 +3,6 @@
 #include "src/core/types.h"
 
 #include <SFML/Graphics.hpp>
-#include <functional>
 #include <vector>
 
 class PromotionMenu {
@@ -26,9 +25,13 @@ class PromotionMenu {
      */
     PromotionMenu(const std::string &theme, Color side);
 
-    // Public Methods
     void render(sf::RenderWindow &window);
-    void handleEvents(sf::RenderWindow &window, const std::function<void(Piece)> &callback);
+
+    void handleEvent(const std::optional<sf::Event> &event, sf::RenderWindow &window);
+
+    void update(sf::Cursor &arrowCursor, sf::Cursor &handCursor, sf::RenderWindow &window);
+
+    Piece getPromotionPiece();
 
     // Show the promotion menu
     void show(int col);

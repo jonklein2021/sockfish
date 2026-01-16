@@ -5,6 +5,8 @@
 
 #include <SFML/Graphics.hpp>
 
+enum MouseButton { LMB_DOWN, RMB_DOWN, LMB_UP, RMB_UP, NO_BUTTON };
+
 /**
  * Represents a chess piece on the board, visually
  */
@@ -19,6 +21,10 @@ struct VisualPiece {
     // Constructor with texture
     explicit VisualPiece(Piece piece, Square sq, const sf::Texture &texture)
         : piece(piece), sq(sq), sprite(std::make_unique<sf::Sprite>(texture)) {}
+
+    void snapToSquare(Square sq) {
+        sprite->setPosition(sf::Vector2f(fileOf(sq) * TILE_SIZE, rankOf(sq) * TILE_SIZE));
+    }
 };
 
 class GuiFrontend {
@@ -48,8 +54,13 @@ class GuiFrontend {
     sf::Cursor arrowCursor, handCursor;  // make this static?
     PromotionMenu promotionMenu;
 
-    // drag-and-drop variables
+    // useful state variables
     sf::Vector2f mousePos;
+    MouseButton mouseButtonStatus = NO_BUTTON;
+    Square selectedSq = NO_SQ;
+    Move candidate;
+
+    // drag-and-drop variables
     VisualPiece *selectedPiece = nullptr;
     bool isDragging = false;
 
@@ -68,7 +79,7 @@ class GuiFrontend {
      */
     void syncPositionToGUI();
 
-    Move buildCandidateMove(const VisualPiece *piece, Square dst) const;
+    Move buildCandidateMove(Square from, Square to);
 
     Move validateMove(const Move &candidate);
 

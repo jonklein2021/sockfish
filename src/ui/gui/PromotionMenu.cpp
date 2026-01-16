@@ -1,5 +1,6 @@
 #include "PromotionMenu.h"
 
+#include <SFML/Window/Mouse.hpp>
 #include <iostream>
 
 PromotionMenu::PromotionMenu(const std::string &theme, Color side)
@@ -54,30 +55,39 @@ void PromotionMenu::render(sf::RenderWindow &window) {
     }
 }
 
-void PromotionMenu::handleEvents(sf::RenderWindow &window,
-                                 const std::function<void(const Piece)> &callback) {
-    // SFML 3.0 event handling
-    while (auto event = window.pollEvent()) {
-        // user left clicks
-        if (const auto *mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
-            if (mousePressed->button == sf::Mouse::Button::Left) {
-                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+void PromotionMenu::handleEvent(const std::optional<sf::Event> &event, sf::RenderWindow &window) {
+    if (!isVisible) {
+        return;
+    }
 
-                std::cout << "Mouse clicked at (" << worldPos.x << ", " << worldPos.y << ")"
-                          << std::endl;
+    if (const auto *mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+        sf::Vector2i mousePos(mousePressed->position.x, mousePressed->position.y);
+        sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
 
-                for (int i = 0; i < 4; ++i) {
-                    if (pieces[i].getGlobalBounds().contains(worldPos)) {
-                        selectedPiece = pieceOptions[i];
-                        callback(selectedPiece);
-                        isVisible = false;
-                        return;
-                    }
-                }
+        for (int i = 0; i < 4; i++) {
+            if (pieces[i].getGlobalBounds().contains(worldPos)) {
+                selectedPiece = pieceOptions[i];
+                break;
             }
         }
     }
+}
+
+void PromotionMenu::update(sf::Cursor &arrowCursor,
+                           sf::Cursor &handCursor,
+                           sf::RenderWindow &window) {
+    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    for (int i = 0; i < 4; i++) {
+        if (pieces[i].getGlobalBounds().contains(mousePos)) {
+            window.setMouseCursor(handCursor);
+            return;
+        }
+    }
+    window.setMouseCursor(arrowCursor);
+}
+
+Piece PromotionMenu::getPromotionPiece() {
+    return selectedPiece;
 }
 
 void PromotionMenu::show(int col) {
