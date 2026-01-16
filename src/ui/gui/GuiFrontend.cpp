@@ -2,6 +2,7 @@
 
 #include "src/core/types.h"
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <algorithm>
 #include <cstdio>
@@ -25,16 +26,6 @@ GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
 void GuiFrontend::initializeScreen(const std::string &themeName) {
     window.setView(view);
 
-    // load piece textures
-    for (Piece p : ALL_PIECES) {
-        const std::string pieceFilename = std::string(PIECE_TEXTURE_PATH) + themeName + "/" +
-                                          std::string(PIECE_FILENAMES[p]) + ".png";
-        if (!pieceTextures[p].loadFromFile(pieceFilename)) {
-            std::cerr << "Error loading piece texture: " << PIECE_FILENAMES[p] << std::endl;
-            exit(1);
-        }
-    }
-
     // load board texture
     if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
         std::cerr << "Error loading board texture" << std::endl;
@@ -47,14 +38,30 @@ void GuiFrontend::initializeScreen(const std::string &themeName) {
     sf::Vector2u texSize = boardTexture.getSize();
     boardSprite.setScale({float(BOARD_SIZE) / texSize.x, float(BOARD_SIZE) / texSize.y});
 
+    // load piece textures
+    for (Piece p : ALL_PIECES) {
+        const std::string pieceFilename = std::string(PIECE_TEXTURE_PATH) + themeName + "/" +
+                                          std::string(PIECE_FILENAMES[p]) + ".png";
+        if (!pieceTextures[p].loadFromFile(pieceFilename)) {
+            std::cerr << "Error loading piece texture: " << PIECE_FILENAMES[p] << std::endl;
+            exit(1);
+        }
+    }
+
+    // initialize highlighted tiles
+    for (Square sq : ALL_SQUARES) {
+        sf::RectangleShape &tile = allHighlightedTiles[sq];
+        tile.setFillColor(Palette::HIGHLIGHT);
+        tile.setSize(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+        tile.setPosition(sf::Vector2f(fileOf(sq) * TILE_SIZE, rankOf(sq) * TILE_SIZE));
+    }
+
     // set up cursor
     window.setMouseCursor(arrowCursor);
 }
 
 void GuiFrontend::run() {
     while (window.isOpen()) {
-
-        // getting player's move is handled here
         handleEvents();
         update();
         render();
@@ -197,7 +204,7 @@ void GuiFrontend::update() {
     // mouse hovers over a piece
     const Square underMouse = squareUnderMouse();
     const Piece hoveredPiece = game.getPosition().pieceAt(underMouse);
-    if (hoveredPiece != NO_PIECE) {
+    if (hoveredPiece != NO_PIECE && pieceColor(hoveredPiece) == game.getHumanSide()) {
         window.setMouseCursor(handCursor);
     } else {
         window.setMouseCursor(arrowCursor);
@@ -210,6 +217,10 @@ void GuiFrontend::update() {
     }
 
     // move selection logic
+    if (mouseButtonStatus == RMB_UP) {
+        currentlyHighlightedTiles.clear();
+        selectedSq = NO_SQ;
+    }
     if (mouseButtonStatus == LMB_DOWN || mouseButtonStatus == LMB_UP) {
         // cancel dragging
         if (mouseButtonStatus == LMB_UP) {
@@ -220,12 +231,20 @@ void GuiFrontend::update() {
         }
 
         // drag-and-drop logic: select piece with mouse
-        auto it = std::find_if(visualPieces.begin(), visualPieces.end(),
-                               [underMouse](const VisualPiece &vp) { return vp.sq == underMouse; });
+        auto it = std::find_if(
+            visualPieces.begin(), visualPieces.end(), [this, underMouse](const VisualPiece &vp) {
+                return pieceColor(vp.piece) == game.getHumanSide() && vp.sq == underMouse;
+            });
         if (it != visualPieces.end() && mouseButtonStatus == LMB_DOWN && !isDragging) {
             // https://stackoverflow.com/questions/743055/convert-iterator-to-pointer
             selectedPiece = &*it;
             isDragging = true;
+
+            currentlyHighlightedTiles.clear();
+            currentlyHighlightedTiles.push_back(underMouse);
+            for (Square dstSq : legalMovesBySrcSq[underMouse]) {
+                currentlyHighlightedTiles.push_back(dstSq);
+            }
         }
 
         // clicked our own pieces
@@ -237,7 +256,8 @@ void GuiFrontend::update() {
         if (selectedSq != NO_SQ && selectedSq != underMouse) {
             candidate = buildCandidateMove(selectedSq, underMouse);
             if (candidate != Move::none()) {
-                // show promotion menu if pawn is promoting
+                // if pawn is promoting, show the promotion menu
+                // the remainder of this will be handled at the top of this method
                 if (candidate.isPromotion()) {
                     promotionMenu.show(fileOf(candidate.getToSquare()));
                     return;
@@ -260,6 +280,7 @@ void GuiFrontend::update() {
                 selectedPiece->snapToSquare(selectedSq);
             }
             selectedPiece = nullptr;
+            currentlyHighlightedTiles.clear();
             selectedSq = NO_SQ;
         }
     }
@@ -269,6 +290,11 @@ void GuiFrontend::render() {
     // draw the board
     window.clear(sf::Color(50, 50, 50));
     window.draw(boardSprite);
+
+    // draw any highlighted tiles
+    for (Square sq : currentlyHighlightedTiles) {
+        window.draw(allHighlightedTiles[sq]);
+    }
 
     // draw the pieces
     for (const VisualPiece &vp : visualPieces) {

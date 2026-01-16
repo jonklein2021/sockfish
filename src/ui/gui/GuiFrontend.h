@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Palette.h"
 #include "PromotionMenu.h"
 #include "src/core/GameController.h"
 
@@ -39,6 +40,10 @@ class GuiFrontend {
     // visual theme variables
     sf::Texture boardTexture;
     sf::Sprite boardSprite;
+
+    // when a piece is picked up, its square and everywhere that it can move to will be highlighted
+    std::array<sf::RectangleShape, NO_SQ> allHighlightedTiles;
+    std::vector<Square> currentlyHighlightedTiles;
 
     // stores texture for each Piece enum
     std::array<sf::Texture, NO_PIECE> pieceTextures;
