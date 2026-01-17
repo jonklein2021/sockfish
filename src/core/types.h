@@ -166,6 +166,8 @@ constexpr std::string_view STARTING_POSITION_FEN =
  */
 constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, 500000, 0};
 
+constexpr Eval CHECKMATE_EVAL = pieceTypeValues[KING];
+
 // File Constants
 constexpr Bitboard FILE_MASKS[8] = {
     72340172838076673ull,    // A

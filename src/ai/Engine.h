@@ -9,11 +9,11 @@
 
 class Engine {
    private:
+    Evaluator evaluator;
+
     TranspositionTable tt;
 
     MoveSorter moveSorter;
-
-    Evaluator evaluator;
 
     /**
      * The maximum depth to search

@@ -3,7 +3,6 @@
 #include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
 
-#include <algorithm>
 #include <cstdio>
 #include <iostream>
 #include <limits>
@@ -18,53 +17,74 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
     uint64_t h = pos.getHash();
 
     // base case: TT has evaluation
-    // N.B: even if this returns false, alpha and beta may be updated from the TT
-    if (const auto eval = tt.lookup(h, alpha, beta, depth)) {
-        return eval.value();
+    if (const auto e = tt.lookup(h, depth)) {
+        if (alpha >= beta || e->flag == EXACT) {
+            return e->eval;
+        }
+        if (e->flag == LOWERBOUND) {
+            alpha = std::max(alpha, e->eval);
+        }
+        if (e->flag == UPPERBOUND) {
+            beta = std::min(beta, e->eval);
+        }
     }
 
-    // base case: depth exceeded or terminal position
-    if (depth == 0 || PositionUtil::isTerminal(pos)) {
+    // base case: depth exceeded
+    // NTS: what happens if it is checkmate at depth 0?
+    if (depth == 0) {
         return quiescenceSearch(pos, alpha, beta);
     }
 
-    Eval alphaOrig = alpha;
-
+    // get legal moves and sort them
     std::vector<Move> legalMoves;
     MoveGenerator::generateLegal(legalMoves, pos);
     moveSorter.run(pos, legalMoves);
 
-    Eval bestEval = std::numeric_limits<Eval>::lowest();
-
+    // save original alpha for TT record
+    Eval alphaOrig = alpha;
     for (const Move &move : legalMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
-        Eval eval = -negamax(pos, -beta, -alpha, depth - 1);
+        Eval score = -negamax(pos, -beta, -alpha, depth - 1);
 
         pos.unmakeMove(move, md);
 
-        bestEval = std::max(bestEval, eval);
-        alpha = std::max(alpha, eval);
+        // node fails high
+        if (score >= beta) {
+            return beta;
+        }
 
-        if (alpha >= beta) {
-            break;
+        // found a better move
+        if (score > alpha) {
+            alpha = score;
         }
     }
 
-    // save result in transposition table
-    tt.store(h, bestEval, alphaOrig, beta, depth);
+    // check for checkmate or stalemate
+    if (legalMoves.empty()) {
+        // checkmate: return -500000 + ply to favor faster mates
+        if (PositionUtil::isCheck(pos)) {
+            return -CHECKMATE_EVAL - depth;
+        }
+        // stalemate: return 0 to indicate draw
+        return 0;
+    }
 
-    return bestEval;
+    // save result in transposition table
+    tt.store(h, alpha, alphaOrig, beta, depth);
+
+    // node fails low
+    return alpha;
 }
 
 Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
     // initialize with static eval
-    int bestEval = evaluator.run(pos);
-    if (bestEval >= beta) {
-        return bestEval;
+    Eval staticEval = evaluator.run(pos);
+    if (staticEval >= beta) {
+        return staticEval;
     }
-    if (bestEval > alpha) {
-        alpha = bestEval;
+    if (staticEval > alpha) {
+        alpha = staticEval;
     }
 
     std::vector<Move> captureMoves;
@@ -75,19 +95,23 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
     for (const Move &move : captureMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
-        Eval eval = -quiescenceSearch(pos, -beta, -alpha);
+        Eval score = -quiescenceSearch(pos, -beta, -alpha);
 
         pos.unmakeMove(move, md);
 
-        bestEval = std::max(bestEval, eval);
-        alpha = std::max(alpha, eval);
+        // node fails high
+        if (score >= beta) {
+            return beta;
+        }
 
-        if (alpha >= beta) {
-            break;
+        // found a better move
+        if (score > alpha) {
+            alpha = score;
         }
     }
 
-    return bestEval;
+    // node fails low
+    return alpha;
 }
 
 Move Engine::getMove(Position &pos) {
@@ -106,8 +130,8 @@ Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
 
     std::cout << "Analyzing moves..." << std::endl;
 
+    Move bestMove = Move::none();
     Eval bestEval = std::numeric_limits<Eval>::lowest();
-    Move bestMove;
 
     for (const Move &move : legalMoves) {
         const Position::Metadata md = pos.makeMove(move);

@@ -1,16 +1,17 @@
 #include "Evaluator.h"
 
 #include "src/core/PositionUtil.h"
+#include "src/movegen/MoveGenerator.h"
 
 Eval Evaluator::run(Position &pos) {
-    const int sign = SIGN[pos.getSideToMove()];
-    if (PositionUtil::isCheckmate(pos)) {
-        return sign * pieceTypeValues[KING];
-    }
+    std::vector<Move> legalMoves;
+    MoveGenerator::generateLegal(legalMoves, pos);
+    return run(pos, legalMoves);
+}
 
-    // need to fine-tune this
-    const float piecePositionWeight = 0.05;
-
+// the higher the score, the better for position is for pos.getSideToMove()
+// and vice versa
+Eval Evaluator::run(Position &pos, std::vector<Move> &legalMoves) {
     Eval score = 0;
 
     // total up pieces, scaling by piece value and position in piece-square
@@ -22,13 +23,12 @@ Eval Evaluator::run(Position &pos) {
         }
         const Eval value =
             pieceTypeValues[pieceToPT(p)] + piecePositionWeight * pieceSquareTables[p][sq];
-        const Color c = pieceColor(p);
-        score += SIGN[c] * value;
+        score += SIGN[pieceColor(p)] * value;
     }
 
     // mobility bonus
-    // score += 0.1 * legalMoves.size();
+    score += mobilityBonusWeight * legalMoves.size();
 
     // return score relative to the current player for negamax
-    return sign * score;
+    return SIGN[pos.getSideToMove()] * score;
 }

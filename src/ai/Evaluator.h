@@ -1,6 +1,8 @@
 #include "src/core/Position.h"
 #include "src/core/types.h"
 
+#include <vector>
+
 class Evaluator {
    private:
     // clang-format off
@@ -116,10 +118,14 @@ class Evaluator {
     };
     // clang-format on
 
+    // need to fine-tune these
+    const float piecePositionWeight = 0.05;
+    const float mobilityBonusWeight = 0.1;
+
    public:
     constexpr Evaluator() {}
 
     Eval run(Position &pos);
 
-    Eval getEval(Position &pos);
+    Eval run(Position &pos, std::vector<Move> &legalMoves);
 };
