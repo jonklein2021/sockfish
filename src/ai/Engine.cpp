@@ -18,14 +18,14 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
 
     // base case: TT has evaluation
     if (const auto e = tt.lookup(h, depth)) {
-        if (alpha >= beta || e->flag == EXACT) {
+        if (e->flag == EXACT) {
             return e->eval;
         }
-        if (e->flag == LOWERBOUND) {
-            alpha = std::max(alpha, e->eval);
+        if (e->flag == LOWERBOUND && e->eval >= beta) {
+            return e->eval;
         }
-        if (e->flag == UPPERBOUND) {
-            beta = std::min(beta, e->eval);
+        if (e->flag == UPPERBOUND && e->eval <= alpha) {
+            return e->eval;
         }
     }
 

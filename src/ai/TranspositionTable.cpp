@@ -1,22 +1,29 @@
 #include "TranspositionTable.h"
 
+TranspositionTable::TranspositionTable() {
+    std::fill(table.begin(), table.end(), TTEntry{});
+}
+
 std::optional<TTEntry> TranspositionTable::lookup(uint64_t posHash, int depth) {
-    if (table.find(posHash) != table.end() && table[posHash].depth <= depth) {
-        return table[posHash];
+    TTEntry e = table[getIndex(posHash)];
+    if (e.key == posHash && e.depth <= depth) {
+        return e;
     }
     return std::nullopt;
 }
 
 void TranspositionTable::store(uint64_t posHash, Eval eval, int alpha, int beta, int depth) {
-    TTEntry entry{};
-    entry.eval = eval;
-    entry.depth = depth;
+    TTFlag flag;
     if (eval <= alpha) {
-        entry.flag = UPPERBOUND;
+        // All-Node
+        flag = UPPERBOUND;
     } else if (eval >= beta) {
-        entry.flag = LOWERBOUND;
+        // Cut-Node
+        flag = LOWERBOUND;
     } else {
-        entry.flag = EXACT;
+        // PV-Node: alpha < eval < beta
+        flag = EXACT;
     }
-    table[posHash] = entry;
+
+    table[getIndex(posHash)] = {posHash, eval, depth, flag};
 }
