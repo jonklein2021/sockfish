@@ -177,8 +177,6 @@ void GuiFrontend::update() {
             // check if game has ended
             if (game.isGameOver()) {
                 game.handleEnd();
-            } else {
-                std::cout << COLOR_NAMES[game.getSideToMove()] << " to move" << std::endl;
             }
         }
 
@@ -275,8 +273,6 @@ void GuiFrontend::update() {
                 // check if game has ended
                 if (game.isGameOver()) {
                     game.handleEnd();
-                } else {
-                    std::cout << COLOR_NAMES[game.getSideToMove()] << " to move" << std::endl;
                 }
             } else {
                 // reset this piece's position

@@ -5,8 +5,6 @@
 #include "src/ai/TranspositionTable.h"
 #include "src/core/Position.h"
 
-#include <vector>
-
 class Engine {
    private:
     Evaluator evaluator;
@@ -17,8 +15,14 @@ class Engine {
 
     /**
      * The maximum depth to search
+     *
+     * TODO: Increase this a lot after creating an interrupt mechanism
      */
-    int maxDepth;
+    const int MAX_PLY = 6;
+
+    // Temporarily stores the best move for easy access during negamax
+    // TODO: Delete this after creating PV table
+    Move bestMove;
 
     /**
      * Minimax variant with alpha-beta pruning
@@ -28,27 +32,19 @@ class Engine {
      * @param beta The beta value
      * @return The heuristic value of the position to move to
      */
-    Eval negamax(Position &pos, Eval alpha, Eval beta, int depth);
+    Eval negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth);
 
-    Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta);
+    Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply);
 
    public:
-    Engine();
-
-    Engine(int depth);
-
-    constexpr void setDepth(int depth) {
-        maxDepth = depth;
-    }
-
     Move getMove(Position &pos);
 
     /**
-     * Gets the best move in a certain position
+     * Gets the best move in a certain position using iterative deepening
      *
      * @param pos to evaluate
-     * @param legalMoves The possible legal moves from that position
+     * @param maxDepth to search to
      * @return The best move to make
      */
-    Move getMove(Position &pos, std::vector<Move> &legalMoves);
+    Move getMove(Position &pos, int maxDepth);
 };

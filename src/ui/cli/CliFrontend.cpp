@@ -127,9 +127,8 @@ void CliFrontend::run() {
             m = game.makeAIMove();
         }
 
-        // print resultant position and move played
+        // print resultant position
         Printers::prettyPrintPosition(game.getPosition());
-        std::cout << formatMove(m) << " played\n";
     }
 
     game.handleEnd();

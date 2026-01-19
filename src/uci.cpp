@@ -80,8 +80,7 @@ int main() {
                 }
             }
 
-            engine.setDepth(depth);
-            Move best = engine.getMove(pos);
+            Move best = engine.getMove(pos, depth);
 
             std::cout << "bestmove " << best.toUciString() << "\n";
         }

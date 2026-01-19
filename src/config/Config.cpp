@@ -37,15 +37,6 @@ void Config::parseArgs(int argc, char **argv) {
                 printUsage();
                 exit(1);
             }
-        } else if (arg == "-d") {
-            if (i + 1 < argc) {
-                searchDepth = std::stoi(argv[i + 1]);
-                i++;
-            } else {
-                std::cerr << "Error: -d option requires a depth" << std::endl;
-                printUsage();
-                exit(1);
-            }
         } else {
             std::cerr << "Error: Unknown option " << arg << std::endl;
             printUsage();
@@ -71,9 +62,6 @@ void Config::printUsage() {
                  "  -b, --black     Play with the black pieces\n"
                  "  -f  <string>    Specify a custom FEN string for the starting "
                  "position\n"
-                 "  -d  <depth>     Specify the depth of the minimax search "
-                 "(default: "
-                 "4)\n"
                  "  -t  <theme>     Specify the piece theme for the GUI\n"
               << std::endl;
 }
@@ -86,5 +74,4 @@ void Config::print() const {
     std::cout << "  Player color: " << (humanSide == WHITE ? "white" : "black")
               << (randomColor ? " (random)" : "") << "\n";
     std::cout << "  FEN: " << fen << "\n";
-    std::cout << "  Search Depth: " << searchDepth << "\n";
 }

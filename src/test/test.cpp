@@ -170,7 +170,7 @@ int main() {
 
     Position pos(fen);
     Evaluator evaluator;
-    Engine engine(4);
+    Engine engine;
     MoveGenerator::generateLegal(legalMoves, pos);
 
     while (1) {

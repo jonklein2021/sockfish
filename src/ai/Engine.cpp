@@ -4,16 +4,8 @@
 #include "src/movegen/MoveGenerator.h"
 
 #include <cstdio>
-#include <iostream>
-#include <limits>
 
-Engine::Engine()
-    : maxDepth(4) {}
-
-Engine::Engine(int depth)
-    : maxDepth(depth) {}
-
-Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
+Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     uint64_t h = pos.getHash();
 
     // base case: TT has evaluation
@@ -32,7 +24,7 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
     // base case: depth exceeded
     // NTS: what happens if it is checkmate at depth 0?
     if (depth == 0) {
-        return quiescenceSearch(pos, alpha, beta);
+        return quiescenceSearch(pos, alpha, beta, ply);
     }
 
     // get legal moves and sort them
@@ -41,11 +33,11 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
     moveSorter.run(pos, legalMoves);
 
     // save original alpha for TT record
-    Eval alphaOrig = alpha;
+    Eval originalAlpha = alpha;
     for (const Move &move : legalMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
-        Eval score = -negamax(pos, -beta, -alpha, depth - 1);
+        Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
 
         pos.unmakeMove(move, md);
 
@@ -57,6 +49,10 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
         // found a better move
         if (score > alpha) {
             alpha = score;
+            // update bestMove only if from root
+            if (ply == 0) {
+                bestMove = move;
+            }
         }
     }
 
@@ -71,13 +67,13 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int depth) {
     }
 
     // save result in transposition table
-    tt.store(h, alpha, alphaOrig, beta, depth);
+    tt.store(h, alpha, originalAlpha, beta, depth);
 
     // node fails low
     return alpha;
 }
 
-Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
+Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
     // initialize with static eval
     Eval staticEval = evaluator.run(pos);
     if (staticEval >= beta) {
@@ -95,7 +91,7 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
     for (const Move &move : captureMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
-        Eval score = -quiescenceSearch(pos, -beta, -alpha);
+        Eval score = -quiescenceSearch(pos, -beta, -alpha, ply + 1);
 
         pos.unmakeMove(move, md);
 
@@ -115,38 +111,16 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta) {
 }
 
 Move Engine::getMove(Position &pos) {
-    std::vector<Move> legalMoves;
-    MoveGenerator::generateLegal(legalMoves, pos);
-    return getMove(pos, legalMoves);
+    return getMove(pos, MAX_PLY);
 }
 
-Move Engine::getMove(Position &pos, std::vector<Move> &legalMoves) {
-    if (legalMoves.empty()) {
-        return Move::none();
+Move Engine::getMove(Position &pos, int maxDepth) {
+    bestMove = Move::none();
+
+    const Eval initAlpha = -CHECKMATE_EVAL, initBeta = CHECKMATE_EVAL;
+    for (int depth = 1; depth <= maxDepth; depth++) {
+        negamax(pos, initAlpha, initBeta, 0, depth);
     }
 
-    // sort moves by MVV-LVA
-    moveSorter.run(pos, legalMoves);
-
-    std::cout << "Analyzing moves..." << std::endl;
-
-    Move bestMove = Move::none();
-    Eval bestEval = std::numeric_limits<Eval>::lowest();
-
-    for (const Move &move : legalMoves) {
-        const Position::Metadata md = pos.makeMove(move);
-
-        std::cout << "  " << move.toString() << std::endl;
-
-        Eval eval = -negamax(pos, -pieceTypeValues[KING], pieceTypeValues[KING], maxDepth);
-
-        std::cout << "\teval = " << eval << std::endl;
-        pos.unmakeMove(move, md);
-
-        if (eval > bestEval) {
-            bestEval = eval;
-            bestMove = move;
-        }
-    }
     return bestMove;
 }

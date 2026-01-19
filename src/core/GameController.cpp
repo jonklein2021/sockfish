@@ -53,15 +53,19 @@ void GameController::makeHumanMove(Move move) {
     MoveGenerator::generateLegal(legalMoves, pos);
     outFile << move.toString() << "\n";
     hashHistory.push_back(pos.getHash());
+    std::cout << move.toUciString() << " played\n";
+    std::cout << COLOR_NAMES[pos.getSideToMove()] << " to move\n";
 }
 
 Move GameController::makeAIMove() {
-    Move best = engine->getMove(pos, legalMoves);
+    Move best = engine->getMove(pos);
     pos.makeMove(best);
     moveHistory.push_back(best);
     outFile << best.toString() << "\n";
     MoveGenerator::generateLegal(legalMoves, pos);
     hashHistory.push_back(pos.getHash());
+    std::cout << best.toUciString() << " played\n";
+    std::cout << COLOR_NAMES[pos.getSideToMove()] << " to move\n";
     return best;
 }
 
