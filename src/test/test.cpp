@@ -1,4 +1,5 @@
 #include "src/ai/Engine.h"
+#include "src/bitboard/bit_tools.h"
 #include "src/core/Position.h"
 #include "src/core/Printers.h"
 #include "src/core/types.h"
@@ -154,6 +155,33 @@ void printAttackMap(const Position &pos) {
     Printers::printBitboard(pos.getSlidingAttacks(BLACK));
 }
 
+void printPinnedPieces(const Position &pos) {
+    Color color = pos.getSideToMove();
+    Bitboard ourPieces = pos.board.getOccupancy(color);
+    Bitboard potentialPinnerAttacks = pos.getSlidingAttacks(otherColor(color));
+    Square kingSq = pos.getKingSquare(color);
+    Bitboard kingRadar = Magic::getQueenAttacks(kingSq, pos.board.getOccupancies());
+
+    Bitboard pinned = ourPieces & potentialPinnerAttacks & kingRadar;
+
+    puts("Pinned Pieces Bitboard:");
+    Printers::printBitboard(pinned);
+
+    while (pinned) {
+        Square sq = Square(getLsbIndex(pinned));
+        Piece p = pos.pieceAt(sq);
+        printf("%s on %s:\n", PIECE_NAMES[p].data(), squareToCoordinateString(sq).c_str());
+
+        // determine type of pin
+        Bitboard ray = findOverlapRay(sq, kingSq);
+        Printers::printBitboard(ray);
+        Bitboard restrictedDstBB = ray & pos.getAttacks(p);
+        Printers::printBitboard(restrictedDstBB);
+
+        pinned &= pinned - 1;
+    }
+}
+
 void getEvaluation(Position &pos, Evaluator &evaluator) {
     Eval evaluation = evaluator.run(pos);
     printf("Final evaluation: %d\n", evaluation);
@@ -182,7 +210,8 @@ int main() {
                 "1: Make a move\n"
                 "2: Show legal moves\n"
                 "3: Show attack map\n"
-                "4: Evaluate this position"
+                "4: Show pinned pieces\n"
+                "5: Evaluate this position"
              << endl;
         getline(cin, choice);
 
@@ -195,7 +224,8 @@ int main() {
                 break;
             }
             case '3': printAttackMap(pos); break;
-            case '4': getEvaluation(pos, evaluator); break;
+            case '4': printPinnedPieces(pos); break;
+            case '5': getEvaluation(pos, evaluator); break;
             default: break;
         }
 

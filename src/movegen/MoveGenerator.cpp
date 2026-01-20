@@ -35,6 +35,38 @@ void MoveGenerator::generatePseudolegal(std::vector<Move> &result, Position &pos
     appendCastlingMoves(result, pos);
 }
 
+// void MoveGenerator::generateLegal(std::vector<Move> &result, Position &pos) {
+//     Board board = pos.getBoardCopy();
+//     const Color toMove = pos.getSideToMove();
+//     if (PositionUtil::isCheck(pos)) {
+//         // When in check, you can either
+//         // 1. Move the King
+//         // 2. Capture the piece giving check
+//         // 3. Block the check
+//         // Caveats:
+//         // a. If it is double check, only 1 is possible
+//         // b. 3 is impossible if a knight is giving check
+//         return;
+//     }
+//
+//     // check for pins
+//     Bitboard pinnedPieces = pos.getPinnedPieces();
+//     while (pinnedPieces) {
+//         Square sq = Square(getLsbIndex(pinnedPieces));
+//         Piece pinnedPiece = pos.pieceAt(sq);
+//
+//         // remove this from board to avoid double-counting its moves
+//         board.removePiece(pinnedPiece, sq);
+//
+//         // determine type of pin by computing a ray between the king and the pinned piece
+//         const Bitboard raySqBB = findOverlapRay(sq, pos.getKingSquare(toMove));
+//
+//         // the intersection of this ray and the piece's normal moves are the allowed dst sqs
+//
+//         pinnedPieces &= pinnedPieces - 1;
+//     }
+// }
+
 void MoveGenerator::generateLegal(std::vector<Move> &result, Position &pos) {
     result.clear();
     std::vector<Move> pseudolegal;

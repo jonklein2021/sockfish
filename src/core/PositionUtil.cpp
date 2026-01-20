@@ -1,13 +1,9 @@
 #include "PositionUtil.h"
 
-#include "src/bitboard/bit_tools.h"
 #include "src/movegen/MoveGenerator.h"
 
 bool PositionUtil::isCheck(Position &pos, Color defender) {
-    const Bitboard kingBB = pos.getPieceBB(ptToPiece(KING, defender));
-    const Square kingSq = Square(getLsbIndex(kingBB));
-
-    return pos.isAttacked(kingSq, otherColor(defender));
+    return pos.isAttacked(pos.getKingSquare(defender), otherColor(defender));
 }
 
 bool PositionUtil::isCheck(Position &pos) {

@@ -11,7 +11,7 @@ inline static constexpr void my_swap(T &x, T &y) {
 }
 
 /**
- * Returns the least significant bit as a Square
+ * Returns the index of the least significant bit of a bitboard
  */
 #define getLsbIndex(bb) __builtin_ctzll(bb)
 

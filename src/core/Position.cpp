@@ -31,6 +31,12 @@ void Position::parseFen(const std::string &fen) {
 
             board.addPiece(p, sq);
             md.hash ^= Zobrist::getPieceSquareHash(p, sq);
+            if (p == WK) {
+                md.kingSquares[WHITE] = sq;
+            }
+            if (p == BK) {
+                md.kingSquares[BLACK] = sq;
+            }
             x++;
         }
     }
@@ -90,6 +96,10 @@ void Position::parseFen(const std::string &fen) {
     md.movesSinceCapture = halfmoveClock.empty() ? 0 : std::stoi(halfmoveClock);
 
     // 6: fullmove number (not used)
+}
+
+Board Position::getBoardCopy() const {
+    return board;
 }
 
 Position::Metadata Position::makeMove(const Move &move) {
@@ -242,6 +252,11 @@ Position::Metadata Position::makeMove(const Move &move) {
         md.movesSinceCapture = 0;
     } else {
         md.movesSinceCapture++;
+    }
+
+    // update king square
+    if (pieceToPT(pieceMoved) == KING) {
+        md.kingSquares[sideToMove] = to;
     }
 
     // update attack table

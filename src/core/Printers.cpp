@@ -15,6 +15,7 @@ void Printers::printBitboard(const Bitboard bitboard) {
     }
 
     out << "\n   a b c d e f g h\n";
+    out << "\nval = " << bitboard << "\n";
     std::cout << out.str() << std::endl;
 }
 

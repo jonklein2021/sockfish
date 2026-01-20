@@ -11,7 +11,7 @@ Bitboard computePawnPushes(const Position &pos, Square sq) {
     static constexpr Bitboard TOGGLE[2] = {0x0, 0xFFFFFFFFFFFFFFFF};
 
     // double pawn pushes must land on these ranks
-    static constexpr Bitboard DBL[2] = {RANK_4, RANK_5};
+    static constexpr Bitboard DBL[2] = {RANK_MASKS[RANK_4], RANK_MASKS[RANK_5]};
 
     const Color side = pieceColor(pos.pieceAt(sq));
     const Bitboard emptySquares = pos.getBoard().getEmptySquares();
@@ -41,8 +41,8 @@ Bitboard computePawnAttacks(const Position &pos, Square sq) {
     const Bitboard westCaptureBB = 1ull << (sq + ATTACKS[side][1]);
 
     // only add to attacks if not out of bounds
-    attacks |= (eastCaptureBB & NOT_FILE_A);
-    attacks |= (westCaptureBB & NOT_FILE_H);
+    attacks |= (eastCaptureBB & notA);
+    attacks |= (westCaptureBB & notH);
 
     return attacks;
 }

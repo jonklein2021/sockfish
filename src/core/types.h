@@ -69,6 +69,8 @@ enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PT };
 
 constexpr std::array<PieceType, 6> PIECE_TYPES = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 
+constexpr std::array<PieceType, 3> SLIDING_PIECE_TYPES = {BISHOP, ROOK, QUEEN};
+
 constexpr std::array<PieceType, 4> PROMOTION_PIECE_TYPES = {KNIGHT, BISHOP, ROOK, QUEEN};
 
 /**
@@ -168,36 +170,6 @@ constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, 500000
 
 constexpr Eval CHECKMATE_EVAL = pieceTypeValues[KING];
 
-// File Constants
-constexpr Bitboard FILE_MASKS[8] = {
-    72340172838076673ull,    // A
-    144680345676153346ull,   // B
-    289360691352306692ull,   // C
-    578721382704613384ull,   // D
-    1157442765409226768ull,  // E
-    2314885530818453536ull,  // F
-    4629771061636907072ull,  // G
-    9259542123273814144ull   // H
-};
-
-constexpr Bitboard NOT_FILE_A = 18374403900871474942ull;
-constexpr Bitboard NOT_FILE_H = 9187201950435737471ull;
-constexpr Bitboard NOT_FILE_GH = 4557430888798830399ull;
-constexpr Bitboard NOT_FILE_AB = 18229723555195321596ull;
-
-// Rank Constants
-constexpr Bitboard RANK_1 = 18374686479671623680ull;
-constexpr Bitboard RANK_2 = 71776119061217280ull;
-constexpr Bitboard RANK_4 = 1095216660480ull;
-constexpr Bitboard RANK_7 = 65280ull;
-constexpr Bitboard RANK_5 = 4278190080ull;
-constexpr Bitboard RANK_8 = 255ull;
-
-constexpr Bitboard NOT_RANK_1 = 72057594037927935ull;
-constexpr Bitboard NOT_RANK_1_NOR_2 = 281474976710655ull;
-constexpr Bitboard NOT_RANK_8 = 18446744073709551360ull;
-constexpr Bitboard NOT_RANK_7_NOR_8 = 18446744073709486080ull;
-
 // clang-format off
 enum Square : uint8_t {
     a8, b8, c8, d8, e8, f8, g8, h8,
@@ -211,14 +183,6 @@ enum Square : uint8_t {
 
     NO_SQ
 };
-
-inline constexpr int fileOf(Square sq) {
-    return sq & 7;
-}
-
-inline constexpr int rankOf(Square sq) {
-    return sq >> 3;
-}
 
 constexpr std::array<Square, 64> ALL_SQUARES = {
     a8, b8, c8, d8, e8, f8, g8, h8,
@@ -250,6 +214,128 @@ inline std::string squareToCoordinateString(const Square &sq) {
     return std::string{file, rank};
 }
 
+// File Constants
+enum File : int { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H };
+
+constexpr Bitboard FILE_MASKS[8] = {
+    72340172838076673ull,    // A
+    144680345676153346ull,   // B
+    289360691352306692ull,   // C
+    578721382704613384ull,   // D
+    1157442765409226768ull,  // E
+    2314885530818453536ull,  // F
+    4629771061636907072ull,  // G
+    9259542123273814144ull   // H
+};
+
+constexpr Bitboard notA = ~FILE_MASKS[FILE_A];
+constexpr Bitboard notAB = ~(FILE_MASKS[FILE_A] | FILE_MASKS[FILE_B]);
+constexpr Bitboard notH = ~FILE_MASKS[FILE_H];
+constexpr Bitboard notGH = ~(FILE_MASKS[FILE_G] | FILE_MASKS[FILE_H]);
+
+// Rank Constants
+enum Rank : int { RANK_8, RANK_7, RANK_6, RANK_5, RANK_4, RANK_3, RANK_2, RANK_1 };
+
+constexpr Bitboard RANK_MASKS[8] = {
+    255ull,                  // 8
+    65280ull,                // 7
+    16711680ull,             // 6
+    4278190080ull,           // 5
+    1095216660480ull,        // 4
+    280375465082880ull,      // 3
+    71776119061217280ull,    // 2
+    18374686479671623680ull  // 1
+};
+
+constexpr Bitboard not1 = ~(RANK_MASKS[RANK_1]);
+constexpr Bitboard not12 = ~(RANK_MASKS[RANK_1] | RANK_MASKS[RANK_2]);
+constexpr Bitboard not8 = ~(RANK_MASKS[RANK_8]);
+constexpr Bitboard not78 = ~(RANK_MASKS[RANK_7] | RANK_MASKS[RANK_8]);
+
+inline constexpr File fileOf(Square sq) {
+    return File(sq & 7);  // same as sq % 8
+}
+
+inline constexpr Rank rankOf(Square sq) {
+    return Rank(sq >> 3);  // same as sq / 8
+}
+
+// Diagonal Masks
+
+/* 0 0 0 0 1
+ * 0 0 0 1 0
+ * 0 0 1 0 0
+ * 0 1 0 0 0
+ * 1 0 0 0 0
+ */
+constexpr Bitboard SLASH_DIAGONAL_MASKS[15] = {
+    1ull,                    // a8
+    258ull,                  // a7, b8
+    66052ull,                // a6...c8
+    16909320ull,             // a5...d8
+    4328785936ull,           // a4...e8
+    1108169199648ull,        // a3...f8
+    283691315109952ull,      // a2...g8
+    72624976668147840ull,    // a1...h8
+    145249953336295424ull,   // b1...h7
+    290499906672525312ull,   // c1...h6
+    580999813328273408ull,   // d1...h5
+    1161999622361579520ull,  // e1...h4
+    2323998145211531264ull,  // f1...h3
+    4647714815446351872ull,  // g1, h2
+    9223372036854775808ull   // h1
+};
+
+// N.B: Consider precomputing these indices for each square
+inline constexpr int getSlashDiagonalIndex(Square sq) {
+    return rankOf(sq) + fileOf(sq);
+}
+
+/* 1 0 0 0 0
+ * 0 1 0 0 0
+ * 0 0 1 0 0
+ * 0 0 0 1 0
+ * 0 0 0 0 1
+ */
+constexpr Bitboard BACKSLASH_DIAGONAL_MASKS[15] = {
+    72057594037927936ull,    // a1
+    144396663052566528ull,   // a2, b1
+    288794425616760832ull,   // a3...c1
+    577588855528488960ull,   // a4...d1
+    1155177711073755136ull,  // a5...e1
+    2310355422147575808ull,  // a6...f1
+    4620710844295151872ull,  // a7...g1
+    9241421688590303745ull,  // a8...h1
+    36099303471055874ull,    // b8...h2
+    141012904183812ull,      // c8...h3
+    550831656968ull,         // d8...h4
+    2151686160ull,           // e8...h5
+    8405024ull,              // f8...h6
+    32832ull,                // g8, h7
+    128ull,                  // h8
+};
+
+// N.B: Consider precomputing these indices for each square
+inline constexpr int getBackslashDiagonalIndex(Square sq) {
+    return 7 - rankOf(sq) + fileOf(sq);
+}
+
+// Returns a "ray", i.e. a line that overlaps both squares
+// NTS: Is this better than simply trying all 4 rays?
+inline constexpr Bitboard findOverlapRay(Square sq1, Square sq2) {
+    const Rank r1 = rankOf(sq1), r2 = rankOf(sq2);
+    const File f1 = fileOf(sq1), f2 = fileOf(sq2);
+    if (r1 == r2) {
+        return RANK_MASKS[r1];
+    } else if (f1 == f2) {
+        return FILE_MASKS[f1];
+    } else if (r2 - r1 == f2 - f1) {
+        return BACKSLASH_DIAGONAL_MASKS[getBackslashDiagonalIndex(sq1)];
+    } else {
+        return SLASH_DIAGONAL_MASKS[getSlashDiagonalIndex(sq1)];
+    }
+}
+
 enum Direction : int8_t {
     NORTH = -8,
     EAST = 1,
@@ -270,12 +356,12 @@ inline constexpr Bitboard shift(Bitboard bb, Direction dir) {
     switch (dir) {
         case NORTH: return bb << 8;
         case SOUTH: return bb >> 8;
-        case EAST: return (bb & NOT_FILE_H) << 1;
-        case WEST: return (bb & NOT_FILE_A) >> 1;
-        case NORTH_EAST: return (bb & NOT_FILE_H) << 9;
-        case NORTH_WEST: return (bb & NOT_FILE_A) << 7;
-        case SOUTH_EAST: return (bb & NOT_FILE_H) >> 7;
-        case SOUTH_WEST: return (bb & NOT_FILE_A) >> 9;
+        case EAST: return (bb & notH) << 1;
+        case WEST: return (bb & notA) >> 1;
+        case NORTH_EAST: return (bb & notH) << 9;
+        case NORTH_WEST: return (bb & notA) << 7;
+        case SOUTH_EAST: return (bb & notH) >> 7;
+        case SOUTH_WEST: return (bb & notA) >> 9;
     }
 }
 

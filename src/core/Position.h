@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/bitboard/Magic.h"
 #include "src/core/Board.h"
 #include "src/core/Move.h"
 #include "src/core/types.h"
@@ -15,9 +16,17 @@ class Position {
     /**
      * Information about the current position
      * that cannot be read from the board alone
+     *
+     * Total size = (8*12) + 8 + 4 + 4 + 1 + 1 + 1 + 1 + padding
+     *            = 120 bytes after padding
      */
     struct Metadata {
-        Square enPassantSquare = NO_SQ;
+        // maps pieces to the squares they control
+        // N.B: consider taking this out of metadata to reduce data copy size
+        std::array<Bitboard, NO_PIECE> attackTable;
+
+        // maintained by ZobristHasher
+        uint64_t hash = 0ull;
 
         // the last move (that led to this postion) captured this piece
         // we can use this to conditionally render a capture sound in the GUI
@@ -29,11 +38,9 @@ class Position {
         // represents who current has what castling rights
         CastleRights castleRights = NO_CASTLING;
 
-        // maintained by ZobristHasher
-        uint64_t hash = 0ull;
+        Square enPassantSquare = NO_SQ;
 
-        // maps pieces to the squares they control
-        std::array<Bitboard, NO_PIECE> attackTable;
+        std::array<Square, 2> kingSquares = {NO_SQ, NO_SQ};
     };
 
    private:
@@ -58,11 +65,13 @@ class Position {
         return board;
     }
 
-    constexpr Bitboard getPieceBB(Piece p) const {
+    Board getBoardCopy() const;
+
+    inline constexpr Bitboard getPieceBB(Piece p) const {
         return board.getPieceBB(p);
     }
 
-    constexpr Piece pieceAt(Square sq) const {
+    inline constexpr Piece pieceAt(Square sq) const {
         return board.pieceAt(sq);
     }
 
@@ -74,11 +83,28 @@ class Position {
         return sideToMove;
     }
 
+    constexpr Square getKingSquare(Color c) const {
+        return md.kingSquares[c];
+    }
+
     constexpr uint64_t getHash() const {
         return md.hash;
     }
 
     // Other Methods
+
+    inline constexpr Bitboard getPinnedPieces() const {
+        return getPinnedPieces(sideToMove);
+    }
+
+    inline constexpr Bitboard getPinnedPieces(Color color) const {
+        const Bitboard ourPieces = board.getOccupancy(color);
+        const Bitboard potentialPinnerAttacks = getSlidingAttacks(otherColor(color));
+        const Square kingSq = md.kingSquares[color];
+        const Bitboard kingRadar = Magic::getQueenAttacks(kingSq, board.getOccupancies());
+
+        return ourPieces & potentialPinnerAttacks & kingRadar;
+    }
 
     /**
      * Parses a FEN string and updates member vars, including metadata,
@@ -111,10 +137,23 @@ class Position {
         return false;
     }
 
+    constexpr int getNumAttackers(Square sq, Color attacker) const {
+        int total = 0;
+        for (Piece p : COLOR_TO_PIECES[attacker]) {
+            if (getBit(md.attackTable[p], sq)) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+    constexpr Bitboard getAttacks(Piece attacker) const {
+        return md.attackTable[attacker];
+    }
+
     constexpr Bitboard getSlidingAttacks(Color attacker) const {
-        return md.attackTable[ptToPiece(BISHOP, attacker)] |
-               md.attackTable[ptToPiece(ROOK, attacker)] |
-               md.attackTable[ptToPiece(QUEEN, attacker)];
+        return getAttacks(ptToPiece(BISHOP, attacker)) | getAttacks(ptToPiece(ROOK, attacker)) |
+               getAttacks(ptToPiece(QUEEN, attacker));
     }
 
     std::string toFenString() const;

@@ -58,7 +58,7 @@ void appendMovesFromPiece(std::vector<Move> &moveList, Position &pos, MoveComput
     Bitboard bb = pos.getPieceBB(piece);  // N.B: this needs to be a copy
 
     if constexpr (pt == PAWN) {
-        static constexpr Bitboard PROMOTING_RANKS[2] = {RANK_8, RANK_1};
+        static constexpr Bitboard PROMOTING_RANKS[2] = {RANK_MASKS[RANK_8], RANK_MASKS[RANK_1]};
         while (bb) {
             const Square srcSq = Square(getLsbIndex(bb));
 
