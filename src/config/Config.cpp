@@ -22,7 +22,7 @@ void Config::parseArgs(int argc, char **argv) {
                 pieceTheme = argv[i + 1];
                 i++;
             } else {
-                std::cerr << "Error: -t option requires a theme" << std::endl;
+                std::cerr << "Error: -t option requires a theme name" << std::endl;
                 printUsage();
                 exit(1);
             }

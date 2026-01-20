@@ -36,7 +36,7 @@ class TranspositionTable {
     // Round down to 2^12 = 4096 for faster modulos
     std::array<TTEntry, (1 << 12)> table;
 
-    inline uint64_t getIndex(uint64_t prehash) {
+    inline uint64_t getIndex(uint64_t prehash) const {
         // x mod 2^12 = x & 11
         return prehash & ((1 << 12) - 1);
     }
@@ -46,9 +46,11 @@ class TranspositionTable {
 
     // Looks up a position hash at some depth and returns its TTEntry if found AND that entry was
     // recorded at the same or better depth, std::nullopt otherwise.
-    std::optional<TTEntry> lookup(uint64_t posHash, int depth);
+    std::optional<TTEntry> lookup(uint64_t posHash, int depth) const;
 
     // Creates and stores a TT entry. Note that this always succeeds, so it will overwrite the
     // existing entry in the case of a collision or a duplicate.
     void store(uint64_t posHash, Eval eval, int alpha, int beta, int depth);
+
+    void clear();
 };

@@ -7,18 +7,20 @@
 
 class Engine {
    private:
+    /**
+     * The maximum depth to search
+     *
+     * TODO: Increase this a lot after creating an interrupt mechanism
+     */
+    static constexpr int MAX_PLY = 6;
+
     Evaluator evaluator;
 
     TranspositionTable tt;
 
     MoveSorter moveSorter;
 
-    /**
-     * The maximum depth to search
-     *
-     * TODO: Increase this a lot after creating an interrupt mechanism
-     */
-    const int MAX_PLY = 6;
+    // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
 
     // Temporarily stores the best move for easy access during negamax
     // TODO: Delete this after creating PV table

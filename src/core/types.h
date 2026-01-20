@@ -58,7 +58,7 @@ constexpr std::array<std::string_view, 2> COLOR_NAMES = {"White", "Black"};
 
 constexpr std::array<int, 2> SIGN = {1, -1};
 
-inline static constexpr Color otherColor(Color c) {
+inline constexpr Color otherColor(Color c) {
     return Color(c ^ 1);
 }
 
@@ -76,16 +76,16 @@ constexpr std::array<PieceType, 4> PROMOTION_PIECE_TYPES = {KNIGHT, BISHOP, ROOK
  */
 enum Piece { WP, WN, WB, WR, WQ, WK, BP, BN, BB, BR, BQ, BK, NO_PIECE };
 
-inline static constexpr Piece ptToPiece(PieceType pt, Color side) {
+inline constexpr Piece ptToPiece(PieceType pt, Color side) {
     return Piece(pt + 6 * side);
 }
 
-inline static constexpr PieceType pieceToPT(Piece p) {
+inline constexpr PieceType pieceToPT(Piece p) {
     assert(p != NO_PIECE);
     return PieceType(p % 6);
 }
 
-inline static constexpr Color pieceColor(Piece p) {
+inline constexpr Color pieceColor(Piece p) {
     assert(p != NO_PIECE);
     return Color(p / 6);
 }
@@ -130,7 +130,7 @@ constexpr std::array<char, NO_PIECE> pieceToFenChar = {'P', 'N', 'B', 'R', 'Q', 
 /**
  * Maps FEN character to PieceType enum
  */
-constexpr Piece fenCharToPiece(char c) {
+inline constexpr Piece fenCharToPiece(char c) {
     switch (c) {
         case 'P': return WP;
         case 'N': return WN;
@@ -212,11 +212,11 @@ enum Square : uint8_t {
     NO_SQ
 };
 
-inline static constexpr int fileOf(Square sq) {
+inline constexpr int fileOf(Square sq) {
     return sq & 7;
 }
 
-inline static constexpr int rankOf(Square sq) {
+inline constexpr int rankOf(Square sq) {
     return sq >> 3;
 }
 
@@ -233,18 +233,18 @@ constexpr std::array<Square, 64> ALL_SQUARES = {
 // clang-format on
 
 // x and y are 0-indexed, where (0, 0) is the top-left square (a8)
-inline static constexpr Square xyToSquare(int x, int y) {
+inline constexpr Square xyToSquare(int x, int y) {
     return Square(y * 8 + x);
 }
 
 // input is assumed to be in a2a4 format
-static inline Square coordinateStringToSquare(const std::string &str) {
+inline Square coordinateStringToSquare(const std::string &str) {
     const int fileIndex = str[0] - 'a';
     const int rankIndex = '8' - str[1];
     return xyToSquare(fileIndex, rankIndex);
 }
 
-static inline std::string squareToCoordinateString(const Square &sq) {
+inline std::string squareToCoordinateString(const Square &sq) {
     const char file = 'a' + (sq % 8);
     const char rank = '8' - (sq / 8);
     return std::string{file, rank};
@@ -295,16 +295,16 @@ enum CastleRights : int8_t {
     CASTLING_SZ                                      // 0b00010000
 };
 
-inline static constexpr bool hasCastleRights(const CastleRights &current, CastleRights query) {
+inline constexpr bool hasCastleRights(const CastleRights &current, CastleRights query) {
     return current & query;
 }
 
 // only used in FEN parsing
-inline static constexpr void addCastleRights(CastleRights &current, CastleRights toAdd) {
+inline constexpr void addCastleRights(CastleRights &current, CastleRights toAdd) {
     current = CastleRights(current | toAdd);
 }
 
-inline static constexpr void removeCastleRights(CastleRights &current, CastleRights toRemove) {
+inline constexpr void removeCastleRights(CastleRights &current, CastleRights toRemove) {
     current = CastleRights(current & ~toRemove);
 }
 

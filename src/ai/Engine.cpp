@@ -60,7 +60,7 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     if (legalMoves.empty()) {
         // checkmate: return -500000 + ply to favor faster mates
         if (PositionUtil::isCheck(pos)) {
-            return -CHECKMATE_EVAL - depth;
+            return -CHECKMATE_EVAL + ply;
         }
         // stalemate: return 0 to indicate draw
         return 0;
@@ -115,10 +115,12 @@ Move Engine::getMove(Position &pos) {
 }
 
 Move Engine::getMove(Position &pos, int maxDepth) {
+    // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
     bestMove = Move::none();
 
     const Eval initAlpha = -CHECKMATE_EVAL, initBeta = CHECKMATE_EVAL;
     for (int depth = 1; depth <= maxDepth; depth++) {
+        // TODO: ensure PV move is examined first
         negamax(pos, initAlpha, initBeta, 0, depth);
     }
 
