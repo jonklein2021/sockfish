@@ -75,13 +75,17 @@ Bitboard computeKnightMoves(const Position &pos, Square sq) {
 
 Bitboard computeKingMoves(const Position &pos, Square sq) {
     // this represents all possible moves from sq on an empty board
-    const Bitboard kingMask = KING_MASKS[sq];
+    Bitboard moves = KING_MASKS[sq];
 
     // ensure king can land on square
     const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
+    moves &= landingSqBB;
 
-    return kingMask & landingSqBB;
+    // prevent king from moving into check
+    moves &= ~pos.getSideAttacksBB(opponent);
+
+    return moves;
 }
 
 Bitboard computeBishopMoves(const Position &pos, Square sq) {

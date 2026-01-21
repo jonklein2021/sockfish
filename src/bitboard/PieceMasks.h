@@ -1,6 +1,8 @@
 #include "src/bitboard/bit_tools.h"
 #include "src/core/types.h"
 
+using MoveMaskTable = std::array<Bitboard, NO_SQ>;
+
 /////////////////////////
 // Move Mask Computers //
 /////////////////////////
@@ -20,64 +22,13 @@ constexpr Bitboard computeKnightMask(Square sq) {
     return ddl | ddr | drr | dll | uur | uul | ull | urr;
 }
 
-// constexpr Bitboard computeBishopMask(Square sq) {
-//     Bitboard allDstSqBB = 0ull;
-//     const int r0 = rankOf(sq), f0 = fileOf(sq);
-//
-//     // down right
-//     for (int r = r0 + 1, f = f0 + 1; r <= 6 && f <= 6; r++, f++) {
-//         allDstSqBB |= xyToBit(f, r);
-//     }
-//
-//     // up left
-//     for (int r = r0 + 1, f = f0 - 1; r <= 6 && f >= 1; r++, f--) {
-//         allDstSqBB |= xyToBit(f, r);
-//     }
-//
-//     // up right
-//     for (int r = r0 - 1, f = f0 + 1; r >= 1 && f <= 6; r--, f++) {
-//         allDstSqBB |= xyToBit(f, r);
-//     }
-//
-//     // down left
-//     for (int r = r0 - 1, f = f0 - 1; r >= 1 && f >= 1; r--, f--) {
-//         allDstSqBB |= xyToBit(f, r);
-//     }
-//
-//     return allDstSqBB;
-// }
-
-// constexpr Bitboard computeRookMask(Square sq) {
-//     Bitboard allDstSqBB = 0ull;
-//     const int r0 = rankOf(sq), f0 = fileOf(sq);
-//
-//     // down
-//     for (int r = r0 + 1; r <= 6; r++) {
-//         allDstSqBB |= xyToBit(f0, r);
-//     }
-//
-//     // up
-//     for (int r = r0 - 1; r >= 1; r--) {
-//         allDstSqBB |= xyToBit(f0, r);
-//     }
-//
-//     // left
-//     for (int f = f0 - 1; f >= 1; f--) {
-//         allDstSqBB |= xyToBit(f, r0);
-//     }
-//
-//     // right
-//     for (int f = f0 + 1; f <= 6; f++) {
-//         allDstSqBB |= xyToBit(f, r0);
-//     }
-//
-//     return allDstSqBB;
-// }
 constexpr Bitboard computeRookMask(Square sq) {
     Bitboard mask = (RANK_MASKS[rankOf(sq)] & ~(FILE_MASKS[FILE_A] | FILE_MASKS[FILE_H])) |
                     (FILE_MASKS[fileOf(sq)] & ~(RANK_MASKS[RANK_1] | RANK_MASKS[RANK_8]));
 
+    // unset source bit
     unsetBit(mask, sq);
+
     return mask;
 }
 
@@ -114,22 +65,22 @@ constexpr Bitboard computeKingMask(Square sq) {
     return d | u | l | r | dl | dr | ul | ur;
 }
 
-//////////////////////
-// Mask Populators //
-/////////////////////
+///////////////////////////
+// Mask Table Populators //
+//////////////////////////
 
-template<typename MaskComputer>
-constexpr std::array<Bitboard, NO_SQ> populateMaskArray(MaskComputer computer) {
-    std::array<Bitboard, NO_SQ> masks{};
+template<typename Fn>
+constexpr MoveMaskTable fillMoveMaskTable(Fn fn) {
+    MoveMaskTable table{};
     for (Square sq : ALL_SQUARES) {
-        masks[sq] = computer(sq);
+        table[sq] = fn(sq);
     }
-    return masks;
+    return table;
 }
 
 // these pre-computed masks represent all possible squares a piece can move to on an empty board
-constexpr std::array<Bitboard, NO_SQ> KNIGHT_MASKS = populateMaskArray(computeKnightMask);
-constexpr std::array<Bitboard, NO_SQ> BISHOP_MASKS = populateMaskArray(computeBishopMask);
-constexpr std::array<Bitboard, NO_SQ> ROOK_MASKS = populateMaskArray(computeRookMask);
-constexpr std::array<Bitboard, NO_SQ> QUEEN_MASKS = populateMaskArray(computeQueenMask);
-constexpr std::array<Bitboard, NO_SQ> KING_MASKS = populateMaskArray(computeKingMask);
+constexpr MoveMaskTable KNIGHT_MASKS = fillMoveMaskTable(computeKnightMask);
+constexpr MoveMaskTable BISHOP_MASKS = fillMoveMaskTable(computeBishopMask);
+constexpr MoveMaskTable ROOK_MASKS = fillMoveMaskTable(computeRookMask);
+constexpr MoveMaskTable QUEEN_MASKS = fillMoveMaskTable(computeQueenMask);
+constexpr MoveMaskTable KING_MASKS = fillMoveMaskTable(computeKingMask);

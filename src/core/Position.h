@@ -87,6 +87,10 @@ class Position {
         return md.kingSquares[c];
     }
 
+    constexpr Square getEpSquare() const {
+        return md.enPassantSquare;
+    }
+
     constexpr uint64_t getHash() const {
         return md.hash;
     }
@@ -147,7 +151,16 @@ class Position {
         return total;
     }
 
+    constexpr Bitboard getSideAttacksBB(Color attacker) const {
+        Bitboard result = 0ull;
+        for (Piece p : COLOR_TO_PIECES[attacker]) {
+            result |= md.attackTable[p];
+        }
+        return result;
+    }
+
     constexpr Bitboard getAttacks(Piece attacker) const {
+
         return md.attackTable[attacker];
     }
 

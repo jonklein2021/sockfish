@@ -8,6 +8,8 @@
 
 namespace MoveGenerator {
 
+static constexpr Bitboard PROMOTING_RANKS[2] = {RANK_MASKS[RANK_8], RANK_MASKS[RANK_1]};
+
 inline bool isMoveLegal(Position &pos, Move &move) {
     Color moveMaker = pos.getSideToMove();
 
@@ -58,7 +60,6 @@ void appendMovesFromPiece(std::vector<Move> &moveList, Position &pos, MoveComput
     Bitboard bb = pos.getPieceBB(piece);  // N.B: this needs to be a copy
 
     if constexpr (pt == PAWN) {
-        static constexpr Bitboard PROMOTING_RANKS[2] = {RANK_MASKS[RANK_8], RANK_MASKS[RANK_1]};
         while (bb) {
             const Square srcSq = Square(getLsbIndex(bb));
 
@@ -143,6 +144,9 @@ inline void appendCastlingMoves(std::vector<Move> &moveList, Position &pos) {
         moveList.push_back(createCastlingMove(true, side));
     }
 }
+
+void generateSingleCheckEvasions(std::vector<Move> &result, Position &pos);
+void generateDoubleCheckEvasions(std::vector<Move> &result, Position &pos);
 
 void generateLegal(std::vector<Move> &result, Position &pos);
 void generatePseudolegal(std::vector<Move> &result, Position &pos);
