@@ -1,1774 +1,1774 @@
 Test 1: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 
 perft(d=1)
-  D1: 20 (expected 20) ✅ [0.198275 ms]
+  D1: 20 (expected 20) ✅ [0.1694 ms]
 perft(d=2)
-  D2: 400 (expected 400) ✅ [0.334309 ms]
+  D2: 400 (expected 400) ✅ [0.285501 ms]
 perft(d=3)
-  D3: 8902 (expected 8902) ✅ [7.40841 ms]
+  D3: 8902 (expected 8902) ✅ [5.26311 ms]
 perft(d=4)
-  D4: 197281 (expected 197281) ✅ [71.7587 ms]
+  D4: 197281 (expected 197281) ✅ [41.4355 ms]
 perft(d=5)
-  D5: 4865609 (expected 4865609) ✅ [1662.01 ms]
+  D5: 4865609 (expected 4865609) ✅ [897.797 ms]
 perft(d=6)
-  D6: 119060324 (expected 119060324) ✅ [43041.4 ms]
+  D6: 119060324 (expected 119060324) ✅ [22184.6 ms]
 
 Test 2: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 
 perft(d=1)
-  D1: 48 (expected 48) ✅ [7.06548 ms]
+  D1: 48 (expected 48) ✅ [5.55851 ms]
 perft(d=2)
-  D2: 2039 (expected 2039) ✅ [6.07677 ms]
+  D2: 2039 (expected 2039) ✅ [6.32931 ms]
 perft(d=3)
-  D3: 97862 (expected 97862) ✅ [39.0883 ms]
+  D3: 97862 (expected 97862) ✅ [24.5948 ms]
 perft(d=4)
-  D4: 4085603 (expected 4085603) ✅ [1348.85 ms]
+  D4: 4085603 (expected 4085603) ✅ [737.667 ms]
 perft(d=5)
-  D5: 193690690 (expected 193690690) ✅ [68278 ms]
+  D5: 193690690 (expected 193690690) ✅ [34694.4 ms]
 
 Test 3: 4k3/8/8/8/8/8/8/4K2R w K - 0 1 
 perft(d=1)
-  D1: 15 (expected 15) ✅ [2.63037 ms]
+  D1: 15 (expected 15) ✅ [2.332 ms]
 perft(d=2)
-  D2: 66 (expected 66) ✅ [0.0132 ms]
+  D2: 66 (expected 66) ✅ [0.0093 ms]
 perft(d=3)
-  D3: 1197 (expected 1197) ✅ [9.20874 ms]
+  D3: 1197 (expected 1197) ✅ [10.1943 ms]
 perft(d=4)
-  D4: 7059 (expected 7059) ✅ [1.2683 ms]
+  D4: 7059 (expected 7059) ✅ [0.706799 ms]
 perft(d=5)
-  D5: 133987 (expected 133987) ✅ [17.9553 ms]
+  D5: 133987 (expected 133987) ✅ [10.146 ms]
 perft(d=6)
-  D6: 764643 (expected 764643) ✅ [130.778 ms]
+  D6: 764643 (expected 764643) ✅ [82.8641 ms]
 
 Test 4: 4k3/8/8/8/8/8/8/R3K3 w Q - 0 1 
 perft(d=1)
-  D1: 16 (expected 16) ✅ [2.66457 ms]
+  D1: 16 (expected 16) ✅ [2.9985 ms]
 perft(d=2)
-  D2: 71 (expected 71) ✅ [0.014391 ms]
+  D2: 71 (expected 71) ✅ [0.0105 ms]
 perft(d=3)
-  D3: 1287 (expected 1287) ✅ [10.1779 ms]
+  D3: 1287 (expected 1287) ✅ [11.4973 ms]
 perft(d=4)
-  D4: 7626 (expected 7626) ✅ [1.35034 ms]
+  D4: 7626 (expected 7626) ✅ [0.780199 ms]
 perft(d=5)
-  D5: 145232 (expected 145232) ✅ [19.3982 ms]
+  D5: 145232 (expected 145232) ✅ [11.0861 ms]
 perft(d=6)
-  D6: 846648 (expected 846648) ✅ [143.396 ms]
+  D6: 846648 (expected 846648) ✅ [87.5067 ms]
 
 Test 5: 4k2r/8/8/8/8/8/8/4K3 w k - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.198275 ms]
+  D1: 5 (expected 5) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 75 (expected 75) ✅ [1.94416 ms]
+  D2: 75 (expected 75) ✅ [2.5316 ms]
 perft(d=3)
-  D3: 459 (expected 459) ✅ [0.0748 ms]
+  D3: 459 (expected 459) ✅ [0.0457 ms]
 perft(d=4)
-  D4: 8290 (expected 8290) ✅ [9.48787 ms]
+  D4: 8290 (expected 8290) ✅ [12.1456 ms]
 perft(d=5)
-  D5: 47635 (expected 47635) ✅ [8.34891 ms]
+  D5: 47635 (expected 47635) ✅ [4.93769 ms]
 perft(d=6)
-  D6: 899442 (expected 899442) ✅ [121.678 ms]
+  D6: 899442 (expected 899442) ✅ [68.7061 ms]
 
 Test 6: r3k3/8/8/8/8/8/8/4K3 w q - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.011825 ms]
+  D1: 5 (expected 5) ✅ [0.0075 ms]
 perft(d=2)
-  D2: 80 (expected 80) ✅ [2.39488 ms]
+  D2: 80 (expected 80) ✅ [2.5194 ms]
 perft(d=3)
-  D3: 493 (expected 493) ✅ [0.079475 ms]
+  D3: 493 (expected 493) ✅ [0.047 ms]
 perft(d=4)
-  D4: 8897 (expected 8897) ✅ [10.6799 ms]
+  D4: 8897 (expected 8897) ✅ [12.5906 ms]
 perft(d=5)
-  D5: 52710 (expected 52710) ✅ [9.07033 ms]
+  D5: 52710 (expected 52710) ✅ [5.28179 ms]
 perft(d=6)
-  D6: 1001523 (expected 1001523) ✅ [136.321 ms]
+  D6: 1001523 (expected 1001523) ✅ [78.3872 ms]
 
 Test 7: 4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1 
 perft(d=1)
-  D1: 26 (expected 26) ✅ [4.17102 ms]
+  D1: 26 (expected 26) ✅ [4.72649 ms]
 perft(d=2)
-  D2: 112 (expected 112) ✅ [0.022825 ms]
+  D2: 112 (expected 112) ✅ [0.0152 ms]
 perft(d=3)
-  D3: 3189 (expected 3189) ✅ [6.82632 ms]
+  D3: 3189 (expected 3189) ✅ [7.89129 ms]
 perft(d=4)
-  D4: 17945 (expected 17945) ✅ [3.46729 ms]
+  D4: 17945 (expected 17945) ✅ [1.9858 ms]
 perft(d=5)
-  D5: 532933 (expected 532933) ✅ [72.495 ms]
+  D5: 532933 (expected 532933) ✅ [40.9106 ms]
 perft(d=6)
-  D6: 2788982 (expected 2788982) ✅ [519.197 ms]
+  D6: 2788982 (expected 2788982) ✅ [326.203 ms]
 
 Test 8: r3k2r/8/8/8/8/8/8/4K3 w kq - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.0143 ms]
+  D1: 5 (expected 5) ✅ [0.0139 ms]
 perft(d=2)
-  D2: 130 (expected 130) ✅ [3.79876 ms]
+  D2: 130 (expected 130) ✅ [5.05689 ms]
 perft(d=3)
-  D3: 782 (expected 782) ✅ [0.1331 ms]
+  D3: 782 (expected 782) ✅ [0.0789 ms]
 perft(d=4)
-  D4: 22180 (expected 22180) ✅ [11.3735 ms]
+  D4: 22180 (expected 22180) ✅ [9.75979 ms]
 perft(d=5)
-  D5: 118882 (expected 118882) ✅ [22.4726 ms]
+  D5: 118882 (expected 118882) ✅ [13.5292 ms]
 perft(d=6)
-  D6: 3517770 (expected 3517770) ✅ [487.407 ms]
+  D6: 3517770 (expected 3517770) ✅ [265.187 ms]
 
 Test 9: 8/8/8/8/8/8/6k1/4K2R w K - 0 1 
 perft(d=1)
-  D1: 12 (expected 12) ✅ [3.27452 ms]
+  D1: 12 (expected 12) ✅ [2.4143 ms]
 perft(d=2)
-  D2: 38 (expected 38) ✅ [0.022825 ms]
+  D2: 38 (expected 38) ✅ [0.0105 ms]
 perft(d=3)
-  D3: 564 (expected 564) ✅ [10.0095 ms]
+  D3: 564 (expected 564) ✅ [10.1857 ms]
 perft(d=4)
-  D4: 2219 (expected 2219) ✅ [1.61883 ms]
+  D4: 2219 (expected 2219) ✅ [0.595899 ms]
 perft(d=5)
-  D5: 37735 (expected 37735) ✅ [6.07402 ms]
+  D5: 37735 (expected 37735) ✅ [3.079 ms]
 perft(d=6)
-  D6: 185867 (expected 185867) ✅ [39.5982 ms]
+  D6: 185867 (expected 185867) ✅ [23.2335 ms]
 
 Test 10: 8/8/8/8/8/8/1k6/R3K3 w Q - 0 1 
 perft(d=1)
-  D1: 15 (expected 15) ✅ [2.68437 ms]
+  D1: 15 (expected 15) ✅ [2.342 ms]
 perft(d=2)
-  D2: 65 (expected 65) ✅ [0.2332 ms]
+  D2: 65 (expected 65) ✅ [0.4138 ms]
 perft(d=3)
-  D3: 1018 (expected 1018) ✅ [9.92897 ms]
+  D3: 1018 (expected 1018) ✅ [10.5323 ms]
 perft(d=4)
-  D4: 4573 (expected 4573) ✅ [0.941233 ms]
+  D4: 4573 (expected 4573) ✅ [0.647099 ms]
 perft(d=5)
-  D5: 80619 (expected 80619) ✅ [11.3016 ms]
+  D5: 80619 (expected 80619) ✅ [6.42249 ms]
 perft(d=6)
-  D6: 413018 (expected 413018) ✅ [77.8282 ms]
+  D6: 413018 (expected 413018) ✅ [50.887 ms]
 
 Test 11: 4k2r/6K1/8/8/8/8/8/8 w k - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.351817 ms]
+  D1: 3 (expected 3) ✅ [0.0089 ms]
 perft(d=2)
-  D2: 32 (expected 32) ✅ [2.02226 ms]
+  D2: 32 (expected 32) ✅ [2.7213 ms]
 perft(d=3)
-  D3: 134 (expected 134) ✅ [0.037033 ms]
+  D3: 134 (expected 134) ✅ [0.0243 ms]
 perft(d=4)
-  D4: 2073 (expected 2073) ✅ [9.24174 ms]
+  D4: 2073 (expected 2073) ✅ [12.8148 ms]
 perft(d=5)
-  D5: 10485 (expected 10485) ✅ [2.09394 ms]
+  D5: 10485 (expected 10485) ✅ [1.4578 ms]
 perft(d=6)
-  D6: 179869 (expected 179869) ✅ [25.4952 ms]
+  D6: 179869 (expected 179869) ✅ [15.3639 ms]
 
 Test 12: r3k3/1K6/8/8/8/8/8/8 w q - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.315517 ms]
+  D1: 4 (expected 4) ✅ [0.3691 ms]
 perft(d=2)
-  D2: 49 (expected 49) ✅ [2.22191 ms]
+  D2: 49 (expected 49) ✅ [2.1377 ms]
 perft(d=3)
-  D3: 243 (expected 243) ✅ [0.2838 ms]
+  D3: 243 (expected 243) ✅ [0.3681 ms]
 perft(d=4)
-  D4: 3991 (expected 3991) ✅ [10.313 ms]
+  D4: 3991 (expected 3991) ✅ [11.0973 ms]
 perft(d=5)
-  D5: 20780 (expected 20780) ✅ [4.21456 ms]
+  D5: 20780 (expected 20780) ✅ [2.6629 ms]
 perft(d=6)
-  D6: 367724 (expected 367724) ✅ [52.3859 ms]
+  D6: 367724 (expected 367724) ✅ [29.6361 ms]
 
 Test 13: r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1 
 perft(d=1)
-  D1: 26 (expected 26) ✅ [3.73753 ms]
+  D1: 26 (expected 26) ✅ [4.39419 ms]
 perft(d=2)
-  D2: 568 (expected 568) ✅ [0.974508 ms]
+  D2: 568 (expected 568) ✅ [1.0352 ms]
 perft(d=3)
-  D3: 13744 (expected 13744) ✅ [8.25293 ms]
+  D3: 13744 (expected 13744) ✅ [7.49019 ms]
 perft(d=4)
-  D4: 314346 (expected 314346) ✅ [51.2405 ms]
+  D4: 314346 (expected 314346) ✅ [31.6572 ms]
 perft(d=5)
-  D5: 7594526 (expected 7594526) ✅ [1202.11 ms]
+  D5: 7594526 (expected 7594526) ✅ [696.781 ms]
 perft(d=6)
-  D6: 179862938 (expected 179862938) ✅ [32287.1 ms]
+  D6: 179862938 (expected 179862938) ✅ [17068.3 ms]
 
 Test 14: r3k2r/8/8/8/8/8/8/1R2K2R w Kkq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [4.14379 ms]
+  D1: 25 (expected 25) ✅ [5.58671 ms]
 perft(d=2)
-  D2: 567 (expected 567) ✅ [2.22823 ms]
+  D2: 567 (expected 567) ✅ [2.2138 ms]
 perft(d=3)
-  D3: 14095 (expected 14095) ✅ [7.78305 ms]
+  D3: 14095 (expected 14095) ✅ [7.52781 ms]
 perft(d=4)
-  D4: 328965 (expected 328965) ✅ [53.8158 ms]
+  D4: 328965 (expected 328965) ✅ [32.4967 ms]
 perft(d=5)
-  D5: 8153719 (expected 8153719) ✅ [1300.59 ms]
+  D5: 8153719 (expected 8153719) ✅ [774.428 ms]
 perft(d=6)
-  D6: 195629489 (expected 195629489) ✅ [35067.8 ms]
+  D6: 195629489 (expected 195629489) ✅ [18551 ms]
 
 Test 15: r3k2r/8/8/8/8/8/8/2R1K2R w Kkq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [4.18266 ms]
+  D1: 25 (expected 25) ✅ [10.9382 ms]
 perft(d=2)
-  D2: 548 (expected 548) ✅ [2.43412 ms]
+  D2: 548 (expected 548) ✅ [2.4793 ms]
 perft(d=3)
-  D3: 13502 (expected 13502) ✅ [8.06758 ms]
+  D3: 13502 (expected 13502) ✅ [10.7423 ms]
 perft(d=4)
-  D4: 312835 (expected 312835) ✅ [60.7996 ms]
+  D4: 312835 (expected 312835) ✅ [30.5156 ms]
 perft(d=5)
-  D5: 7736373 (expected 7736373) ✅ [1256.13 ms]
+  D5: 7736373 (expected 7736373) ✅ [765.632 ms]
 perft(d=6)
-  D6: 184411439 (expected 184411439) ✅ [34103.7 ms]
+  D6: 184411439 (expected 184411439) ✅ [17697.6 ms]
 
 Test 16: r3k2r/8/8/8/8/8/8/R3K1R1 w Qkq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [4.38781 ms]
+  D1: 25 (expected 25) ✅ [7.49539 ms]
 perft(d=2)
-  D2: 547 (expected 547) ✅ [1.74222 ms]
+  D2: 547 (expected 547) ✅ [2.5276 ms]
 perft(d=3)
-  D3: 13579 (expected 13579) ✅ [6.90039 ms]
+  D3: 13579 (expected 13579) ✅ [6.81229 ms]
 perft(d=4)
-  D4: 316214 (expected 316214) ✅ [51.4567 ms]
+  D4: 316214 (expected 316214) ✅ [30.826 ms]
 perft(d=5)
-  D5: 7878456 (expected 7878456) ✅ [1241.05 ms]
+  D5: 7878456 (expected 7878456) ✅ [729.177 ms]
 perft(d=6)
-  D6: 189224276 (expected 189224276) ✅ [33834.3 ms]
+  D6: 189224276 (expected 189224276) ✅ [17948 ms]
 
 Test 17: 1r2k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1 
 perft(d=1)
-  D1: 26 (expected 26) ✅ [3.04572 ms]
+  D1: 26 (expected 26) ✅ [3.9666 ms]
 perft(d=2)
-  D2: 583 (expected 583) ✅ [2.72617 ms]
+  D2: 583 (expected 583) ✅ [2.1504 ms]
 perft(d=3)
-  D3: 14252 (expected 14252) ✅ [11.7329 ms]
+  D3: 14252 (expected 14252) ✅ [7.20311 ms]
 perft(d=4)
-  D4: 334705 (expected 334705) ✅ [54.4078 ms]
+  D4: 334705 (expected 334705) ✅ [31.5351 ms]
 perft(d=5)
-  D5: 8198901 (expected 8198901) ✅ [1360.2 ms]
+  D5: 8198901 (expected 8198901) ✅ [756.045 ms]
 perft(d=6)
-  D6: 198328929 (expected 198328929) ✅ [35332.1 ms]
+  D6: 198328929 (expected 198328929) ✅ [18839.7 ms]
 
 Test 18: 2r1k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [3.74797 ms]
+  D1: 25 (expected 25) ✅ [4.8019 ms]
 perft(d=2)
-  D2: 560 (expected 560) ✅ [2.23712 ms]
+  D2: 560 (expected 560) ✅ [3.2213 ms]
 perft(d=3)
-  D3: 13592 (expected 13592) ✅ [7.67122 ms]
+  D3: 13592 (expected 13592) ✅ [8.27149 ms]
 perft(d=4)
-  D4: 317324 (expected 317324) ✅ [50.892 ms]
+  D4: 317324 (expected 317324) ✅ [31.8873 ms]
 perft(d=5)
-  D5: 7710115 (expected 7710115) ✅ [1231.01 ms]
+  D5: 7710115 (expected 7710115) ✅ [724.171 ms]
 perft(d=6)
-  D6: 185959088 (expected 185959088) ✅ [33130.7 ms]
+  D6: 185959088 (expected 185959088) ✅ [17882.9 ms]
 
 Test 19: r3k1r1/8/8/8/8/8/8/R3K2R w KQq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [3.51991 ms]
+  D1: 25 (expected 25) ✅ [5.0599 ms]
 perft(d=2)
-  D2: 560 (expected 560) ✅ [2.38792 ms]
+  D2: 560 (expected 560) ✅ [2.5296 ms]
 perft(d=3)
-  D3: 13607 (expected 13607) ✅ [7.50823 ms]
+  D3: 13607 (expected 13607) ✅ [7.68889 ms]
 perft(d=4)
-  D4: 320792 (expected 320792) ✅ [54.5505 ms]
+  D4: 320792 (expected 320792) ✅ [36.5978 ms]
 perft(d=5)
-  D5: 7848606 (expected 7848606) ✅ [1276.39 ms]
+  D5: 7848606 (expected 7848606) ✅ [729.871 ms]
 perft(d=6)
-  D6: 190755813 (expected 190755813) ✅ [34218.5 ms]
+  D6: 190755813 (expected 190755813) ✅ [17938.8 ms]
 
 Test 20: 4k3/8/8/8/8/8/8/4K2R b K - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.246216 ms]
+  D1: 5 (expected 5) ✅ [0.0084 ms]
 perft(d=2)
-  D2: 75 (expected 75) ✅ [2.56988 ms]
+  D2: 75 (expected 75) ✅ [3.3583 ms]
 perft(d=3)
-  D3: 459 (expected 459) ✅ [0.075992 ms]
+  D3: 459 (expected 459) ✅ [0.0433 ms]
 perft(d=4)
-  D4: 8290 (expected 8290) ✅ [10.8872 ms]
+  D4: 8290 (expected 8290) ✅ [13.8185 ms]
 perft(d=5)
-  D5: 47635 (expected 47635) ✅ [8.64353 ms]
+  D5: 47635 (expected 47635) ✅ [5.4882 ms]
 perft(d=6)
-  D6: 899442 (expected 899442) ✅ [126.801 ms]
+  D6: 899442 (expected 899442) ✅ [66.9714 ms]
 
 Test 21: 4k3/8/8/8/8/8/8/R3K3 b Q - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.289484 ms]
+  D1: 5 (expected 5) ✅ [0.0072 ms]
 perft(d=2)
-  D2: 80 (expected 80) ✅ [2.3694 ms]
+  D2: 80 (expected 80) ✅ [2.8543 ms]
 perft(d=3)
-  D3: 493 (expected 493) ✅ [0.461817 ms]
+  D3: 493 (expected 493) ✅ [0.3887 ms]
 perft(d=4)
-  D4: 8897 (expected 8897) ✅ [11.0156 ms]
+  D4: 8897 (expected 8897) ✅ [10.6869 ms]
 perft(d=5)
-  D5: 52710 (expected 52710) ✅ [8.96482 ms]
+  D5: 52710 (expected 52710) ✅ [5.2303 ms]
 perft(d=6)
-  D6: 1001523 (expected 1001523) ✅ [133.011 ms]
+  D6: 1001523 (expected 1001523) ✅ [75.3304 ms]
 
 Test 22: 4k2r/8/8/8/8/8/8/4K3 b k - 0 1 
 perft(d=1)
-  D1: 15 (expected 15) ✅ [2.26646 ms]
+  D1: 15 (expected 15) ✅ [2.268 ms]
 perft(d=2)
-  D2: 66 (expected 66) ✅ [0.017417 ms]
+  D2: 66 (expected 66) ✅ [0.0089 ms]
 perft(d=3)
-  D3: 1197 (expected 1197) ✅ [9.99973 ms]
+  D3: 1197 (expected 1197) ✅ [10.8741 ms]
 perft(d=4)
-  D4: 7059 (expected 7059) ✅ [1.21385 ms]
+  D4: 7059 (expected 7059) ✅ [0.695801 ms]
 perft(d=5)
-  D5: 133987 (expected 133987) ✅ [18.2087 ms]
+  D5: 133987 (expected 133987) ✅ [10.4571 ms]
 perft(d=6)
-  D6: 764643 (expected 764643) ✅ [130.192 ms]
+  D6: 764643 (expected 764643) ✅ [79.4179 ms]
 
 Test 23: r3k3/8/8/8/8/8/8/4K3 b q - 0 1 
 perft(d=1)
-  D1: 16 (expected 16) ✅ [2.75211 ms]
+  D1: 16 (expected 16) ✅ [3.223 ms]
 perft(d=2)
-  D2: 71 (expected 71) ✅ [0.014392 ms]
+  D2: 71 (expected 71) ✅ [0.01 ms]
 perft(d=3)
-  D3: 1287 (expected 1287) ✅ [9.33057 ms]
+  D3: 1287 (expected 1287) ✅ [12.6154 ms]
 perft(d=4)
-  D4: 7626 (expected 7626) ✅ [1.25895 ms]
+  D4: 7626 (expected 7626) ✅ [0.788901 ms]
 perft(d=5)
-  D5: 145232 (expected 145232) ✅ [20.1395 ms]
+  D5: 145232 (expected 145232) ✅ [11.0867 ms]
 perft(d=6)
-  D6: 846648 (expected 846648) ✅ [142.798 ms]
+  D6: 846648 (expected 846648) ✅ [86.2976 ms]
 
 Test 24: 4k3/8/8/8/8/8/8/R3K2R b KQ - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.28765 ms]
+  D1: 5 (expected 5) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 130 (expected 130) ✅ [4.23509 ms]
+  D2: 130 (expected 130) ✅ [4.5099 ms]
 perft(d=3)
-  D3: 782 (expected 782) ✅ [0.405167 ms]
+  D3: 782 (expected 782) ✅ [0.4228 ms]
 perft(d=4)
-  D4: 22180 (expected 22180) ✅ [10.2818 ms]
+  D4: 22180 (expected 22180) ✅ [8.89931 ms]
 perft(d=5)
-  D5: 118882 (expected 118882) ✅ [22.2608 ms]
+  D5: 118882 (expected 118882) ✅ [15.1077 ms]
 perft(d=6)
-  D6: 3517770 (expected 3517770) ✅ [475.39 ms]
+  D6: 3517770 (expected 3517770) ✅ [307.397 ms]
 
 Test 25: r3k2r/8/8/8/8/8/8/4K3 b kq - 0 1 
 perft(d=1)
-  D1: 26 (expected 26) ✅ [3.86962 ms]
+  D1: 26 (expected 26) ✅ [4.7027 ms]
 perft(d=2)
-  D2: 112 (expected 112) ✅ [0.027592 ms]
+  D2: 112 (expected 112) ✅ [0.0148 ms]
 perft(d=3)
-  D3: 3189 (expected 3189) ✅ [9.01899 ms]
+  D3: 3189 (expected 3189) ✅ [9.43801 ms]
 perft(d=4)
-  D4: 17945 (expected 17945) ✅ [3.31907 ms]
+  D4: 17945 (expected 17945) ✅ [2.0491 ms]
 perft(d=5)
-  D5: 532933 (expected 532933) ✅ [72.8018 ms]
+  D5: 532933 (expected 532933) ✅ [41.9617 ms]
 perft(d=6)
-  D6: 2788982 (expected 2788982) ✅ [524.25 ms]
+  D6: 2788982 (expected 2788982) ✅ [323.569 ms]
 
 Test 26: 8/8/8/8/8/8/6k1/4K2R b K - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.265008 ms]
+  D1: 3 (expected 3) ✅ [0.0104 ms]
 perft(d=2)
-  D2: 32 (expected 32) ✅ [2.76824 ms]
+  D2: 32 (expected 32) ✅ [2.8226 ms]
 perft(d=3)
-  D3: 134 (expected 134) ✅ [0.329725 ms]
+  D3: 134 (expected 134) ✅ [0.3437 ms]
 perft(d=4)
-  D4: 2073 (expected 2073) ✅ [10.0791 ms]
+  D4: 2073 (expected 2073) ✅ [11.312 ms]
 perft(d=5)
-  D5: 10485 (expected 10485) ✅ [2.03463 ms]
+  D5: 10485 (expected 10485) ✅ [1.4024 ms]
 perft(d=6)
-  D6: 179869 (expected 179869) ✅ [25.2091 ms]
+  D6: 179869 (expected 179869) ✅ [14.6829 ms]
 
 Test 27: 8/8/8/8/8/8/1k6/R3K3 b Q - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.429825 ms]
+  D1: 4 (expected 4) ✅ [0.0084 ms]
 perft(d=2)
-  D2: 49 (expected 49) ✅ [2.50323 ms]
+  D2: 49 (expected 49) ✅ [2.3548 ms]
 perft(d=3)
-  D3: 243 (expected 243) ✅ [0.238517 ms]
+  D3: 243 (expected 243) ✅ [0.4606 ms]
 perft(d=4)
-  D4: 3991 (expected 3991) ✅ [9.36357 ms]
+  D4: 3991 (expected 3991) ✅ [10.6771 ms]
 perft(d=5)
-  D5: 20780 (expected 20780) ✅ [4.28661 ms]
+  D5: 20780 (expected 20780) ✅ [2.5894 ms]
 perft(d=6)
-  D6: 367724 (expected 367724) ✅ [50.5801 ms]
+  D6: 367724 (expected 367724) ✅ [29.1734 ms]
 
 Test 28: 4k2r/6K1/8/8/8/8/8/8 b k - 0 1 
 perft(d=1)
-  D1: 12 (expected 12) ✅ [2.63954 ms]
+  D1: 12 (expected 12) ✅ [2.5126 ms]
 perft(d=2)
-  D2: 38 (expected 38) ✅ [0.01705 ms]
+  D2: 38 (expected 38) ✅ [0.0101 ms]
 perft(d=3)
-  D3: 564 (expected 564) ✅ [9.64361 ms]
+  D3: 564 (expected 564) ✅ [10.5647 ms]
 perft(d=4)
-  D4: 2219 (expected 2219) ✅ [0.515442 ms]
+  D4: 2219 (expected 2219) ✅ [0.3543 ms]
 perft(d=5)
-  D5: 37735 (expected 37735) ✅ [5.51137 ms]
+  D5: 37735 (expected 37735) ✅ [3.8822 ms]
 perft(d=6)
-  D6: 185867 (expected 185867) ✅ [36.2284 ms]
+  D6: 185867 (expected 185867) ✅ [24.4008 ms]
 
 Test 29: r3k3/1K6/8/8/8/8/8/8 b q - 0 1 
 perft(d=1)
-  D1: 15 (expected 15) ✅ [2.11603 ms]
+  D1: 15 (expected 15) ✅ [2.4862 ms]
 perft(d=2)
-  D2: 65 (expected 65) ✅ [0.185075 ms]
+  D2: 65 (expected 65) ✅ [0.222701 ms]
 perft(d=3)
-  D3: 1018 (expected 1018) ✅ [9.43232 ms]
+  D3: 1018 (expected 1018) ✅ [10.6296 ms]
 perft(d=4)
-  D4: 4573 (expected 4573) ✅ [1.03812 ms]
+  D4: 4573 (expected 4573) ✅ [0.629501 ms]
 perft(d=5)
-  D5: 80619 (expected 80619) ✅ [11.7387 ms]
+  D5: 80619 (expected 80619) ✅ [6.49941 ms]
 perft(d=6)
-  D6: 413018 (expected 413018) ✅ [78.0039 ms]
+  D6: 413018 (expected 413018) ✅ [50.8252 ms]
 
 Test 30: r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1 
 perft(d=1)
-  D1: 26 (expected 26) ✅ [3.59792 ms]
+  D1: 26 (expected 26) ✅ [4.2993 ms]
 perft(d=2)
-  D2: 568 (expected 568) ✅ [1.65935 ms]
+  D2: 568 (expected 568) ✅ [1.6475 ms]
 perft(d=3)
-  D3: 13744 (expected 13744) ✅ [7.88343 ms]
+  D3: 13744 (expected 13744) ✅ [8.34381 ms]
 perft(d=4)
-  D4: 314346 (expected 314346) ✅ [52.5082 ms]
+  D4: 314346 (expected 314346) ✅ [29.1718 ms]
 perft(d=5)
-  D5: 7594526 (expected 7594526) ✅ [1222.04 ms]
+  D5: 7594526 (expected 7594526) ✅ [697.39 ms]
 perft(d=6)
-  D6: 179862938 (expected 179862938) ✅ [31919.3 ms]
+  D6: 179862938 (expected 179862938) ✅ [16765.8 ms]
 
 Test 31: r3k2r/8/8/8/8/8/8/1R2K2R b Kkq - 0 1 
 perft(d=1)
-  D1: 26 (expected 26) ✅ [3.7521 ms]
+  D1: 26 (expected 26) ✅ [3.80159 ms]
 perft(d=2)
-  D2: 583 (expected 583) ✅ [2.80463 ms]
+  D2: 583 (expected 583) ✅ [3.2819 ms]
 perft(d=3)
-  D3: 14252 (expected 14252) ✅ [8.21966 ms]
+  D3: 14252 (expected 14252) ✅ [6.57729 ms]
 perft(d=4)
-  D4: 334705 (expected 334705) ✅ [53.8578 ms]
+  D4: 334705 (expected 334705) ✅ [31.6977 ms]
 perft(d=5)
-  D5: 8198901 (expected 8198901) ✅ [1320.87 ms]
+  D5: 8198901 (expected 8198901) ✅ [768.775 ms]
 perft(d=6)
-  D6: 198328929 (expected 198328929) ✅ [34555.2 ms]
+  D6: 198328929 (expected 198328929) ✅ [18728.1 ms]
 
 Test 32: r3k2r/8/8/8/8/8/8/2R1K2R b Kkq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [4.06065 ms]
+  D1: 25 (expected 25) ✅ [5.0102 ms]
 perft(d=2)
-  D2: 560 (expected 560) ✅ [2.78392 ms]
+  D2: 560 (expected 560) ✅ [2.9984 ms]
 perft(d=3)
-  D3: 13592 (expected 13592) ✅ [8.2522 ms]
+  D3: 13592 (expected 13592) ✅ [6.6191 ms]
 perft(d=4)
-  D4: 317324 (expected 317324) ✅ [50.4918 ms]
+  D4: 317324 (expected 317324) ✅ [29.6306 ms]
 perft(d=5)
-  D5: 7710115 (expected 7710115) ✅ [1246.96 ms]
+  D5: 7710115 (expected 7710115) ✅ [724.97 ms]
 perft(d=6)
-  D6: 185959088 (expected 185959088) ✅ [32780.1 ms]
+  D6: 185959088 (expected 185959088) ✅ [17403.3 ms]
 
 Test 33: r3k2r/8/8/8/8/8/8/R3K1R1 b Qkq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [3.41211 ms]
+  D1: 25 (expected 25) ✅ [4.5616 ms]
 perft(d=2)
-  D2: 560 (expected 560) ✅ [2.08982 ms]
+  D2: 560 (expected 560) ✅ [2.6526 ms]
 perft(d=3)
-  D3: 13607 (expected 13607) ✅ [6.79534 ms]
+  D3: 13607 (expected 13607) ✅ [7.17891 ms]
 perft(d=4)
-  D4: 320792 (expected 320792) ✅ [50.8614 ms]
+  D4: 320792 (expected 320792) ✅ [29.713 ms]
 perft(d=5)
-  D5: 7848606 (expected 7848606) ✅ [1299.55 ms]
+  D5: 7848606 (expected 7848606) ✅ [747.269 ms]
 perft(d=6)
-  D6: 190755813 (expected 190755813) ✅ [33413.5 ms]
+  D6: 190755813 (expected 190755813) ✅ [17878.5 ms]
 
 Test 34: 1r2k2r/8/8/8/8/8/8/R3K2R b KQk - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [3.52027 ms]
+  D1: 25 (expected 25) ✅ [5.06529 ms]
 perft(d=2)
-  D2: 567 (expected 567) ✅ [1.43101 ms]
+  D2: 567 (expected 567) ✅ [1.9969 ms]
 perft(d=3)
-  D3: 14095 (expected 14095) ✅ [6.82229 ms]
+  D3: 14095 (expected 14095) ✅ [6.86359 ms]
 perft(d=4)
-  D4: 328965 (expected 328965) ✅ [52.5756 ms]
+  D4: 328965 (expected 328965) ✅ [30.6189 ms]
 perft(d=5)
-  D5: 8153719 (expected 8153719) ✅ [1307.23 ms]
+  D5: 8153719 (expected 8153719) ✅ [769.595 ms]
 perft(d=6)
-  D6: 195629489 (expected 195629489) ✅ [34429.6 ms]
+  D6: 195629489 (expected 195629489) ✅ [18347.8 ms]
 
 Test 35: 2r1k2r/8/8/8/8/8/8/R3K2R b KQk - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [4.26543 ms]
+  D1: 25 (expected 25) ✅ [5.6274 ms]
 perft(d=2)
-  D2: 548 (expected 548) ✅ [1.94608 ms]
+  D2: 548 (expected 548) ✅ [2.6339 ms]
 perft(d=3)
-  D3: 13502 (expected 13502) ✅ [7.32637 ms]
+  D3: 13502 (expected 13502) ✅ [8.30441 ms]
 perft(d=4)
-  D4: 312835 (expected 312835) ✅ [49.7834 ms]
+  D4: 312835 (expected 312835) ✅ [29.5268 ms]
 perft(d=5)
-  D5: 7736373 (expected 7736373) ✅ [1262.7 ms]
+  D5: 7736373 (expected 7736373) ✅ [713.722 ms]
 perft(d=6)
-  D6: 184411439 (expected 184411439) ✅ [32547.2 ms]
+  D6: 184411439 (expected 184411439) ✅ [17822.8 ms]
 
 Test 36: r3k1r1/8/8/8/8/8/8/R3K2R b KQq - 0 1 
 perft(d=1)
-  D1: 25 (expected 25) ✅ [4.83459 ms]
+  D1: 25 (expected 25) ✅ [3.5501 ms]
 perft(d=2)
-  D2: 547 (expected 547) ✅ [2.1813 ms]
+  D2: 547 (expected 547) ✅ [2.0606 ms]
 perft(d=3)
-  D3: 13579 (expected 13579) ✅ [9.13541 ms]
+  D3: 13579 (expected 13579) ✅ [6.3534 ms]
 perft(d=4)
-  D4: 316214 (expected 316214) ✅ [51.2424 ms]
+  D4: 316214 (expected 316214) ✅ [30.9063 ms]
 perft(d=5)
-  D5: 7878456 (expected 7878456) ✅ [1265.31 ms]
+  D5: 7878456 (expected 7878456) ✅ [829.526 ms]
 perft(d=6)
-  D6: 189224276 (expected 189224276) ✅ [33284.5 ms]
+  D6: 189224276 (expected 189224276) ✅ [17706.6 ms]
 
 Test 37: 8/1n4N1/2k5/8/8/5K2/1N4n1/8 w - - 0 1 
 perft(d=1)
-  D1: 14 (expected 14) ✅ [0.319 ms]
+  D1: 14 (expected 14) ✅ [0.0096 ms]
 perft(d=2)
-  D2: 195 (expected 195) ✅ [0.031075 ms]
+  D2: 195 (expected 195) ✅ [0.0177 ms]
 perft(d=3)
-  D3: 2760 (expected 2760) ✅ [0.44715 ms]
+  D3: 2760 (expected 2760) ✅ [0.328099 ms]
 perft(d=4)
-  D4: 38675 (expected 38675) ✅ [6.33362 ms]
+  D4: 38675 (expected 38675) ✅ [3.62189 ms]
 perft(d=5)
-  D5: 570726 (expected 570726) ✅ [93.1713 ms]
+  D5: 570726 (expected 570726) ✅ [54.9825 ms]
 perft(d=6)
-  D6: 8107539 (expected 8107539) ✅ [1309.75 ms]
+  D6: 8107539 (expected 8107539) ✅ [766.536 ms]
 
 Test 38: 8/1k6/8/5N2/8/4n3/8/2K5 w - - 0 1 
 perft(d=1)
-  D1: 11 (expected 11) ✅ [0.287467 ms]
+  D1: 11 (expected 11) ✅ [0.0083 ms]
 perft(d=2)
-  D2: 156 (expected 156) ✅ [0.024017 ms]
+  D2: 156 (expected 156) ✅ [0.0134 ms]
 perft(d=3)
-  D3: 1636 (expected 1636) ✅ [0.324409 ms]
+  D3: 1636 (expected 1636) ✅ [0.183199 ms]
 perft(d=4)
-  D4: 20534 (expected 20534) ✅ [2.92426 ms]
+  D4: 20534 (expected 20534) ✅ [1.6749 ms]
 perft(d=5)
-  D5: 223507 (expected 223507) ✅ [35.1731 ms]
+  D5: 223507 (expected 223507) ✅ [19.6566 ms]
 perft(d=6)
-  D6: 2594412 (expected 2594412) ✅ [386.576 ms]
+  D6: 2594412 (expected 2594412) ✅ [219.389 ms]
 
 Test 39: 8/8/4k3/3Nn3/3nN3/4K3/8/8 w - - 0 1 
 perft(d=1)
-  D1: 19 (expected 19) ✅ [0.377484 ms]
+  D1: 19 (expected 19) ✅ [0.009 ms]
 perft(d=2)
-  D2: 289 (expected 289) ✅ [0.052709 ms]
+  D2: 289 (expected 289) ✅ [0.0341 ms]
 perft(d=3)
-  D3: 4442 (expected 4442) ✅ [0.781 ms]
+  D3: 4442 (expected 4442) ✅ [0.502001 ms]
 perft(d=4)
-  D4: 73584 (expected 73584) ✅ [12.3472 ms]
+  D4: 73584 (expected 73584) ✅ [7.6969 ms]
 perft(d=5)
-  D5: 1198299 (expected 1198299) ✅ [199.45 ms]
+  D5: 1198299 (expected 1198299) ✅ [122.391 ms]
 perft(d=6)
-  D6: 19870403 (expected 19870403) ✅ [3274.61 ms]
+  D6: 19870403 (expected 19870403) ✅ [2022.94 ms]
 
 Test 40: K7/8/2n5/1n6/8/8/8/k6N w - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.276009 ms]
+  D1: 3 (expected 3) ✅ [0.0087 ms]
 perft(d=2)
-  D2: 51 (expected 51) ✅ [0.008892 ms]
+  D2: 51 (expected 51) ✅ [0.005 ms]
 perft(d=3)
-  D3: 345 (expected 345) ✅ [0.065266 ms]
+  D3: 345 (expected 345) ✅ [0.0415 ms]
 perft(d=4)
-  D4: 5301 (expected 5301) ✅ [0.799059 ms]
+  D4: 5301 (expected 5301) ✅ [0.4406 ms]
 perft(d=5)
-  D5: 38348 (expected 38348) ✅ [7.15596 ms]
+  D5: 38348 (expected 38348) ✅ [4.2792 ms]
 perft(d=6)
-  D6: 588695 (expected 588695) ✅ [107.257 ms]
+  D6: 588695 (expected 588695) ✅ [50.0083 ms]
 
 Test 41: k7/8/2N5/1N6/8/8/8/K6n w - - 0 1 
 perft(d=1)
-  D1: 17 (expected 17) ✅ [0.337792 ms]
+  D1: 17 (expected 17) ✅ [0.0091 ms]
 perft(d=2)
-  D2: 54 (expected 54) ✅ [0.014209 ms]
+  D2: 54 (expected 54) ✅ [0.0091 ms]
 perft(d=3)
-  D3: 835 (expected 835) ✅ [0.1254 ms]
+  D3: 835 (expected 835) ✅ [0.0817 ms]
 perft(d=4)
-  D4: 5910 (expected 5910) ✅ [1.07158 ms]
+  D4: 5910 (expected 5910) ✅ [0.6552 ms]
 perft(d=5)
-  D5: 92250 (expected 92250) ✅ [13.8986 ms]
+  D5: 92250 (expected 92250) ✅ [7.8192 ms]
 perft(d=6)
-  D6: 688780 (expected 688780) ✅ [122.32 ms]
+  D6: 688780 (expected 688780) ✅ [74.7643 ms]
 
 Test 42: 8/1n4N1/2k5/8/8/5K2/1N4n1/8 b - - 0 1 
 perft(d=1)
-  D1: 15 (expected 15) ✅ [0.36685 ms]
+  D1: 15 (expected 15) ✅ [0.0096 ms]
 perft(d=2)
-  D2: 193 (expected 193) ✅ [0.033092 ms]
+  D2: 193 (expected 193) ✅ [0.0201 ms]
 perft(d=3)
-  D3: 2816 (expected 2816) ✅ [0.494175 ms]
+  D3: 2816 (expected 2816) ✅ [0.2652 ms]
 perft(d=4)
-  D4: 40039 (expected 40039) ✅ [6.64748 ms]
+  D4: 40039 (expected 40039) ✅ [3.8889 ms]
 perft(d=5)
-  D5: 582642 (expected 582642) ✅ [93.6285 ms]
+  D5: 582642 (expected 582642) ✅ [55.268 ms]
 perft(d=6)
-  D6: 8503277 (expected 8503277) ✅ [1389.69 ms]
+  D6: 8503277 (expected 8503277) ✅ [805.69 ms]
 
 Test 43: 8/1k6/8/5N2/8/4n3/8/2K5 b - - 0 1 
 perft(d=1)
-  D1: 16 (expected 16) ✅ [0.356033 ms]
+  D1: 16 (expected 16) ✅ [0.0096 ms]
 perft(d=2)
-  D2: 180 (expected 180) ✅ [0.029059 ms]
+  D2: 180 (expected 180) ✅ [0.0166 ms]
 perft(d=3)
-  D3: 2290 (expected 2290) ✅ [0.329725 ms]
+  D3: 2290 (expected 2290) ✅ [0.1894 ms]
 perft(d=4)
-  D4: 24640 (expected 24640) ✅ [3.84707 ms]
+  D4: 24640 (expected 24640) ✅ [2.3677 ms]
 perft(d=5)
-  D5: 288141 (expected 288141) ✅ [42.952 ms]
+  D5: 288141 (expected 288141) ✅ [24.4869 ms]
 perft(d=6)
-  D6: 3147566 (expected 3147566) ✅ [481.529 ms]
+  D6: 3147566 (expected 3147566) ✅ [276.28 ms]
 
 Test 44: 8/8/3K4/3Nn3/3nN3/4k3/8/8 b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.247225 ms]
+  D1: 4 (expected 4) ✅ [0.007 ms]
 perft(d=2)
-  D2: 68 (expected 68) ✅ [0.015767 ms]
+  D2: 68 (expected 68) ✅ [0.0106 ms]
 perft(d=3)
-  D3: 1118 (expected 1118) ✅ [0.186725 ms]
+  D3: 1118 (expected 1118) ✅ [0.1271 ms]
 perft(d=4)
-  D4: 16199 (expected 16199) ✅ [2.8512 ms]
+  D4: 16199 (expected 16199) ✅ [1.8254 ms]
 perft(d=5)
-  D5: 281190 (expected 281190) ✅ [47.4018 ms]
+  D5: 281190 (expected 281190) ✅ [27.4388 ms]
 perft(d=6)
-  D6: 4405103 (expected 4405103) ✅ [735.144 ms]
+  D6: 4405103 (expected 4405103) ✅ [459.089 ms]
 
 Test 45: K7/8/2n5/1n6/8/8/8/k6N b - - 0 1 
 perft(d=1)
-  D1: 17 (expected 17) ✅ [0.2816 ms]
+  D1: 17 (expected 17) ✅ [0.0086 ms]
 perft(d=2)
-  D2: 54 (expected 54) ✅ [0.014392 ms]
+  D2: 54 (expected 54) ✅ [0.0093 ms]
 perft(d=3)
-  D3: 835 (expected 835) ✅ [0.135483 ms]
+  D3: 835 (expected 835) ✅ [0.0723 ms]
 perft(d=4)
-  D4: 5910 (expected 5910) ✅ [1.07131 ms]
+  D4: 5910 (expected 5910) ✅ [0.670001 ms]
 perft(d=5)
-  D5: 92250 (expected 92250) ✅ [14.2345 ms]
+  D5: 92250 (expected 92250) ✅ [7.7082 ms]
 perft(d=6)
-  D6: 688780 (expected 688780) ✅ [127.921 ms]
+  D6: 688780 (expected 688780) ✅ [73.9291 ms]
 
 Test 46: k7/8/2N5/1N6/8/8/8/K6n b - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.39215 ms]
+  D1: 3 (expected 3) ✅ [0.0079 ms]
 perft(d=2)
-  D2: 51 (expected 51) ✅ [0.009075 ms]
+  D2: 51 (expected 51) ✅ [0.0051 ms]
 perft(d=3)
-  D3: 345 (expected 345) ✅ [0.065725 ms]
+  D3: 345 (expected 345) ✅ [0.0418 ms]
 perft(d=4)
-  D4: 5301 (expected 5301) ✅ [0.818675 ms]
+  D4: 5301 (expected 5301) ✅ [0.4632 ms]
 perft(d=5)
-  D5: 38348 (expected 38348) ✅ [6.94733 ms]
+  D5: 38348 (expected 38348) ✅ [4.4231 ms]
 perft(d=6)
-  D6: 588695 (expected 588695) ✅ [88.4415 ms]
+  D6: 588695 (expected 588695) ✅ [50.0227 ms]
 
 Test 47: B6b/8/8/8/2K5/4k3/8/b6B w - - 0 1 
 perft(d=1)
-  D1: 17 (expected 17) ✅ [1.43898 ms]
+  D1: 17 (expected 17) ✅ [1.4626 ms]
 perft(d=2)
-  D2: 278 (expected 278) ✅ [0.053533 ms]
+  D2: 278 (expected 278) ✅ [0.0373 ms]
 perft(d=3)
-  D3: 4607 (expected 4607) ✅ [1.01585 ms]
+  D3: 4607 (expected 4607) ✅ [0.8427 ms]
 perft(d=4)
-  D4: 76778 (expected 76778) ✅ [13.1228 ms]
+  D4: 76778 (expected 76778) ✅ [8.3263 ms]
 perft(d=5)
-  D5: 1320507 (expected 1320507) ✅ [218.741 ms]
+  D5: 1320507 (expected 1320507) ✅ [138.058 ms]
 perft(d=6)
-  D6: 22823890 (expected 22823890) ✅ [3808.35 ms]
+  D6: 22823890 (expected 22823890) ✅ [2448.34 ms]
 
 Test 48: 8/8/1B6/7b/7k/8/2B1b3/7K w - - 0 1 
 perft(d=1)
-  D1: 21 (expected 21) ✅ [0.837284 ms]
+  D1: 21 (expected 21) ✅ [0.7345 ms]
 perft(d=2)
-  D2: 316 (expected 316) ✅ [0.067834 ms]
+  D2: 316 (expected 316) ✅ [0.032 ms]
 perft(d=3)
-  D3: 5744 (expected 5744) ✅ [1.18974 ms]
+  D3: 5744 (expected 5744) ✅ [0.834999 ms]
 perft(d=4)
-  D4: 93338 (expected 93338) ✅ [16.0043 ms]
+  D4: 93338 (expected 93338) ✅ [9.35949 ms]
 perft(d=5)
-  D5: 1713368 (expected 1713368) ✅ [278.637 ms]
+  D5: 1713368 (expected 1713368) ✅ [166.054 ms]
 perft(d=6)
-  D6: 28861171 (expected 28861171) ✅ [4951.88 ms]
+  D6: 28861171 (expected 28861171) ✅ [3041.36 ms]
 
 Test 49: k7/B7/1B6/1B6/8/8/8/K6b w - - 0 1 
 perft(d=1)
-  D1: 21 (expected 21) ✅ [1.12649 ms]
+  D1: 21 (expected 21) ✅ [1.2226 ms]
 perft(d=2)
-  D2: 144 (expected 144) ✅ [0.0308 ms]
+  D2: 144 (expected 144) ✅ [0.0196 ms]
 perft(d=3)
-  D3: 3242 (expected 3242) ✅ [0.822984 ms]
+  D3: 3242 (expected 3242) ✅ [0.8004 ms]
 perft(d=4)
-  D4: 32955 (expected 32955) ✅ [6.63547 ms]
+  D4: 32955 (expected 32955) ✅ [4.2277 ms]
 perft(d=5)
-  D5: 787524 (expected 787524) ✅ [120.372 ms]
+  D5: 787524 (expected 787524) ✅ [73.3282 ms]
 perft(d=6)
-  D6: 7881673 (expected 7881673) ✅ [1464.93 ms]
+  D6: 7881673 (expected 7881673) ✅ [897.396 ms]
 
 Test 50: K7/b7/1b6/1b6/8/8/8/k6B w - - 0 1 
 perft(d=1)
-  D1: 7 (expected 7) ✅ [1.26876 ms]
+  D1: 7 (expected 7) ✅ [1.1171 ms]
 perft(d=2)
-  D2: 143 (expected 143) ✅ [0.026125 ms]
+  D2: 143 (expected 143) ✅ [0.017 ms]
 perft(d=3)
-  D3: 1416 (expected 1416) ✅ [0.739567 ms]
+  D3: 1416 (expected 1416) ✅ [0.6113 ms]
 perft(d=4)
-  D4: 31787 (expected 31787) ✅ [5.76785 ms]
+  D4: 31787 (expected 31787) ✅ [3.1257 ms]
 perft(d=5)
-  D5: 310862 (expected 310862) ✅ [57.3129 ms]
+  D5: 310862 (expected 310862) ✅ [34.043 ms]
 perft(d=6)
-  D6: 7382896 (expected 7382896) ✅ [4070.91 ms]
+  D6: 7382896 (expected 7382896) ✅ [668.461 ms]
 
 Test 51: B6b/8/8/8/2K5/5k2/8/b6B b - - 0 1 
 perft(d=1)
-  D1: 6 (expected 6) ✅ [1.36079 ms]
+  D1: 6 (expected 6) ✅ [0.8799 ms]
 perft(d=2)
-  D2: 106 (expected 106) ✅ [0.021909 ms]
+  D2: 106 (expected 106) ✅ [0.0179 ms]
 perft(d=3)
-  D3: 1829 (expected 1829) ✅ [0.302958 ms]
+  D3: 1829 (expected 1829) ✅ [0.1827 ms]
 perft(d=4)
-  D4: 31151 (expected 31151) ✅ [5.6375 ms]
+  D4: 31151 (expected 31151) ✅ [3.3645 ms]
 perft(d=5)
-  D5: 530585 (expected 530585) ✅ [89.738 ms]
+  D5: 530585 (expected 530585) ✅ [53.0557 ms]
 perft(d=6)
-  D6: 9250746 (expected 9250746) ✅ [1531.36 ms]
+  D6: 9250746 (expected 9250746) ✅ [907.789 ms]
 
 Test 52: 8/8/1B6/7b/7k/8/2B1b3/7K b - - 0 1 
 perft(d=1)
-  D1: 17 (expected 17) ✅ [1.0692 ms]
+  D1: 17 (expected 17) ✅ [0.7372 ms]
 perft(d=2)
-  D2: 309 (expected 309) ✅ [0.0594 ms]
+  D2: 309 (expected 309) ✅ [0.0375 ms]
 perft(d=3)
-  D3: 5133 (expected 5133) ✅ [0.873767 ms]
+  D3: 5133 (expected 5133) ✅ [0.517801 ms]
 perft(d=4)
-  D4: 93603 (expected 93603) ✅ [15.9655 ms]
+  D4: 93603 (expected 93603) ✅ [9.4962 ms]
 perft(d=5)
-  D5: 1591064 (expected 1591064) ✅ [276.714 ms]
+  D5: 1591064 (expected 1591064) ✅ [161.379 ms]
 perft(d=6)
-  D6: 29027891 (expected 29027891) ✅ [4783.23 ms]
+  D6: 29027891 (expected 29027891) ✅ [2847.62 ms]
 
 Test 53: k7/B7/1B6/1B6/8/8/8/K6b b - - 0 1 
 perft(d=1)
-  D1: 7 (expected 7) ✅ [1.13749 ms]
+  D1: 7 (expected 7) ✅ [0.993299 ms]
 perft(d=2)
-  D2: 143 (expected 143) ✅ [0.027317 ms]
+  D2: 143 (expected 143) ✅ [0.0175 ms]
 perft(d=3)
-  D3: 1416 (expected 1416) ✅ [0.816016 ms]
+  D3: 1416 (expected 1416) ✅ [0.6908 ms]
 perft(d=4)
-  D4: 31787 (expected 31787) ✅ [5.64703 ms]
+  D4: 31787 (expected 31787) ✅ [3.0907 ms]
 perft(d=5)
-  D5: 310862 (expected 310862) ✅ [58.3083 ms]
+  D5: 310862 (expected 310862) ✅ [35.2777 ms]
 perft(d=6)
-  D6: 7382896 (expected 7382896) ✅ [1122.76 ms]
+  D6: 7382896 (expected 7382896) ✅ [646.96 ms]
 
 Test 54: K7/b7/1b6/1b6/8/8/8/k6B b - - 0 1 
 perft(d=1)
-  D1: 21 (expected 21) ✅ [1.21706 ms]
+  D1: 21 (expected 21) ✅ [0.9068 ms]
 perft(d=2)
-  D2: 144 (expected 144) ✅ [0.029425 ms]
+  D2: 144 (expected 144) ✅ [0.019 ms]
 perft(d=3)
-  D3: 3242 (expected 3242) ✅ [1.07983 ms]
+  D3: 3242 (expected 3242) ✅ [0.786199 ms]
 perft(d=4)
-  D4: 32955 (expected 32955) ✅ [6.31272 ms]
+  D4: 32955 (expected 32955) ✅ [4.0214 ms]
 perft(d=5)
-  D5: 787524 (expected 787524) ✅ [121.79 ms]
+  D5: 787524 (expected 787524) ✅ [69.1247 ms]
 perft(d=6)
-  D6: 7881673 (expected 7881673) ✅ [1422.35 ms]
+  D6: 7881673 (expected 7881673) ✅ [858.589 ms]
 
 Test 55: 7k/RR6/8/8/8/8/rr6/7K w - - 0 1 
 perft(d=1)
-  D1: 19 (expected 19) ✅ [3.53879 ms]
+  D1: 19 (expected 19) ✅ [3.8137 ms]
 perft(d=2)
-  D2: 275 (expected 275) ✅ [1.77228 ms]
+  D2: 275 (expected 275) ✅ [2.0085 ms]
 perft(d=3)
-  D3: 5300 (expected 5300) ✅ [7.13277 ms]
+  D3: 5300 (expected 5300) ✅ [9.6121 ms]
 perft(d=4)
-  D4: 104342 (expected 104342) ✅ [18.583 ms]
+  D4: 104342 (expected 104342) ✅ [11.2468 ms]
 perft(d=5)
-  D5: 2161211 (expected 2161211) ✅ [363.308 ms]
+  D5: 2161211 (expected 2161211) ✅ [220.456 ms]
 perft(d=6)
-  D6: 44956585 (expected 44956585) ✅ [7654.8 ms]
+  D6: 44956585 (expected 44956585) ✅ [4721.06 ms]
 
 Test 56: R6r/8/8/2K5/5k2/8/8/r6R w - - 0 1 
 perft(d=1)
-  D1: 36 (expected 36) ✅ [5.11372 ms]
+  D1: 36 (expected 36) ✅ [5.98259 ms]
 perft(d=2)
-  D2: 1027 (expected 1027) ✅ [0.431566 ms]
+  D2: 1027 (expected 1027) ✅ [0.3237 ms]
 perft(d=3)
-  D3: 29215 (expected 29215) ✅ [10.6494 ms]
+  D3: 29215 (expected 29215) ✅ [9.40049 ms]
 perft(d=4)
-  D4: 771461 (expected 771461) ✅ [124.88 ms]
+  D4: 771461 (expected 771461) ✅ [73.2963 ms]
 perft(d=5)
-  D5: 20506480 (expected 20506480) ✅ [3263.38 ms]
+  D5: 20506480 (expected 20506480) ✅ [1968.04 ms]
 perft(d=6)
-  D6: 525169084 (expected 525169084) ✅ [94794.5 ms]
+  D6: 525169084 (expected 525169084) ✅ [50838.3 ms]
 
 Test 57: 7k/RR6/8/8/8/8/rr6/7K b - - 0 1 
 perft(d=1)
-  D1: 19 (expected 19) ✅ [3.49424 ms]
+  D1: 19 (expected 19) ✅ [3.1274 ms]
 perft(d=2)
-  D2: 275 (expected 275) ✅ [1.44641 ms]
+  D2: 275 (expected 275) ✅ [1.4368 ms]
 perft(d=3)
-  D3: 5300 (expected 5300) ✅ [7.05558 ms]
+  D3: 5300 (expected 5300) ✅ [6.3321 ms]
 perft(d=4)
-  D4: 104342 (expected 104342) ✅ [18.4512 ms]
+  D4: 104342 (expected 104342) ✅ [11.0003 ms]
 perft(d=5)
-  D5: 2161211 (expected 2161211) ✅ [372.653 ms]
+  D5: 2161211 (expected 2161211) ✅ [225.131 ms]
 perft(d=6)
-  D6: 44956585 (expected 44956585) ✅ [7564.09 ms]
+  D6: 44956585 (expected 44956585) ✅ [4552.66 ms]
 
 Test 58: R6r/8/8/2K5/5k2/8/8/r6R b - - 0 1 
 perft(d=1)
-  D1: 36 (expected 36) ✅ [5.0974 ms]
+  D1: 36 (expected 36) ✅ [5.7259 ms]
 perft(d=2)
-  D2: 1027 (expected 1027) ✅ [0.382617 ms]
+  D2: 1027 (expected 1027) ✅ [0.420699 ms]
 perft(d=3)
-  D3: 29227 (expected 29227) ✅ [12.6868 ms]
+  D3: 29227 (expected 29227) ✅ [10.622 ms]
 perft(d=4)
-  D4: 771368 (expected 771368) ✅ [123.587 ms]
+  D4: 771368 (expected 771368) ✅ [73.6326 ms]
 perft(d=5)
-  D5: 20521342 (expected 20521342) ✅ [3364.86 ms]
+  D5: 20521342 (expected 20521342) ✅ [1936.34 ms]
 perft(d=6)
-  D6: 524966748 (expected 524966748) ✅ [93780 ms]
+  D6: 524966748 (expected 524966748) ✅ [50102.7 ms]
 
 Test 59: 6kq/8/8/8/8/8/8/7K w - - 0 1 
 perft(d=1)
-  D1: 2 (expected 2) ✅ [0.2266 ms]
+  D1: 2 (expected 2) ✅ [0.0075 ms]
 perft(d=2)
-  D2: 36 (expected 36) ✅ [4.51633 ms]
+  D2: 36 (expected 36) ✅ [4.6878 ms]
 perft(d=3)
-  D3: 143 (expected 143) ✅ [0.033091 ms]
+  D3: 143 (expected 143) ✅ [0.0227 ms]
 perft(d=4)
-  D4: 3637 (expected 3637) ✅ [8.42362 ms]
+  D4: 3637 (expected 3637) ✅ [9.43 ms]
 perft(d=5)
-  D5: 14893 (expected 14893) ✅ [3.1537 ms]
+  D5: 14893 (expected 14893) ✅ [2.0004 ms]
 perft(d=6)
-  D6: 391507 (expected 391507) ✅ [52.8607 ms]
+  D6: 391507 (expected 391507) ✅ [30.6728 ms]
 
 Test 60: 6KQ/8/8/8/8/8/8/7k b - - 0 1 
 perft(d=1)
-  D1: 2 (expected 2) ✅ [0.230633 ms]
+  D1: 2 (expected 2) ✅ [0.0077 ms]
 perft(d=2)
-  D2: 36 (expected 36) ✅ [4.52925 ms]
+  D2: 36 (expected 36) ✅ [4.5397 ms]
 perft(d=3)
-  D3: 143 (expected 143) ✅ [0.03355 ms]
+  D3: 143 (expected 143) ✅ [0.0295 ms]
 perft(d=4)
-  D4: 3637 (expected 3637) ✅ [9.13238 ms]
+  D4: 3637 (expected 3637) ✅ [9.7776 ms]
 perft(d=5)
-  D5: 14893 (expected 14893) ✅ [3.15627 ms]
+  D5: 14893 (expected 14893) ✅ [2.0691 ms]
 perft(d=6)
-  D6: 391507 (expected 391507) ✅ [52.1219 ms]
+  D6: 391507 (expected 391507) ✅ [29.8168 ms]
 
 Test 61: K7/8/8/3Q4/4q3/8/8/7k w - - 0 1 
 perft(d=1)
-  D1: 6 (expected 6) ✅ [7.29978 ms]
+  D1: 6 (expected 6) ✅ [7.2839 ms]
 perft(d=2)
-  D2: 35 (expected 35) ✅ [3.51349 ms]
+  D2: 35 (expected 35) ✅ [3.1293 ms]
 perft(d=3)
-  D3: 495 (expected 495) ✅ [2.25326 ms]
+  D3: 495 (expected 495) ✅ [2.1548 ms]
 perft(d=4)
-  D4: 8349 (expected 8349) ✅ [2.81004 ms]
+  D4: 8349 (expected 8349) ✅ [2.2515 ms]
 perft(d=5)
-  D5: 166741 (expected 166741) ✅ [27.8771 ms]
+  D5: 166741 (expected 166741) ✅ [17.6262 ms]
 perft(d=6)
-  D6: 3370175 (expected 3370175) ✅ [567.038 ms]
+  D6: 3370175 (expected 3370175) ✅ [346.103 ms]
 
 Test 62: 6qk/8/8/8/8/8/8/7K b - - 0 1 
 perft(d=1)
-  D1: 22 (expected 22) ✅ [5.21565 ms]
+  D1: 22 (expected 22) ✅ [7.2454 ms]
 perft(d=2)
-  D2: 43 (expected 43) ✅ [0.015125 ms]
+  D2: 43 (expected 43) ✅ [0.0094 ms]
 perft(d=3)
-  D3: 1015 (expected 1015) ✅ [7.46103 ms]
+  D3: 1015 (expected 1015) ✅ [11.045 ms]
 perft(d=4)
-  D4: 4167 (expected 4167) ✅ [0.865058 ms]
+  D4: 4167 (expected 4167) ✅ [0.6077 ms]
 perft(d=5)
-  D5: 105749 (expected 105749) ✅ [15.2499 ms]
+  D5: 105749 (expected 105749) ✅ [8.1096 ms]
 perft(d=6)
-  D6: 419369 (expected 419369) ✅ [87.0511 ms]
+  D6: 419369 (expected 419369) ✅ [54.5408 ms]
 
 Test 63: 6KQ/8/8/8/8/8/8/7k b - - 0 1 
 perft(d=1)
-  D1: 2 (expected 2) ✅ [0.291225 ms]
+  D1: 2 (expected 2) ✅ [0.0057 ms]
 perft(d=2)
-  D2: 36 (expected 36) ✅ [4.45857 ms]
+  D2: 36 (expected 36) ✅ [4.9944 ms]
 perft(d=3)
-  D3: 143 (expected 143) ✅ [0.0352 ms]
+  D3: 143 (expected 143) ✅ [0.0232 ms]
 perft(d=4)
-  D4: 3637 (expected 3637) ✅ [8.23662 ms]
+  D4: 3637 (expected 3637) ✅ [9.56 ms]
 perft(d=5)
-  D5: 14893 (expected 14893) ✅ [3.13977 ms]
+  D5: 14893 (expected 14893) ✅ [2.0604 ms]
 perft(d=6)
-  D6: 391507 (expected 391507) ✅ [51.8822 ms]
+  D6: 391507 (expected 391507) ✅ [30.0819 ms]
 
 Test 64: K7/8/8/3Q4/4q3/8/8/7k b - - 0 1 
 perft(d=1)
-  D1: 6 (expected 6) ✅ [6.56572 ms]
+  D1: 6 (expected 6) ✅ [7.1226 ms]
 perft(d=2)
-  D2: 35 (expected 35) ✅ [2.78859 ms]
+  D2: 35 (expected 35) ✅ [4.2982 ms]
 perft(d=3)
-  D3: 495 (expected 495) ✅ [1.95947 ms]
+  D3: 495 (expected 495) ✅ [2.1648 ms]
 perft(d=4)
-  D4: 8349 (expected 8349) ✅ [2.35987 ms]
+  D4: 8349 (expected 8349) ✅ [2.0385 ms]
 perft(d=5)
-  D5: 166741 (expected 166741) ✅ [28.7323 ms]
+  D5: 166741 (expected 166741) ✅ [18.0732 ms]
 perft(d=6)
-  D6: 3370175 (expected 3370175) ✅ [551.211 ms]
+  D6: 3370175 (expected 3370175) ✅ [342.719 ms]
 
 Test 65: 8/8/8/8/8/K7/P7/k7 w - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.3619 ms]
+  D1: 3 (expected 3) ✅ [0.0072 ms]
 perft(d=2)
-  D2: 7 (expected 7) ✅ [0.003483 ms]
+  D2: 7 (expected 7) ✅ [0.0023 ms]
 perft(d=3)
-  D3: 43 (expected 43) ✅ [0.02365 ms]
+  D3: 43 (expected 43) ✅ [0.0058 ms]
 perft(d=4)
-  D4: 199 (expected 199) ✅ [0.04015 ms]
+  D4: 199 (expected 199) ✅ [0.0233 ms]
 perft(d=5)
-  D5: 1347 (expected 1347) ✅ [0.224858 ms]
+  D5: 1347 (expected 1347) ✅ [0.1299 ms]
 perft(d=6)
-  D6: 6249 (expected 6249) ✅ [1.12466 ms]
+  D6: 6249 (expected 6249) ✅ [0.7436 ms]
 
 Test 66: 8/8/8/8/8/7K/7P/7k w - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.35695 ms]
+  D1: 3 (expected 3) ✅ [0.0085 ms]
 perft(d=2)
-  D2: 7 (expected 7) ✅ [0.002842 ms]
+  D2: 7 (expected 7) ✅ [0.0017 ms]
 perft(d=3)
-  D3: 43 (expected 43) ✅ [0.009167 ms]
+  D3: 43 (expected 43) ✅ [0.0058 ms]
 perft(d=4)
-  D4: 199 (expected 199) ✅ [0.038866 ms]
+  D4: 199 (expected 199) ✅ [0.023 ms]
 perft(d=5)
-  D5: 1347 (expected 1347) ✅ [0.222933 ms]
+  D5: 1347 (expected 1347) ✅ [0.1846 ms]
 perft(d=6)
-  D6: 6249 (expected 6249) ✅ [1.14253 ms]
+  D6: 6249 (expected 6249) ✅ [0.713401 ms]
 
 Test 67: K7/p7/k7/8/8/8/8/8 w - - 0 1 
 perft(d=1)
-  D1: 1 (expected 1) ✅ [0.3707 ms]
+  D1: 1 (expected 1) ✅ [0.0075 ms]
 perft(d=2)
-  D2: 3 (expected 3) ✅ [0.0022 ms]
+  D2: 3 (expected 3) ✅ [0.0011 ms]
 perft(d=3)
-  D3: 12 (expected 12) ✅ [0.003392 ms]
+  D3: 12 (expected 12) ✅ [0.0022 ms]
 perft(d=4)
-  D4: 80 (expected 80) ✅ [0.015583 ms]
+  D4: 80 (expected 80) ✅ [0.0092 ms]
 perft(d=5)
-  D5: 342 (expected 342) ✅ [0.067558 ms]
+  D5: 342 (expected 342) ✅ [0.0396 ms]
 perft(d=6)
-  D6: 2343 (expected 2343) ✅ [0.397834 ms]
+  D6: 2343 (expected 2343) ✅ [0.2242 ms]
 
 Test 68: 7K/7p/7k/8/8/8/8/8 w - - 0 1 
 perft(d=1)
-  D1: 1 (expected 1) ✅ [0.269408 ms]
+  D1: 1 (expected 1) ✅ [0.008 ms]
 perft(d=2)
-  D2: 3 (expected 3) ✅ [0.002108 ms]
+  D2: 3 (expected 3) ✅ [0.0012 ms]
 perft(d=3)
-  D3: 12 (expected 12) ✅ [0.003392 ms]
+  D3: 12 (expected 12) ✅ [0.0023 ms]
 perft(d=4)
-  D4: 80 (expected 80) ✅ [0.015675 ms]
+  D4: 80 (expected 80) ✅ [0.0096 ms]
 perft(d=5)
-  D5: 342 (expected 342) ✅ [0.068017 ms]
+  D5: 342 (expected 342) ✅ [0.0413 ms]
 perft(d=6)
-  D6: 2343 (expected 2343) ✅ [0.40315 ms]
+  D6: 2343 (expected 2343) ✅ [0.2455 ms]
 
 Test 69: 8/2k1p3/3pP3/3P2K1/8/8/8/8 w - - 0 1 
 perft(d=1)
-  D1: 7 (expected 7) ✅ [0.28215 ms]
+  D1: 7 (expected 7) ✅ [0.027101 ms]
 perft(d=2)
-  D2: 35 (expected 35) ✅ [0.008984 ms]
+  D2: 35 (expected 35) ✅ [0.0092 ms]
 perft(d=3)
-  D3: 210 (expected 210) ✅ [0.0429 ms]
+  D3: 210 (expected 210) ✅ [0.0392 ms]
 perft(d=4)
-  D4: 1091 (expected 1091) ✅ [0.2387 ms]
+  D4: 1091 (expected 1091) ✅ [0.2062 ms]
 perft(d=5)
-  D5: 7028 (expected 7028) ✅ [1.41277 ms]
+  D5: 7028 (expected 7028) ✅ [0.9442 ms]
 perft(d=6)
-  D6: 34834 (expected 34834) ✅ [7.66581 ms]
+  D6: 34834 (expected 34834) ✅ [5.9997 ms]
 
 Test 70: 8/8/8/8/8/K7/P7/k7 b - - 0 1 
 perft(d=1)
-  D1: 1 (expected 1) ✅ [0.38445 ms]
+  D1: 1 (expected 1) ✅ [0.0074 ms]
 perft(d=2)
-  D2: 3 (expected 3) ✅ [0.002475 ms]
+  D2: 3 (expected 3) ✅ [0.0013 ms]
 perft(d=3)
-  D3: 12 (expected 12) ✅ [0.003391 ms]
+  D3: 12 (expected 12) ✅ [0.0021 ms]
 perft(d=4)
-  D4: 80 (expected 80) ✅ [0.015492 ms]
+  D4: 80 (expected 80) ✅ [0.0095 ms]
 perft(d=5)
-  D5: 342 (expected 342) ✅ [0.06765 ms]
+  D5: 342 (expected 342) ✅ [0.0417 ms]
 perft(d=6)
-  D6: 2343 (expected 2343) ✅ [0.437983 ms]
+  D6: 2343 (expected 2343) ✅ [0.2338 ms]
 
 Test 71: 8/8/8/8/8/7K/7P/7k b - - 0 1 
 perft(d=1)
-  D1: 1 (expected 1) ✅ [0.384358 ms]
+  D1: 1 (expected 1) ✅ [0.0073 ms]
 perft(d=2)
-  D2: 3 (expected 3) ✅ [0.002016 ms]
+  D2: 3 (expected 3) ✅ [0.0032 ms]
 perft(d=3)
-  D3: 12 (expected 12) ✅ [0.0033 ms]
+  D3: 12 (expected 12) ✅ [0.0073 ms]
 perft(d=4)
-  D4: 80 (expected 80) ✅ [0.015675 ms]
+  D4: 80 (expected 80) ✅ [0.0106 ms]
 perft(d=5)
-  D5: 342 (expected 342) ✅ [0.067742 ms]
+  D5: 342 (expected 342) ✅ [0.0551 ms]
 perft(d=6)
-  D6: 2343 (expected 2343) ✅ [0.410392 ms]
+  D6: 2343 (expected 2343) ✅ [0.2339 ms]
 
 Test 72: K7/p7/k7/8/8/8/8/8 b - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.289942 ms]
+  D1: 3 (expected 3) ✅ [0.0094 ms]
 perft(d=2)
-  D2: 7 (expected 7) ✅ [0.002841 ms]
+  D2: 7 (expected 7) ✅ [0.0018 ms]
 perft(d=3)
-  D3: 43 (expected 43) ✅ [0.009442 ms]
+  D3: 43 (expected 43) ✅ [0.0061 ms]
 perft(d=4)
-  D4: 199 (expected 199) ✅ [0.03905 ms]
+  D4: 199 (expected 199) ✅ [0.0247 ms]
 perft(d=5)
-  D5: 1347 (expected 1347) ✅ [0.2288 ms]
+  D5: 1347 (expected 1347) ✅ [0.1383 ms]
 perft(d=6)
-  D6: 6249 (expected 6249) ✅ [1.15637 ms]
+  D6: 6249 (expected 6249) ✅ [0.7002 ms]
 
 Test 73: 7K/7p/7k/8/8/8/8/8 b - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.390867 ms]
+  D1: 3 (expected 3) ✅ [0.0074 ms]
 perft(d=2)
-  D2: 7 (expected 7) ✅ [0.002933 ms]
+  D2: 7 (expected 7) ✅ [0.0018 ms]
 perft(d=3)
-  D3: 43 (expected 43) ✅ [0.009625 ms]
+  D3: 43 (expected 43) ✅ [0.0063 ms]
 perft(d=4)
-  D4: 199 (expected 199) ✅ [0.039142 ms]
+  D4: 199 (expected 199) ✅ [0.0248 ms]
 perft(d=5)
-  D5: 1347 (expected 1347) ✅ [0.243375 ms]
+  D5: 1347 (expected 1347) ✅ [0.139099 ms]
 perft(d=6)
-  D6: 6249 (expected 6249) ✅ [1.16683 ms]
+  D6: 6249 (expected 6249) ✅ [0.7375 ms]
 
 Test 74: 8/2k1p3/3pP3/3P2K1/8/8/8/8 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.3542 ms]
+  D1: 5 (expected 5) ✅ [0.0085 ms]
 perft(d=2)
-  D2: 35 (expected 35) ✅ [0.00825 ms]
+  D2: 35 (expected 35) ✅ [0.0049 ms]
 perft(d=3)
-  D3: 182 (expected 182) ✅ [0.038408 ms]
+  D3: 182 (expected 182) ✅ [0.0232 ms]
 perft(d=4)
-  D4: 1091 (expected 1091) ✅ [0.294984 ms]
+  D4: 1091 (expected 1091) ✅ [0.1404 ms]
 perft(d=5)
-  D5: 5408 (expected 5408) ✅ [1.20936 ms]
+  D5: 5408 (expected 5408) ✅ [0.7077 ms]
 perft(d=6)
-  D6: 34822 (expected 34822) ✅ [7.08904 ms]
+  D6: 34822 (expected 34822) ✅ [4.1069 ms]
 
 Test 75: 8/8/8/8/8/4k3/4P3/4K3 w - - 0 1 
 perft(d=1)
-  D1: 2 (expected 2) ✅ [0.2365 ms]
+  D1: 2 (expected 2) ✅ [0.008 ms]
 perft(d=2)
-  D2: 8 (expected 8) ✅ [0.0033 ms]
+  D2: 8 (expected 8) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 44 (expected 44) ✅ [0.009259 ms]
+  D3: 44 (expected 44) ✅ [0.0059 ms]
 perft(d=4)
-  D4: 282 (expected 282) ✅ [0.050508 ms]
+  D4: 282 (expected 282) ✅ [0.0316 ms]
 perft(d=5)
-  D5: 1814 (expected 1814) ✅ [0.330642 ms]
+  D5: 1814 (expected 1814) ✅ [0.1993 ms]
 perft(d=6)
-  D6: 11848 (expected 11848) ✅ [2.06882 ms]
+  D6: 11848 (expected 11848) ✅ [1.2259 ms]
 
 Test 76: 4k3/4p3/4K3/8/8/8/8/8 b - - 0 1 
 perft(d=1)
-  D1: 2 (expected 2) ✅ [0.298833 ms]
+  D1: 2 (expected 2) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 8 (expected 8) ✅ [0.003391 ms]
+  D2: 8 (expected 8) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 44 (expected 44) ✅ [0.009167 ms]
+  D3: 44 (expected 44) ✅ [0.006 ms]
 perft(d=4)
-  D4: 282 (expected 282) ✅ [0.050692 ms]
+  D4: 282 (expected 282) ✅ [0.0317 ms]
 perft(d=5)
-  D5: 1814 (expected 1814) ✅ [0.327066 ms]
+  D5: 1814 (expected 1814) ✅ [0.186399 ms]
 perft(d=6)
-  D6: 11848 (expected 11848) ✅ [2.02235 ms]
+  D6: 11848 (expected 11848) ✅ [1.2359 ms]
 
 Test 77: 8/8/7k/7p/7P/7K/8/8 w - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.395817 ms]
+  D1: 3 (expected 3) ✅ [0.0105 ms]
 perft(d=2)
-  D2: 9 (expected 9) ✅ [0.003117 ms]
+  D2: 9 (expected 9) ✅ [0.0021 ms]
 perft(d=3)
-  D3: 57 (expected 57) ✅ [0.022642 ms]
+  D3: 57 (expected 57) ✅ [0.0065 ms]
 perft(d=4)
-  D4: 360 (expected 360) ✅ [0.064075 ms]
+  D4: 360 (expected 360) ✅ [0.0366 ms]
 perft(d=5)
-  D5: 1969 (expected 1969) ✅ [0.3575 ms]
+  D5: 1969 (expected 1969) ✅ [0.215199 ms]
 perft(d=6)
-  D6: 10724 (expected 10724) ✅ [2.02996 ms]
+  D6: 10724 (expected 10724) ✅ [1.1453 ms]
 
 Test 78: 8/8/k7/p7/P7/K7/8/8 w - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.237417 ms]
+  D1: 3 (expected 3) ✅ [0.0083 ms]
 perft(d=2)
-  D2: 9 (expected 9) ✅ [0.003208 ms]
+  D2: 9 (expected 9) ✅ [0.0021 ms]
 perft(d=3)
-  D3: 57 (expected 57) ✅ [0.011 ms]
+  D3: 57 (expected 57) ✅ [0.0064 ms]
 perft(d=4)
-  D4: 360 (expected 360) ✅ [0.096983 ms]
+  D4: 360 (expected 360) ✅ [0.0363 ms]
 perft(d=5)
-  D5: 1969 (expected 1969) ✅ [0.358967 ms]
+  D5: 1969 (expected 1969) ✅ [0.216 ms]
 perft(d=6)
-  D6: 10724 (expected 10724) ✅ [1.98587 ms]
+  D6: 10724 (expected 10724) ✅ [1.209 ms]
 
 Test 79: 8/8/3k4/3p4/3P4/3K4/8/8 w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.297642 ms]
+  D1: 5 (expected 5) ✅ [0.0095 ms]
 perft(d=2)
-  D2: 25 (expected 25) ✅ [0.006416 ms]
+  D2: 25 (expected 25) ✅ [0.0041 ms]
 perft(d=3)
-  D3: 180 (expected 180) ✅ [0.031075 ms]
+  D3: 180 (expected 180) ✅ [0.0725 ms]
 perft(d=4)
-  D4: 1294 (expected 1294) ✅ [0.224033 ms]
+  D4: 1294 (expected 1294) ✅ [0.1441 ms]
 perft(d=5)
-  D5: 8296 (expected 8296) ✅ [1.45823 ms]
+  D5: 8296 (expected 8296) ✅ [0.855999 ms]
 perft(d=6)
-  D6: 53138 (expected 53138) ✅ [9.62152 ms]
+  D6: 53138 (expected 53138) ✅ [5.6165 ms]
 
 Test 80: 8/3k4/3p4/8/3P4/3K4/8/8 w - - 0 1 
 perft(d=1)
-  D1: 8 (expected 8) ✅ [0.300666 ms]
+  D1: 8 (expected 8) ✅ [0.0084 ms]
 perft(d=2)
-  D2: 61 (expected 61) ✅ [0.011825 ms]
+  D2: 61 (expected 61) ✅ [0.0064 ms]
 perft(d=3)
-  D3: 483 (expected 483) ✅ [0.0836 ms]
+  D3: 483 (expected 483) ✅ [0.0449 ms]
 perft(d=4)
-  D4: 3213 (expected 3213) ✅ [0.58465 ms]
+  D4: 3213 (expected 3213) ✅ [0.3211 ms]
 perft(d=5)
-  D5: 23599 (expected 23599) ✅ [4.31686 ms]
+  D5: 23599 (expected 23599) ✅ [2.3471 ms]
 perft(d=6)
-  D6: 157093 (expected 157093) ✅ [29.3311 ms]
+  D6: 157093 (expected 157093) ✅ [16.0306 ms]
 
 Test 81: 8/8/3k4/3p4/8/3P4/3K4/8 w - - 0 1 
 perft(d=1)
-  D1: 8 (expected 8) ✅ [0.398383 ms]
+  D1: 8 (expected 8) ✅ [0.0089 ms]
 perft(d=2)
-  D2: 61 (expected 61) ✅ [0.011366 ms]
+  D2: 61 (expected 61) ✅ [0.0065 ms]
 perft(d=3)
-  D3: 411 (expected 411) ✅ [0.070034 ms]
+  D3: 411 (expected 411) ✅ [0.040899 ms]
 perft(d=4)
-  D4: 3213 (expected 3213) ✅ [0.558067 ms]
+  D4: 3213 (expected 3213) ✅ [0.2998 ms]
 perft(d=5)
-  D5: 21637 (expected 21637) ✅ [3.81214 ms]
+  D5: 21637 (expected 21637) ✅ [2.282 ms]
 perft(d=6)
-  D6: 158065 (expected 158065) ✅ [27.5333 ms]
+  D6: 158065 (expected 158065) ✅ [15.5577 ms]
 
 Test 82: k7/8/3p4/8/3P4/8/8/7K w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.25245 ms]
+  D1: 4 (expected 4) ✅ [0.008 ms]
 perft(d=2)
-  D2: 15 (expected 15) ✅ [0.004217 ms]
+  D2: 15 (expected 15) ✅ [0.0025 ms]
 perft(d=3)
-  D3: 90 (expected 90) ✅ [0.016317 ms]
+  D3: 90 (expected 90) ✅ [0.0096 ms]
 perft(d=4)
-  D4: 534 (expected 534) ✅ [0.091667 ms]
+  D4: 534 (expected 534) ✅ [0.0534 ms]
 perft(d=5)
-  D5: 3450 (expected 3450) ✅ [0.583275 ms]
+  D5: 3450 (expected 3450) ✅ [0.328 ms]
 perft(d=6)
-  D6: 20960 (expected 20960) ✅ [3.87173 ms]
+  D6: 20960 (expected 20960) ✅ [2.0837 ms]
 
 Test 83: 8/8/7k/7p/7P/7K/8/8 b - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.43065 ms]
+  D1: 3 (expected 3) ✅ [0.0082 ms]
 perft(d=2)
-  D2: 9 (expected 9) ✅ [0.003116 ms]
+  D2: 9 (expected 9) ✅ [0.002 ms]
 perft(d=3)
-  D3: 57 (expected 57) ✅ [0.010725 ms]
+  D3: 57 (expected 57) ✅ [0.0064 ms]
 perft(d=4)
-  D4: 360 (expected 360) ✅ [0.061875 ms]
+  D4: 360 (expected 360) ✅ [0.0361 ms]
 perft(d=5)
-  D5: 1969 (expected 1969) ✅ [0.349525 ms]
+  D5: 1969 (expected 1969) ✅ [0.207399 ms]
 perft(d=6)
-  D6: 10724 (expected 10724) ✅ [2.04252 ms]
+  D6: 10724 (expected 10724) ✅ [1.1385 ms]
 
 Test 84: 8/8/k7/p7/P7/K7/8/8 b - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.379591 ms]
+  D1: 3 (expected 3) ✅ [0.0074 ms]
 perft(d=2)
-  D2: 9 (expected 9) ✅ [0.003117 ms]
+  D2: 9 (expected 9) ✅ [0.0019 ms]
 perft(d=3)
-  D3: 57 (expected 57) ✅ [0.010817 ms]
+  D3: 57 (expected 57) ✅ [0.0065 ms]
 perft(d=4)
-  D4: 360 (expected 360) ✅ [0.061416 ms]
+  D4: 360 (expected 360) ✅ [0.036 ms]
 perft(d=5)
-  D5: 1969 (expected 1969) ✅ [0.3487 ms]
+  D5: 1969 (expected 1969) ✅ [0.2599 ms]
 perft(d=6)
-  D6: 10724 (expected 10724) ✅ [1.94095 ms]
+  D6: 10724 (expected 10724) ✅ [1.1413 ms]
 
 Test 85: 8/8/3k4/3p4/3P4/3K4/8/8 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.499675 ms]
+  D1: 5 (expected 5) ✅ [0.0077 ms]
 perft(d=2)
-  D2: 25 (expected 25) ✅ [0.006233 ms]
+  D2: 25 (expected 25) ✅ [0.0039 ms]
 perft(d=3)
-  D3: 180 (expected 180) ✅ [0.030434 ms]
+  D3: 180 (expected 180) ✅ [0.0189 ms]
 perft(d=4)
-  D4: 1294 (expected 1294) ✅ [0.210559 ms]
+  D4: 1294 (expected 1294) ✅ [0.1329 ms]
 perft(d=5)
-  D5: 8296 (expected 8296) ✅ [1.45558 ms]
+  D5: 8296 (expected 8296) ✅ [0.823499 ms]
 perft(d=6)
-  D6: 53138 (expected 53138) ✅ [9.49878 ms]
+  D6: 53138 (expected 53138) ✅ [5.4518 ms]
 
 Test 86: 8/3k4/3p4/8/3P4/3K4/8/8 b - - 0 1 
 perft(d=1)
-  D1: 8 (expected 8) ✅ [0.330092 ms]
+  D1: 8 (expected 8) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 61 (expected 61) ✅ [0.010909 ms]
+  D2: 61 (expected 61) ✅ [0.0063 ms]
 perft(d=3)
-  D3: 411 (expected 411) ✅ [0.068109 ms]
+  D3: 411 (expected 411) ✅ [0.0398 ms]
 perft(d=4)
-  D4: 3213 (expected 3213) ✅ [0.525341 ms]
+  D4: 3213 (expected 3213) ✅ [0.2987 ms]
 perft(d=5)
-  D5: 21637 (expected 21637) ✅ [3.81498 ms]
+  D5: 21637 (expected 21637) ✅ [2.1456 ms]
 perft(d=6)
-  D6: 158065 (expected 158065) ✅ [26.5697 ms]
+  D6: 158065 (expected 158065) ✅ [15.4814 ms]
 
 Test 87: 8/8/3k4/3p4/8/3P4/3K4/8 b - - 0 1 
 perft(d=1)
-  D1: 8 (expected 8) ✅ [0.474375 ms]
+  D1: 8 (expected 8) ✅ [0.008 ms]
 perft(d=2)
-  D2: 61 (expected 61) ✅ [0.010817 ms]
+  D2: 61 (expected 61) ✅ [0.0063 ms]
 perft(d=3)
-  D3: 483 (expected 483) ✅ [0.077825 ms]
+  D3: 483 (expected 483) ✅ [0.045 ms]
 perft(d=4)
-  D4: 3213 (expected 3213) ✅ [0.5302 ms]
+  D4: 3213 (expected 3213) ✅ [0.319399 ms]
 perft(d=5)
-  D5: 23599 (expected 23599) ✅ [4.09283 ms]
+  D5: 23599 (expected 23599) ✅ [2.3898 ms]
 perft(d=6)
-  D6: 157093 (expected 157093) ✅ [27.0692 ms]
+  D6: 157093 (expected 157093) ✅ [15.9433 ms]
 
 Test 88: k7/8/3p4/8/3P4/8/8/7K b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.2321 ms]
+  D1: 4 (expected 4) ✅ [0.0079 ms]
 perft(d=2)
-  D2: 15 (expected 15) ✅ [0.004125 ms]
+  D2: 15 (expected 15) ✅ [0.0026 ms]
 perft(d=3)
-  D3: 89 (expected 89) ✅ [0.0165 ms]
+  D3: 89 (expected 89) ✅ [0.0099 ms]
 perft(d=4)
-  D4: 537 (expected 537) ✅ [0.091666 ms]
+  D4: 537 (expected 537) ✅ [0.0527 ms]
 perft(d=5)
-  D5: 3309 (expected 3309) ✅ [0.60885 ms]
+  D5: 3309 (expected 3309) ✅ [0.3402 ms]
 perft(d=6)
-  D6: 21104 (expected 21104) ✅ [3.66309 ms]
+  D6: 21104 (expected 21104) ✅ [2.082 ms]
 
 Test 89: 7k/3p4/8/8/3P4/8/8/K7 w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.327342 ms]
+  D1: 4 (expected 4) ✅ [0.0125 ms]
 perft(d=2)
-  D2: 19 (expected 19) ✅ [0.004584 ms]
+  D2: 19 (expected 19) ✅ [0.0029 ms]
 perft(d=3)
-  D3: 117 (expected 117) ✅ [0.020809 ms]
+  D3: 117 (expected 117) ✅ [0.0122 ms]
 perft(d=4)
-  D4: 720 (expected 720) ✅ [0.122008 ms]
+  D4: 720 (expected 720) ✅ [0.0705 ms]
 perft(d=5)
-  D5: 4661 (expected 4661) ✅ [0.933992 ms]
+  D5: 4661 (expected 4661) ✅ [0.4445 ms]
 perft(d=6)
-  D6: 32191 (expected 32191) ✅ [5.55867 ms]
+  D6: 32191 (expected 32191) ✅ [3.1238 ms]
 
 Test 90: 7k/8/8/3p4/8/8/3P4/K7 w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.331283 ms]
+  D1: 5 (expected 5) ✅ [0.0089 ms]
 perft(d=2)
-  D2: 19 (expected 19) ✅ [0.00495 ms]
+  D2: 19 (expected 19) ✅ [0.0028 ms]
 perft(d=3)
-  D3: 116 (expected 116) ✅ [0.020717 ms]
+  D3: 116 (expected 116) ✅ [0.0124 ms]
 perft(d=4)
-  D4: 716 (expected 716) ✅ [0.122375 ms]
+  D4: 716 (expected 716) ✅ [0.071 ms]
 perft(d=5)
-  D5: 4786 (expected 4786) ✅ [0.809966 ms]
+  D5: 4786 (expected 4786) ✅ [0.464799 ms]
 perft(d=6)
-  D6: 30980 (expected 30980) ✅ [5.28147 ms]
+  D6: 30980 (expected 30980) ✅ [3.0587 ms]
 
 Test 91: k7/8/8/7p/6P1/8/8/K7 w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.288567 ms]
+  D1: 5 (expected 5) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.005775 ms]
+  D2: 22 (expected 22) ✅ [0.0032 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.024567 ms]
+  D3: 139 (expected 139) ✅ [0.0141 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.145292 ms]
+  D4: 877 (expected 877) ✅ [0.0835 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [1.07278 ms]
+  D5: 6112 (expected 6112) ✅ [0.557199 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [6.99325 ms]
+  D6: 41874 (expected 41874) ✅ [3.967 ms]
 
 Test 92: k7/8/7p/8/8/6P1/8/K7 w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.284992 ms]
+  D1: 4 (expected 4) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004033 ms]
+  D2: 16 (expected 16) ✅ [0.0025 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.01815 ms]
+  D3: 101 (expected 101) ✅ [0.0105 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.10725 ms]
+  D4: 637 (expected 637) ✅ [0.1007 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.723617 ms]
+  D5: 4354 (expected 4354) ✅ [0.4065 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [5.13874 ms]
+  D6: 29679 (expected 29679) ✅ [2.7985 ms]
 
 Test 93: k7/8/8/6p1/7P/8/8/K7 w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.392058 ms]
+  D1: 5 (expected 5) ✅ [0.0082 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.005775 ms]
+  D2: 22 (expected 22) ✅ [0.0034 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.025025 ms]
+  D3: 139 (expected 139) ✅ [0.0142 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.170042 ms]
+  D4: 877 (expected 877) ✅ [0.0838 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [1.12768 ms]
+  D5: 6112 (expected 6112) ✅ [0.568 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [6.92074 ms]
+  D6: 41874 (expected 41874) ✅ [4.057 ms]
 
 Test 94: k7/8/6p1/8/8/7P/8/K7 w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.3784 ms]
+  D1: 4 (expected 4) ✅ [0.0084 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004033 ms]
+  D2: 16 (expected 16) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.017875 ms]
+  D3: 101 (expected 101) ✅ [0.0105 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.1694 ms]
+  D4: 637 (expected 637) ✅ [0.0618 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.768533 ms]
+  D5: 4354 (expected 4354) ✅ [0.4402 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [5.44142 ms]
+  D6: 29679 (expected 29679) ✅ [2.8455 ms]
 
 Test 95: k7/8/8/3p4/4p3/8/8/7K w - - 0 1 
 perft(d=1)
-  D1: 3 (expected 3) ✅ [0.276558 ms]
+  D1: 3 (expected 3) ✅ [0.0088 ms]
 perft(d=2)
-  D2: 15 (expected 15) ✅ [0.004125 ms]
+  D2: 15 (expected 15) ✅ [0.0025 ms]
 perft(d=3)
-  D3: 84 (expected 84) ✅ [0.0154 ms]
+  D3: 84 (expected 84) ✅ [0.0089 ms]
 perft(d=4)
-  D4: 573 (expected 573) ✅ [0.096617 ms]
+  D4: 573 (expected 573) ✅ [0.0553 ms]
 perft(d=5)
-  D5: 3013 (expected 3013) ✅ [0.551834 ms]
+  D5: 3013 (expected 3013) ✅ [0.31 ms]
 perft(d=6)
-  D6: 22886 (expected 22886) ✅ [4.48057 ms]
+  D6: 22886 (expected 22886) ✅ [2.9131 ms]
 
 Test 96: k7/8/3p4/8/8/4P3/8/7K w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.25465 ms]
+  D1: 4 (expected 4) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004217 ms]
+  D2: 16 (expected 16) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.018516 ms]
+  D3: 101 (expected 101) ✅ [0.0104 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.109909 ms]
+  D4: 637 (expected 637) ✅ [0.0622 ms]
 perft(d=5)
-  D5: 4271 (expected 4271) ✅ [0.729758 ms]
+  D5: 4271 (expected 4271) ✅ [0.4005 ms]
 perft(d=6)
-  D6: 28662 (expected 28662) ✅ [4.92553 ms]
+  D6: 28662 (expected 28662) ✅ [2.7927 ms]
 
 Test 97: 7k/3p4/8/8/3P4/8/8/K7 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.243009 ms]
+  D1: 5 (expected 5) ✅ [0.0075 ms]
 perft(d=2)
-  D2: 19 (expected 19) ✅ [0.005133 ms]
+  D2: 19 (expected 19) ✅ [0.0028 ms]
 perft(d=3)
-  D3: 117 (expected 117) ✅ [0.021542 ms]
+  D3: 117 (expected 117) ✅ [0.0121 ms]
 perft(d=4)
-  D4: 720 (expected 720) ✅ [0.125492 ms]
+  D4: 720 (expected 720) ✅ [0.0698 ms]
 perft(d=5)
-  D5: 5014 (expected 5014) ✅ [0.859375 ms]
+  D5: 5014 (expected 5014) ✅ [0.5179 ms]
 perft(d=6)
-  D6: 32167 (expected 32167) ✅ [5.58223 ms]
+  D6: 32167 (expected 32167) ✅ [3.232 ms]
 
 Test 98: 7k/8/8/3p4/8/8/3P4/K7 b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.364742 ms]
+  D1: 4 (expected 4) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 19 (expected 19) ✅ [0.004858 ms]
+  D2: 19 (expected 19) ✅ [0.003 ms]
 perft(d=3)
-  D3: 117 (expected 117) ✅ [0.0209 ms]
+  D3: 117 (expected 117) ✅ [0.0125 ms]
 perft(d=4)
-  D4: 712 (expected 712) ✅ [0.121092 ms]
+  D4: 712 (expected 712) ✅ [0.0715 ms]
 perft(d=5)
-  D5: 4658 (expected 4658) ✅ [0.785858 ms]
+  D5: 4658 (expected 4658) ✅ [0.4779 ms]
 perft(d=6)
-  D6: 30749 (expected 30749) ✅ [5.32345 ms]
+  D6: 30749 (expected 30749) ✅ [3.1022 ms]
 
 Test 99: k7/8/8/7p/6P1/8/8/K7 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.296541 ms]
+  D1: 5 (expected 5) ✅ [0.0082 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.005592 ms]
+  D2: 22 (expected 22) ✅ [0.0135 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.025116 ms]
+  D3: 139 (expected 139) ✅ [0.0161 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.145934 ms]
+  D4: 877 (expected 877) ✅ [0.0914 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [0.994491 ms]
+  D5: 6112 (expected 6112) ✅ [0.616899 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [6.93458 ms]
+  D6: 41874 (expected 41874) ✅ [4.7839 ms]
 
 Test 100: k7/8/7p/8/8/6P1/8/K7 b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.206433 ms]
+  D1: 4 (expected 4) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.003941 ms]
+  D2: 16 (expected 16) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.017875 ms]
+  D3: 101 (expected 101) ✅ [0.0109 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.1067 ms]
+  D4: 637 (expected 637) ✅ [0.0637 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.722333 ms]
+  D5: 4354 (expected 4354) ✅ [0.4342 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [5.22289 ms]
+  D6: 29679 (expected 29679) ✅ [2.9128 ms]
 
 Test 101: k7/8/8/6p1/7P/8/8/K7 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.246125 ms]
+  D1: 5 (expected 5) ✅ [0.0079 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.0055 ms]
+  D2: 22 (expected 22) ✅ [0.0033 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.02475 ms]
+  D3: 139 (expected 139) ✅ [0.0142 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.1551 ms]
+  D4: 877 (expected 877) ✅ [0.083399 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [0.995866 ms]
+  D5: 6112 (expected 6112) ✅ [0.5597 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [7.14991 ms]
+  D6: 41874 (expected 41874) ✅ [3.9615 ms]
 
 Test 102: k7/8/6p1/8/8/7P/8/K7 b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.302775 ms]
+  D1: 4 (expected 4) ✅ [0.0075 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.0044 ms]
+  D2: 16 (expected 16) ✅ [0.0023 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.019525 ms]
+  D3: 101 (expected 101) ✅ [0.0104 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.120725 ms]
+  D4: 637 (expected 637) ✅ [0.0616 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.832975 ms]
+  D5: 4354 (expected 4354) ✅ [0.4178 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [5.40861 ms]
+  D6: 29679 (expected 29679) ✅ [2.8326 ms]
 
 Test 103: k7/8/8/3p4/4p3/8/8/7K b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.266842 ms]
+  D1: 5 (expected 5) ✅ [0.0077 ms]
 perft(d=2)
-  D2: 15 (expected 15) ✅ [0.004308 ms]
+  D2: 15 (expected 15) ✅ [0.0027 ms]
 perft(d=3)
-  D3: 102 (expected 102) ✅ [0.018059 ms]
+  D3: 102 (expected 102) ✅ [0.0106 ms]
 perft(d=4)
-  D4: 569 (expected 569) ✅ [0.100833 ms]
+  D4: 569 (expected 569) ✅ [0.0575 ms]
 perft(d=5)
-  D5: 4337 (expected 4337) ✅ [1.1968 ms]
+  D5: 4337 (expected 4337) ✅ [1.0347 ms]
 perft(d=6)
-  D6: 22579 (expected 22579) ✅ [4.14938 ms]
+  D6: 22579 (expected 22579) ✅ [2.3485 ms]
 
 Test 104: k7/8/3p4/8/8/4P3/8/7K b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.255934 ms]
+  D1: 4 (expected 4) ✅ [0.0185 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004125 ms]
+  D2: 16 (expected 16) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.018059 ms]
+  D3: 101 (expected 101) ✅ [0.0104 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.107341 ms]
+  D4: 637 (expected 637) ✅ [0.0622 ms]
 perft(d=5)
-  D5: 4271 (expected 4271) ✅ [0.804284 ms]
+  D5: 4271 (expected 4271) ✅ [0.4078 ms]
 perft(d=6)
-  D6: 28662 (expected 28662) ✅ [4.96347 ms]
+  D6: 28662 (expected 28662) ✅ [2.9063 ms]
 
 Test 105: 7k/8/8/p7/1P6/8/8/7K w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.296908 ms]
+  D1: 5 (expected 5) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.0055 ms]
+  D2: 22 (expected 22) ✅ [0.0033 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.024475 ms]
+  D3: 139 (expected 139) ✅ [0.014 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.146208 ms]
+  D4: 877 (expected 877) ✅ [0.083399 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [0.9889 ms]
+  D5: 6112 (expected 6112) ✅ [0.5677 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [6.90754 ms]
+  D6: 41874 (expected 41874) ✅ [3.9401 ms]
 
 Test 106: 7k/8/p7/8/8/1P6/8/7K w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.298925 ms]
+  D1: 4 (expected 4) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004216 ms]
+  D2: 16 (expected 16) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.017783 ms]
+  D3: 101 (expected 101) ✅ [0.0103 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.107525 ms]
+  D4: 637 (expected 637) ✅ [0.0724 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.736175 ms]
+  D5: 4354 (expected 4354) ✅ [0.4059 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [5.11995 ms]
+  D6: 29679 (expected 29679) ✅ [2.8669 ms]
 
 Test 107: 7k/8/8/1p6/P7/8/8/7K w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.271884 ms]
+  D1: 5 (expected 5) ✅ [0.0076 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.005592 ms]
+  D2: 22 (expected 22) ✅ [0.0034 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.024475 ms]
+  D3: 139 (expected 139) ✅ [0.0143 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.225042 ms]
+  D4: 877 (expected 877) ✅ [0.0838 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [1.11311 ms]
+  D5: 6112 (expected 6112) ✅ [0.5718 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [7.02625 ms]
+  D6: 41874 (expected 41874) ✅ [3.9793 ms]
 
 Test 108: 7k/8/1p6/8/8/P7/8/7K w - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.273075 ms]
+  D1: 4 (expected 4) ✅ [0.0077 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004033 ms]
+  D2: 16 (expected 16) ✅ [0.0023 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.017875 ms]
+  D3: 101 (expected 101) ✅ [0.0104 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.115684 ms]
+  D4: 637 (expected 637) ✅ [0.0617 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.741583 ms]
+  D5: 4354 (expected 4354) ✅ [0.4054 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [4.94441 ms]
+  D6: 29679 (expected 29679) ✅ [2.8686 ms]
 
 Test 109: k7/7p/8/8/8/8/6P1/K7 w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.360158 ms]
+  D1: 5 (expected 5) ✅ [0.0073 ms]
 perft(d=2)
-  D2: 25 (expected 25) ✅ [0.005683 ms]
+  D2: 25 (expected 25) ✅ [0.0035 ms]
 perft(d=3)
-  D3: 161 (expected 161) ✅ [0.027867 ms]
+  D3: 161 (expected 161) ✅ [0.0164 ms]
 perft(d=4)
-  D4: 1035 (expected 1035) ✅ [0.171783 ms]
+  D4: 1035 (expected 1035) ✅ [0.0996 ms]
 perft(d=5)
-  D5: 7574 (expected 7574) ✅ [1.27022 ms]
+  D5: 7574 (expected 7574) ✅ [0.697699 ms]
 perft(d=6)
-  D6: 55338 (expected 55338) ✅ [9.45193 ms]
+  D6: 55338 (expected 55338) ✅ [5.3656 ms]
 
 Test 110: k7/6p1/8/8/8/8/7P/K7 w - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.231459 ms]
+  D1: 5 (expected 5) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 25 (expected 25) ✅ [0.005867 ms]
+  D2: 25 (expected 25) ✅ [0.0033 ms]
 perft(d=3)
-  D3: 161 (expected 161) ✅ [0.028325 ms]
+  D3: 161 (expected 161) ✅ [0.0162 ms]
 perft(d=4)
-  D4: 1035 (expected 1035) ✅ [0.202492 ms]
+  D4: 1035 (expected 1035) ✅ [0.099 ms]
 perft(d=5)
-  D5: 7574 (expected 7574) ✅ [1.25968 ms]
+  D5: 7574 (expected 7574) ✅ [0.7055 ms]
 perft(d=6)
-  D6: 55338 (expected 55338) ✅ [9.29848 ms]
+  D6: 55338 (expected 55338) ✅ [5.264 ms]
 
 Test 111: 3k4/3pp3/8/8/8/8/3PP3/3K4 w - - 0 1 
 perft(d=1)
-  D1: 7 (expected 7) ✅ [0.232925 ms]
+  D1: 7 (expected 7) ✅ [0.0087 ms]
 perft(d=2)
-  D2: 49 (expected 49) ✅ [0.010083 ms]
+  D2: 49 (expected 49) ✅ [0.0062 ms]
 perft(d=3)
-  D3: 378 (expected 378) ✅ [0.069391 ms]
+  D3: 378 (expected 378) ✅ [0.039299 ms]
 perft(d=4)
-  D4: 2902 (expected 2902) ✅ [0.52965 ms]
+  D4: 2902 (expected 2902) ✅ [0.3609 ms]
 perft(d=5)
-  D5: 24122 (expected 24122) ✅ [4.34216 ms]
+  D5: 24122 (expected 24122) ✅ [2.4263 ms]
 perft(d=6)
-  D6: 199002 (expected 199002) ✅ [39.0747 ms]
+  D6: 199002 (expected 199002) ✅ [20.2481 ms]
 
 Test 112: 7k/8/8/p7/1P6/8/8/7K b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.224584 ms]
+  D1: 5 (expected 5) ✅ [0.0079 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.0055 ms]
+  D2: 22 (expected 22) ✅ [0.0036 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.024841 ms]
+  D3: 139 (expected 139) ✅ [0.0144 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.147033 ms]
+  D4: 877 (expected 877) ✅ [0.083 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [1.01933 ms]
+  D5: 6112 (expected 6112) ✅ [0.5741 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [6.93422 ms]
+  D6: 41874 (expected 41874) ✅ [3.8974 ms]
 
 Test 113: 7k/8/p7/8/8/1P6/8/7K b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.273625 ms]
+  D1: 4 (expected 4) ✅ [0.0075 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004033 ms]
+  D2: 16 (expected 16) ✅ [0.0024 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.018242 ms]
+  D3: 101 (expected 101) ✅ [0.0104 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.111192 ms]
+  D4: 637 (expected 637) ✅ [0.0722 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.8151 ms]
+  D5: 4354 (expected 4354) ✅ [0.4126 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [5.10647 ms]
+  D6: 29679 (expected 29679) ✅ [2.9122 ms]
 
 Test 114: 7k/8/8/1p6/P7/8/8/7K b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.346958 ms]
+  D1: 5 (expected 5) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 22 (expected 22) ✅ [0.005683 ms]
+  D2: 22 (expected 22) ✅ [0.0034 ms]
 perft(d=3)
-  D3: 139 (expected 139) ✅ [0.025025 ms]
+  D3: 139 (expected 139) ✅ [0.0142 ms]
 perft(d=4)
-  D4: 877 (expected 877) ✅ [0.144558 ms]
+  D4: 877 (expected 877) ✅ [0.0828 ms]
 perft(d=5)
-  D5: 6112 (expected 6112) ✅ [1.11155 ms]
+  D5: 6112 (expected 6112) ✅ [0.656799 ms]
 perft(d=6)
-  D6: 41874 (expected 41874) ✅ [6.89251 ms]
+  D6: 41874 (expected 41874) ✅ [3.9539 ms]
 
 Test 115: 7k/8/1p6/8/8/P7/8/7K b - - 0 1 
 perft(d=1)
-  D1: 4 (expected 4) ✅ [0.246584 ms]
+  D1: 4 (expected 4) ✅ [0.01 ms]
 perft(d=2)
-  D2: 16 (expected 16) ✅ [0.004033 ms]
+  D2: 16 (expected 16) ✅ [0.0023 ms]
 perft(d=3)
-  D3: 101 (expected 101) ✅ [0.018241 ms]
+  D3: 101 (expected 101) ✅ [0.0105 ms]
 perft(d=4)
-  D4: 637 (expected 637) ✅ [0.10725 ms]
+  D4: 637 (expected 637) ✅ [0.0613 ms]
 perft(d=5)
-  D5: 4354 (expected 4354) ✅ [0.853417 ms]
+  D5: 4354 (expected 4354) ✅ [0.4167 ms]
 perft(d=6)
-  D6: 29679 (expected 29679) ✅ [4.94257 ms]
+  D6: 29679 (expected 29679) ✅ [2.8221 ms]
 
 Test 116: k7/7p/8/8/8/8/6P1/K7 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.2585 ms]
+  D1: 5 (expected 5) ✅ [0.0085 ms]
 perft(d=2)
-  D2: 25 (expected 25) ✅ [0.005867 ms]
+  D2: 25 (expected 25) ✅ [0.0033 ms]
 perft(d=3)
-  D3: 161 (expected 161) ✅ [0.027866 ms]
+  D3: 161 (expected 161) ✅ [0.016 ms]
 perft(d=4)
-  D4: 1035 (expected 1035) ✅ [0.172609 ms]
+  D4: 1035 (expected 1035) ✅ [0.1085 ms]
 perft(d=5)
-  D5: 7574 (expected 7574) ✅ [1.4091 ms]
+  D5: 7574 (expected 7574) ✅ [0.6991 ms]
 perft(d=6)
-  D6: 55338 (expected 55338) ✅ [9.18922 ms]
+  D6: 55338 (expected 55338) ✅ [5.2676 ms]
 
 Test 117: k7/6p1/8/8/8/8/7P/K7 b - - 0 1 
 perft(d=1)
-  D1: 5 (expected 5) ✅ [0.231092 ms]
+  D1: 5 (expected 5) ✅ [0.0081 ms]
 perft(d=2)
-  D2: 25 (expected 25) ✅ [0.005684 ms]
+  D2: 25 (expected 25) ✅ [0.0035 ms]
 perft(d=3)
-  D3: 161 (expected 161) ✅ [0.0319 ms]
+  D3: 161 (expected 161) ✅ [0.0162 ms]
 perft(d=4)
-  D4: 1035 (expected 1035) ✅ [0.17215 ms]
+  D4: 1035 (expected 1035) ✅ [0.0991 ms]
 perft(d=5)
-  D5: 7574 (expected 7574) ✅ [1.26207 ms]
+  D5: 7574 (expected 7574) ✅ [0.719599 ms]
 perft(d=6)
-  D6: 55338 (expected 55338) ✅ [9.17088 ms]
+  D6: 55338 (expected 55338) ✅ [5.1634 ms]
 
 Test 118: 3k4/3pp3/8/8/8/8/3PP3/3K4 b - - 0 1 
 perft(d=1)
-  D1: 7 (expected 7) ✅ [0.366025 ms]
+  D1: 7 (expected 7) ✅ [0.0084 ms]
 perft(d=2)
-  D2: 49 (expected 49) ✅ [0.010358 ms]
+  D2: 49 (expected 49) ✅ [0.0057 ms]
 perft(d=3)
-  D3: 378 (expected 378) ✅ [0.067008 ms]
+  D3: 378 (expected 378) ✅ [0.0387 ms]
 perft(d=4)
-  D4: 2902 (expected 2902) ✅ [0.529375 ms]
+  D4: 2902 (expected 2902) ✅ [0.3267 ms]
 perft(d=5)
-  D5: 24122 (expected 24122) ✅ [4.37635 ms]
+  D5: 24122 (expected 24122) ✅ [2.4154 ms]
 perft(d=6)
-  D6: 199002 (expected 199002) ✅ [35.5316 ms]
+  D6: 199002 (expected 199002) ✅ [20.4164 ms]
 
 Test 119: 8/Pk6/8/8/8/8/6Kp/8 w - - 0 1 
 perft(d=1)
-  D1: 11 (expected 11) ✅ [0.849567 ms]
+  D1: 11 (expected 11) ✅ [0.3289 ms]
 perft(d=2)
-  D2: 97 (expected 97) ✅ [0.774033 ms]
+  D2: 97 (expected 97) ✅ [0.7953 ms]
 perft(d=3)
-  D3: 887 (expected 887) ✅ [4.70763 ms]
+  D3: 887 (expected 887) ✅ [4.8346 ms]
 perft(d=4)
-  D4: 8048 (expected 8048) ✅ [4.03214 ms]
+  D4: 8048 (expected 8048) ✅ [3.7709 ms]
 perft(d=5)
-  D5: 90606 (expected 90606) ✅ [22.3663 ms]
+  D5: 90606 (expected 90606) ✅ [15.0005 ms]
 perft(d=6)
-  D6: 1030499 (expected 1030499) ✅ [176.075 ms]
+  D6: 1030499 (expected 1030499) ✅ [105.606 ms]
 
 Test 120: n1n5/1Pk5/8/8/8/8/5Kp1/5N1N w - - 0 1 
 perft(d=1)
-  D1: 24 (expected 24) ✅ [1.0395 ms]
+  D1: 24 (expected 24) ✅ [1.2924 ms]
 perft(d=2)
-  D2: 421 (expected 421) ✅ [1.00201 ms]
+  D2: 421 (expected 421) ✅ [0.897199 ms]
 perft(d=3)
-  D3: 7421 (expected 7421) ✅ [10.6246 ms]
+  D3: 7421 (expected 7421) ✅ [11.1125 ms]
 perft(d=4)
-  D4: 124608 (expected 124608) ✅ [26.842 ms]
+  D4: 124608 (expected 124608) ✅ [16.8652 ms]
 perft(d=5)
-  D5: 2193768 (expected 2193768) ✅ [399.539 ms]
+  D5: 2193768 (expected 2193768) ✅ [239.965 ms]
 perft(d=6)
-  D6: 37665329 (expected 37665329) ✅ [7072.06 ms]
+  D6: 37665329 (expected 37665329) ✅ [4070.06 ms]
 
 Test 121: 8/PPPk4/8/8/8/8/4Kppp/8 w - - 0 1 
 perft(d=1)
-  D1: 18 (expected 18) ✅ [1.21128 ms]
+  D1: 18 (expected 18) ✅ [0.8094 ms]
 perft(d=2)
-  D2: 270 (expected 270) ✅ [1.61508 ms]
+  D2: 270 (expected 270) ✅ [1.1823 ms]
 perft(d=3)
-  D3: 4699 (expected 4699) ✅ [7.86298 ms]
+  D3: 4699 (expected 4699) ✅ [7.8104 ms]
 perft(d=4)
-  D4: 79355 (expected 79355) ✅ [22.0413 ms]
+  D4: 79355 (expected 79355) ✅ [15.872 ms]
 perft(d=5)
-  D5: 1533145 (expected 1533145) ✅ [307.263 ms]
+  D5: 1533145 (expected 1533145) ✅ [205.744 ms]
 perft(d=6)
-  D6: 28859283 (expected 28859283) ✅ [6097.31 ms]
+  D6: 28859283 (expected 28859283) ✅ [3756.93 ms]
 
 Test 122: n1n5/PPPk4/8/8/8/8/4Kppp/5N1N w - - 0 1 
 perft(d=1)
-  D1: 24 (expected 24) ✅ [1.17168 ms]
+  D1: 24 (expected 24) ✅ [0.818799 ms]
 perft(d=2)
-  D2: 496 (expected 496) ✅ [0.946092 ms]
+  D2: 496 (expected 496) ✅ [0.7366 ms]
 perft(d=3)
-  D3: 9483 (expected 9483) ✅ [9.36054 ms]
+  D3: 9483 (expected 9483) ✅ [7.7447 ms]
 perft(d=4)
-  D4: 182838 (expected 182838) ✅ [47.0521 ms]
+  D4: 182838 (expected 182838) ✅ [30.0996 ms]
 perft(d=5)
-  D5: 3605103 (expected 3605103) ✅ [777.267 ms]
+  D5: 3605103 (expected 3605103) ✅ [477.715 ms]
 perft(d=6)
-  D6: 71179139 (expected 71179139) ✅ [18580.5 ms]
+  D6: 71179139 (expected 71179139) ✅ [9288.79 ms]
 
 Test 123: 8/Pk6/8/8/8/8/6Kp/8 b - - 0 1 
 perft(d=1)
-  D1: 11 (expected 11) ✅ [0.891917 ms]
+  D1: 11 (expected 11) ✅ [0.3828 ms]
 perft(d=2)
-  D2: 97 (expected 97) ✅ [0.762575 ms]
+  D2: 97 (expected 97) ✅ [0.5253 ms]
 perft(d=3)
-  D3: 887 (expected 887) ✅ [6.64363 ms]
+  D3: 887 (expected 887) ✅ [7.3141 ms]
 perft(d=4)
-  D4: 8048 (expected 8048) ✅ [3.3693 ms]
+  D4: 8048 (expected 8048) ✅ [2.8733 ms]
 perft(d=5)
-  D5: 90606 (expected 90606) ✅ [22.4829 ms]
+  D5: 90606 (expected 90606) ✅ [15.3898 ms]
 perft(d=6)
-  D6: 1030499 (expected 1030499) ✅ [174.932 ms]
+  D6: 1030499 (expected 1030499) ✅ [104.978 ms]
 
 Test 124: n1n5/1Pk5/8/8/8/8/5Kp1/5N1N b - - 0 1 
 perft(d=1)
-  D1: 24 (expected 24) ✅ [1.37509 ms]
+  D1: 24 (expected 24) ✅ [1.3079 ms]
 perft(d=2)
-  D2: 421 (expected 421) ✅ [0.728475 ms]
+  D2: 421 (expected 421) ✅ [1.4147 ms]
 perft(d=3)
-  D3: 7421 (expected 7421) ✅ [8.84052 ms]
+  D3: 7421 (expected 7421) ✅ [12.1523 ms]
 perft(d=4)
-  D4: 124608 (expected 124608) ✅ [25.4797 ms]
+  D4: 124608 (expected 124608) ✅ [16.8725 ms]
 perft(d=5)
-  D5: 2193768 (expected 2193768) ✅ [406.643 ms]
+  D5: 2193768 (expected 2193768) ✅ [248.471 ms]
 perft(d=6)
-  D6: 37665329 (expected 37665329) ✅ [6760.22 ms]
+  D6: 37665329 (expected 37665329) ✅ [4108.66 ms]
 
 Test 125: 8/PPPk4/8/8/8/8/4Kppp/8 b - - 0 1 
 perft(d=1)
-  D1: 18 (expected 18) ✅ [1.24566 ms]
+  D1: 18 (expected 18) ✅ [1.4354 ms]
 perft(d=2)
-  D2: 270 (expected 270) ✅ [0.384175 ms]
+  D2: 270 (expected 270) ✅ [0.9287 ms]
 perft(d=3)
-  D3: 4699 (expected 4699) ✅ [7.10371 ms]
+  D3: 4699 (expected 4699) ✅ [10.3585 ms]
 perft(d=4)
-  D4: 79355 (expected 79355) ✅ [20.0078 ms]
+  D4: 79355 (expected 79355) ✅ [14.6687 ms]
 perft(d=5)
-  D5: 1533145 (expected 1533145) ✅ [319.336 ms]
+  D5: 1533145 (expected 1533145) ✅ [194.94 ms]
 perft(d=6)
-  D6: 28859283 (expected 28859283) ✅ [5892.84 ms]
+  D6: 28859283 (expected 28859283) ✅ [3622.42 ms]
 
 Test 126: n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1 
 perft(d=1)
-  D1: 24 (expected 24) ✅ [1.59821 ms]
+  D1: 24 (expected 24) ✅ [1.4483 ms]
 perft(d=2)
-  D2: 496 (expected 496) ✅ [0.909516 ms]
+  D2: 496 (expected 496) ✅ [0.9857 ms]
 perft(d=3)
-  D3: 9483 (expected 9483) ✅ [9.47568 ms]
+  D3: 9483 (expected 9483) ✅ [8.5148 ms]
 perft(d=4)
-  D4: 182838 (expected 182838) ✅ [44.9679 ms]
+  D4: 182838 (expected 182838) ✅ [28.739 ms]
 perft(d=5)
-  D5: 3605103 (expected 3605103) ✅ [786.104 ms]
+  D5: 3605103 (expected 3605103) ✅ [473.428 ms]
 perft(d=6)
-  D6: 71179139 (expected 71179139) ✅ [18163.9 ms]
+  D6: 71179139 (expected 71179139) ✅ [9170.58 ms]
 
 Test 127: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 
 perft(d=4)
-  D4: 43238 (expected 43238) ✅ [24.0605 ms]
+  D4: 43238 (expected 43238) ✅ [17.4696 ms]
 perft(d=5)
-  D5: 674624 (expected 674624) ✅ [136.69 ms]
+  D5: 674624 (expected 674624) ✅ [81.7541 ms]
 perft(d=6)
-  D6: 11030083 (expected 11030083) ✅ [2293.33 ms]
+  D6: 11030083 (expected 11030083) ✅ [1395.68 ms]
 
 Test 128: rnbqkb1r/ppppp1pp/7n/4Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3 
 perft(d=5)
-  D5: 11139762 (expected 11139762) ✅ [3748.09 ms]
+  D5: 11139762 (expected 11139762) ✅ [2039.28 ms]
 

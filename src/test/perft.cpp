@@ -13,13 +13,12 @@ uint64_t perft(Position &pos, int depth) {
 
     uint64_t nodes = 0;
     std::vector<Move> moves;
-    MoveGenerator::generateLegal(moves, pos);
-    Color moveMaker = pos.getSideToMove();
+    MoveGenerator::generatePseudolegal(moves, pos);
 
     for (const Move &m : moves) {
         Position::Metadata md = pos.makeMove(m);
 
-        if (PositionUtil::isCheck(pos, moveMaker)) {
+        if (!pos.isLegal()) {
             pos.unmakeMove(m, md);
             continue;
         }

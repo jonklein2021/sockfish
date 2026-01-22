@@ -125,7 +125,7 @@ inline void appendCastlingMoves(std::vector<Move> &moveList, Position &pos) {
     const CastleRights cr = pos.getMetadata().castleRights;
     const Bitboard empty = pos.getBoard().getEmptySquares();
 
-    // cannot castling out of check
+    // prevent castling out of check
     if (PositionUtil::isCheck(pos, side)) {
         return;
     }
@@ -145,11 +145,8 @@ inline void appendCastlingMoves(std::vector<Move> &moveList, Position &pos) {
     }
 }
 
-void generateSingleCheckEvasions(std::vector<Move> &result, Position &pos);
-void generateDoubleCheckEvasions(std::vector<Move> &result, Position &pos);
-
 void generateLegal(std::vector<Move> &result, Position &pos);
 void generatePseudolegal(std::vector<Move> &result, Position &pos);
-void generateLegalCaptures(std::vector<Move> &result, Position &pos);
+void generatePseudolegalCaptures(std::vector<Move> &result, Position &pos);
 
 }  // namespace MoveGenerator

@@ -196,6 +196,8 @@ constexpr std::array<Square, 64> ALL_SQUARES = {
 };
 // clang-format on
 
+inline constexpr Bitboard ALL_SQUARES_BB = 0xFFFFFFFFFFFFFFFF;
+
 // x and y are 0-indexed, where (0, 0) is the top-left square (a8)
 inline constexpr Square xyToSquare(int x, int y) {
     return Square(y * 8 + x);

@@ -75,17 +75,13 @@ Bitboard computeKnightMoves(const Position &pos, Square sq) {
 
 Bitboard computeKingMoves(const Position &pos, Square sq) {
     // this represents all possible moves from sq on an empty board
-    Bitboard moves = KING_MASKS[sq];
+    const Bitboard moves = KING_MASKS[sq];
 
     // ensure king can land on square
     const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
-    moves &= landingSqBB;
 
-    // prevent king from moving into check
-    moves &= ~pos.getSideAttacksBB(opponent);
-
-    return moves;
+    return moves & landingSqBB;
 }
 
 Bitboard computeBishopMoves(const Position &pos, Square sq) {
@@ -100,7 +96,7 @@ Bitboard computeBishopMoves(const Position &pos, Square sq) {
 
 Bitboard computeRookMoves(const Position &pos, Square sq) {
     const Color side = pieceColor(pos.pieceAt(sq));
-    Bitboard blockers = pos.board.getOccupancies();
+    const Bitboard blockers = pos.board.getOccupancies();
     const Bitboard ourPieces = pos.board.getOccupancy(side);
     const Bitboard moves = Magic::getRookAttacks(sq, blockers);
 
@@ -110,7 +106,7 @@ Bitboard computeRookMoves(const Position &pos, Square sq) {
 
 Bitboard computeQueenMoves(const Position &pos, Square sq) {
     const Color side = pieceColor(pos.pieceAt(sq));
-    Bitboard blockers = pos.board.getOccupancies();
+    const Bitboard blockers = pos.board.getOccupancies();
     const Bitboard ourPieces = pos.board.getOccupancy(side);
     const Bitboard moves = Magic::getQueenAttacks(sq, blockers);
 

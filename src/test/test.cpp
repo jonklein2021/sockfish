@@ -175,7 +175,7 @@ void printPinnedPieces(const Position &pos) {
         // determine type of pin
         Bitboard ray = findOverlapRay(sq, kingSq);
         Printers::printBitboard(ray);
-        Bitboard restrictedDstBB = ray & pos.getAttacks(p);
+        Bitboard restrictedDstBB = ray & pos.getPieceAttacksBB(p);
         Printers::printBitboard(restrictedDstBB);
 
         pinned &= pinned - 1;

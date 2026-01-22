@@ -187,7 +187,7 @@ constexpr MagicTables createMagicTables() {
         const Bitboard bishopMoveMask = BISHOP_MASKS[sq];
 
         // iterate over all 2^n variations, where n is the number of set 1s in this mask
-        const uint64_t occupancyVariations = 1ull << my_popcount(bishopMoveMask);
+        const uint64_t occupancyVariations = 1ull << getBitCount(bishopMoveMask);
         for (uint64_t index = 0; index < occupancyVariations; index++) {
             // initialize attacks for this square at this magic index
             const uint64_t occupancy = setOccupancy(index, bishopMoveMask);
@@ -202,7 +202,7 @@ constexpr MagicTables createMagicTables() {
         const Bitboard rookMoveMask = ROOK_MASKS[sq];
 
         // iterate over all 2^n variations, where n is the number of set 1s in this mask
-        const uint64_t occupancyVariations = 1ull << my_popcount(rookMoveMask);
+        const uint64_t occupancyVariations = 1ull << getBitCount(rookMoveMask);
         for (uint64_t index = 0; index < occupancyVariations; index++) {
             // initialize attacks for this square at this magic index
             const Bitboard occupancy = setOccupancy(index, rookMoveMask);

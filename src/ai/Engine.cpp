@@ -28,14 +28,19 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     }
 
     // get legal moves and sort them
-    std::vector<Move> legalMoves;
-    MoveGenerator::generateLegal(legalMoves, pos);
-    moveSorter.run(pos, legalMoves);
+    std::vector<Move> moves;
+    MoveGenerator::generatePseudolegal(moves, pos);
+    moveSorter.run(pos, moves);
 
     // save original alpha for TT record
     Eval originalAlpha = alpha;
-    for (const Move &move : legalMoves) {
+    for (const Move &move : moves) {
         const Position::Metadata md = pos.makeMove(move);
+
+        if (!pos.isLegal()) {
+            pos.unmakeMove(move, md);
+            continue;
+        }
 
         Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
 
@@ -57,7 +62,7 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     }
 
     // check for checkmate or stalemate
-    if (legalMoves.empty()) {
+    if (moves.empty()) {
         // checkmate: return -500000 + ply to favor faster mates
         if (PositionUtil::isCheck(pos)) {
             return -CHECKMATE_EVAL + ply;
@@ -84,12 +89,17 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
     }
 
     std::vector<Move> captureMoves;
-    MoveGenerator::generateLegalCaptures(captureMoves, pos);
+    MoveGenerator::generatePseudolegalCaptures(captureMoves, pos);
     moveSorter.run(pos, captureMoves);
 
     // examine every capture
     for (const Move &move : captureMoves) {
         const Position::Metadata md = pos.makeMove(move);
+
+        if (!pos.isLegal()) {
+            pos.unmakeMove(move, md);
+            continue;
+        }
 
         Eval score = -quiescenceSearch(pos, -beta, -alpha, ply + 1);
 

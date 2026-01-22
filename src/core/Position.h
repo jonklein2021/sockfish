@@ -67,11 +67,11 @@ class Position {
 
     Board getBoardCopy() const;
 
-    inline constexpr Bitboard getPieceBB(Piece p) const {
+    constexpr Bitboard getPieceBB(Piece p) const {
         return board.getPieceBB(p);
     }
 
-    inline constexpr Piece pieceAt(Square sq) const {
+    constexpr Piece pieceAt(Square sq) const {
         return board.pieceAt(sq);
     }
 
@@ -97,11 +97,16 @@ class Position {
 
     // Other Methods
 
-    inline constexpr Bitboard getPinnedPieces() const {
+    // returns false iff the player whose turn can capture its opponent's king
+    constexpr bool isLegal() const {
+        return !isAttacked(md.kingSquares[otherColor(sideToMove)], sideToMove);
+    }
+
+    constexpr Bitboard getPinnedPieces() const {
         return getPinnedPieces(sideToMove);
     }
 
-    inline constexpr Bitboard getPinnedPieces(Color color) const {
+    constexpr Bitboard getPinnedPieces(Color color) const {
         const Bitboard ourPieces = board.getOccupancy(color);
         const Bitboard potentialPinnerAttacks = getSlidingAttacks(otherColor(color));
         const Square kingSq = md.kingSquares[color];
@@ -132,6 +137,14 @@ class Position {
      */
     void unmakeMove(const Move &move, const Metadata &prevMD);
 
+    // Attack Table Methods
+
+    struct AttackInfo {
+        Piece attacker = NO_PIECE;
+        Square attackerSq = NO_SQ;
+    };
+
+    // N.B: Consider making an AttackInfo struct to combine a lot of these methods
     constexpr bool isAttacked(Square sq, Color attacker) const {
         for (Piece p : COLOR_TO_PIECES[attacker]) {
             if (getBit(md.attackTable[p], sq)) {
@@ -159,14 +172,25 @@ class Position {
         return result;
     }
 
-    constexpr Bitboard getAttacks(Piece attacker) const {
-
+    constexpr Bitboard getPieceAttacksBB(Piece attacker) const {
         return md.attackTable[attacker];
     }
 
     constexpr Bitboard getSlidingAttacks(Color attacker) const {
-        return getAttacks(ptToPiece(BISHOP, attacker)) | getAttacks(ptToPiece(ROOK, attacker)) |
-               getAttacks(ptToPiece(QUEEN, attacker));
+        return getPieceAttacksBB(ptToPiece(BISHOP, attacker)) |
+               getPieceAttacksBB(ptToPiece(ROOK, attacker)) |
+               getPieceAttacksBB(ptToPiece(QUEEN, attacker));
+    }
+
+    // N.B: This returns at most one piece, even if attackedSq is attacked by more than one piece of
+    // the specified color.
+    constexpr Piece getFirstAttacker(Square attackedSq, Color attacker) const {
+        for (Piece p : COLOR_TO_PIECES[attacker]) {
+            if (getBit(md.attackTable[p], attackedSq)) {
+                return p;
+            }
+        }
+        return NO_PIECE;
     }
 
     std::string toFenString() const;
