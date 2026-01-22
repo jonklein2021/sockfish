@@ -324,6 +324,7 @@ inline constexpr int getBackslashDiagonalIndex(Square sq) {
 
 // Returns a "ray", i.e. a line that overlaps both squares
 // NTS: Is this better than simply trying all 4 rays?
+[[maybe_unused]]
 inline constexpr Bitboard findOverlapRay(Square sq1, Square sq2) {
     const Rank r1 = rankOf(sq1), r2 = rankOf(sq2);
     const File f1 = fileOf(sq1), f2 = fileOf(sq2);

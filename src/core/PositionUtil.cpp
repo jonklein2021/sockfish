@@ -1,5 +1,6 @@
 #include "PositionUtil.h"
 
+#include "src/bitboard/bit_tools.h"
 #include "src/movegen/MoveGenerator.h"
 
 bool PositionUtil::isCheck(Position &pos, Color defender) {
@@ -13,17 +14,17 @@ bool PositionUtil::isCheck(Position &pos) {
 bool PositionUtil::insufficientMaterial(Position &pos) {
     // count all pieces
     const int pieceCount[12] = {
-        __builtin_popcountll(pos.getPieceBB(WP)),
-        __builtin_popcountll(pos.getPieceBB(WN)),
-        __builtin_popcountll(pos.getPieceBB(WB)),
-        __builtin_popcountll(pos.getPieceBB(WR)),
-        __builtin_popcountll(pos.getPieceBB(WQ)),
+        getBitCount(pos.getPieceBB(WP)),
+        getBitCount(pos.getPieceBB(WN)),
+        getBitCount(pos.getPieceBB(WB)),
+        getBitCount(pos.getPieceBB(WR)),
+        getBitCount(pos.getPieceBB(WQ)),
         1,  // always 1 white king
-        __builtin_popcountll(pos.getPieceBB(BP)),
-        __builtin_popcountll(pos.getPieceBB(BN)),
-        __builtin_popcountll(pos.getPieceBB(BB)),
-        __builtin_popcountll(pos.getPieceBB(BR)),
-        __builtin_popcountll(pos.getPieceBB(BQ)),
+        getBitCount(pos.getPieceBB(BP)),
+        getBitCount(pos.getPieceBB(BN)),
+        getBitCount(pos.getPieceBB(BB)),
+        getBitCount(pos.getPieceBB(BR)),
+        getBitCount(pos.getPieceBB(BQ)),
         1  // always 1 black king
     };
 

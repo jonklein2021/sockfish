@@ -21,6 +21,7 @@ class Board {
 
    public:
     Board() {
+        // SIMD these?
         pieceBBs.fill(0ull);
         occupancies.fill(0ull);
         squareToPiece.fill(NO_PIECE);
@@ -31,15 +32,15 @@ class Board {
         return pieceBBs[p];
     }
 
-    inline constexpr Bitboard getOccupancy(Color c) const {
+    constexpr Bitboard getOccupancy(Color c) const {
         return occupancies[c];
     }
 
-    inline constexpr Bitboard getOccupancies() const {
+    constexpr Bitboard getOccupancies() const {
         return getOccupancy(WHITE) | getOccupancy(BLACK);
     }
 
-    inline constexpr Bitboard getEmptySquares() const {
+    constexpr Bitboard getEmptySquares() const {
         return ~getOccupancies();
     }
 

@@ -47,6 +47,7 @@ void runPerftPosition(const std::string &fen, const std::vector<std::pair<int, u
                   << (result == expected ? " ✅" : " ❌") << " [" << ms << " ms]\n";
 
         if (result != expected) {
+            std::cout << "FAILED\n";
             break;
         }
     }

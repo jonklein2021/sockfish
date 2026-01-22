@@ -9,7 +9,7 @@ SECONDS=0
 
 cd ../build || exit 1
 
-if ! meson compile; then
+if ! meson compile perft; then
     echo "Build failed" >&2
     exit 1
 fi
