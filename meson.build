@@ -33,7 +33,6 @@ common_sources = [
   'src/ui/cli/CliFrontend.cpp',
   'src/ui/gui/GuiFrontend.cpp',
   'src/ui/gui/PromotionMenu.cpp',
-  'src/movegen/MoveComputers.cpp',
   'src/movegen/MoveGenerator.cpp'
 ]
 

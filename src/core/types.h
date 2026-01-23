@@ -89,7 +89,7 @@ inline constexpr PieceType pieceToPT(Piece p) {
 
 inline constexpr Color pieceColor(Piece p) {
     assert(p != NO_PIECE);
-    return Color(p / 6);
+    return Color(p >= 6);
 }
 
 constexpr std::array<Piece, 6> WHITE_PIECES = {WP, WN, WB, WR, WQ, WK};
@@ -200,20 +200,7 @@ inline constexpr Bitboard ALL_SQUARES_BB = 0xFFFFFFFFFFFFFFFF;
 
 // x and y are 0-indexed, where (0, 0) is the top-left square (a8)
 inline constexpr Square xyToSquare(int x, int y) {
-    return Square(y * 8 + x);
-}
-
-// input is assumed to be in a2a4 format
-inline Square coordinateStringToSquare(const std::string &str) {
-    const int fileIndex = str[0] - 'a';
-    const int rankIndex = '8' - str[1];
-    return xyToSquare(fileIndex, rankIndex);
-}
-
-inline std::string squareToCoordinateString(const Square &sq) {
-    const char file = 'a' + (sq % 8);
-    const char rank = '8' - (sq / 8);
-    return std::string{file, rank};
+    return Square((y << 3) + x);
 }
 
 // File Constants
@@ -260,6 +247,19 @@ inline constexpr File fileOf(Square sq) {
 
 inline constexpr Rank rankOf(Square sq) {
     return Rank(sq >> 3);  // same as sq / 8
+}
+
+// input is assumed to be in a2a4 format
+inline Square coordinateStringToSquare(const std::string &str) {
+    const int fileIndex = str[0] - 'a';
+    const int rankIndex = '8' - str[1];
+    return xyToSquare(fileIndex, rankIndex);
+}
+
+inline std::string squareToCoordinateString(const Square &sq) {
+    const char fileSymbol = 'a' + fileOf(sq);
+    const char rankSymbol = '8' - rankOf(sq);
+    return std::string {fileSymbol, rankSymbol};
 }
 
 // Diagonal Masks

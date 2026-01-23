@@ -7,32 +7,41 @@
 
 #include <algorithm>
 
+template<Color side>
 void MoveGenerator::generatePseudolegal(std::vector<Move> &result, Position &pos) {
-    // cannot do 218 max move space optimization since these are pseudolegal moves
-    pos.board.updateOccupancies();
-
     /* PAWNS */
-    appendMovesFromPiece<PAWN, Move::NORMAL>(result, pos, MoveComputers::computePawnPushes);
-    appendMovesFromPiece<PAWN, Move::NORMAL>(result, pos, MoveComputers::computePawnCaptures);
-    appendMovesFromPiece<PAWN, Move::EN_PASSANT>(result, pos, MoveComputers::computePawnEnPassant);
+    appendMovesFromPiece<PAWN, Move::NORMAL>(result, pos, MoveComputers::computePawnPushes<side>);
+    appendMovesFromPiece<PAWN, Move::NORMAL>(result, pos, MoveComputers::computePawnCaptures<side>);
+    appendMovesFromPiece<PAWN, Move::EN_PASSANT>(result, pos,
+                                                 MoveComputers::computePawnEnPassant<side>);
 
     /* KNIGHTS */
-    appendMovesFromPiece<KNIGHT, Move::NORMAL>(result, pos, MoveComputers::computeKnightMoves);
+    appendMovesFromPiece<KNIGHT, Move::NORMAL>(result, pos,
+                                               MoveComputers::computeKnightMoves<side>);
 
     /* BISHOPS */
-    appendMovesFromPiece<BISHOP, Move::NORMAL>(result, pos, MoveComputers::computeBishopMoves);
+    appendMovesFromPiece<BISHOP, Move::NORMAL>(result, pos,
+                                               MoveComputers::computeBishopMoves<side>);
 
     /* ROOKS */
-    appendMovesFromPiece<ROOK, Move::NORMAL>(result, pos, MoveComputers::computeRookMoves);
+    appendMovesFromPiece<ROOK, Move::NORMAL>(result, pos, MoveComputers::computeRookMoves<side>);
 
     /* QUEENS */
-    appendMovesFromPiece<QUEEN, Move::NORMAL>(result, pos, MoveComputers::computeQueenMoves);
+    appendMovesFromPiece<QUEEN, Move::NORMAL>(result, pos, MoveComputers::computeQueenMoves<side>);
 
     /* KING */
-    appendMovesFromPiece<KING, Move::NORMAL>(result, pos, MoveComputers::computeKingMoves);
+    appendMovesFromPiece<KING, Move::NORMAL>(result, pos, MoveComputers::computeKingMoves<side>);
 
     /* CASTLING */
     appendCastlingMoves(result, pos);
+}
+
+void MoveGenerator::generatePseudolegal(std::vector<Move> &result, Position &pos) {
+    if (pos.getSideToMove() == WHITE) {
+        generatePseudolegal<WHITE>(result, pos);
+    } else {
+        generatePseudolegal<BLACK>(result, pos);
+    }
 }
 
 void MoveGenerator::generateLegal(std::vector<Move> &result, Position &pos) {

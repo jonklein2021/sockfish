@@ -36,7 +36,7 @@ class TranspositionTable {
     // Round down to 2^12 = 4096 for faster modulos
     std::array<TTEntry, (1 << 12)> table;
 
-    inline uint64_t getIndex(uint64_t prehash) const {
+    constexpr uint64_t getIndex(uint64_t prehash) const {
         // x mod 2^12 = x & 11
         return prehash & ((1 << 12) - 1);
     }

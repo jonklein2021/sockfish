@@ -146,6 +146,10 @@ inline void appendCastlingMoves(std::vector<Move> &moveList, Position &pos) {
 }
 
 void generateLegal(std::vector<Move> &result, Position &pos);
+
+template<Color side>
+void generatePseudolegal(std::vector<Move> &result, Position &pos);
+
 void generatePseudolegal(std::vector<Move> &result, Position &pos);
 void generatePseudolegalCaptures(std::vector<Move> &result, Position &pos);
 

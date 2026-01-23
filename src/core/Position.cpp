@@ -349,7 +349,7 @@ void Position::updatePieceAttacks(Piece p) {
 
     while (pieceBB) {
         Square sq = Square(getLsbIndex(pieceBB));
-        md.attackTable[p] |= MoveComputers::moveAttackComputers[pieceToPT(p)](*this, sq);
+        md.attackTable[p] |= MoveComputers::moveAttackComputers[p](*this, sq);
         pieceBB &= pieceBB - 1;
     }
 }

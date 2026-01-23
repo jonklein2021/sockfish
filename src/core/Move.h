@@ -38,12 +38,11 @@ class Move {
         : data(from | (to << 6)) {}
 
     template<Type moveType>
-    inline static constexpr Move
-    create(Square from, Square to, PieceType promotedPieceType = KNIGHT) {
-        return Move(from | (to << 6) | moveType | ((promotedPieceType - KNIGHT) << 12));
+    inline static constexpr Move create(Square from, Square to, PieceType promotedPT = KNIGHT) {
+        return Move(from | (to << 6) | moveType | ((promotedPT - KNIGHT) << 12));
     }
 
-    inline static constexpr Move none() {
+    static constexpr Move none() {
         return Move();
     }
 
@@ -53,43 +52,40 @@ class Move {
 
     void setPromotedPieceType(PieceType promotedPieceType);
 
-    inline constexpr uint16_t raw() const {
+    constexpr uint16_t raw() const {
         return data;
     }
 
-    inline constexpr Square getFromSquare() const {
+    constexpr Square getFromSquare() const {
         return Square(data & 0x3F);
     }
 
-    inline constexpr Square getToSquare() const {
+    constexpr Square getToSquare() const {
         return Square((data >> 6) & 0x3F);
     }
 
-    inline constexpr PieceType getPromotedPieceType() const {
+    constexpr PieceType getPromotedPieceType() const {
         return PieceType(((data >> 12) & 0x3) + KNIGHT);
     }
 
-    inline constexpr bool isPromotion() const {
+    constexpr bool isPromotion() const {
         return (data & (0x3 << 14)) == PROMOTION;
     }
 
-    inline constexpr bool isEnPassant() const {
+    constexpr bool isEnPassant() const {
         return (data & (0x3 << 14)) == EN_PASSANT;
     }
 
-    // Note: When true, the type of castle can be determined by where the king moves
-    inline constexpr bool isCastles() const {
+    constexpr bool isCastles() const {
         return (data & (0x3 << 14)) == CASTLING;
     }
 
-    // N.B: This ASSUMES isCastles() is true
-    inline constexpr bool isKCastles() const {
-        return getToSquare() == g1 || getToSquare() == g8;
+    constexpr bool isKCastles() const {
+        return isCastles() && (getToSquare() == g1 || getToSquare() == g8);
     }
 
-    // N.B: This ASSUMES isCastles() is true
-    inline constexpr bool isQCastles() const {
-        return getToSquare() == c1 || getToSquare() == c8;
+    constexpr bool isQCastles() const {
+        return isCastles() && (getToSquare() == c1 || getToSquare() == c8);
     }
 
     std::string toCoordinateString() const;
@@ -108,15 +104,15 @@ class Move {
      * Checks equality between two moves by comparing
      * their source and destination squares only
      */
-    inline constexpr bool softEquals(const Move &other) const {
+    constexpr bool softEquals(const Move &other) const {
         return (data & 0xFFF) == (other.raw() & 0xFFF);
     }
 
-    inline constexpr bool operator==(const Move &other) const {
+    constexpr bool operator==(const Move &other) const {
         return data == other.raw();
     }
 
-    inline constexpr bool operator!=(const Move &other) const {
+    constexpr bool operator!=(const Move &other) const {
         return data != other.raw();
     }
 };

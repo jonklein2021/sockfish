@@ -3,7 +3,7 @@ set -uo pipefail
 
 NUM_TESTS=128
 RESULTS_FILE="../scripts/results.txt"
-declare -a failed
+failed=()
 
 SECONDS=0
 
@@ -42,7 +42,7 @@ if [[ ${#failed[@]} -ne 0 ]]; then
     done
 else
     echo
-    echo "All tests passed ✅"
+    echo "All tests passed ✓"
 fi
 
 elapsed=$SECONDS
