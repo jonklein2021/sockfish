@@ -138,16 +138,6 @@ void testMakeMove(Position &pos) {
     Printers::printPieceValues(pos);
 }
 
-void printAttackMap(const Position &pos) {
-    puts("Attack map:\n");
-    for (Piece p : ALL_PIECES) {
-        printf("%s\n", PIECE_NAMES[p].data());
-        Bitboard attacks = pos.getMetadata().attackTable[p];
-        Printers::printBitboard(attacks);
-        puts("");
-    }
-}
-
 void getEvaluation(Position &pos, Evaluator &evaluator) {
     Eval evaluation = evaluator.run(pos);
     printf("Final evaluation: %d\n", evaluation);
@@ -175,9 +165,7 @@ int main() {
                 "q: Quit\n"
                 "1: Make a move\n"
                 "2: Show legal moves\n"
-                "3: Show attack map\n"
-                "4: Show pinned pieces\n"
-                "5: Evaluate this position"
+                "3: Evaluate this position"
              << endl;
         getline(cin, choice);
 
@@ -189,8 +177,7 @@ int main() {
                 Printers::printMoveList(legalMoves, pos);
                 break;
             }
-            case '3': printAttackMap(pos); break;
-            case '4': getEvaluation(pos, evaluator); break;
+            case '3': getEvaluation(pos, evaluator); break;
             default: break;
         }
 

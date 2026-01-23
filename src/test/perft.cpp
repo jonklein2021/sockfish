@@ -35,9 +35,8 @@ void runPerftPosition(const std::string &fen, const std::vector<std::pair<int, u
     std::cout << fen << '\n';
 
     for (auto [depth, expected] : tests) {
-        const auto start = std::chrono::high_resolution_clock::now();
-
         printf("perft(d=%d)\n", depth);
+        const auto start = std::chrono::high_resolution_clock::now();
         uint64_t result = perft(pos, depth);
 
         const auto end = std::chrono::high_resolution_clock::now();
@@ -99,6 +98,7 @@ void runPerftFile(const std::string &filename) {
     }
 
     std::string line;
+    int index = 1;
     while (std::getline(file, line)) {
         if (line.empty() || line[0] == '#') {
             continue;
@@ -121,6 +121,7 @@ void runPerftFile(const std::string &filename) {
             tests.emplace_back(depth, nodes);
         }
 
+        std::cout << "Test " << index++ << ": \n";
         runPerftPosition(fen, tests);
     }
 }

@@ -21,7 +21,6 @@ class Board {
 
    public:
     Board() {
-        // SIMD these?
         pieceBBs.fill(0ull);
         occupancies.fill(0ull);
         squareToPiece.fill(NO_PIECE);

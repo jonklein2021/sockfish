@@ -25,7 +25,7 @@ constexpr int ZOBRIST_SIZE = PIECES * SQUARES + 1 + CASTLING + EP_FILES;
 inline constexpr std::array<uint64_t, ZOBRIST_SIZE> createZobristTable() {
     PRNG rnd;
 
-    std::array<uint64_t, ZOBRIST_SIZE> t{};
+    std::array<uint64_t, ZOBRIST_SIZE> t {};
     for (int i = 0; i < ZOBRIST_SIZE; i++) {
         t[i] = rnd.next();
     }
@@ -35,19 +35,19 @@ inline constexpr std::array<uint64_t, ZOBRIST_SIZE> createZobristTable() {
 
 inline constexpr std::array<uint64_t, ZOBRIST_SIZE> table = createZobristTable();
 
-constexpr uint64_t getPieceSquareHash(Piece p, Square sq) {
+inline constexpr uint64_t getPieceSquareHash(Piece p, Square sq) {
     return table[p * SQUARES + sq];
 }
 
-constexpr uint64_t getSideToMoveHash() {
+inline constexpr uint64_t getSideToMoveHash() {
     return table[SIDE_OFFSET];
 }
 
-constexpr uint64_t getCastleRightsHash(CastleRights rights) {
+inline constexpr uint64_t getCastleRightsHash(CastleRights rights) {
     return table[CASTLE_OFFSET + rights];
 }
 
-constexpr uint64_t getEnPassantHash(int file) {
+inline constexpr uint64_t getEnPassantHash(int file) {
     return table[EP_OFFSET + file];
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/bitboard/Magic.h"
 #include "src/core/Board.h"
 #include "src/core/Move.h"
 #include "src/core/types.h"
@@ -16,14 +17,10 @@ class Position {
      * Information about the current position
      * that cannot be read from the board alone
      *
-     * Total size = (8*12) + 8 + 4 + 4 + 1 + 1 + 1 + 1 + padding
-     *            = 120 bytes after padding
+     * Total size = 8 + 4 + 4 + 1 + 1 + 1 + 1 + padding
+     *            = 24 bytes after padding
      */
     struct Metadata {
-        // maps pieces to the squares they control
-        // N.B: consider taking this out of metadata to reduce data copy size
-        std::array<Bitboard, NO_PIECE> attackTable;
-
         // maintained by ZobristHasher
         uint64_t hash = 0ull;
 
@@ -44,12 +41,6 @@ class Position {
 
    private:
     Color sideToMove;
-
-    void updatePieceAttacks(Piece p);
-
-    void updateSideAttacks(Color c);
-
-    void updateAllAttacks();
 
    public:
     Board board;
@@ -97,16 +88,51 @@ class Position {
     // Other Methods
 
     // Used to detect check and ensure legal castling
-    constexpr bool isAttacked(Square sq, Color attacker) const {
-        for (Piece p : COLOR_TO_PIECES[attacker]) {
-            if (getBit(md.attackTable[p], sq)) {
-                return true;
-            }
+    template<Color attacker>
+    constexpr bool isAttacked(Square sq) const {
+        constexpr Color defender = otherColor(attacker);
+        constexpr std::array<Piece, 6> enemyPieces = {
+            ptToPiece(PAWN, attacker), ptToPiece(KNIGHT, attacker), ptToPiece(BISHOP, attacker),
+            ptToPiece(ROOK, attacker), ptToPiece(QUEEN, attacker),  ptToPiece(KING, attacker),
+        };
+
+        const Bitboard occ = board.getOccupancies();
+
+        // Diagonal Attacks: bishop + queen
+        const Bitboard diagonalAttacks = Magic::getBishopAttacks(sq, occ);
+        if (diagonalAttacks & (getPieceBB(enemyPieces[BISHOP]) | getPieceBB(enemyPieces[QUEEN]))) {
+            return true;
         }
+
+        // Lateral Attacks: rook + queen
+        const Bitboard lateralAttacks = Magic::getRookAttacks(sq, occ);
+        if (lateralAttacks & (getPieceBB(enemyPieces[ROOK]) | getPieceBB(enemyPieces[QUEEN]))) {
+            return true;
+        }
+
+        // Knight
+        if (KNIGHT_MASKS[sq] & getPieceBB(enemyPieces[KNIGHT])) {
+            return true;
+        }
+
+        // Pawn
+        if (PAWN_ATTACK_MASKS[defender][sq] & getPieceBB(enemyPieces[PAWN])) {
+            return true;
+        }
+
+        // King
+        if (KING_MASKS[sq] & getPieceBB(enemyPieces[KING])) {
+            return true;
+        }
+
         return false;
     }
 
-    // returns false iff the player whose turn can capture its opponent's king
+    constexpr bool isAttacked(Square sq, Color attacker) const {
+        return attacker == WHITE ? isAttacked<WHITE>(sq) : isAttacked<BLACK>(sq);
+    }
+
+    // returns false iff a king can be captured in the current position
     constexpr bool isLegal() const {
         return !isAttacked(md.kingSquares[otherColor(sideToMove)], sideToMove);
     }

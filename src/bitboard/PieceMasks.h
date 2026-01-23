@@ -7,6 +7,17 @@ using MoveMaskTable = std::array<Bitboard, NO_SQ>;
 // Move Mask Computers //
 /////////////////////////
 
+constexpr Bitboard computePawnAttackMask(Square sq, Color c) {
+    const Bitboard sqBB = 1ull << sq;
+    const Direction forward = (c == WHITE) ? NORTH : SOUTH;
+
+    Bitboard attacks = 0;
+    attacks |= shift(sqBB, Direction(forward + EAST));
+    attacks |= shift(sqBB, Direction(forward + WEST));
+
+    return attacks;
+}
+
 constexpr Bitboard computeKnightMask(Square sq) {
     const Bitboard sqBB = 1ull << sq;
 
@@ -70,15 +81,31 @@ constexpr Bitboard computeKingMask(Square sq) {
 //////////////////////////
 
 template<typename Fn>
-constexpr MoveMaskTable fillMoveMaskTable(Fn fn) {
-    MoveMaskTable table{};
-    for (Square sq : ALL_SQUARES) {
-        table[sq] = fn(sq);
+constexpr auto fillMoveMaskTable(Fn fn) {
+    if constexpr (std::is_invocable_v<Fn, Square, Color>) {
+        // Pawn-style: Square + Color
+        std::array<MoveMaskTable, 2> table {};
+
+        for (Color c : COLORS) {
+            for (Square sq : ALL_SQUARES) {
+                table[c][sq] = fn(sq, c);
+            }
+        }
+
+        return table;
+    } else {
+        // Normal piece: Square only
+        MoveMaskTable table {};
+
+        for (Square sq : ALL_SQUARES) {
+            table[sq] = fn(sq);
+        }
+        return table;
     }
-    return table;
 }
 
 // these pre-computed masks represent all possible squares a piece can move to on an empty board
+constexpr std::array<MoveMaskTable, 2> PAWN_ATTACK_MASKS = fillMoveMaskTable(computePawnAttackMask);
 constexpr MoveMaskTable KNIGHT_MASKS = fillMoveMaskTable(computeKnightMask);
 constexpr MoveMaskTable BISHOP_MASKS = fillMoveMaskTable(computeBishopMask);
 constexpr MoveMaskTable ROOK_MASKS = fillMoveMaskTable(computeRookMask);

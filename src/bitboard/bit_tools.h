@@ -61,15 +61,3 @@ inline static constexpr void unsetBit(Bitboard &bb, Square sq) {
 inline static constexpr Bitboard xyToBit(int x, int y) {
     return 1ull << (y * 8 + x);
 }
-
-/**
- * Pops (removes and returns) the bit at the given index
- *
- * @param bb the relevant bitboard
- * @param index the index of that bitboard to pop
- */
-inline static constexpr void popBit(Bitboard &bb, Square sq) {
-    if (getBit(bb, sq)) {
-        bb ^= (1ull << sq);
-    }
-}

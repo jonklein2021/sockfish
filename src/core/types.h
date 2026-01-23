@@ -69,7 +69,9 @@ enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PT };
 
 constexpr std::array<PieceType, 6> PIECE_TYPES = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING};
 
-constexpr std::array<PieceType, 3> SLIDING_PIECE_TYPES = {BISHOP, ROOK, QUEEN};
+constexpr std::array<PieceType, 3> DIAGONAL_SLIDING_PTS = {BISHOP, QUEEN, PAWN};
+
+constexpr std::array<PieceType, 3> LATERAL_SLIDING_PTS = {ROOK, QUEEN};
 
 constexpr std::array<PieceType, 4> PROMOTION_PIECE_TYPES = {KNIGHT, BISHOP, ROOK, QUEEN};
 
@@ -357,14 +359,14 @@ inline constexpr Direction otherDir(Direction dir) {
 
 inline constexpr Bitboard shift(Bitboard bb, Direction dir) {
     switch (dir) {
-        case NORTH: return bb << 8;
-        case SOUTH: return bb >> 8;
+        case NORTH: return bb >> 8;
+        case SOUTH: return bb << 8;
         case EAST: return (bb & notH) << 1;
         case WEST: return (bb & notA) >> 1;
-        case NORTH_EAST: return (bb & notH) << 9;
-        case NORTH_WEST: return (bb & notA) << 7;
-        case SOUTH_EAST: return (bb & notH) >> 7;
-        case SOUTH_WEST: return (bb & notA) >> 9;
+        case NORTH_EAST: return (bb & notH) >> 7;
+        case NORTH_WEST: return (bb & notA) >> 9;
+        case SOUTH_EAST: return (bb & notH) << 9;
+        case SOUTH_WEST: return (bb & notA) << 7;
     }
 }
 

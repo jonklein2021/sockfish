@@ -2,6 +2,8 @@
 #include "src/core/Position.h"
 #include "src/core/types.h"
 
+#include <cassert>
+
 namespace MoveComputers {
 
 using MoveComputerFunc = Bitboard (*)(const Position &, Square);
@@ -30,18 +32,8 @@ inline Bitboard computePawnPushes(const Position &pos, Square sq) {
 // used to compute attacked squares; does not guarantee a capture
 template<Color side>
 inline Bitboard computePawnAttacks(const Position &pos, Square sq) {
-    constexpr Direction dir = side == WHITE ? NORTH : SOUTH;
-
-    Bitboard attacks = 0ull;
-
-    const Bitboard eastCaptureBB = 1ull << (sq + Direction(dir + EAST));
-    const Bitboard westCaptureBB = 1ull << (sq + Direction(dir + WEST));
-
-    // only add to attacks if not out of bounds
-    attacks |= (eastCaptureBB & notA);
-    attacks |= (westCaptureBB & notH);
-
-    return attacks;
+    assert(&pos);  // stupid way to avoid unused var warning
+    return PAWN_ATTACK_MASKS[side][sq];
 }
 
 template<Color side>
@@ -66,7 +58,7 @@ inline Bitboard computeKnightMoves(const Position &pos, Square sq) {
     const Bitboard knightMask = KNIGHT_MASKS[sq];
 
     // ensure the knight can land on each square
-    const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
+    const Color opponent = otherColor(side);
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return knightMask & landingSqBB;
@@ -75,13 +67,13 @@ inline Bitboard computeKnightMoves(const Position &pos, Square sq) {
 template<Color side>
 inline Bitboard computeKingMoves(const Position &pos, Square sq) {
     // this represents all possible moves from sq on an empty board
-    const Bitboard moves = KING_MASKS[sq];
+    const Bitboard kingMask = KING_MASKS[sq];
 
     // ensure king can land on square
-    const Color opponent = otherColor(pieceColor(pos.pieceAt(sq)));
+    const Color opponent = otherColor(side);
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
-    return moves & landingSqBB;
+    return kingMask & landingSqBB;
 }
 
 template<Color side>
