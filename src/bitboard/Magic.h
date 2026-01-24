@@ -69,10 +69,10 @@ constexpr std::array<int, NO_SQ> BISHOP_RELEVANT_BITS = {
 
 struct MagicTables {
     // 4096 = 2^12 = 2^max(ROOK_RELEVANT_BITS)
-    std::array<std::array<Bitboard, 4096>, NO_SQ> rookAttacks{};
+    std::array<std::array<Bitboard, 4096>, NO_SQ> rookAttacks {};
 
     // 512 = 2^9 = 2^max(BISHOP_RELEVANT_BITS)
-    std::array<std::array<Bitboard, 512>, NO_SQ> bishopAttacks{};
+    std::array<std::array<Bitboard, 512>, NO_SQ> bishopAttacks {};
 };
 
 constexpr Bitboard computeRookMovesNaively(Square sq, Bitboard blockers) {
@@ -180,7 +180,7 @@ constexpr Bitboard setOccupancy(uint64_t index, Bitboard movementMask) {
 }
 
 constexpr MagicTables createMagicTables() {
-    MagicTables mt{};
+    MagicTables mt {};
 
     // bishop
     for (Square sq : ALL_SQUARES) {
@@ -219,7 +219,7 @@ constexpr MagicTables createMagicTables() {
 // table data is initialized here at compile-time nonetheless
 inline const MagicTables MAGIC = createMagicTables();
 
-constexpr Bitboard getBishopAttacks(Square sq, Bitboard blockers) {
+inline constexpr Bitboard getBishopAttacks(Square sq, Bitboard blockers) {
     // use blocker BB calculate magic index
     blockers &= BISHOP_MASKS[sq];
     blockers *= BISHOP_MAGICS[sq];
@@ -228,7 +228,7 @@ constexpr Bitboard getBishopAttacks(Square sq, Bitboard blockers) {
     return MAGIC.bishopAttacks[sq][blockers];
 }
 
-constexpr Bitboard getRookAttacks(Square sq, Bitboard blockers) {
+inline constexpr Bitboard getRookAttacks(Square sq, Bitboard blockers) {
     // use blocker BB to calculate magic index
     blockers &= ROOK_MASKS[sq];
     blockers *= ROOK_MAGICS[sq];
@@ -238,8 +238,18 @@ constexpr Bitboard getRookAttacks(Square sq, Bitboard blockers) {
 }
 
 // DRY
-constexpr Bitboard getQueenAttacks(Square sq, Bitboard blockers) {
+inline constexpr Bitboard getQueenAttacks(Square sq, Bitboard blockers) {
     return getBishopAttacks(sq, blockers) | getRookAttacks(sq, blockers);
+}
+
+template<PieceType Pt>
+inline constexpr Bitboard getSlidingPieceAttacks(Square sq, Bitboard blockers) {
+    switch (Pt) {
+        case BISHOP: return getBishopAttacks(sq, blockers);
+        case ROOK: return getRookAttacks(sq, blockers);
+        case QUEEN: return getQueenAttacks(sq, blockers);
+        default: break;
+    }
 }
 
 };  // namespace Magic

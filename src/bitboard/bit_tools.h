@@ -2,14 +2,6 @@
 
 #include "src/core/types.h"
 
-// minimal swap implementation so I don't need to include the entire utility header
-template<typename T>
-inline static constexpr void my_swap(T &x, T &y) {
-    T temp = x;
-    x = y;
-    y = temp;
-}
-
 /**
  * Returns the index of the least significant bit of a bitboard
  */
@@ -59,5 +51,14 @@ inline static constexpr void unsetBit(Bitboard &bb, Square sq) {
  * @return the bit corresponding to the coordinates
  */
 inline static constexpr Bitboard xyToBit(int x, int y) {
-    return 1ull << (y * 8 + x);
+    return 1ull << xyToSquare(x, y);
+}
+
+template<typename Fn>
+constexpr void forEachSquare(Bitboard bb, Fn fn) {
+    while (bb) {
+        Square sq = Square(getLsbIndex(bb));
+        fn(sq);
+        bb &= bb - 1;
+    }
 }

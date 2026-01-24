@@ -8,15 +8,15 @@ namespace MoveComputers {
 
 using MoveComputerFunc = Bitboard (*)(const Position &, Square);
 
-template<Color side>
+template<Color Side>
 inline Bitboard computePawnPushes(const Position &pos, Square sq) {
-    constexpr Direction dir = side == WHITE ? NORTH : SOUTH;
+    constexpr Direction dir = Side == WHITE ? NORTH : SOUTH;
+    constexpr Bitboard toggle = ALL_SQUARES_BB;
 
     // double pawn pushes must land on these ranks
-    constexpr Bitboard dblEndRank = RANK_MASKS[RANK_4 - side];
+    constexpr Bitboard dblEndRank = RANK_MASKS[RANK_4 - Side];
 
     const Bitboard emptySquares = pos.getBoard().getEmptySquares();
-    const Bitboard toggle = ALL_SQUARES_BB;
 
     Bitboard moves = 0ull;
 
@@ -30,35 +30,35 @@ inline Bitboard computePawnPushes(const Position &pos, Square sq) {
 }
 
 // used to compute attacked squares; does not guarantee a capture
-template<Color side>
+template<Color Side>
 inline Bitboard computePawnAttacks(const Position &pos, Square sq) {
     assert(&pos);  // stupid way to avoid unused var warning
-    return PAWN_ATTACK_MASKS[side][sq];
+    return PAWN_ATTACK_MASKS[Side][sq];
 }
 
-template<Color side>
+template<Color Side>
 inline Bitboard computePawnCaptures(const Position &pos, Square sq) {
-    const Bitboard oppPieces = pos.getBoard().getOccupancy(otherColor(side));
-    return computePawnAttacks<side>(pos, sq) & oppPieces;
+    const Bitboard oppPieces = pos.getBoard().getOccupancy(otherColor(Side));
+    return computePawnAttacks<Side>(pos, sq) & oppPieces;
 }
 
-template<Color side>
+template<Color Side>
 inline Bitboard computePawnEnPassant(const Position &pos, Square sq) {
     const Square epSq = pos.getMetadata().enPassantSquare;
     if (epSq == NO_SQ) {
         return 0ull;
     }
     const Bitboard epSqBB = 1ull << epSq;
-    return computePawnAttacks<side>(pos, sq) & epSqBB;
+    return computePawnAttacks<Side>(pos, sq) & epSqBB;
 }
 
-template<Color side>
+template<Color Side>
 inline Bitboard computeKnightMoves(const Position &pos, Square sq) {
     // this represents all possible moves from sq on an empty board
     const Bitboard knightMask = KNIGHT_MASKS[sq];
 
     // ensure the knight can land on each square
-    const Color opponent = otherColor(side);
+    constexpr Color opponent = otherColor(Side);
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return knightMask & landingSqBB;
@@ -70,47 +70,39 @@ inline Bitboard computeKingMoves(const Position &pos, Square sq) {
     const Bitboard kingMask = KING_MASKS[sq];
 
     // ensure king can land on square
-    const Color opponent = otherColor(side);
+    constexpr Color opponent = otherColor(side);
     const Bitboard landingSqBB = pos.board.getEmptySquares() | pos.board.getOccupancy(opponent);
 
     return kingMask & landingSqBB;
 }
 
-template<Color side>
+template<Color Side>
 inline Bitboard computeBishopMoves(const Position &pos, Square sq) {
     const Bitboard blockers = pos.board.getOccupancies();
-    const Bitboard ourPieces = pos.board.getOccupancy(side);
+    const Bitboard ourPieces = pos.board.getOccupancy(Side);
     const Bitboard moves = Magic::getBishopAttacks(sq, blockers);
 
     // prevent capturing own pieces
     return moves & ~ourPieces;
 }
 
-template<Color side>
+template<Color Side>
 inline Bitboard computeRookMoves(const Position &pos, Square sq) {
     const Bitboard blockers = pos.board.getOccupancies();
-    const Bitboard ourPieces = pos.board.getOccupancy(side);
+    const Bitboard ourPieces = pos.board.getOccupancy(Side);
     const Bitboard moves = Magic::getRookAttacks(sq, blockers);
 
     // prevent capturing own pieces
     return moves & ~ourPieces;
 }
 
-template<Color side>
+template<Color Side>
 inline Bitboard computeQueenMoves(const Position &pos, Square sq) {
     const Bitboard blockers = pos.board.getOccupancies();
-    const Bitboard ourPieces = pos.board.getOccupancy(side);
+    const Bitboard ourPieces = pos.board.getOccupancy(Side);
     const Bitboard moves = Magic::getQueenAttacks(sq, blockers);
 
     // prevent capturing own pieces
     return moves & ~ourPieces;
 }
-
-inline constexpr std::array<MoveComputerFunc, 12> moveAttackComputers = {
-    MoveComputers::computePawnAttacks<WHITE>, MoveComputers::computeKnightMoves<WHITE>,
-    MoveComputers::computeBishopMoves<WHITE>, MoveComputers::computeRookMoves<WHITE>,
-    MoveComputers::computeQueenMoves<WHITE>,  MoveComputers::computeKingMoves<WHITE>,
-    MoveComputers::computePawnAttacks<BLACK>, MoveComputers::computeKnightMoves<BLACK>,
-    MoveComputers::computeBishopMoves<BLACK>, MoveComputers::computeRookMoves<BLACK>,
-    MoveComputers::computeQueenMoves<BLACK>,  MoveComputers::computeKingMoves<BLACK>};
 }  // namespace MoveComputers

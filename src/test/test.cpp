@@ -46,10 +46,14 @@ Move getMoveFromStdin(Position &pos) {
             // must be a castling move
             if (input == "O-O" || input == "OO") {
                 // Kingside
-                candidate = MoveGenerator::createCastlingMove(false, pos.getSideToMove());
+                candidate = pos.getSideToMove() == WHITE
+                                ? MoveGenerator::createCastlingMove<false, WHITE>()
+                                : MoveGenerator::createCastlingMove<false, BLACK>();
             } else {
                 // Queenside
-                candidate = MoveGenerator::createCastlingMove(true, pos.getSideToMove());
+                candidate = pos.getSideToMove() == WHITE
+                                ? MoveGenerator::createCastlingMove<true, WHITE>()
+                                : MoveGenerator::createCastlingMove<true, BLACK>();
             }
         }
 

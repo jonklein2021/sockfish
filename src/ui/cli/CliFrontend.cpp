@@ -59,10 +59,14 @@ Move CliFrontend::getMoveFromStdin() {
             // must be a castling move
             if (input == "O-O" || input == "OO") {
                 // Kingside
-                candidate = MoveGenerator::createCastlingMove(false, game.getHumanSide());
+                candidate = game.getHumanSide() == WHITE
+                                ? MoveGenerator::createCastlingMove<false, WHITE>()
+                                : MoveGenerator::createCastlingMove<false, BLACK>();
             } else {
                 // Queenside
-                candidate = MoveGenerator::createCastlingMove(true, game.getHumanSide());
+                candidate = game.getHumanSide() == WHITE
+                                ? MoveGenerator::createCastlingMove<true, WHITE>()
+                                : MoveGenerator::createCastlingMove<true, BLACK>();
             }
         }
         const Square from = candidate.getFromSquare(), to = candidate.getToSquare();
