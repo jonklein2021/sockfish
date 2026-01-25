@@ -91,7 +91,7 @@ void appendMovesFromPiece(std::vector<Move> &moveList, Position &pos, MoveComput
 template<bool IsQueenside, Color Side>
 Move inline createCastlingMove() {
     constexpr Square KING_FROM = Side == WHITE ? e1 : e8;
-    constexpr Square KING_TO = Side == WHITE ? (IsQueenside ? c1 : g1) : (IsQueenside ? g8 : c8);
+    constexpr Square KING_TO = Side == WHITE ? (IsQueenside ? c1 : g1) : (IsQueenside ? c8 : g8);
 
     return Move::create<Move::CASTLING>(KING_FROM, KING_TO);
 }

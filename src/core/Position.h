@@ -77,6 +77,10 @@ class Position {
         return md.kingSquares[c];
     }
 
+    constexpr CastleRights getCastleRights() const {
+        return md.castleRights;
+    }
+
     constexpr Square getEpSquare() const {
         return md.enPassantSquare;
     }

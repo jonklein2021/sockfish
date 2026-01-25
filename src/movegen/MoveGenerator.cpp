@@ -1,6 +1,5 @@
 #include "MoveGenerator.h"
 
-#include "MoveComputers.h"
 #include "src/bitboard/Magic.h"
 #include "src/bitboard/bit_tools.h"
 #include "src/core/Move.h"
@@ -18,6 +17,41 @@ static Bitboard enemyPieces = 0ull;
 static Bitboard occupiedSquares = 0ull;
 static Bitboard emptySquares = 0ull;
 
+template<Color Side>
+inline void generatePawnMoves(std::vector<Move> &result, Position &pos) {
+    constexpr Direction dir = Side == WHITE ? NORTH : SOUTH;
+
+    // double pawn pushes must land on these ranks
+    constexpr Bitboard dblEndRank = RANK_MASKS[Side == WHITE ? RANK_4 : RANK_5];
+
+    const Bitboard bb = pos.getPieceBB(ptToPiece(PAWN, Side));
+    forEachSquare(bb, [&](Square srcSq) {
+        const Bitboard singlePushBB = (1ull << (srcSq + dir)) & emptySquares;
+        const Bitboard doublePushBB = shift(singlePushBB, dir) & emptySquares;
+        const Bitboard pseudoAttacksBB = PAWN_ATTACK_MASKS[Side][srcSq];
+
+        Bitboard moves = 0ull;
+
+        // add single pushes, double pushes, and standard captures
+        moves |= singlePushBB;
+        moves |= (doublePushBB & dblEndRank);
+        moves |= (pseudoAttacksBB & enemyPieces);
+
+        // separate promotion and quiet moves
+        const Bitboard promotionsBB = moves & PROMOTING_RANKS[Side];
+        const Bitboard quietMovesBB = moves & ~PROMOTING_RANKS[Side];
+
+        appendMovesFromBitboard<Move::NORMAL>(result, quietMovesBB, srcSq);
+        appendMovesFromBitboard<Move::PROMOTION>(result, promotionsBB, srcSq);
+
+        // handle en passant separately
+        const Square epSq = pos.getEpSquare();
+        if (epSq != NO_SQ && getBit(pseudoAttacksBB, epSq)) {
+            result.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, epSq));
+        }
+    });
+}
+
 template<PieceType Pt, Color Side>
 inline void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos) {
     Bitboard bb = pos.getPieceBB(ptToPiece(Pt, Side));
@@ -28,43 +62,53 @@ inline void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos) 
     });
 }
 
+// handles knight and king
+template<PieceType Pt, Color Side>
+inline void generateHoppingPieceMoves(std::vector<Move> &result, Position &pos) {
+    assert(Pt == KING || Pt == KNIGHT);
+    MoveMaskTable pseudoAttackTable = Pt == KING ? KING_MASKS : KNIGHT_MASKS;
+    Bitboard bb = pos.getPieceBB(ptToPiece(Pt, Side));
+    forEachSquare(bb, [&](Square srcSq) {
+        const Bitboard moves = pseudoAttackTable[srcSq] & ~friendlyPieces;
+        appendMovesFromBitboard<Move::NORMAL>(result, moves, srcSq);
+    });
+}
+
 template<Color Side>
 inline void generateCastlingMoves(std::vector<Move> &moveList, Position &pos) {
-    // for each of the following constexpr arrays, the 1st element is relevant for white, and the
-    // 2nd for black. this helps avoid branching
+    constexpr Color enemy = otherColor(Side);
 
-    static constexpr std::array<CastleRights, 2> KINGSIDE = {WHITE_OO, BLACK_OO};
-    static constexpr std::array<CastleRights, 2> QUEENSIDE = {WHITE_OOO, BLACK_OOO};
+    constexpr CastleRights KINGSIDE = Side == WHITE ? WHITE_OO : BLACK_OO;
+    constexpr CastleRights QUEENSIDE = Side == WHITE ? WHITE_OOO : BLACK_OOO;
 
-    static constexpr Bitboard EMPTY_K[2] = {(1ull << f1) | (1ull << g1),
-                                            (1ull << f8) | (1ull << g8)};
+    constexpr Bitboard EMPTY_K =
+        Side == WHITE ? (1ull << f1) | (1ull << g1) : (1ull << f8) | (1ull << g8);
 
-    static constexpr Bitboard EMPTY_Q[2] = {(1ull << d1) | (1ull << c1) | (1ull << b1),
-                                            (1ull << d8) | (1ull << c8) | (1ull << b8)};
+    constexpr Bitboard EMPTY_Q = Side == WHITE ? (1ull << d1) | (1ull << c1) | (1ull << b1)
+                                               : (1ull << d8) | (1ull << c8) | (1ull << b8);
 
-    static constexpr Square PASS_K[2][2] = {{f1, g1}, {f8, g8}};
+    constexpr std::array<Square, 2> PROTECTED_K =
+        (Side == WHITE) ? std::array<Square, 2> {f1, g1} : std::array<Square, 2> {f8, g8};
 
-    static constexpr Square PASS_Q[2][2] = {{d1, c1}, {d8, c8}};
-
-    const CastleRights cr = pos.getMetadata().castleRights;
-    const Bitboard empty = pos.getBoard().getEmptySquares();
+    constexpr std::array<Square, 2> PROTECTED_Q =
+        (Side == WHITE) ? std::array<Square, 2> {d1, c1} : std::array<Square, 2> {d8, c8};
 
     // prevent castling out of check
     if (PositionUtil::isCheck(pos, Side)) {
         return;
     }
 
+    const CastleRights cr = pos.getCastleRights();
+
     // --- Kingside ---
-    if (hasCastleRights(cr, KINGSIDE[Side]) && (empty & EMPTY_K[Side]) == EMPTY_K[Side] &&
-        !pos.isAttacked(PASS_K[Side][0], otherColor(Side)) &&
-        !pos.isAttacked(PASS_K[Side][1], otherColor(Side))) {
+    if (hasCastleRights(cr, KINGSIDE) && (emptySquares & EMPTY_K) == EMPTY_K &&
+        !pos.isAttacked(PROTECTED_K[0], enemy) && !pos.isAttacked(PROTECTED_K[1], enemy)) {
         moveList.push_back(createCastlingMove<false, Side>());
     }
 
     // --- Queenside ---
-    if (hasCastleRights(cr, QUEENSIDE[Side]) && (empty & EMPTY_Q[Side]) == EMPTY_Q[Side] &&
-        !pos.isAttacked(PASS_Q[Side][0], otherColor(Side)) &&
-        !pos.isAttacked(PASS_Q[Side][1], otherColor(Side))) {
+    if (hasCastleRights(cr, QUEENSIDE) && (emptySquares & EMPTY_Q) == EMPTY_Q &&
+        !pos.isAttacked(PROTECTED_Q[0], enemy) && !pos.isAttacked(PROTECTED_Q[1], enemy)) {
         moveList.push_back(createCastlingMove<true, Side>());
     }
 }
@@ -78,22 +122,16 @@ void generatePseudolegal(std::vector<Move> &result, Position &pos) {
     emptySquares = ~occupiedSquares;
 
     /* PAWNS */
-    appendMovesFromPiece<PAWN, Move::NORMAL>(result, pos, MoveComputers::computePawnPushes<Side>);
-    appendMovesFromPiece<PAWN, Move::NORMAL>(result, pos, MoveComputers::computePawnCaptures<Side>);
-    appendMovesFromPiece<PAWN, Move::EN_PASSANT>(result, pos,
-                                                 MoveComputers::computePawnEnPassant<Side>);
+    generatePawnMoves<Side>(result, pos);
 
-    /* KNIGHTS */
-    appendMovesFromPiece<KNIGHT, Move::NORMAL>(result, pos,
-                                               MoveComputers::computeKnightMoves<Side>);
+    /* KNIGHTS, KING */
+    generateHoppingPieceMoves<KNIGHT, Side>(result, pos);
+    generateHoppingPieceMoves<KING, Side>(result, pos);
 
     /* BISHOPS, ROOKS, QUEENS */
     generateSlidingPieceMoves<BISHOP, Side>(result, pos);
     generateSlidingPieceMoves<ROOK, Side>(result, pos);
     generateSlidingPieceMoves<QUEEN, Side>(result, pos);
-
-    /* KING */
-    appendMovesFromPiece<KING, Move::NORMAL>(result, pos, MoveComputers::computeKingMoves<Side>);
 
     /* CASTLING */
     generateCastlingMoves<Side>(result, pos);
@@ -107,6 +145,7 @@ void generatePseudolegal(std::vector<Move> &result, Position &pos) {
     }
 }
 
+// N.B: this is only really used by the UI to check user moves
 void generateLegal(std::vector<Move> &result, Position &pos) {
     result.clear();
     std::vector<Move> pseudolegal;

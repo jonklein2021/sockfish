@@ -2,7 +2,6 @@
 
 #include "src/bitboard/Zobrist.h"
 #include "src/core/types.h"
-#include "src/movegen/MoveComputers.h"
 
 #include <ostream>
 #include <sstream>
@@ -333,9 +332,7 @@ void Position::unmakeMove(const Move &move, const Metadata &prevMD) {
     // update occupancies now that the board is restored
     board.updateOccupancies();
 
-    /* METADATA RESTORATION */
-
-    // N.B: this takes care of the hash and attackTable
+    // restore metadata
     md = prevMD;
 }
 
