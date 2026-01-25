@@ -17,9 +17,47 @@ static Bitboard enemyPieces = 0ull;
 static Bitboard occupiedSquares = 0ull;
 static Bitboard emptySquares = 0ull;
 
+inline bool isMoveLegal(Position &pos, Move &move) {
+    // simulate move
+    Position::Metadata md = pos.makeMove(move);
+
+    // test if king is in check after move
+    bool isLegal = pos.isLegal();
+
+    // unmake move to preserve original state
+    pos.unmakeMove(move, md);
+
+    // return true iff the move hasn't put its own king in check
+    return isLegal;
+}
+
+inline bool isCaptureMove(Position &pos, Move &move) {
+    return pos.pieceAt(move.getToSquare()) != NO_PIECE || move.isEnPassant();
+}
+
+template<Move::Type MoveType>
+void appendMovesFromBitboard(std::vector<Move> &moveList, Bitboard moves, Square srcSq) {
+    forEachSquare(moves, [&](Square destSq) {
+        moveList.emplace_back(Move::create<MoveType>(srcSq, destSq));
+    });
+}
+
+template<>
+inline void appendMovesFromBitboard<Move::PROMOTION>(std::vector<Move> &moveList,
+                                                     Bitboard moves,
+                                                     Square srcSq) {
+    forEachSquare(moves, [&](Square destSq) {
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, KNIGHT));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, BISHOP));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, ROOK));
+        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, QUEEN));
+    });
+}
+
 template<Color Side>
 inline void generatePawnMoves(std::vector<Move> &result, Position &pos) {
     constexpr Direction dir = Side == WHITE ? NORTH : SOUTH;
+    constexpr Bitboard PROMOTING_RANK = Side == WHITE ? RANK_MASKS[RANK_8] : RANK_MASKS[RANK_1];
 
     // double pawn pushes must land on these ranks
     constexpr Bitboard dblEndRank = RANK_MASKS[Side == WHITE ? RANK_4 : RANK_5];
@@ -38,8 +76,8 @@ inline void generatePawnMoves(std::vector<Move> &result, Position &pos) {
         moves |= (pseudoAttacksBB & enemyPieces);
 
         // separate promotion and quiet moves
-        const Bitboard promotionsBB = moves & PROMOTING_RANKS[Side];
-        const Bitboard quietMovesBB = moves & ~PROMOTING_RANKS[Side];
+        const Bitboard promotionsBB = moves & PROMOTING_RANK;
+        const Bitboard quietMovesBB = moves & ~PROMOTING_RANK;
 
         appendMovesFromBitboard<Move::NORMAL>(result, quietMovesBB, srcSq);
         appendMovesFromBitboard<Move::PROMOTION>(result, promotionsBB, srcSq);
@@ -54,6 +92,7 @@ inline void generatePawnMoves(std::vector<Move> &result, Position &pos) {
 
 template<PieceType Pt, Color Side>
 inline void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos) {
+    assert(Pt == BISHOP || Pt == ROOK || Pt == QUEEN);
     Bitboard bb = pos.getPieceBB(ptToPiece(Pt, Side));
     forEachSquare(bb, [&](Square srcSq) {
         Bitboard attacks =
@@ -66,7 +105,7 @@ inline void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos) 
 template<PieceType Pt, Color Side>
 inline void generateHoppingPieceMoves(std::vector<Move> &result, Position &pos) {
     assert(Pt == KING || Pt == KNIGHT);
-    MoveMaskTable pseudoAttackTable = Pt == KING ? KING_MASKS : KNIGHT_MASKS;
+    constexpr MoveMaskTable pseudoAttackTable = Pt == KING ? KING_MASKS : KNIGHT_MASKS;
     Bitboard bb = pos.getPieceBB(ptToPiece(Pt, Side));
     forEachSquare(bb, [&](Square srcSq) {
         const Bitboard moves = pseudoAttackTable[srcSq] & ~friendlyPieces;
