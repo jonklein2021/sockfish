@@ -24,6 +24,7 @@ GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
 }
 
 void GuiFrontend::initializeScreen(const std::string &themeName) {
+    window.setFramerateLimit(60);
     window.setView(view);
 
     // load board texture
@@ -184,9 +185,9 @@ void GuiFrontend::update() {
         return;
     }
 
+    // get engine move
     if (game.getHumanSide() != game.getSideToMove() && !game.isGameOver()) {
-        // TODO: get move from engine in a separate worker thread so that this thread can handle
-        // GUI updates
+        // TODO: get move from engine in a separate worker thread
         game.makeAIMove();
 
         // update sprites with this move
@@ -194,6 +195,11 @@ void GuiFrontend::update() {
 
         // reset highlighted squares
         currentlyHighlightedTiles.clear();
+
+        // reset drag-and-drop logic
+        mouseButtonStatus = NO_BUTTON;
+        selectedPiece = nullptr;
+        isDragging = false;
 
         // check if game has ended
         if (game.isGameOver()) {
@@ -217,11 +223,12 @@ void GuiFrontend::update() {
             sf::Vector2f(mousePos.x - 0.5 * TILE_SIZE, mousePos.y - 0.5 * TILE_SIZE));
     }
 
-    // move selection logic
     if (mouseButtonStatus == RMB_UP) {
         currentlyHighlightedTiles.clear();
-        selectedSq = NO_SQ;
+        selectedPiece = nullptr;
     }
+
+    // move selection logic
     if (mouseButtonStatus == LMB_DOWN || mouseButtonStatus == LMB_UP) {
         // cancel dragging
         if (mouseButtonStatus == LMB_UP) {
@@ -232,8 +239,8 @@ void GuiFrontend::update() {
         }
 
         // drag-and-drop logic: select piece with mouse
-        auto it = std::find_if(
-            visualPieces.begin(), visualPieces.end(), [this, underMouse](const VisualPiece &vp) {
+        auto it =
+            std::find_if(visualPieces.begin(), visualPieces.end(), [&](const VisualPiece &vp) {
                 return pieceColor(vp.piece) == game.getHumanSide() && vp.sq == underMouse;
             });
         if (it != visualPieces.end() && mouseButtonStatus == LMB_DOWN && !isDragging) {
@@ -249,13 +256,14 @@ void GuiFrontend::update() {
         }
 
         // clicked our own pieces
-        if (hoveredPiece != NO_PIECE && pieceColor(hoveredPiece) == game.getHumanSide()) {
-            selectedSq = underMouse;
-        }
+        // if (hoveredPiece != NO_PIECE && pieceColor(hoveredPiece) == game.getHumanSide()) {
+        //     selectedSq = underMouse;
+        // }
 
         // clicked a destination square
-        if (selectedSq != NO_SQ && selectedSq != underMouse) {
-            candidate = buildCandidateMove(selectedSq, underMouse);
+        // if (selectedSq != NO_SQ && selectedSq != underMouse) {
+        if (selectedPiece != nullptr && underMouse != selectedPiece->sq) {
+            candidate = buildCandidateMove(selectedPiece->sq, underMouse);
             if (candidate != Move::none()) {
                 // if pawn is promoting, show the promotion menu
                 // the remainder of this will be handled at the top of this method
@@ -276,11 +284,10 @@ void GuiFrontend::update() {
                 }
             } else {
                 // reset this piece's position
-                selectedPiece->snapToSquare(selectedSq);
+                selectedPiece->snapToSquare(selectedPiece->sq);
             }
-            selectedPiece = nullptr;
             currentlyHighlightedTiles.clear();
-            selectedSq = NO_SQ;
+            selectedPiece = nullptr;
         }
     }
 }

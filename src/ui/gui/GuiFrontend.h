@@ -62,7 +62,6 @@ class GuiFrontend {
     // useful state variables
     sf::Vector2f mousePos;
     MouseButton mouseButtonStatus = NO_BUTTON;
-    Square selectedSq = NO_SQ;
     Move candidate;
 
     // drag-and-drop variables

@@ -23,6 +23,10 @@ inline static constexpr Bitboard getBit(Bitboard bb, Square sq) {
     return bb & (1ull << sq);
 }
 
+inline static constexpr Bitboard getBit(uint64_t bb, int index) {
+    return bb & (1ull << index);
+}
+
 /**
  * Sets the bit at the given index
  *

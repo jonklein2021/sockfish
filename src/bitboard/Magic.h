@@ -165,16 +165,13 @@ constexpr Bitboard setOccupancy(uint64_t index, Bitboard movementMask) {
     Bitboard occupancy = 0ull;
     int count = 0;
 
-    while (movementMask) {
-        Square square = Square(getLsbIndex(movementMask));
-
-        if (index & (1ull << count)) {
-            occupancy |= (1ull << square);
+    forEachSquare(movementMask, [&](Square sq) {
+        if (getBit(index, count)) {
+            setBit(occupancy, sq);
         }
 
         count++;
-        movementMask &= movementMask - 1;  // pop LSB
-    }
+    });
 
     return occupancy;
 }
