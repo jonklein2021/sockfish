@@ -1,11 +1,10 @@
 #include "src/core/types.h"
 
-#include <optional>
-
 enum TTFlag : int8_t {
     EXACT,       // PV-Nodes
     LOWERBOUND,  // Cut-Nodes
-    UPPERBOUND   // All-Nodes
+    UPPERBOUND,  // All-Nodes
+    NO_ENTRY     // Used in return value for lookup
 };
 
 /**
@@ -15,10 +14,10 @@ enum TTFlag : int8_t {
  * as well as a flag that corresponds to the type of node
  */
 struct TTEntry {
-    uint64_t key = 0;  // 8 bytes
-    int depth = -1;    // 4 bytes
-    Eval eval;         // 4 bytes
-    TTFlag flag;       // 1 byte
+    uint64_t key = 0;        // 8 bytes
+    int depth = -1;          // 4 bytes
+    Eval eval;               // 4 bytes
+    TTFlag flag = NO_ENTRY;  // 1 byte
 };  // 24 bytes total
 
 /**
@@ -46,7 +45,7 @@ class TranspositionTable {
 
     // Looks up a position hash at some depth and returns its TTEntry if found AND that entry was
     // recorded at the same or better depth, std::nullopt otherwise.
-    std::optional<TTEntry> lookup(uint64_t posHash, int depth) const;
+    TTEntry lookup(uint64_t posHash, int depth) const;
 
     // Creates and stores a TT entry. Note that this always succeeds, so it will overwrite the
     // existing entry in the case of a collision or a duplicate.

@@ -37,7 +37,7 @@ bool PositionUtil::insufficientMaterial(Position &pos) {
 }
 
 bool PositionUtil::is50MoveRuleDraw(const Position &pos) {
-    return pos.md.movesSinceCapture >= 50;
+    return pos.md.movesSinceCapture >= 100;  // 50 moves for EACH PLAYER
 }
 
 // TODO: Add more conditions to ensure this doesn't run for checkmate situations

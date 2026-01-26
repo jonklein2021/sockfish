@@ -19,7 +19,7 @@ static Bitboard emptySquares = 0ull;
 
 inline bool isMoveLegal(Position &pos, Move &move) {
     // simulate move
-    Position::Metadata md = pos.makeMove(move);
+    const Position::Metadata md = pos.makeMove(move);
 
     // test if king is in check after move
     bool isLegal = pos.isLegal();
@@ -141,13 +141,13 @@ inline void generateCastlingMoves(std::vector<Move> &moveList, Position &pos) {
 
     // --- Kingside ---
     if (hasCastleRights(cr, KINGSIDE) && (emptySquares & EMPTY_K) == EMPTY_K &&
-        !pos.isAttacked(PROTECTED_K[0], enemy) && !pos.isAttacked(PROTECTED_K[1], enemy)) {
+        !pos.isAttacked<enemy>(PROTECTED_K[0]) && !pos.isAttacked<enemy>(PROTECTED_K[1])) {
         moveList.push_back(createCastlingMove<false, Side>());
     }
 
     // --- Queenside ---
     if (hasCastleRights(cr, QUEENSIDE) && (emptySquares & EMPTY_Q) == EMPTY_Q &&
-        !pos.isAttacked(PROTECTED_Q[0], enemy) && !pos.isAttacked(PROTECTED_Q[1], enemy)) {
+        !pos.isAttacked<enemy>(PROTECTED_Q[0]) && !pos.isAttacked<enemy>(PROTECTED_Q[1])) {
         moveList.push_back(createCastlingMove<true, Side>());
     }
 }

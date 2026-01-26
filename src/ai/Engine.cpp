@@ -8,16 +8,11 @@
 Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     uint64_t h = pos.getHash();
 
-    // base case: TT has evaluation
-    if (const auto e = tt.lookup(h, depth)) {
-        if (e->flag == EXACT) {
-            return e->eval;
-        }
-        if (e->flag == LOWERBOUND && e->eval >= beta) {
-            return e->eval;
-        }
-        if (e->flag == UPPERBOUND && e->eval <= alpha) {
-            return e->eval;
+    // check for a TT entry
+    if (ply > 0) {
+        TTEntry tte = tt.lookup(h, depth);
+        if (tte.flag != TTFlag::NO_ENTRY) {
+            return tte.eval;
         }
     }
 
@@ -27,22 +22,29 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
         return quiescenceSearch(pos, alpha, beta, ply);
     }
 
-    // get legal moves and sort them
+    // save original alpha for TT record
+    const Eval originalAlpha = alpha;
+
+    // count legal moves to detect checkmate/stalemate after loop
+    int legalMoveCount = 0;
+
+    // get pseudolegal moves and sort them
     std::vector<Move> moves;
     MoveGenerator::generatePseudolegal(moves, pos);
     moveSorter.run(pos, moves);
 
-    // save original alpha for TT record
-    Eval originalAlpha = alpha;
     for (const Move &move : moves) {
         const Position::Metadata md = pos.makeMove(move);
 
+        // move wasn't legal; undo it and skip the rest of this loop
         if (!pos.isLegal()) {
             pos.unmakeMove(move, md);
             continue;
         }
 
-        Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
+        legalMoveCount++;
+
+        const Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
 
         pos.unmakeMove(move, md);
 
@@ -62,7 +64,7 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     }
 
     // check for checkmate or stalemate
-    if (moves.empty()) {
+    if (legalMoveCount == 0) {
         // checkmate: return -500000 + ply to favor faster mates
         if (PositionUtil::isCheck(pos)) {
             return -CHECKMATE_EVAL + ply;
@@ -101,7 +103,7 @@ Eval Engine::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
             continue;
         }
 
-        Eval score = -quiescenceSearch(pos, -beta, -alpha, ply + 1);
+        const Eval score = -quiescenceSearch(pos, -beta, -alpha, ply + 1);
 
         pos.unmakeMove(move, md);
 

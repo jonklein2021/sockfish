@@ -141,6 +141,14 @@ class Position {
         return !isAttacked(md.kingSquares[otherColor(sideToMove)], sideToMove);
     }
 
+    constexpr int getNumPieces() const {
+        int total = 0;
+        for (Piece p : ALL_PIECES) {
+            total += getBitCount(getPieceBB(p));
+        }
+        return total;
+    }
+
     /**
      * Parses a FEN string and updates member vars, including metadata,
      * with its contents
