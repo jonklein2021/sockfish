@@ -20,7 +20,7 @@ sfml_libs = [
     declare_dependency(link_args: ['-L/usr/local/lib/SFML', '-lsfml-system'], include_directories: ['/usr/include/SFML'])
 ]
 
-common_sources = [
+all_sources = [
   'src/ai/Engine.cpp',
   'src/ai/Evaluator.cpp',
   'src/ai/MoveSorter.cpp',
@@ -37,10 +37,23 @@ common_sources = [
   'src/movegen/MoveGenerator.cpp'
 ]
 
+common_sources = [
+  'src/ai/Engine.cpp',
+  'src/ai/Evaluator.cpp',
+  'src/ai/MoveSorter.cpp',
+  'src/ai/TranspositionTable.cpp',
+  'src/core/GameController.cpp',
+  'src/core/Notation.cpp',
+  'src/core/Position.cpp',
+  'src/core/PositionUtil.cpp',
+  'src/core/Printers.cpp',
+  'src/movegen/MoveGenerator.cpp'
+]
+
 # -------------------- EXECUTABLE: main --------------------
 main_exe = executable(
   'main',
-  [ 'src/main.cpp', common_sources ],
+  [ 'src/main.cpp', all_sources ],
   dependencies : sfml_libs,
   cpp_args: cxx_args,
   install : false
@@ -48,9 +61,8 @@ main_exe = executable(
 
 # -------------------- EXECUTABLE: uci --------------------
 uci_exe = executable(
-  'uci',
+  'sockfish',
   [ 'src/uci.cpp', common_sources ],
-  dependencies : sfml_libs,
   cpp_args: cxx_args,
   install : false
 )
@@ -59,7 +71,6 @@ uci_exe = executable(
 test_exe = executable(
   'test_test',
   [ 'src/test/test.cpp', common_sources ],
-  dependencies : sfml_libs,
   cpp_args: cxx_args,
   install : false
 )
@@ -68,7 +79,6 @@ test_exe = executable(
 test_exe = executable(
   'perft',
   [ 'src/test/perft.cpp', common_sources ],
-  dependencies : sfml_libs,
   cpp_args: cxx_args,
   install : false
 )

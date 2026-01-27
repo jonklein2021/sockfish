@@ -11,6 +11,10 @@ Position::Position(const std::string &fen) {
 }
 
 void Position::parseFen(const std::string &fen) {
+    // reset board and metadata
+    board.clear();
+    md = Metadata();
+
     const size_t n = fen.size();
 
     // 1: position data

@@ -21,9 +21,7 @@ class Board {
 
    public:
     Board() {
-        pieceBBs.fill(0ull);
-        occupancies.fill(0ull);
-        squareToPiece.fill(NO_PIECE);
+        clear();
     }
 
     // all getters return copies, not references
@@ -80,5 +78,11 @@ class Board {
             pieceBBs[WP] | pieceBBs[WN] | pieceBBs[WB] | pieceBBs[WR] | pieceBBs[WQ] | pieceBBs[WK];
         occupancies[BLACK] =
             pieceBBs[BP] | pieceBBs[BN] | pieceBBs[BB] | pieceBBs[BR] | pieceBBs[BQ] | pieceBBs[BK];
+    }
+
+    void clear() {
+        pieceBBs.fill(0ull);
+        occupancies.fill(0ull);
+        squareToPiece.fill(NO_PIECE);
     }
 };

@@ -6,4 +6,5 @@
 [Black "Sockfish"]
 [Result "*"]
 
-1. e4 e6 
+1. e4 e6 2. d4 f6 3. Bc4 a6 4. Nf3 g5 5. Nxg5 fxg5 6. Qh5+ Ke7 7. Bxg5+ Nf6 8. e5 Bg7 9. exf6+ Bxf6 10. O-O Bxg5 11. Qxg5+ Kf7 12. Qf4+ Kg7 13. Re1 h5 14. Nc3 b5 15. Re3 bxc4 16. Rg3+ Kh7 17. Qe4+ Kh6 18. Qg6# 1-0
+
