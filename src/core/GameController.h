@@ -10,14 +10,17 @@ class GameController {
    private:
     Position pos;
     std::unique_ptr<Engine> engine;
-    std::vector<Move> moveHistory;
     std::vector<Move> legalMoves;
-    std::vector<uint64_t> hashHistory;
     std::ofstream outFile;
+
+    // used in PGN file
+    int plyCount;
 
     Color humanSide;
 
-    void initOutFile();
+    void initPGN();
+
+    void appendToPGN(const std::string &sanString);
 
    public:
     GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide);
@@ -41,7 +44,8 @@ class GameController {
     std::vector<Move> getLegalMoves() const;
 
     void makeHumanMove(Move move);
-    Move makeAIMove();
+
+    void makeAIMove();
 
     void handleEnd();
 };

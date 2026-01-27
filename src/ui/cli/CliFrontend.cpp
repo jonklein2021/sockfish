@@ -1,6 +1,7 @@
 #include "CliFrontend.h"
 
 #include "src/core/Move.h"
+#include "src/core/Notation.h"
 #include "src/core/Printers.h"
 #include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
@@ -11,8 +12,8 @@ CliFrontend::CliFrontend(GameController &game)
     : game(game) {}
 
 bool CliFrontend::validateMoveInput(const std::string &input) {
-    return validateCoords(input) || (input == "O-O") || (input == "OO") || (input == "O-O-O") ||
-           (input == "OOO");
+    return Notation::validateCoords(input) || (input == "O-O") || (input == "OO") ||
+           (input == "O-O-O") || (input == "OOO");
 }
 
 std::string CliFrontend::formatMove(const Move m) {
@@ -21,7 +22,7 @@ std::string CliFrontend::formatMove(const Move m) {
     } else if (m.isQCastles()) {
         return "O-O-O";
     } else {
-        return m.toCoordinateString();
+        return Notation::moveToCoords(m);
     }
 }
 
@@ -53,8 +54,8 @@ Move CliFrontend::getMoveFromStdin() {
             continue;
         }
 
-        if (validateCoords(input)) {
-            candidate = Move::fromCoordinateString(input);
+        if (Notation::validateCoords(input)) {
+            candidate = Notation::coordsToMove(input);
         } else {
             // must be a castling move
             if (input == "O-O" || input == "OO") {
@@ -121,14 +122,12 @@ void CliFrontend::run() {
 
     // game loop
     while (!game.isGameOver()) {
-        Move m;
         if (game.getSideToMove() == game.getHumanSide()) {
             // get move from stdin
-            m = getMoveFromStdin();
-            game.makeHumanMove(m);
+            game.makeHumanMove(getMoveFromStdin());
         } else {
             // get move from engine
-            m = game.makeAIMove();
+            game.makeAIMove();
         }
 
         // print resultant position

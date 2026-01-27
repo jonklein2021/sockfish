@@ -355,7 +355,7 @@ std::string Position::toFenString() const {
                     fen << emptyCount;
                     emptyCount = 0;
                 }
-                fen << pieceToFenChar[p];
+                fen << PIECE_FEN_CHARS[p];
             }
         }
 

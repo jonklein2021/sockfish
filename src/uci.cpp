@@ -1,4 +1,5 @@
 #include "src/ai/Engine.h"
+#include "src/core/Notation.h"
 #include "src/core/Position.h"
 #include "src/core/types.h"
 
@@ -8,7 +9,7 @@
 
 int main() {
     Engine engine;
-    Position pos{std::string(STARTING_POSITION_FEN)};
+    Position pos {std::string(STARTING_POSITION_FEN)};
 
     std::string line;
 
@@ -62,7 +63,7 @@ int main() {
             if (movesToken == "moves") {
                 std::string moveStr;
                 while (ss >> moveStr) {
-                    Move m = Move::fromUciString(moveStr);
+                    Move m = Notation::uciToMove(moveStr);
                     pos.makeMove(m);
                 }
             }
@@ -82,7 +83,7 @@ int main() {
 
             Move best = engine.getMove(pos, depth);
 
-            std::cout << "bestmove " << best.toUciString() << "\n";
+            std::cout << "bestmove " << Notation::moveToUci(best) << "\n";
         }
 
         // -------- Quit --------

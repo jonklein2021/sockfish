@@ -25,7 +25,7 @@ common_sources = [
   'src/ai/MoveSorter.cpp',
   'src/ai/TranspositionTable.cpp',
   'src/core/GameController.cpp',
-  'src/core/Move.cpp',
+  'src/core/Notation.cpp',
   'src/core/Position.cpp',
   'src/core/PositionUtil.cpp',
   'src/core/Printers.cpp',

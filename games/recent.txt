@@ -1,21 +1,10 @@
-Local date and time: 2026-01-26 17:27:56
-RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr w KQkq - 0 1
-e2e4, data=2356
-f7f6, data=1357
-g1f3, data=2942
-e7e6, data=1292
-e4e5, data=1828
-e8f7, data=836
-f1c4, data=2237
-g7g5, data=1934
-e1g1, Castles, data=53180
-h7h6, data=1487
-e5f6, data=1372
-a7a5, data=1544
-f3e5, data=1837
-f7f6, data=1357
-d2d4, data=2291
-a8a7, data=512
-d1f3, data=2939
-f6g7, data=917
-f3f7, data=877
+[Event "Local Game"]
+[Site "Local"]
+[Date "2026.01.26"]
+[Round "1"]
+[White "Human"]
+[Black "Sockfish"]
+[Result "*"]
+
+1. e4 e6 2. Qh5 h6 3. d4 Ke7 4. Bg5+ f6 5. Be3 b6 6. Nf3 a5 7. Bd3 a4 8. d5 Ra5 9. Bd2 Ra7 10. O-O Na6 11. dxe6 dxe6 12. e5 Nb8 13. exf6+ gxf6 14. Bb4+ Kd7 15. Qf7+ Qe7 16. Bxe7 Nxe7 17. Rd1 Kc6 18. Be4+ Kc5 19. Qh5+ f5 20. Nc3 b5 21. Ne1 a3 22. Nd3+ Kb6 23. Bf3 axb2 24. Rab1 Bg7 25. Qf7 Bxc3 26. Qxe7 Rxa2 27. Qc5+ Ka6 28. Qxc3 Rh7 29. Nb4+ Ka5 30. Nxa2+ Kb6 31. Qe3+ Ka6 32. Nb4+ Ka5 33. Qa3+ Kb6 34. Ra1 bxa1=Q 35. Rxa1 c6 36. Qe3+ c5 37. Qe5 Rb7 38. Bxb7 Kxb7 39. Nd3 Na6 40. Nxc5+ Nxc5 41. Qxc5 Bd7 42. Ra7+ Kb8 43. Qc7# 1-0
+

@@ -206,4 +206,25 @@ void generatePseudolegalCaptures(std::vector<Move> &result, Position &pos) {
                  [&](Move m) { return isCaptureMove(pos, m); });
 }
 
+template<Color Side>
+void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt) {
+    switch (pt) {
+        case PAWN: generatePawnMoves<Side>(result, pos); break;
+        case KNIGHT: generateHoppingPieceMoves<KNIGHT, Side>(result, pos); break;
+        case BISHOP: generateSlidingPieceMoves<BISHOP, Side>(result, pos); break;
+        case ROOK: generateSlidingPieceMoves<ROOK, Side>(result, pos); break;
+        case QUEEN: generateSlidingPieceMoves<QUEEN, Side>(result, pos); break;
+        case KING: generateHoppingPieceMoves<KING, Side>(result, pos); break;
+        case NO_PT: break;
+    }
+}
+
+void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt) {
+    if (pos.getSideToMove() == WHITE) {
+        generatePtMoves<WHITE>(result, pos, pt);
+    } else {
+        generatePtMoves<BLACK>(result, pos, pt);
+    }
+}
+
 }  // namespace MoveGenerator

@@ -1,4 +1,5 @@
 #include "src/ai/Engine.h"
+#include "src/core/Notation.h"
 #include "src/core/Position.h"
 #include "src/core/Printers.h"
 #include "src/core/types.h"
@@ -18,7 +19,8 @@ Move getMoveFromStdin(Position &pos) {
 
     while (!validMove) {
         // pick a random move to suggest
-        const std::string sample = legalMoves[std::rand() % legalMoves.size()].toCoordinateString();
+        const std::string sample =
+            Notation::moveToCoords(legalMoves[std::rand() % legalMoves.size()]);
 
         // DEBUG: print legal moves
         Printers::printMoveList(legalMoves, pos);
@@ -32,7 +34,7 @@ Move getMoveFromStdin(Position &pos) {
             exit(0);
         }
 
-        if (!validateCoords(input) &&
+        if (!Notation::validateCoords(input) &&
             !((input == "O-O") || (input == "OO") || (input == "O-O-O") || (input == "OOO"))) {
             std::cout << "Error: Invalid input" << std::endl;
             continue;
@@ -40,8 +42,8 @@ Move getMoveFromStdin(Position &pos) {
 
         // check if the move is legal before returning it
         // todo: check for castling
-        if (validateCoords(input)) {
-            candidate = Move::fromCoordinateString(input);
+        if (Notation::validateCoords(input)) {
+            candidate = Notation::coordsToMove(input);
         } else {
             // must be a castling move
             if (input == "O-O" || input == "OO") {
@@ -120,7 +122,7 @@ void testMakeMove(Position &pos) {
 
     // get move
     Move m = getMoveFromStdin(pos);
-    cout << "Move: " << m.toString() << "\n";
+    cout << "Move: " << Notation::moveToUci(m) << "\n";
 
     // make move
     Position::Metadata md = pos.makeMove(m);

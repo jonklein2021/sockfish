@@ -1,5 +1,6 @@
 #include "GameController.h"
 
+#include "src/core/Notation.h"
 #include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
 
@@ -12,31 +13,41 @@ GameController::GameController(Position &startPos, std::unique_ptr<Engine> engin
       engine(std::move(engine)),
       outFile(DEFAULT_OUT_FILE.data(), std::ios::out),
       humanSide(humanSide) {
-    initOutFile();
+    initPGN();
     MoveGenerator::generateLegal(legalMoves, startPos);
-    hashHistory.push_back(startPos.getHash());
 }
 
 GameController::~GameController() {
+    outFile << "\n";
     outFile.close();
 }
 
-void GameController::initOutFile() {
-    // Check if log file is open
+void GameController::initPGN() {
     if (!outFile.is_open()) {
-        std::cerr << "Error: Failed to open log file for writing" << std::endl;
-        // exit(1);
+        std::cerr << "Error: Failed to open PGN file\n";
+        return;
     }
 
-    std::chrono::system_clock::time_point now_time_point = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(now_time_point);
-    std::tm *local_tm = std::localtime(&now_c);
+    auto now = std::chrono::system_clock::now();
+    std::time_t t = std::chrono::system_clock::to_time_t(now);
+    std::tm *tm = std::localtime(&t);
 
-    // Format the date and time using std::put_time
-    outFile << "Local date and time: " << std::put_time(local_tm, "%Y-%m-%d %H:%M:%S") << "\n";
+    outFile << "[Event \"Local Game\"]\n";
+    outFile << "[Site \"Local\"]\n";
+    outFile << "[Date \"" << std::put_time(tm, "%Y.%m.%d") << "\"]\n";
+    outFile << "[Round \"1\"]\n";
+    outFile << "[White \"" << (humanSide == WHITE ? "Human" : "Sockfish") << "\"]\n";
+    outFile << "[Black \"" << (humanSide == BLACK ? "Human" : "Sockfish") << "\"]\n";
+    outFile << "[Result \"*\"]\n\n";
+}
 
-    // output the starting position string
-    outFile << pos.toFenString() << "\n";
+void GameController::appendToPGN(const std::string &sanString) {
+    if (plyCount % 2 == 0) {
+        outFile << (plyCount / 2 + 1) << ". ";
+    }
+
+    outFile << sanString << " ";
+    plyCount++;
 }
 
 bool GameController::isGameOver() {
@@ -48,25 +59,33 @@ std::vector<Move> GameController::getLegalMoves() const {
 }
 
 void GameController::makeHumanMove(Move move) {
+    // write SAN string to PGN file BEFORE move is made
+    std::string moveSAN = Notation::moveToSAN(move, pos);
+    appendToPGN(moveSAN);
+
+    // make move and update legal moves
     pos.makeMove(move);
-    moveHistory.push_back(move);
     MoveGenerator::generateLegal(legalMoves, pos);
-    outFile << move.toString() << "\n";
-    hashHistory.push_back(pos.getHash());
-    std::cout << move.toUciString() << " played\n";
+
+    // log move
+    std::cout << moveSAN << " played\n";
     std::cout << COLOR_NAMES[pos.getSideToMove()] << " to move\n";
 }
 
-Move GameController::makeAIMove() {
+void GameController::makeAIMove() {
     Move best = engine->getMove(pos);
+
+    // write SAN string to PGN file BEFORE move is made
+    std::string moveSAN = Notation::moveToSAN(best, pos);
+    appendToPGN(moveSAN);
+
+    // make move and update legal moves
     pos.makeMove(best);
-    moveHistory.push_back(best);
-    outFile << best.toString() << "\n";
     MoveGenerator::generateLegal(legalMoves, pos);
-    hashHistory.push_back(pos.getHash());
-    std::cout << best.toUciString() << " played\n";
+
+    // log move
+    std::cout << moveSAN << " played\n";
     std::cout << COLOR_NAMES[pos.getSideToMove()] << " to move\n";
-    return best;
 }
 
 void GameController::handleEnd() {
@@ -76,23 +95,29 @@ void GameController::handleEnd() {
     }
 
     std::cout << "Game over!\n";
+    std::string result = "*";
     switch (PositionUtil::getGameStatus(pos)) {
         case CHECKMATE:
+            result = (pos.getSideToMove() == WHITE) ? "0-1" : "1-0";
             std::cout << COLOR_NAMES[otherColor(pos.getSideToMove())] << " won by checkmate.\n";
             break;
         case DRAW_BY_REPETITION: {
+            result = "1/2-1/2";
             std::cout << "Draw by threefold repetition.\n";
             break;
         }
         case DRAW_BY_STALEMATE: {
+            result = "1/2-1/2";
             std::cout << "Draw by stalemate.\n";
             break;
         }
         case DRAW_BY_INSUFFICIENT_MATERIAL: {
+            result = "1/2-1/2";
             std::cout << "Draw by insufficient material.\n";
             break;
         }
         case DRAW_BY_50_MOVE_RULE: {
+            result = "1/2-1/2";
             std::cout << "Draw by 50 move rule.\n";
             break;
         }
@@ -101,4 +126,6 @@ void GameController::handleEnd() {
             break;
         }
     }
+
+    outFile << result << "\n";
 }

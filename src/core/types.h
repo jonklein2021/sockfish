@@ -71,6 +71,8 @@ constexpr std::array<PieceType, 6> PIECE_TYPES = {PAWN, KNIGHT, BISHOP, ROOK, QU
 
 constexpr std::array<PieceType, 4> PROMOTION_PIECE_TYPES = {KNIGHT, BISHOP, ROOK, QUEEN};
 
+constexpr std::array<std::string_view, 6> SAN_PTS = {"P", "N", "B", "R", "Q", "K"};
+
 /**
  * Represents each possible piece, including color
  */
@@ -124,8 +126,8 @@ constexpr std::array<std::string_view, 13> PIECE_NAMES = {
 constexpr std::array<std::string_view, 7> PIECE_TYPE_NAMES = {"Pawn",  "Knight", "Bishop", "Rook",
                                                               "Queen", "King",   "None"};
 
-constexpr std::array<char, NO_PIECE> pieceToFenChar = {'P', 'N', 'B', 'R', 'Q', 'K',
-                                                       'p', 'n', 'b', 'r', 'q', 'k'};
+constexpr std::array<char, NO_PIECE> PIECE_FEN_CHARS = {'P', 'N', 'B', 'R', 'Q', 'K',
+                                                        'p', 'n', 'b', 'r', 'q', 'k'};
 
 /**
  * Maps FEN character to PieceType enum

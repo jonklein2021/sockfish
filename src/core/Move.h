@@ -48,9 +48,14 @@ class Move {
 
     static Move fromCoordinateString(const std::string &coords);
 
-    void setFlag(Type t);
+    constexpr void setFlag(Type t) {
+        data |= t;
+    }
 
-    void setPromotedPieceType(PieceType promotedPieceType);
+    constexpr void setPromotedPieceType(PieceType promotedPieceType) {
+        data |= ((promotedPieceType - KNIGHT) << 12);  // set piece
+        data |= PROMOTION;                             // set flag
+    }
 
     constexpr uint16_t raw() const {
         return data;
@@ -88,18 +93,6 @@ class Move {
         return isCastles() && (getToSquare() == c1 || getToSquare() == c8);
     }
 
-    std::string toCoordinateString() const;
-
-    /**
-     * @return readable representation of the move
-     * for debugging
-     */
-    std::string toString() const;
-
-    static Move fromUciString(const std::string &str);
-
-    std::string toUciString() const;
-
     /**
      * Checks equality between two moves by comparing
      * their source and destination squares only
@@ -116,5 +109,3 @@ class Move {
         return data != other.raw();
     }
 };
-
-bool validateCoords(const std::string &input);

@@ -16,8 +16,7 @@ Move inline createCastlingMove() {
     return Move::create<Move::CASTLING>(KING_FROM, KING_TO);
 }
 
-template<PieceType Pt, Color Side>
-void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos);
+void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt);
 
 void generateLegal(std::vector<Move> &result, Position &pos);
 
