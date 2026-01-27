@@ -401,8 +401,9 @@ inline constexpr void removeCastleRights(CastleRights &current, CastleRights toR
 // file paths and GUI Constants
 constexpr std::string_view PGN_OUTPUT_PATH = "../games/";
 constexpr std::string_view DEFAULT_OUT_FILE = "../games/recent.txt";
+constexpr std::string_view SFX_PATH = "../src/assets/sfx/";
 constexpr std::string_view PIECE_TEXTURE_PATH = "../src/assets/pieces/";
-constexpr std::string_view BOARD_TEXTURE_PATH = "../src/assets/board.png";
+constexpr std::string_view BOARD_TEXTURE_FILE = "../src/assets/board.png";
 constexpr std::string_view DEFAULT_PIECE_THEME = "horsey";
 constexpr int BOARD_SIZE = 512;
 constexpr int TILE_SIZE = 64;

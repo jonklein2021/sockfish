@@ -1,7 +1,9 @@
 #include "GuiFrontend.h"
 
+#include "src/core/PositionUtil.h"
 #include "src/core/types.h"
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <algorithm>
@@ -14,8 +16,9 @@ GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
     : game(game),
       window(sf::VideoMode({BOARD_SIZE, BOARD_SIZE}), "Cheese", sf::Style::Resize),
       view({BOARD_SIZE / 2.f, BOARD_SIZE / 2.f}, {BOARD_SIZE, BOARD_SIZE}),
-      boardTexture(BOARD_TEXTURE_PATH),
+      boardTexture(BOARD_TEXTURE_FILE),
       boardSprite(boardTexture),
+      soundBuffers(3),
       arrowCursor(sf::Cursor::Type::Arrow),
       handCursor(sf::Cursor::Type::Hand),
       promotionMenu(std::string(themeName), game.getHumanSide()) {
@@ -24,11 +27,12 @@ GuiFrontend::GuiFrontend(GameController &game, const std::string &themeName)
 }
 
 void GuiFrontend::initializeScreen(const std::string &themeName) {
+    window.setPosition(sf::Vector2i(400, 400));
     window.setFramerateLimit(60);
     window.setView(view);
 
     // load board texture
-    if (!boardTexture.loadFromFile(BOARD_TEXTURE_PATH)) {
+    if (!boardTexture.loadFromFile(BOARD_TEXTURE_FILE)) {
         std::cerr << "Error loading board texture" << std::endl;
         exit(1);
     }
@@ -55,6 +59,25 @@ void GuiFrontend::initializeScreen(const std::string &themeName) {
         tile.setFillColor(Palette::HIGHLIGHT);
         tile.setSize(sf::Vector2f(TILE_SIZE, TILE_SIZE));
         tile.setPosition(sf::Vector2f(fileOf(sq) * TILE_SIZE, rankOf(sq) * TILE_SIZE));
+    }
+
+    // load sounds into buffer
+    if (!soundBuffers[MOVE_SOUND].loadFromFile(std::string(SFX_PATH) + "piece_move.ogg")) {
+        std::cerr << "Error loading sound: piece_move.ogg" << std::endl;
+        exit(1);
+    }
+
+    if (!soundBuffers[CAPTURE_SOUND].loadFromFile(std::string(SFX_PATH) + "piece_capture.ogg")) {
+        std::cerr << "Error loading sound: piece_capture.ogg" << std::endl;
+    }
+
+    if (!soundBuffers[CHECK_SOUND].loadFromFile(std::string(SFX_PATH) + "check.ogg")) {
+        std::cerr << "Error loading sound: check.ogg" << std::endl;
+    }
+
+    // create sounds from buffer
+    for (sf::SoundBuffer &sb : soundBuffers) {
+        sounds.emplace_back(sb);
     }
 
     // set up cursor
@@ -187,11 +210,24 @@ void GuiFrontend::update() {
 
     // get engine move
     if (game.getHumanSide() != game.getSideToMove() && !game.isGameOver()) {
+        const int oldNumPieces = game.getPosition().getNumPieces();
+
         // TODO: get move from engine in a separate worker thread
         game.makeAIMove();
 
-        // update sprites with this move
+        const bool isCapture = oldNumPieces > game.getPosition().getNumPieces();
+
+        // update the GUI with this move
         syncPositionToGUI();
+
+        // play appropriate sound
+        if (PositionUtil::isCheck(game.getPosition())) {
+            sounds[CHECK_SOUND].play();
+        } else if (isCapture) {
+            sounds[CAPTURE_SOUND].play();
+        } else {
+            sounds[MOVE_SOUND].play();
+        }
 
         // reset highlighted squares
         currentlyHighlightedTiles.clear();
@@ -255,11 +291,6 @@ void GuiFrontend::update() {
             }
         }
 
-        // clicked our own pieces
-        // if (hoveredPiece != NO_PIECE && pieceColor(hoveredPiece) == game.getHumanSide()) {
-        //     selectedSq = underMouse;
-        // }
-
         // clicked a destination square
         // if (selectedSq != NO_SQ && selectedSq != underMouse) {
         if (selectedPiece != nullptr && underMouse != selectedPiece->sq) {
@@ -272,11 +303,24 @@ void GuiFrontend::update() {
                     return;
                 }
 
+                const int oldNumPieces = game.getPosition().getNumPieces();
+
                 // apply move to internal game state
                 game.makeHumanMove(candidate);
 
+                const bool isCapture = oldNumPieces > game.getPosition().getNumPieces();
+
                 // update the GUI with this move
                 syncPositionToGUI();
+
+                // play appropriate sound
+                if (PositionUtil::isCheck(game.getPosition())) {
+                    sounds[CHECK_SOUND].play();
+                } else if (isCapture) {
+                    sounds[CAPTURE_SOUND].play();
+                } else {
+                    sounds[MOVE_SOUND].play();
+                }
 
                 // check if game has ended
                 if (game.isGameOver()) {

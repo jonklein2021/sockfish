@@ -14,9 +14,10 @@ cxx_args = ['-fconstexpr-ops-limit=500000000']
 
 # SFML libraries (link statically or dynamically depending on install)
 sfml_libs = [
-  cc.find_library('sfml-graphics', dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml','/usr/lib/SFML', '/usr/local/lib/SFML'], required: true),
-  cc.find_library('sfml-window',   dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml','/usr/lib/SFML', '/usr/local/lib/SFML'], required: true),
-  cc.find_library('sfml-system',   dirs : ['/usr/lib/sfml', '/usr/local/lib/sfml','/usr/lib/SFML', '/usr/local/lib/SFML'], required: true),
+    declare_dependency(link_args: ['-L/usr/local/lib/SFML', '-lsfml-audio'], include_directories: ['/usr/include/SFML']),
+    declare_dependency(link_args: ['-L/usr/local/lib/SFML', '-lsfml-graphics'], include_directories: ['/usr/include/SFML']),
+    declare_dependency(link_args: ['-L/usr/local/lib/SFML', '-lsfml-window'], include_directories: ['/usr/include/SFML']),
+    declare_dependency(link_args: ['-L/usr/local/lib/SFML', '-lsfml-system'], include_directories: ['/usr/include/SFML'])
 ]
 
 common_sources = [

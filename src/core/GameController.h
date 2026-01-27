@@ -35,7 +35,7 @@ class GameController {
         return pos.getSideToMove();
     }
 
-    constexpr const Position &getPosition() const {
+    constexpr Position &getPosition() {
         return pos;
     }
 

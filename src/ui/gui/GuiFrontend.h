@@ -4,9 +4,12 @@
 #include "PromotionMenu.h"
 #include "src/core/GameController.h"
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
 enum MouseButton { LMB_DOWN, RMB_DOWN, LMB_UP, RMB_UP, NO_BUTTON };
+
+enum SoundTypes { MOVE_SOUND, CAPTURE_SOUND, CHECK_SOUND };
 
 /**
  * Represents a chess piece on the board, visually
@@ -55,8 +58,13 @@ class GuiFrontend {
     // used to render visual move hints
     std::vector<std::vector<Square>> legalMovesBySrcSq;
 
+    // sounds
+    std::vector<sf::SoundBuffer> soundBuffers;
+    std::vector<sf::Sound> sounds;
+
     // self-explanatory
-    sf::Cursor arrowCursor, handCursor;  // make this static?
+    sf::Cursor arrowCursor,
+        handCursor;  // make this static?
     PromotionMenu promotionMenu;
 
     // useful state variables
