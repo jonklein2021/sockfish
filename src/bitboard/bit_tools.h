@@ -58,6 +58,19 @@ inline static constexpr Bitboard xyToBit(int x, int y) {
     return 1ull << xyToSquare(x, y);
 }
 
+inline static constexpr uint16_t swap16(uint16_t v) {
+    return (v >> 8) | (v << 8);
+}
+
+inline static constexpr uint32_t swap32(uint32_t v) {
+    return ((v >> 24) & 0xff) | ((v >> 8) & 0xff00) | ((v << 8) & 0xff0000) |
+           ((v << 24) & 0xff000000);
+}
+
+inline static constexpr uint64_t swap64(uint64_t v) {
+    return ((uint64_t) swap32(v & 0xffffffff) << 32) | (uint64_t) swap32(v >> 32);
+}
+
 template<typename Fn>
 constexpr void forEachSquare(Bitboard bb, Fn fn) {
     while (bb) {
