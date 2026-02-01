@@ -18,9 +18,15 @@ bool validateCoords(const std::string &input) {
            (input[2] >= 'a' && input[2] <= 'h') && (input[3] >= '1' && input[3] <= '8');
 }
 
-Move coordsToMove(const std::string &coords) {
+Move coordsToMove(const Position &pos, const std::string &coords) {
     const Square from = coordinateStringToSquare(coords.substr(0, 2));
     const Square to = coordinateStringToSquare(coords.substr(2));
+
+    // check for castle moves
+    if (pieceToPT(pos.pieceAt(from)) == KING && MoveGenerator::isCastleMovement(from, to)) {
+        return Move::create<Move::CASTLING>(from, to);
+    }
+
     return Move(from, to);
 }
 
@@ -29,8 +35,8 @@ std::string moveToCoords(const Move &move) {
            squareToCoordinateString(move.getToSquare());
 }
 
-Move uciToMove(const std::string &uciString) {
-    Move m = coordsToMove(uciString);
+Move uciToMove(const Position &pos, const std::string &uciString) {
+    Move m = coordsToMove(pos, uciString);
     if (uciString.length() == 5) {
         m.setPromotedPieceType(pieceToPT(fenCharToPiece(uciString[4])));
     }
@@ -145,5 +151,4 @@ std::string moveToSAN(const Move &move, Position &pos) {
 
     return san.str();
 }
-
 };  // namespace Notation

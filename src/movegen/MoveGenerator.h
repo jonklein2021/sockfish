@@ -8,6 +8,11 @@
 
 namespace MoveGenerator {
 
+inline constexpr bool isCastleMovement(Square from, Square to) {
+    return (from == e1 && to == g1) || (from == e1 && to == c1) || (from == e8 && to == g8) ||
+           (from == e8 && to == c8);
+}
+
 template<bool IsQueenside, Color Side>
 Move inline createCastlingMove() {
     constexpr Square KING_FROM = Side == WHITE ? e1 : e8;

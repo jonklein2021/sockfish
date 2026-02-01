@@ -63,7 +63,7 @@ int main() {
             if (movesToken == "moves") {
                 std::string moveStr;
                 while (ss >> moveStr) {
-                    Move m = Notation::uciToMove(moveStr);
+                    Move m = Notation::uciToMove(pos, moveStr);
                     pos.makeMove(m);
                 }
             }
@@ -72,7 +72,7 @@ int main() {
         // -------- Go command --------
 
         else if (cmd == "go") {
-            int depth = 4;  // default fallback
+            int depth = 6;  // default fallback
 
             std::string token;
             while (ss >> token) {

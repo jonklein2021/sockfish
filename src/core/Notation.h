@@ -10,9 +10,9 @@ bool validateCoords(const std::string &input);
 
 std::string moveToCoords(const Move &move);
 
-Move coordsToMove(const std::string &coords);
+Move coordsToMove(const Position &pos, const std::string &coords);
 
-Move uciToMove(const std::string &str);
+Move uciToMove(const Position &pos, const std::string &uciString);
 
 std::string moveToUci(const Move &move);
 
