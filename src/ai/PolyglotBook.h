@@ -12,7 +12,7 @@
 class PolyglotBook {
    private:
     // Polyglot book files consist of a series of these
-    struct Entry {
+    struct PgEntry {
         uint64_t key;
         uint16_t move;
         uint16_t weight;
@@ -221,7 +221,9 @@ class PolyglotBook {
         0xCF3145DE0ADD4289ull, 0xD0E4427A5514FB72ull, 0x77C621CC9FB3A483ull, 0x67A34DAC4356550Bull,
         0xF8D626AAAF278509ull};
 
-    std::vector<Entry> book;
+    static constexpr const char *FILE_PATH = OPENING_BOOK_FILE.data();
+
+    std::vector<PgEntry> bookEntries;
 
     std::ifstream openingsFile;
 
@@ -231,11 +233,11 @@ class PolyglotBook {
         return fileOf(sq);
     }
 
-    inline constexpr int pgRankOf(Square sq) {
-        return 8 - rankOf(sq);
+    inline constexpr int pgRowOf(Square sq) {
+        return rankOf(flipRank(sq));
     }
 
-    inline constexpr int pgPieceIdx(Piece p) {
+    inline constexpr int pgKindOfPiece(Piece p) {
         switch (p) {
             case BP: return 0;
             case WP: return 1;
@@ -253,13 +255,17 @@ class PolyglotBook {
         }
     }
 
-    uint64_t getHash(const Position &pos);
+    uint64_t getPgHash(const Position &pos);
 
     Move decodePgMove(const Position &pos, uint16_t pgMove);
 
+    std::vector<PgEntry> getPgEntries(const Position &pos);
+
    public:
-    PolyglotBook(const std::string &filename);
+    PolyglotBook();
 
     Move getMove(const Position &pos);
+
+    std::vector<Move> getMoves(const Position &pos);
 
 };  // namespace PolyglotBook

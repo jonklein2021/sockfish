@@ -154,6 +154,20 @@ void getBestMove(Position &pos, Engine &engine) {
     printf("Best move: %s\n", Notation::moveToSAN(m, pos).c_str());
 }
 
+void getBookMove(Position &pos, PolyglotBook &openingBook) {
+    Move m = openingBook.getMove(pos);
+    if (m != Move::none()) {
+        std::vector<Move> bookMoves = openingBook.getMoves(pos);
+        puts("Possible book moves:");
+        for (Move m : bookMoves) {
+            printf("%s\n", Notation::moveToSAN(m, pos).c_str());
+        }
+        printf("\nSelected book move: %s\n", Notation::moveToSAN(m, pos).c_str());
+    } else {
+        puts("No book move");
+    }
+}
+
 int main() {
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
@@ -166,6 +180,7 @@ int main() {
     Position pos(fen);
     Evaluator evaluator;
     Engine engine;
+    PolyglotBook openingBook;
     MoveGenerator::generateLegal(legalMoves, pos);
 
     while (1) {
@@ -177,7 +192,8 @@ int main() {
                 "1: Make a move\n"
                 "2: Show legal moves\n"
                 "3: Evaluate this position\n"
-                "4: Get engine move in this position"
+                "4: Get engine move\n"
+                "5: Get book move"
              << endl;
         getline(cin, choice);
 
@@ -191,6 +207,7 @@ int main() {
             }
             case '3': getEvaluation(pos, evaluator); break;
             case '4': getBestMove(pos, engine); break;
+            case '5': getBookMove(pos, openingBook); break;
             default: break;
         }
 

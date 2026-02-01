@@ -2,22 +2,26 @@
 
 #include "src/bitboard/Magic.h"
 #include "src/bitboard/bit_tools.h"
+#include "src/core/types.h"
 
+#include <cstdint>
 #include <iostream>
 #include <vector>
 
-PolyglotBook::PolyglotBook(const std::string &path) {
-    std::ifstream file(path, std::ios::binary);
+struct PgEntry;
+
+PolyglotBook::PolyglotBook() {
+    std::ifstream file(FILE_PATH, std::ios::binary);
 
     if (!file) {
-        std::cerr << "Failed to open book: " << path << "\n";
+        std::cerr << "Failed to open book: " << FILE_PATH << "\n";
         return;
     }
 
-    Entry raw;
+    PgEntry raw;
 
     while (file.read(reinterpret_cast<char *>(&raw), sizeof(raw))) {
-        Entry e {};
+        PgEntry e {};
 
         // swap bytes on little endian machines
         e.key = swap64(raw.key);
@@ -25,30 +29,32 @@ PolyglotBook::PolyglotBook(const std::string &path) {
         e.weight = swap16(raw.weight);
         e.learn = swap32(raw.learn);
 
-        book.push_back(e);
+        bookEntries.push_back(e);
     }
 
-    std::cout << "Loaded " << book.size() << " polyglot entries\n";
+    std::cout << "Loaded " << bookEntries.size() << " polyglot entries\n";
 }
 
 Move PolyglotBook::decodePgMove(const Position &pos, uint16_t pgMove) {
-    const Square to = Square(pgMove & 0x3F);
-    const Square from = Square((pgMove >> 6) & 0x3F);
+    // need to flip rank because PG orders ranks in reverse of sockfish
+    const Square to = flipRank(Square(pgMove & 0x3F));
+    const Square from = flipRank(Square((pgMove >> 6) & 0x3F));
+    const Piece p = pos.pieceAt(from);
 
     // 0 = none, 1=n,2=b,3=r,4=q
     // N.B: only difference with our PieceType enum is that 0=p
     const PieceType promo = PieceType((pgMove >> 12) & 0x7);
 
     // check for castling
-    if (pieceToPT(pos.pieceAt(from)) == KING) {
+    if (p != NO_PIECE && pieceToPT(p) == KING) {
         if (from == e1 && to == h1) {
-            return Move::create<Move::NORMAL>(from, g1);
+            return Move::create<Move::CASTLING>(from, g1);
         } else if (from == e1 && to == a1) {
-            return Move::create<Move::NORMAL>(from, c1);
+            return Move::create<Move::CASTLING>(from, c1);
         } else if (from == e8 && to == h8) {
-            return Move::create<Move::NORMAL>(from, g8);
+            return Move::create<Move::CASTLING>(from, g8);
         } else if (from == e8 && to == a8) {
-            return Move::create<Move::NORMAL>(from, c8);
+            return Move::create<Move::CASTLING>(from, c8);
         }
     }
 
@@ -59,14 +65,15 @@ Move PolyglotBook::decodePgMove(const Position &pos, uint16_t pgMove) {
     return Move::create<Move::PROMOTION>(from, to, promo);
 }
 
-uint64_t PolyglotBook::getHash(const Position &pos) {
+uint64_t PolyglotBook::getPgHash(const Position &pos) {
     uint64_t hash = 0;
 
     // ---- Pieces ----
     for (Square sq : ALL_SQUARES) {
         Piece p = pos.pieceAt(sq);
         if (p != NO_PIECE) {
-            hash ^= POLYGLOT_RANDOM[64 * pgPieceIdx(p) + 8 * pgRankOf(sq) * pgFileOf(sq)];
+            int offsetPiece = 64 * pgKindOfPiece(p) + 8 * pgRowOf(sq) + pgFileOf(sq);
+            hash ^= POLYGLOT_RANDOM[offsetPiece];
         }
     }
 
@@ -88,47 +95,79 @@ uint64_t PolyglotBook::getHash(const Position &pos) {
 
     // ---- En Passant ----
     Square ep = pos.getEpSquare();
+    Color side = pos.getSideToMove();
 
     if (ep != NO_SQ) {
         int file = pgFileOf(ep);
-        Color stm = pos.getSideToMove();
 
         // Only include EP if a pawn can capture it
-        if (stm == WHITE) {
-            if (pos.getPieceBB(WP) & PAWN_ATTACK_MASKS[BLACK][ep]) {
-                hash ^= POLYGLOT_RANDOM[772 + file];
-            }
-        } else {
-            if (pos.getPieceBB(BP) & PAWN_ATTACK_MASKS[WHITE][ep]) {
-                hash ^= POLYGLOT_RANDOM[772 + file];
-            }
+        Bitboard stmPawnBB = pos.getPieceBB(ptToPiece(PAWN, side));
+        Bitboard reverseEpPawnAttacks = PAWN_ATTACK_MASKS[otherColor(side)][ep];
+        if (stmPawnBB & reverseEpPawnAttacks) {
+            hash ^= POLYGLOT_RANDOM[772 + file];
         }
     }
 
     // ---- Side to move ----
-    if (pos.getSideToMove() == BLACK) {
+    if (side == WHITE) {
         hash ^= POLYGLOT_RANDOM[780];
     }
 
     return hash;
 }
 
-Move PolyglotBook::getMove(const Position &pos) {
-    uint64_t key = getHash(pos);
+std::vector<PolyglotBook::PgEntry> PolyglotBook::getPgEntries(const Position &pos) {
+    uint64_t key = getPgHash(pos);
 
-    std::vector<uint16_t> viablePgMoves;
+    std::vector<PgEntry> bookMoves;
 
-    for (Entry &e : book) {
+    // use binary search?
+    for (const PgEntry &e : bookEntries) {
         if (e.key == key) {
-            viablePgMoves.push_back(e.move);
+            bookMoves.push_back(e);
         }
     }
 
-    // TODO: make use of the weights
-    if (!viablePgMoves.empty()) {
-        int randomIndex = rng.next() % viablePgMoves.size();
-        return decodePgMove(pos, viablePgMoves[randomIndex]);
+    return bookMoves;
+}
+
+std::vector<Move> PolyglotBook::getMoves(const Position &pos) {
+    std::vector<PgEntry> pgEntries = getPgEntries(pos);
+    std::vector<Move> bookMoves;
+    bookMoves.reserve(pgEntries.size());
+
+    // map decoded moves to result
+    for (const PgEntry &e : pgEntries) {
+        bookMoves.emplace_back(decodePgMove(pos, e.move));
     }
 
-    return Move::none();
+    return bookMoves;
+}
+
+Move PolyglotBook::getMove(const Position &pos) {
+    std::vector<PgEntry> pgEntries = getPgEntries(pos);
+    if (pgEntries.empty()) {
+        return Move::none();
+    }
+
+    PgEntry result = pgEntries[0];
+
+    // sum up weights
+    int totalWeight = 0;
+    for (const PgEntry &e : pgEntries) {
+        totalWeight += e.weight;
+    }
+
+    // pick a move at random, where entries with higher weights have a higher chance of their move
+    // being selected
+    int r = rng.next() % totalWeight;
+    for (const PgEntry &e : pgEntries) {
+        r -= e.weight;
+        if (r < 0) {
+            result = e;
+            break;
+        }
+    }
+
+    return decodePgMove(pos, result.move);
 }

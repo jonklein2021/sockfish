@@ -129,6 +129,12 @@ Move Engine::getMove(Position &pos) {
 }
 
 Move Engine::getMove(Position &pos, int maxDepth) {
+    Move bookMove = openingBook.getMove(pos);
+    if (bookMove != Move::none()) {
+        printf("info bookmove %s\n", Notation::moveToUci(bookMove).c_str());
+        return bookMove;
+    }
+
     // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
     bestMove = Move::none();
 
@@ -137,7 +143,7 @@ Move Engine::getMove(Position &pos, int maxDepth) {
         // TODO: ensure PV move is examined first
         Eval score = negamax(pos, initAlpha, initBeta, 0, depth);
         printf("info depth %d bestmove %s score cp %d\n", depth,
-               Notation::moveToCoords(bestMove).c_str(), score);
+               Notation::moveToUci(bestMove).c_str(), score);
     }
 
     return bestMove;

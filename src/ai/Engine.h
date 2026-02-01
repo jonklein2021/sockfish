@@ -2,6 +2,7 @@
 
 #include "src/ai/Evaluator.h"
 #include "src/ai/MoveSorter.h"
+#include "src/ai/PolyglotBook.h"
 #include "src/ai/TranspositionTable.h"
 #include "src/core/Position.h"
 
@@ -14,11 +15,13 @@ class Engine {
      */
     static constexpr int MAX_PLY = 6;
 
-    Evaluator evaluator;
-
     TranspositionTable tt;
 
     MoveSorter moveSorter;
+
+    Evaluator evaluator;
+
+    PolyglotBook openingBook;
 
     // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
 

@@ -203,6 +203,16 @@ inline constexpr Square xyToSquare(int x, int y) {
     return Square((y << 3) + x);
 }
 
+// swap A1 <-> A8
+inline constexpr Square flipRank(Square s) {
+    return Square(s ^ a1);
+}
+
+// swap A8 <-> H8
+inline constexpr Square flipFile(Square s) {
+    return Square(s ^ h8);
+}
+
 // File Constants
 enum File : int { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H };
 
@@ -401,6 +411,7 @@ inline constexpr void removeCastleRights(CastleRights &current, CastleRights toR
 // file paths and GUI Constants
 constexpr std::string_view PGN_OUTPUT_PATH = "../games/";
 constexpr std::string_view DEFAULT_OUT_FILE = "../games/recent.txt";
+constexpr std::string_view OPENING_BOOK_FILE = "../openings/baron30.bin";
 constexpr std::string_view SFX_PATH = "../src/assets/sfx/";
 constexpr std::string_view PIECE_TEXTURE_PATH = "../src/assets/pieces/";
 constexpr std::string_view BOARD_TEXTURE_FILE = "../src/assets/board.png";
