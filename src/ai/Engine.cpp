@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "src/core/Notation.h"
 #include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
 
@@ -48,17 +49,18 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
 
         pos.unmakeMove(move, md);
 
-        // node fails high
-        if (score >= beta) {
-            return beta;
-        }
-
         // found a better move
         if (score > alpha) {
             alpha = score;
             // update bestMove only if from root
             if (ply == 0) {
                 bestMove = move;
+            }
+
+            // node fails high
+            if (score >= beta) {
+                tt.store(h, score, alpha, beta, depth);
+                return beta;
             }
         }
     }
@@ -67,7 +69,7 @@ Eval Engine::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     if (legalMoveCount == 0) {
         // checkmate: return -500000 + ply to favor faster mates
         if (PositionUtil::isCheck(pos)) {
-            return -CHECKMATE_EVAL + ply;
+            return -INFINITY + ply;
         }
         // stalemate: return 0 to indicate draw
         return 0;
@@ -130,10 +132,12 @@ Move Engine::getMove(Position &pos, int maxDepth) {
     // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
     bestMove = Move::none();
 
-    const Eval initAlpha = -CHECKMATE_EVAL, initBeta = CHECKMATE_EVAL;
+    const Eval initAlpha = -INFINITY, initBeta = INFINITY;
     for (int depth = 1; depth <= maxDepth; depth++) {
         // TODO: ensure PV move is examined first
-        negamax(pos, initAlpha, initBeta, 0, depth);
+        Eval score = negamax(pos, initAlpha, initBeta, 0, depth);
+        printf("info depth %d bestmove %s score cp %d\n", depth,
+               Notation::moveToCoords(bestMove).c_str(), score);
     }
 
     return bestMove;

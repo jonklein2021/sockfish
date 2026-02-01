@@ -168,7 +168,7 @@ constexpr std::string_view STARTING_POSITION_FEN =
  */
 constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, 500000, 0};
 
-constexpr Eval CHECKMATE_EVAL = pieceTypeValues[KING];
+constexpr Eval INFINITY = pieceTypeValues[KING];
 
 // clang-format off
 enum Square : uint8_t {
@@ -184,7 +184,7 @@ enum Square : uint8_t {
     NO_SQ
 };
 
-constexpr std::array<Square, 64> ALL_SQUARES = {
+constexpr std::array<Square, NO_SQ> ALL_SQUARES = {
     a8, b8, c8, d8, e8, f8, g8, h8,
     a7, b7, c7, d7, e7, f7, g7, h7,
     a6, b6, c6, d6, e6, f6, g6, h6,

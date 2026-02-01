@@ -171,7 +171,7 @@ class Evaluator {
          -30, -25, +00, +00, +00, +00, -25, -30,
          -50, -30, -30, -30, -30, -30, -30, -50},
         {// BP
-         +00, +00, +00, +00, +00, +00, +00, +00
+         +00, +00, +00, +00, +00, +00, +00, +00,
          +10, +10, +10, +10, +10, +10, +10, +10,
          +10, +10, +10, +10, +10, +10, +10, +10,
          +20, +20, +20, +20, +20, +20, +20, +20,
@@ -229,8 +229,6 @@ class Evaluator {
     // clang-format on
 
     // need to fine-tune these
-    const float mobilityBonusWeight = 0.1;
-
     float getEndgameWeight(Position &pos) const;
 
     Eval getPSTableEval(float endgameWeight, Piece p, Square sq) const;

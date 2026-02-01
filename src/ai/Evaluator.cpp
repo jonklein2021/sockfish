@@ -8,31 +8,35 @@
 
 // the higher this weight, the closer we are to the endgame
 float Evaluator::getEndgameWeight(Position &pos) const {
-    // each side has 7 pieces that aren't pawns nor their king at the start
-    constexpr float ONE_SEVENTH = 1 / 7.0;
+    static constexpr float MAX_NONPAWNS = 14.0f;
 
-    // only count for the opponent
     int numNonPawnPieces = 0;
-    Color opponent = otherColor(pos.getSideToMove());
-    for (Piece p : COLOR_TO_PIECES[opponent]) {
-        numNonPawnPieces += getBitCount(pos.getPieceBB(p));
+    for (Piece p : ALL_PIECES) {
+        if (pieceToPT(p) != PAWN && pieceToPT(p) != KING) {
+            numNonPawnPieces += getBitCount(pos.getPieceBB(p));
+        }
     }
 
-    return 1 - ONE_SEVENTH * numNonPawnPieces;
+    return 1.0f - numNonPawnPieces / MAX_NONPAWNS;
 }
 
 Eval Evaluator::getPSTableEval(float endgameWeight, Piece p, Square sq) const {
-    constexpr float WEIGHT = 0.1;
+    const int eg = int(endgameWeight * 256);
+    const int mg = 256 - eg;
 
-    // squaring helps hold back heavy weight until there truly are very few pieces remaining
-    const float egSquareWeight = endgameWeight * endgameWeight;
-    const Eval standardPSValue = (1 - egSquareWeight) * pieceSqTables[p][sq];
-    const Eval endgamePSValue = egSquareWeight * endgamePieceSqTables[p][sq];
-    return WEIGHT * (standardPSValue + endgamePSValue);
+    const Eval mid = pieceSqTables[p][sq];
+    const Eval end = endgamePieceSqTables[p][sq];
+
+    return (mid * mg + end * eg) / 256;
 }
 
 Eval Evaluator::getKingDistanceEval(float endgameWeight, Position &pos) const {
-    constexpr float WEIGHT = 10.0;
+    static constexpr float WEIGHT = 10.0;
+
+    // hard cutoff
+    if (endgameWeight <= 0.6f) {
+        return 0.0;
+    }
 
     // doesn't matter whose turn it is to move; endgameWeight already captures this
     const Square kingSq1 = pos.getKingSquare(WHITE), kingSq2 = pos.getKingSquare(BLACK);
@@ -43,7 +47,7 @@ Eval Evaluator::getKingDistanceEval(float endgameWeight, Position &pos) const {
 
     // in endgames, favor moving the kings towards each other
     // note that the max manhattan distance on a 8x8 board is 14
-    return WEIGHT * endgameWeight * (14 - manhattanKingDist);
+    return WEIGHT * (14 - manhattanKingDist);
 }
 
 // the higher the score, the better for position is for pos.getSideToMove()
@@ -69,5 +73,5 @@ Eval Evaluator::run(Position &pos) const {
     totalEval += getKingDistanceEval(endgameWeight, pos);
 
     // return score relative to the current player for negamax
-    return SIGN[pos.getSideToMove()] * totalEval;
+    return pos.getSideToMove() == WHITE ? totalEval : -totalEval;
 }

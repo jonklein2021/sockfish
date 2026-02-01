@@ -149,6 +149,11 @@ void getEvaluation(Position &pos, Evaluator &evaluator) {
     printf("Final evaluation: %d\n", evaluation);
 }
 
+void getBestMove(Position &pos, Engine &engine) {
+    Move m = engine.getMove(pos);
+    printf("Best move: %s\n", Notation::moveToSAN(m, pos).c_str());
+}
+
 int main() {
     cout << "Welcome to the testing suite!\n";
     cout << "Enter a FEN or leave blank for starting position: ";
@@ -171,7 +176,8 @@ int main() {
                 "q: Quit\n"
                 "1: Make a move\n"
                 "2: Show legal moves\n"
-                "3: Evaluate this position"
+                "3: Evaluate this position\n"
+                "4: Get engine move in this position"
              << endl;
         getline(cin, choice);
 
@@ -184,6 +190,7 @@ int main() {
                 break;
             }
             case '3': getEvaluation(pos, evaluator); break;
+            case '4': getBestMove(pos, engine); break;
             default: break;
         }
 

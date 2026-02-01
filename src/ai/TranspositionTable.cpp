@@ -6,7 +6,7 @@ TranspositionTable::TranspositionTable() {
 
 TTEntry TranspositionTable::lookup(uint64_t posHash, int depth) const {
     TTEntry e = table[getIndex(posHash)];
-    if (e.key == posHash && e.depth <= depth) {
+    if (e.key == posHash && e.depth >= depth) {
         return e;
     }
     return TTEntry {};
@@ -14,7 +14,7 @@ TTEntry TranspositionTable::lookup(uint64_t posHash, int depth) const {
 
 void TranspositionTable::store(uint64_t posHash, Eval eval, int alpha, int beta, int depth) {
     const TTFlag flag = (eval <= alpha) ? UPPERBOUND : (eval >= beta) ? LOWERBOUND : EXACT;
-    table[getIndex(posHash)] = {posHash, eval, depth, flag};
+    table[getIndex(posHash)] = {posHash, depth, eval, flag};
 }
 
 void TranspositionTable::clear() {
