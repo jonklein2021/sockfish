@@ -8,6 +8,7 @@
 
 namespace MoveGenerator {
 
+// used in Notation::coordsToMove to pick out castling moves
 inline constexpr bool isCastleMovement(Square from, Square to) {
     return (from == e1 && to == g1) || (from == e1 && to == c1) || (from == e8 && to == g8) ||
            (from == e8 && to == c8);

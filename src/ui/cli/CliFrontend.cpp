@@ -55,7 +55,7 @@ Move CliFrontend::getMoveFromStdin() {
         }
 
         if (Notation::validateCoords(input)) {
-            candidate = Notation::coordsToMove(input);
+            candidate = Notation::coordsToMove(game.getPosition(), input);
         } else {
             // must be a castling move
             if (input == "O-O" || input == "OO") {

@@ -82,8 +82,13 @@ int main() {
             }
 
             Move best = engine.getMove(pos, depth);
-
             std::cout << "bestmove " << Notation::moveToUci(best) << "\n";
+        }
+
+        // -------- Stop command --------
+
+        else if (cmd == "stop") {
+
         }
 
         // -------- Quit --------

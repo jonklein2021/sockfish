@@ -1,9 +1,7 @@
 #pragma once
 
-#include "src/ai/Evaluator.h"
-#include "src/ai/MoveSorter.h"
 #include "src/ai/PolyglotBook.h"
-#include "src/ai/TranspositionTable.h"
+#include "src/ai/Searcher.h"
 #include "src/core/Position.h"
 
 class Engine {
@@ -15,33 +13,13 @@ class Engine {
      */
     static constexpr int MAX_PLY = 6;
 
-    TranspositionTable tt;
-
-    MoveSorter moveSorter;
-
-    Evaluator evaluator;
+    Searcher searcher;
 
     PolyglotBook openingBook;
 
-    // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
-
-    // Temporarily stores the best move for easy access during negamax
-    // TODO: Delete this after creating PV table
-    Move bestMove;
-
-    /**
-     * Minimax variant with alpha-beta pruning
-     *
-     * @param pos to evaluate
-     * @param alpha The alpha value
-     * @param beta The beta value
-     * @return The heuristic value of the position to move to
-     */
-    Eval negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth);
-
-    Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply);
-
    public:
+    void abortSearch();
+
     Move getMove(Position &pos);
 
     /**
