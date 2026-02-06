@@ -21,38 +21,42 @@ float Evaluator::getEndgameWeight(Position &pos) const {
 }
 
 Eval Evaluator::getPSTableEval(float endgameWeight, Piece p, Square sq) const {
+    static constexpr float WEIGHT = 0.5f;
+
     const int eg = int(endgameWeight * 256);
     const int mg = 256 - eg;
 
     const Eval mid = pieceSqTables[p][sq];
     const Eval end = endgamePieceSqTables[p][sq];
 
-    return (mid * mg + end * eg) / 256;
+    return WEIGHT * (mid * mg + end * eg) / 256;
 }
 
 Eval Evaluator::getKingDistanceEval(float endgameWeight, Position &pos) const {
-    static constexpr float WEIGHT = 10.0;
+    static constexpr float WEIGHT = 5.0f;
 
     // hard cutoff
     if (endgameWeight <= 0.6f) {
-        return 0.0;
+        return 0;
     }
 
     // doesn't matter whose turn it is to move; endgameWeight already captures this
     const Square kingSq1 = pos.getKingSquare(WHITE), kingSq2 = pos.getKingSquare(BLACK);
-    const int fileDiff = std::abs(fileOf(kingSq1) - fileOf(kingSq2)),
-              rankDiff = std::abs(rankOf(kingSq1) - rankOf(kingSq2));
+    const int width = std::abs(fileOf(kingSq1) - fileOf(kingSq2));
+    const int height = std::abs(rankOf(kingSq1) - rankOf(kingSq2));
 
-    const int manhattanKingDist = fileDiff + rankDiff;
+    // this is the minimum number of king moves to move from one king to the other
+    const int kingDist = std::max(width, height);
 
     // in endgames, favor moving the kings towards each other
-    // note that the max manhattan distance on a 8x8 board is 14
-    return WEIGHT * (14 - manhattanKingDist);
+    // note that the max distance on a 8x8 board is 7
+    return WEIGHT * (7 - kingDist);
 }
 
 // the higher the score, the better for position is for pos.getSideToMove()
 // and vice versa
 Eval Evaluator::run(Position &pos) const {
+    const Color side = pos.getSideToMove();
     Eval totalEval = 0;
 
     // total up pieces, scaling by piece value and position in piece-square
@@ -70,8 +74,8 @@ Eval Evaluator::run(Position &pos) const {
     }
 
     // king distance eval
-    totalEval += getKingDistanceEval(endgameWeight, pos);
+    totalEval += SIGN[side] * getKingDistanceEval(endgameWeight, pos);
 
     // return score relative to the current player for negamax
-    return pos.getSideToMove() == WHITE ? totalEval : -totalEval;
+    return side == WHITE ? totalEval : -totalEval;
 }

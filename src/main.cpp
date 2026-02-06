@@ -1,8 +1,8 @@
 #include "src/ai/Engine.h"
 #include "src/config/Config.h"
 #include "src/core/GameController.h"
-#include "src/ui/cli/CliFrontend.h"
-#include "src/ui/gui/GuiFrontend.h"
+#include "src/frontend/cli/CliFrontend.h"
+#include "src/frontend/gui/GuiFrontend.h"
 
 #include <cstdlib>
 #include <ctime>

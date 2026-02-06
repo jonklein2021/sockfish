@@ -11,14 +11,16 @@ class Engine {
      *
      * TODO: Increase this a lot after creating an interrupt mechanism
      */
-    static constexpr int MAX_PLY = 6;
+    static constexpr int MAX_PLY = 64;
 
     Searcher searcher;
 
     PolyglotBook openingBook;
 
    public:
-    void abortSearch();
+    void setStopFlagPtr(std::atomic<bool> *stopFlag) {
+        searcher.setStopFlagPtr(stopFlag);
+    }
 
     Move getMove(Position &pos);
 

@@ -3,7 +3,15 @@
 #include "src/core/Notation.h"
 #include "src/movegen/MoveGenerator.h"
 
+#include <atomic>
+#include <cstdio>
+#include <thread>
+
 Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
+    if (isSearchCancelled()) {
+        return 0;
+    }
+
     uint64_t h = pos.getHash();
 
     // check for a TT entry
@@ -45,6 +53,11 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         const Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
 
         pos.unmakeMove(move, md);
+
+        // exit here if time is up
+        if (isSearchCancelled()) {
+            return 0;
+        }
 
         // found a better move
         if (score > alpha) {
@@ -121,22 +134,35 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
     return alpha;
 }
 
-// TODO
-void stop() {
-    return;
+bool Searcher::isSearchCancelled() {
+    return searchCancelled->load(std::memory_order_relaxed);
 }
 
-Move Searcher::run(Position &pos, int maxDepth) {
+void Searcher::findBestMove(Position &pos, int maxDepth) {
     // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
     bestMove = Move::none();
 
-    const Eval initAlpha = -INFINITY, initBeta = INFINITY;
+    // iterative deepening
     for (int depth = 1; depth <= maxDepth; depth++) {
+        // exit early if time is up
+        if (isSearchCancelled()) {
+            break;
+        }
+
         // TODO: ensure PV move is examined first
-        Eval score = negamax(pos, initAlpha, initBeta, 0, depth);
+        Eval score = negamax(pos, -INFINITY, INFINITY, 0, depth);
         printf("info depth %d bestmove %s score cp %d\n", depth,
                Notation::moveToUci(bestMove).c_str(), score);
     }
+}
+
+// We make pos a copy to prevent the worker thread from leaving the
+// global pos reference in an invalid state
+Move Searcher::run(Position pos, int maxDepth) {
+    searchCancelled->store(false, std::memory_order_relaxed);
+
+    std::thread worker(&Searcher::findBestMove, this, std::ref(pos), maxDepth);
+    worker.join();
 
     return bestMove;
 }

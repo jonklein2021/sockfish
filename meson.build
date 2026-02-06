@@ -20,23 +20,21 @@ sfml_libs = [
     declare_dependency(link_args: ['-L/usr/local/lib/SFML', '-lsfml-system'], include_directories: ['/usr/include/SFML'])
 ]
 
-all_sources = [
-  'src/ai/Engine.cpp',
-  'src/ai/Evaluator.cpp',
-  'src/ai/MoveSorter.cpp',
-  'src/ai/PolyglotBook.cpp',
-  'src/ai/Searcher.cpp',
-  'src/ai/TranspositionTable.cpp',
-  'src/core/GameController.cpp',
-  'src/core/Notation.cpp',
-  'src/core/Position.cpp',
-  'src/core/PositionUtil.cpp',
-  'src/core/Printers.cpp',
-  'src/config/Config.cpp',
-  'src/ui/cli/CliFrontend.cpp',
-  'src/ui/gui/GuiFrontend.cpp',
-  'src/ui/gui/PromotionMenu.cpp',
-  'src/movegen/MoveGenerator.cpp'
+cfg_sources = [
+  'src/config/Config.cpp'
+]
+
+cli_sources = [
+  'src/frontend/cli/CliFrontend.cpp'
+]
+
+gui_sources = [
+  'src/frontend/gui/GuiFrontend.cpp',
+  'src/frontend/gui/PromotionMenu.cpp',
+]
+
+uci_sources = [
+  'src/frontend/uci/UciFrontend.cpp',
 ]
 
 common_sources = [
@@ -57,7 +55,7 @@ common_sources = [
 # -------------------- EXECUTABLE: main --------------------
 main_exe = executable(
   'main',
-  [ 'src/main.cpp', all_sources ],
+  [ 'src/main.cpp', cfg_sources, cli_sources, gui_sources, common_sources ],
   dependencies : sfml_libs,
   cpp_args: cxx_args,
   install : false
@@ -66,7 +64,7 @@ main_exe = executable(
 # -------------------- EXECUTABLE: uci --------------------
 uci_exe = executable(
   'sockfish',
-  [ 'src/uci.cpp', common_sources ],
+  [ 'src/uci.cpp', uci_sources, common_sources ],
   cpp_args: cxx_args,
   install : false
 )

@@ -6,6 +6,8 @@
 #include "src/core/Move.h"
 #include "src/core/Position.h"
 
+#include <atomic>
+
 class Searcher {
    private:
     TranspositionTable tt;
@@ -20,12 +22,20 @@ class Searcher {
     // TODO: Delete this after creating PV table
     Move bestMove;
 
+    std::atomic<bool> *searchCancelled;
+
     Eval negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth);
 
     Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply);
 
-   public:
-    void stop();
+    void findBestMove(Position &pos, int maxDepth);
 
-    Move run(Position &pos, int maxDepth);
+    bool isSearchCancelled();
+
+   public:
+    void setStopFlagPtr(std::atomic<bool> *stopFlag) {
+        this->searchCancelled = stopFlag;
+    }
+
+    Move run(Position pos, int maxDepth);
 };

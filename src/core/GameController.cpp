@@ -17,11 +17,6 @@ GameController::GameController(Position &startPos, std::unique_ptr<Engine> engin
     MoveGenerator::generateLegal(legalMoves, startPos);
 }
 
-GameController::~GameController() {
-    outFile << "\n";
-    outFile.close();
-}
-
 void GameController::initPGN() {
     if (!outFile.is_open()) {
         std::cerr << "Error: Failed to open PGN file\n";
@@ -128,4 +123,6 @@ void GameController::handleEnd() {
     }
 
     outFile << result << "\n";
+    outFile << "\n";
+    outFile.close();
 }

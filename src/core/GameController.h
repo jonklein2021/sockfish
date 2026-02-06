@@ -25,8 +25,6 @@ class GameController {
    public:
     GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide);
 
-    ~GameController();
-
     constexpr Color getHumanSide() const {
         return humanSide;
     }
