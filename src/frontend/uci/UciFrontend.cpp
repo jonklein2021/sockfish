@@ -7,29 +7,27 @@
 #include <sstream>
 #include <thread>
 
-void UciFrontend::start() {
-    engine.setStopFlagPtr(&stopFlag);
-    inputThread = std::thread([this] { run(); });
+void UciFrontend::searchWorker() {
+    while (true) {
+        // spin until a "go" command is received in the main thread
+        while (searchDepth.load(std::memory_order_relaxed) == -1);
 
-    if (inputThread.joinable()) {
-        inputThread.join();
+        // write the result move to field
+        Move best = engine.getMove(pos, searchDepth);
+        std::cout << "bestmove " << Notation::moveToUci(best) << "\n";
+
+        // write -1 to searchDepth to prevent search from rerunning
+        searchDepth.store(-1, std::memory_order_relaxed);
     }
-}
-
-void UciFrontend::stop() {
-    running.store(false, std::memory_order_relaxed);
-    if (inputThread.joinable()) {
-        inputThread.join();
-    }
-}
-
-bool UciFrontend::stopRequested() const {
-    return stopFlag.load(std::memory_order_relaxed);
 }
 
 void UciFrontend::run() {
+    // initialize search thread
+    std::thread searchThread(&UciFrontend::searchWorker, this);
+
     std::string line;
-    while (running.load(std::memory_order_relaxed) && std::getline(std::cin, line)) {
+    bool running = true;
+    while (running && std::getline(std::cin, line)) {
         std::stringstream ss(line);
 
         std::string cmd;
@@ -40,7 +38,10 @@ void UciFrontend::run() {
             std::cout << "id name Sockfish\n";
             std::cout << "id author Jon Klein\n";
             std::cout << "uciok\n";
-        } else if (cmd == "isready") {
+        }
+
+        // -------- Ready command --------
+        else if (cmd == "isready") {
             std::cout << "readyok\n";
         }
 
@@ -97,19 +98,23 @@ void UciFrontend::run() {
                 depth = 64;  // default fallback
             }
 
-            Move best = engine.getMove(pos, depth);
-            std::cout << "bestmove " << Notation::moveToUci(best) << "\n";
+            // write this depth to searchDepth; this will trigger the search worker to run and print
+            // the best move
+            searchDepth.store(depth, std::memory_order_relaxed);
         }
 
         // -------- Stop command --------
         else if (cmd == "stop") {
-            stopFlag.store(true, std::memory_order_relaxed);
+            // this signals to the Searcher class to terminate ASAP
+            stopper.overrideAndAbort();
         }
 
         // -------- Quit --------
         else if (cmd == "quit") {
-            stopFlag.store(true, std::memory_order_relaxed);
-            running.store(false, std::memory_order_relaxed);
+            running = false;
         }
     }
+
+    // clean up search thread
+    searchThread.join();
 }

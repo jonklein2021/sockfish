@@ -6,6 +6,12 @@
 #include <ostream>
 #include <sstream>
 
+Position::Position() {
+    // reset board and metadata
+    board.clear();
+    md = Metadata();
+}
+
 Position::Position(const std::string &fen) {
     parseFen(fen);
 }

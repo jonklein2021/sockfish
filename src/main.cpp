@@ -1,4 +1,5 @@
 #include "src/ai/Engine.h"
+#include "src/ai/search/SearchStopwatch.h"
 #include "src/config/Config.h"
 #include "src/core/GameController.h"
 #include "src/frontend/cli/CliFrontend.h"
@@ -23,7 +24,8 @@ int main(int argc, char **argv) {
 
     // create base objects
     Position pos(cfg.fen);
-    std::unique_ptr<Engine> engine = std::make_unique<Engine>();
+    SearchStopwatch stopper(5000);
+    std::unique_ptr<Engine> engine = std::make_unique<Engine>(stopper);
     GameController gameController(pos, std::move(engine), cfg.humanSide);
 
     // create and launch game

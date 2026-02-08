@@ -2,6 +2,9 @@
 
 #include "src/core/Notation.h"
 
+Engine::Engine(SearchStopper &searchStopper)
+    : searcher(searchStopper) {}
+
 Move Engine::getMove(Position &pos) {
     return getMove(pos, MAX_PLY);
 }

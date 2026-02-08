@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/ai/PolyglotBook.h"
-#include "src/ai/Searcher.h"
+#include "src/ai/search/Searcher.h"
 #include "src/core/Position.h"
 
 class Engine {
@@ -18,14 +18,12 @@ class Engine {
     PolyglotBook openingBook;
 
    public:
-    void setStopFlagPtr(std::atomic<bool> *stopFlag) {
-        searcher.setStopFlagPtr(stopFlag);
-    }
+    Engine(SearchStopper &searchStopper);
 
     Move getMove(Position &pos);
 
     /**
-     * Gets the best move in a certain position using iterative deepening
+     * Gets the best move in a certain position
      *
      * @param pos to evaluate
      * @param maxDepth to search to

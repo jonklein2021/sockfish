@@ -10,7 +10,7 @@
 meson setup build
 cd build
 meson compile
-./main
+./build.sh
 ```
 
 ## Credits

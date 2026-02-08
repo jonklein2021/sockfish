@@ -1,28 +1,22 @@
 #include "src/ai/Engine.h"
+#include "src/ai/search/ManualSearchStopper.h"
 #include "src/core/Position.h"
 #include "src/core/types.h"
-
-#include <atomic>
-#include <thread>
 
 class UciFrontend {
    private:
     Position pos;
     Engine engine;
+    ManualSearchStopper stopper;
 
-    std::thread inputThread;
-    std::atomic<bool> stopFlag = false;
-    std::atomic<bool> running = true;
+    // search thread variables
+    std::atomic<int> searchDepth = -1;
 
-    void run();
+    void searchWorker();
 
    public:
     UciFrontend()
-        : pos(std::string(STARTING_POSITION_FEN)) {}
+        : pos(std::string(STARTING_POSITION_FEN)), engine(stopper) {}
 
-    void start();
-
-    void stop();
-
-    bool stopRequested() const;
+    void run();
 };

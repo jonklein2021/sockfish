@@ -3,15 +3,12 @@
 #include "src/core/Notation.h"
 #include "src/movegen/MoveGenerator.h"
 
-#include <atomic>
 #include <cstdio>
-#include <thread>
+
+Searcher::Searcher(SearchStopper &searchStopper)
+    : searchStopper(searchStopper) {}
 
 Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
-    if (isSearchCancelled()) {
-        return 0;
-    }
-
     uint64_t h = pos.getHash();
 
     // check for a TT entry
@@ -20,6 +17,14 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         if (tte.flag != TTFlag::NO_ENTRY) {
             return tte.eval;
         }
+    }
+
+    // increment node search count
+    nodesSearched++;
+
+    // every 2048 nodes, check for cancellation
+    if ((nodesSearched & 2047) == 0 && searchStopper.isStopped()) {
+        return 0;
     }
 
     // base case: depth exceeded
@@ -55,7 +60,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         pos.unmakeMove(move, md);
 
         // exit here if time is up
-        if (isSearchCancelled()) {
+        if (searchStopper.isStopped()) {
             return 0;
         }
 
@@ -102,6 +107,14 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
         alpha = staticEval;
     }
 
+    // increment node search count
+    nodesSearched++;
+
+    // every 2048 nodes, check for cancellation
+    if ((nodesSearched & 2047) == 0 && searchStopper.isStopped()) {
+        return 0;
+    }
+
     std::vector<Move> captureMoves;
     MoveGenerator::generatePseudolegalCaptures(captureMoves, pos);
     moveSorter.run(pos, captureMoves);
@@ -134,18 +147,18 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
     return alpha;
 }
 
-bool Searcher::isSearchCancelled() {
-    return searchCancelled->load(std::memory_order_relaxed);
-}
-
-void Searcher::findBestMove(Position &pos, int maxDepth) {
+// We make pos a copy to prevent the worker thread from leaving the
+// global pos reference in an invalid state
+Move Searcher::run(Position pos, int maxDepth) {
     // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
+    searchStopper.reset();
+    nodesSearched = 0;
     bestMove = Move::none();
 
     // iterative deepening
     for (int depth = 1; depth <= maxDepth; depth++) {
         // exit early if time is up
-        if (isSearchCancelled()) {
+        if (searchStopper.isStopped()) {
             break;
         }
 
@@ -154,15 +167,6 @@ void Searcher::findBestMove(Position &pos, int maxDepth) {
         printf("info depth %d bestmove %s score cp %d\n", depth,
                Notation::moveToUci(bestMove).c_str(), score);
     }
-}
-
-// We make pos a copy to prevent the worker thread from leaving the
-// global pos reference in an invalid state
-Move Searcher::run(Position pos, int maxDepth) {
-    searchCancelled->store(false, std::memory_order_relaxed);
-
-    std::thread worker(&Searcher::findBestMove, this, std::ref(pos), maxDepth);
-    worker.join();
 
     return bestMove;
 }

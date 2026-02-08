@@ -48,6 +48,8 @@ class Position {
     Metadata md;
 
     // Constructors
+    Position();
+
     Position(const std::string &fen);
 
     // Getters

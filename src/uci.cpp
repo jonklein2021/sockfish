@@ -2,7 +2,7 @@
 
 int main() {
     UciFrontend uci;
-    uci.start();
+    uci.run();
 
     return 0;
 }

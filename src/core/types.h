@@ -156,11 +156,10 @@ inline constexpr Piece fenCharToPiece(char c) {
 constexpr std::array<Piece, 4> WHITE_PROMOTION_PIECES = {WQ, WR, WB, WN};
 constexpr std::array<Piece, 4> BLACK_PROMOTION_PIECES = {BQ, BR, BB, BN};
 
-/**
- * FEN string for the starting position
- */
 constexpr std::string_view STARTING_POSITION_FEN =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+constexpr std::string_view EMPTY_POSITION_FEN = "8/8/8/8/8/8/8/8 w - - 0 1";
 
 /**
  * Piece values for material evaluation

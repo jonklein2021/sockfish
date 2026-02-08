@@ -1,4 +1,5 @@
 #include "src/ai/Engine.h"
+#include "src/ai/search/SearchStopwatch.h"
 #include "src/core/Notation.h"
 #include "src/core/Position.h"
 #include "src/core/Printers.h"
@@ -179,7 +180,8 @@ int main() {
 
     Position pos(fen);
     Evaluator evaluator;
-    Engine engine;
+    SearchStopwatch stopper(10000);
+    Engine engine(stopper);
     PolyglotBook openingBook;
     MoveGenerator::generateLegal(legalMoves, pos);
 
