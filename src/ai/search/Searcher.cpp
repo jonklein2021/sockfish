@@ -9,18 +9,15 @@ Searcher::Searcher(SearchStopper &searchStopper)
     : searchStopper(searchStopper) {}
 
 Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
-    uint64_t h = pos.getHash();
+    // uint64_t h = pos.getHash();
 
     // check for a TT entry
-    if (ply > 0) {
-        TTEntry tte = tt.lookup(h, depth);
-        if (tte.flag != TTFlag::NO_ENTRY) {
-            return tte.eval;
-        }
-    }
-
-    // increment node search count
-    nodesSearched++;
+    // if (ply > 0) {
+    //     TTEntry tte = tt.lookup(h, depth);
+    //     if (tte.flag != TTFlag::NO_ENTRY) {
+    //         return tte.eval;
+    //     }
+    // }
 
     // every 2048 nodes, check for cancellation
     if ((nodesSearched & 2047) == 0 && searchStopper.isStopped()) {
@@ -33,8 +30,11 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         return quiescenceSearch(pos, alpha, beta, ply);
     }
 
+    // increment node search count
+    nodesSearched++;
+
     // save original alpha for TT record
-    const Eval originalAlpha = alpha;
+    // const Eval originalAlpha = alpha;
 
     // count legal moves to detect checkmate/stalemate after loop
     int legalMoveCount = 0;
@@ -59,7 +59,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
         pos.unmakeMove(move, md);
 
-        // exit here if time is up
+        // exit if time is up
         if (searchStopper.isStopped()) {
             return 0;
         }
@@ -74,7 +74,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
             // node fails high
             if (score >= beta) {
-                tt.store(h, score, alpha, beta, depth);
+                // tt.store(h, score, alpha, beta, depth);
                 return beta;
             }
         }
@@ -91,7 +91,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     }
 
     // save result in transposition table
-    tt.store(h, alpha, originalAlpha, beta, depth);
+    // tt.store(h, alpha, originalAlpha, beta, depth);
 
     // node fails low
     return alpha;
@@ -107,13 +107,13 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
         alpha = staticEval;
     }
 
-    // increment node search count
-    nodesSearched++;
-
     // every 2048 nodes, check for cancellation
     if ((nodesSearched & 2047) == 0 && searchStopper.isStopped()) {
         return 0;
     }
+
+    // increment node search count
+    nodesSearched++;
 
     std::vector<Move> captureMoves;
     MoveGenerator::generatePseudolegalCaptures(captureMoves, pos);
@@ -155,18 +155,27 @@ Move Searcher::run(Position pos, int maxDepth) {
     nodesSearched = 0;
     bestMove = Move::none();
 
+    // these variables are only updated for full searches
+    Move bestFullySearchedMove = Move::none();
+    Eval bestFullySearchedEval = -INFINITY;
+
     // iterative deepening
     for (int depth = 1; depth <= maxDepth; depth++) {
-        // exit early if time is up
-        if (searchStopper.isStopped()) {
-            break;
-        }
-
         // TODO: ensure PV move is examined first
         Eval score = negamax(pos, -INFINITY, INFINITY, 0, depth);
-        printf("info depth %d bestmove %s score cp %d\n", depth,
-               Notation::moveToUci(bestMove).c_str(), score);
+
+        if (searchStopper.isStopped()) {
+            // exit early if search was cancelled
+            break;
+        } else {
+            // otherwise, update the top move
+            bestFullySearchedMove = bestMove;
+            bestFullySearchedEval = score;
+
+            printf("info depth %d bestmove %s score cp %d\n", depth,
+                   Notation::moveToUci(bestFullySearchedMove).c_str(), bestFullySearchedEval);
+        }
     }
 
-    return bestMove;
+    return bestFullySearchedMove;
 }

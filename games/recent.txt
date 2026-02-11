@@ -1,0 +1,10 @@
+[Event "Local Game"]
+[Site "Local"]
+[Date "2026.02.10"]
+[Round "1"]
+[White "Human"]
+[Black "Sockfish"]
+[Result "*"]
+
+1. Kc8 Qb4 2. Kd8 Qb8# 0-1
+

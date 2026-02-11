@@ -4,7 +4,7 @@ enum TTFlag : int8_t {
     EXACT,       // PV-Nodes
     LOWERBOUND,  // Cut-Nodes
     UPPERBOUND,  // All-Nodes
-    NO_ENTRY     // Used in return value for lookup
+    NO_ENTRY
 };
 
 /**
@@ -29,15 +29,14 @@ struct TTEntry {
 class TranspositionTable {
    private:
     // Want sizeof(table) <= 128kb
-    static constexpr size_t TT_SIZE = 128 * 1024;
-
     // (128 * 1024) bytes / 24 bytes = 5461.33333...
     // Round down to 2^12 = 4096 for faster modulos
-    std::array<TTEntry, (1 << 12)> table;
+    static constexpr size_t TT_SIZE = 1 << 12;
+    std::array<TTEntry, TT_SIZE> table;
 
     constexpr uint64_t getIndex(uint64_t prehash) const {
-        // x mod 2^12 = x & 11
-        return prehash & ((1 << 12) - 1);
+        // x mod 2^12 = x & (2^12 - 1)
+        return prehash & (TT_SIZE - 1);
     }
 
    public:
