@@ -8,18 +8,27 @@
 #include <thread>
 
 void UciFrontend::searchWorker() {
-    while (true) {
-        // spin until a "go" command is received in the main thread
-        while (searchDepth.load(std::memory_order_acquire) == -1) {
-            std::this_thread::yield();
+    std::unique_lock<std::mutex> lock(mtx);
+
+    while (!terminateWorker) {
+        // sleep until search is requested
+        cv.wait(lock, [this] { return searchDepth != -1 || terminateWorker; });
+
+        // break out of loop if "quit" command received
+        if (terminateWorker) {
+            break;
         }
 
-        // write the result move to field
+        // unlock while searching to allow parsing commands in UCI loop
+        lock.unlock();
+
         Move best = engine.getMove(pos, searchDepth);
         std::cout << "bestmove " << Notation::moveToUci(best) << std::endl;
 
-        // write -1 to searchDepth to prevent search from rerunning
-        searchDepth.store(-1, std::memory_order_relaxed);
+        lock.lock();
+
+        // reset flag
+        searchDepth = -1;
     }
 }
 
@@ -28,8 +37,7 @@ void UciFrontend::run() {
     std::thread searchThread(&UciFrontend::searchWorker, this);
 
     std::string line;
-    bool running = true;
-    while (running && std::getline(std::cin, line)) {
+    while (std::getline(std::cin, line)) {
         std::stringstream ss(line);
 
         std::string cmd;
@@ -100,9 +108,13 @@ void UciFrontend::run() {
                 depth = 64;  // default fallback
             }
 
-            // write this depth to searchDepth; this will trigger the search worker to run and print
-            // the best move
-            searchDepth.store(depth, std::memory_order_relaxed);
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                searchDepth = depth;
+            }
+
+            // trigger the search worker to run
+            cv.notify_one();
         }
 
         // -------- Stop command --------
@@ -113,10 +125,17 @@ void UciFrontend::run() {
 
         // -------- Quit --------
         else if (cmd == "quit") {
-            running = false;
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                terminateWorker = true;
+            }
+
+            // clean up search thread
+            cv.notify_one();
+            searchThread.join();
+
+            // break out of loop
+            break;
         }
     }
-
-    // clean up search thread
-    searchThread.join();
 }
