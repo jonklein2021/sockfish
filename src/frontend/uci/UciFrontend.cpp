@@ -10,11 +10,13 @@
 void UciFrontend::searchWorker() {
     while (true) {
         // spin until a "go" command is received in the main thread
-        while (searchDepth.load(std::memory_order_relaxed) == -1);
+        while (searchDepth.load(std::memory_order_acquire) == -1) {
+            std::this_thread::yield();
+        }
 
         // write the result move to field
         Move best = engine.getMove(pos, searchDepth);
-        std::cout << "bestmove " << Notation::moveToUci(best) << "\n";
+        std::cout << "bestmove " << Notation::moveToUci(best) << std::endl;
 
         // write -1 to searchDepth to prevent search from rerunning
         searchDepth.store(-1, std::memory_order_relaxed);
