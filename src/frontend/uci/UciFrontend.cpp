@@ -32,6 +32,10 @@ void UciFrontend::searchWorker() {
     }
 }
 
+int UciFrontend::calculateTimeToMove(int totalTime, int increment) {
+    return totalTime / 25 + increment;
+}
+
 void UciFrontend::run() {
     // initialize search thread
     std::thread searchThread(&UciFrontend::searchWorker, this);
@@ -45,14 +49,14 @@ void UciFrontend::run() {
 
         // -------- UCI handshake --------
         if (cmd == "uci") {
-            std::cout << "id name Sockfish\n";
-            std::cout << "id author Jon Klein\n";
-            std::cout << "uciok\n";
+            std::cout << "id name Sockfish" << std::endl;
+            std::cout << "id author Jon Klein" << std::endl;
+            std::cout << "uciok" << std::endl;
         }
 
         // -------- Ready command --------
         else if (cmd == "isready") {
-            std::cout << "readyok\n";
+            std::cout << "readyok" << std::endl;
         }
 
         // -------- New game --------
@@ -95,18 +99,37 @@ void UciFrontend::run() {
 
         // -------- Go command --------
         else if (cmd == "go") {
-            int depth = 64;
+            int depth = 0;
+
+            // units are ms
+            int wtime = 0, winc = 0;
+            int btime = 0, binc = 0;
 
             std::string token;
             while (ss >> token) {
                 if (token == "depth") {
                     ss >> depth;
+                } else if (token == "wtime") {
+                    ss >> wtime;
+                } else if (token == "winc") {
+                    ss >> winc;
+                } else if (token == "btime") {
+                    ss >> btime;
+                } else if (token == "binc") {
+                    ss >> binc;
                 }
             }
 
+            // default fallback; necessary to handle "go depth inf"
             if (depth <= 0) {
-                depth = 64;  // default fallback
+                depth = 64;
             }
+
+            Color sideToMove = pos.getSideToMove();
+            int ourTime = sideToMove == WHITE ? wtime : btime;
+            int ourInc = sideToMove == WHITE ? winc : binc;
+            int timeToMove = calculateTimeToMove(ourTime, ourInc);
+            stopper.setTimeLimit(timeToMove);
 
             {
                 std::lock_guard<std::mutex> lock(mtx);

@@ -1,5 +1,5 @@
 #include "src/ai/Engine.h"
-#include "src/ai/search/ManualSearchStopper.h"
+#include "src/ai/search/SearchStopwatch.h"
 #include "src/core/Position.h"
 #include "src/core/types.h"
 
@@ -9,8 +9,8 @@
 class UciFrontend {
    private:
     Position pos;
+    SearchStopwatch stopper;
     Engine engine;
-    ManualSearchStopper stopper;
 
     // this mutex synchronizes writing to searchDepth
     std::mutex mtx;
@@ -27,9 +27,11 @@ class UciFrontend {
 
     void searchWorker();
 
+    int calculateTimeToMove(int totalTime, int increment);
+
    public:
     UciFrontend()
-        : pos(std::string(STARTING_POSITION_FEN)), engine(stopper) {}
+        : pos(std::string(STARTING_POSITION_FEN)), stopper(10000), engine(stopper) {}
 
     void run();
 };

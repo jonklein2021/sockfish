@@ -2,8 +2,8 @@
 
 #include <atomic>
 
-// Only aborts search when overrideAndAbort is called
-// Used by UCI loop only
+// Aborts search only when overrideAndAbort is called
+// Used for testing only
 class ManualSearchStopper : public SearchStopper {
    private:
     std::atomic<bool> stopped;

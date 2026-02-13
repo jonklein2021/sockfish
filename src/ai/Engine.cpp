@@ -2,6 +2,8 @@
 
 #include "src/core/Notation.h"
 
+#include <iostream>
+
 Engine::Engine(SearchStopper &searchStopper)
     : searcher(searchStopper) {}
 
@@ -12,7 +14,7 @@ Move Engine::getMove(Position &pos) {
 Move Engine::getMove(Position &pos, int maxDepth) {
     Move move = openingBook.getMove(pos);
     if (move != Move::none()) {
-        printf("info bookmove %s\n", Notation::moveToUci(move).c_str());
+        std::cout << "info bookmove " << Notation::moveToUci(move) << std::endl;
         return move;
     }
 

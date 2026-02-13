@@ -3,7 +3,7 @@
 #include "src/core/Notation.h"
 #include "src/movegen/MoveGenerator.h"
 
-#include <cstdio>
+#include <iostream>
 
 Searcher::Searcher(SearchStopper &searchStopper)
     : searchStopper(searchStopper) {}
@@ -19,8 +19,8 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     //     }
     // }
 
-    // every 2048 nodes, check for cancellation
-    if ((nodesSearched & 2047) == 0 && searchStopper.isStopped()) {
+    // check for cancellation
+    if (searchStopper.isStopped()) {
         return 0;
     }
 
@@ -107,8 +107,8 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
         alpha = staticEval;
     }
 
-    // every 2048 nodes, check for cancellation
-    if ((nodesSearched & 2047) == 0 && searchStopper.isStopped()) {
+    // check for cancellation
+    if (searchStopper.isStopped()) {
         return 0;
     }
 
@@ -172,8 +172,9 @@ Move Searcher::run(Position pos, int maxDepth) {
             bestFullySearchedMove = bestMove;
             bestFullySearchedEval = score;
 
-            printf("info depth %d bestmove %s score cp %d\n", depth,
-                   Notation::moveToUci(bestFullySearchedMove).c_str(), bestFullySearchedEval);
+            std::cout << "info depth " << depth << " ";
+            std::cout << "bestmove " << Notation::moveToUci(bestFullySearchedMove).c_str() << " ";
+            std::cout << "score cp " << bestFullySearchedEval << std::endl;
         }
     }
 

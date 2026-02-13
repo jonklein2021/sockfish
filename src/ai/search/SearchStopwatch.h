@@ -3,6 +3,7 @@
 #include <atomic>
 #include <chrono>
 
+// stops search after a fixed amount of time
 class SearchStopwatch : public SearchStopper {
    private:
     std::chrono::steady_clock::time_point startTime;
@@ -12,6 +13,8 @@ class SearchStopwatch : public SearchStopper {
 
    public:
     SearchStopwatch(int timeLimitMs);
+
+    void setTimeLimit(int timeLimitMs);
 
     void reset() override;
 

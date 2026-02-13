@@ -5,6 +5,10 @@
 SearchStopwatch::SearchStopwatch(int timeLimitMs)
     : timeLimit(timeLimitMs) {}
 
+void SearchStopwatch::setTimeLimit(int timeLimitMs) {
+    timeLimit = std::chrono::milliseconds(timeLimitMs);
+}
+
 void SearchStopwatch::reset() {
     startTime = std::chrono::steady_clock::now();
     stopped.store(false, std::memory_order_relaxed);
