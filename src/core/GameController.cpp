@@ -1,48 +1,18 @@
 #include "GameController.h"
 
-#include "src/core/Notation.h"
+#include "src/core/PGNWriter.h"
 #include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
 
-#include <chrono>
-#include <iomanip>
 #include <iostream>
 
-GameController::GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide)
+GameController::GameController(Position &startPos, Engine &engine, Color humanSide)
     : pos(startPos),
-      engine(std::move(engine)),
-      outFile(DEFAULT_OUT_FILE.data(), std::ios::out),
+      engine(engine),
+      pgnWriter(humanSide == WHITE ? "Human" : "Sockfish",
+                humanSide == BLACK ? "Human" : "Sockfish"),
       humanSide(humanSide) {
-    initPGN();
     MoveGenerator::generateLegal(legalMoves, startPos);
-}
-
-void GameController::initPGN() {
-    if (!outFile.is_open()) {
-        std::cerr << "Error: Failed to open PGN file\n";
-        return;
-    }
-
-    auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
-    std::tm *tm = std::localtime(&t);
-
-    outFile << "[Event \"Local Game\"]\n";
-    outFile << "[Site \"Local\"]\n";
-    outFile << "[Date \"" << std::put_time(tm, "%Y.%m.%d") << "\"]\n";
-    outFile << "[Round \"1\"]\n";
-    outFile << "[White \"" << (humanSide == WHITE ? "Human" : "Sockfish") << "\"]\n";
-    outFile << "[Black \"" << (humanSide == BLACK ? "Human" : "Sockfish") << "\"]\n";
-    outFile << "[Result \"*\"]\n\n";
-}
-
-void GameController::appendToPGN(const std::string &sanString) {
-    if (plyCount % 2 == 0) {
-        outFile << (plyCount / 2 + 1) << ". ";
-    }
-
-    outFile << sanString << " ";
-    plyCount++;
 }
 
 bool GameController::isGameOver() {
@@ -53,34 +23,17 @@ std::vector<Move> GameController::getLegalMoves() const {
     return legalMoves;
 }
 
-void GameController::makeHumanMove(Move move) {
-    // write SAN string to PGN file BEFORE move is made
-    std::string moveSAN = Notation::moveToSAN(move, pos);
-    appendToPGN(moveSAN);
+void GameController::makeManualMove(Move move) {
+    // write to PGN file BEFORE move is made
+    pgnWriter.writeMove(pos, move);
 
     // make move and update legal moves
     pos.makeMove(move);
     MoveGenerator::generateLegal(legalMoves, pos);
-
-    // log move
-    std::cout << moveSAN << " played\n";
-    std::cout << COLOR_NAMES[pos.getSideToMove()] << " to move\n";
 }
 
 void GameController::makeAIMove() {
-    Move best = engine->getMove(pos);
-
-    // write SAN string to PGN file BEFORE move is made
-    std::string moveSAN = Notation::moveToSAN(best, pos);
-    appendToPGN(moveSAN);
-
-    // make move and update legal moves
-    pos.makeMove(best);
-    MoveGenerator::generateLegal(legalMoves, pos);
-
-    // log move
-    std::cout << moveSAN << " played\n";
-    std::cout << COLOR_NAMES[pos.getSideToMove()] << " to move\n";
+    makeManualMove(engine.getMove(pos));
 }
 
 void GameController::handleEnd() {
@@ -122,7 +75,6 @@ void GameController::handleEnd() {
         }
     }
 
-    outFile << result << "\n";
-    outFile << "\n";
-    outFile.close();
+    pgnWriter.writeRawString(result + "\n");
+    pgnWriter.closeFile();
 }

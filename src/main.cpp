@@ -5,10 +5,6 @@
 #include "src/frontend/cli/CliFrontend.h"
 #include "src/frontend/gui/GuiFrontend.h"
 
-#include <cstdlib>
-#include <ctime>
-#include <memory>
-
 int main(int argc, char **argv) {
     // parse command line arguments
     Config cfg;
@@ -25,8 +21,8 @@ int main(int argc, char **argv) {
     // create base objects
     Position pos(cfg.fen);
     SearchStopwatch stopper(5000);
-    std::unique_ptr<Engine> engine = std::make_unique<Engine>(&stopper);
-    GameController gameController(pos, std::move(engine), cfg.humanSide);
+    Engine engine(&stopper);
+    GameController gameController(pos, engine, cfg.humanSide);
 
     // create and launch game
     if (cfg.useGui) {

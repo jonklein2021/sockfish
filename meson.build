@@ -49,6 +49,7 @@ common_sources = [
   'src/core/GameController.cpp',
   'src/core/Notation.cpp',
   'src/core/Position.cpp',
+  'src/core/PGNWriter.cpp',
   'src/core/PositionUtil.cpp',
   'src/core/Printers.cpp',
   'src/movegen/MoveGenerator.cpp'

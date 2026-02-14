@@ -1,29 +1,20 @@
 #pragma once
 
 #include "src/ai/Engine.h"
+#include "src/core/PGNWriter.h"
 #include "src/core/types.h"
-
-#include <fstream>
-#include <memory>
 
 class GameController {
    private:
     Position pos;
-    std::unique_ptr<Engine> engine;
+    Engine &engine;
     std::vector<Move> legalMoves;
-    std::ofstream outFile;
-
-    // used in PGN file
-    int plyCount;
+    PGNWriter pgnWriter;
 
     Color humanSide;
 
-    void initPGN();
-
-    void appendToPGN(const std::string &sanString);
-
    public:
-    GameController(Position &startPos, std::unique_ptr<Engine> engine, Color humanSide);
+    GameController(Position &startPos, Engine &engine, Color humanSide);
 
     constexpr Color getHumanSide() const {
         return humanSide;
@@ -41,7 +32,7 @@ class GameController {
 
     std::vector<Move> getLegalMoves() const;
 
-    void makeHumanMove(Move move);
+    void makeManualMove(Move move);
 
     void makeAIMove();
 

@@ -190,7 +190,7 @@ void GuiFrontend::update() {
             candidate.setPromotedPieceType(pieceToPT(promotion));
 
             // apply move to internal game state
-            game.makeHumanMove(candidate);
+            game.makeManualMove(candidate);
 
             // update the GUI with this move
             syncPositionToGUI();
@@ -306,7 +306,7 @@ void GuiFrontend::update() {
                 const int oldNumPieces = game.getPosition().getNumPieces();
 
                 // apply move to internal game state
-                game.makeHumanMove(candidate);
+                game.makeManualMove(candidate);
 
                 const bool isCapture = oldNumPieces > game.getPosition().getNumPieces();
 

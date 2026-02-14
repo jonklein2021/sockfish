@@ -124,7 +124,7 @@ void CliFrontend::run() {
     while (!game.isGameOver()) {
         if (game.getSideToMove() == game.getHumanSide()) {
             // get move from stdin
-            game.makeHumanMove(getMoveFromStdin());
+            game.makeManualMove(getMoveFromStdin());
         } else {
             // get move from engine
             game.makeAIMove();

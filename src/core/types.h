@@ -409,7 +409,7 @@ inline constexpr void removeCastleRights(CastleRights &current, CastleRights toR
 
 // file paths and GUI Constants
 constexpr std::string_view PGN_OUTPUT_PATH = "../games/";
-constexpr std::string_view DEFAULT_OUT_FILE = "../games/recent.txt";
+constexpr std::string_view DEFAULT_OUT_FILE = "../games/recent.pgn";
 constexpr std::string_view OPENING_BOOK_FILE = "../openings/baron30.bin";
 constexpr std::string_view SFX_PATH = "../src/assets/sfx/";
 constexpr std::string_view PIECE_TEXTURE_PATH = "../src/assets/pieces/";
