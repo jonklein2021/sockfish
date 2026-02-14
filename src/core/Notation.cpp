@@ -37,9 +37,15 @@ std::string moveToCoords(const Move &move) {
 
 Move uciToMove(const Position &pos, const std::string &uciString) {
     Move m = coordsToMove(pos, uciString);
+
     if (uciString.length() == 5) {
         m.setPromotedPieceType(pieceToPT(fenCharToPiece(uciString[4])));
     }
+
+    if (pieceToPT(pos.pieceAt(m.getFromSquare())) == PAWN && m.getToSquare() == pos.getEpSquare()) {
+        m.setFlag(Move::EN_PASSANT);
+    }
+
     return m;
 }
 

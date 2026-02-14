@@ -8,6 +8,7 @@ void MoveSorter::run(const Position &pos, std::vector<Move> &moveList) {
     });
 }
 
+// TODO: rate killer moves highly
 MoveScore MoveSorter::rateMove(const Position &pos, const Move &move) {
     Eval rating = 0;
     const PieceType movedPT = pieceToPT(pos.pieceAt(move.getFromSquare()));
@@ -22,14 +23,6 @@ MoveScore MoveSorter::rateMove(const Position &pos, const Move &move) {
     if (move.isPromotion()) {
         rating += 50 * pieceTypeValues[move.getPromotedPieceType()] - pieceTypeValues[movedPT];
     }
-
-    // commented out because rateMove shouldn't change Position state
-    // moves that put the opponent in check should also be checked early
-    // Position::Metadata prevMD = pos.makeMove(move);
-    // if (PositionUtil::isCheck(pos)) {
-    //     rating += 10;
-    // }
-    // pos.unmakeMove(move, prevMD);
 
     return rating;
 }

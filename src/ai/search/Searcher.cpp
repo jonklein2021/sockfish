@@ -20,6 +20,11 @@ void Searcher::abortSearch() {
 }
 
 Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
+    // check for cancellation every 2048 nodes
+    if ((nodesSearched & 2047) == 0 && searchStopper->isStopped()) {
+        return 0;
+    }
+
     // uint64_t h = pos.getHash();
 
     // check for a TT entry
@@ -29,11 +34,6 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     //         return tte.eval;
     //     }
     // }
-
-    // check for cancellation every 2048 nodes
-    if ((nodesSearched & 2047) == 0 && searchStopper->isStopped()) {
-        return 0;
-    }
 
     // base case: depth exceeded
     // NTS: what happens if it is checkmate at depth 0?

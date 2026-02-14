@@ -156,6 +156,9 @@ void UciFrontend::run() {
             {
                 std::lock_guard<std::mutex> lock(mtx);
                 terminateWorker = true;
+
+                // allows for quitting during search
+                engine.abortSearch();
             }
 
             // clean up search thread

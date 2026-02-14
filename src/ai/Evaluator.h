@@ -228,7 +228,6 @@ class Evaluator {
     };
     // clang-format on
 
-    // need to fine-tune these
     float getEndgameWeight(Position &pos) const;
 
     Eval getPSTableEval(float endgameWeight, Piece p, Square sq) const;

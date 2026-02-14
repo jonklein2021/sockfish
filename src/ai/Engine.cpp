@@ -19,12 +19,12 @@ Move Engine::getMove(Position &pos) {
     return getMove(pos, MAX_PLY);
 }
 
-Move Engine::getMove(Position &pos, int maxDepth) {
+Move Engine::getMove(Position &pos, int depth) {
     Move move = openingBook.getMove(pos);
     if (move != Move::none()) {
         std::cout << "info bookmove " << Notation::moveToUci(move) << std::endl;
         return move;
     }
 
-    return searcher.run(pos, maxDepth);
+    return searcher.run(pos, depth);
 }

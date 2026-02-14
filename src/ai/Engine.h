@@ -30,8 +30,8 @@ class Engine {
      * Gets the best move in a certain position
      *
      * @param pos to evaluate
-     * @param maxDepth to search to
+     * @param depth to search to
      * @return The best move to make
      */
-    Move getMove(Position &pos, int maxDepth);
+    Move getMove(Position &pos, int depth);
 };
