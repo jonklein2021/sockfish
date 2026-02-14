@@ -4,8 +4,16 @@
 
 #include <iostream>
 
-Engine::Engine(SearchStopper &searchStopper)
+Engine::Engine(SearchStopper *searchStopper)
     : searcher(searchStopper) {}
+
+void Engine::setSearchStopper(SearchStopper *searchStopper) {
+    searcher.setStopper(searchStopper);
+}
+
+void Engine::abortSearch() {
+    searcher.abortSearch();
+}
 
 Move Engine::getMove(Position &pos) {
     return getMove(pos, MAX_PLY);

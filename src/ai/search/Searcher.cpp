@@ -5,8 +5,19 @@
 
 #include <iostream>
 
-Searcher::Searcher(SearchStopper &searchStopper)
-    : searchStopper(searchStopper) {}
+Searcher::Searcher(SearchStopper *searchStopper)
+    : searchStopper(searchStopper) {
+    assert(searchStopper != nullptr);
+}
+
+void Searcher::setStopper(SearchStopper *searchStopper) {
+    assert(searchStopper != nullptr);
+    this->searchStopper = searchStopper;
+}
+
+void Searcher::abortSearch() {
+    searchStopper->overrideAndAbort();
+}
 
 Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth) {
     // uint64_t h = pos.getHash();
@@ -19,8 +30,8 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     //     }
     // }
 
-    // check for cancellation
-    if (searchStopper.isStopped()) {
+    // check for cancellation every 2048 nodes
+    if ((nodesSearched & 2047) == 0 && searchStopper->isStopped()) {
         return 0;
     }
 
@@ -60,7 +71,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         pos.unmakeMove(move, md);
 
         // exit if time is up
-        if (searchStopper.isStopped()) {
+        if (searchStopper->isStopped()) {
             return 0;
         }
 
@@ -107,8 +118,8 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
         alpha = staticEval;
     }
 
-    // check for cancellation
-    if (searchStopper.isStopped()) {
+    // check for cancellation every 2048 nodes
+    if ((nodesSearched & 2047) == 0 && searchStopper->isStopped()) {
         return 0;
     }
 
@@ -150,8 +161,9 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 // We make pos a copy to prevent the worker thread from leaving the
 // global pos reference in an invalid state
 Move Searcher::run(Position pos, int maxDepth) {
+    searchStopper->reset();
+
     // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
-    searchStopper.reset();
     nodesSearched = 0;
     bestMove = Move::none();
 
@@ -164,7 +176,7 @@ Move Searcher::run(Position pos, int maxDepth) {
         // TODO: ensure PV move is examined first
         Eval score = negamax(pos, -INFINITY, INFINITY, 0, depth);
 
-        if (searchStopper.isStopped()) {
+        if (searchStopper->isStopped()) {
             // exit early if search was cancelled
             break;
         } else {
@@ -173,6 +185,7 @@ Move Searcher::run(Position pos, int maxDepth) {
             bestFullySearchedEval = score;
 
             std::cout << "info depth " << depth << " ";
+            std::cout << "nodes " << nodesSearched << " ";
             std::cout << "bestmove " << Notation::moveToUci(bestFullySearchedMove).c_str() << " ";
             std::cout << "score cp " << bestFullySearchedEval << std::endl;
         }

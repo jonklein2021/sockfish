@@ -181,7 +181,7 @@ int main() {
     Position pos(fen);
     Evaluator evaluator;
     SearchStopwatch stopper(10000);
-    Engine engine(stopper);
+    Engine engine(&stopper);
     PolyglotBook openingBook;
     MoveGenerator::generateLegal(legalMoves, pos);
 

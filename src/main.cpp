@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     // create base objects
     Position pos(cfg.fen);
     SearchStopwatch stopper(5000);
-    std::unique_ptr<Engine> engine = std::make_unique<Engine>(stopper);
+    std::unique_ptr<Engine> engine = std::make_unique<Engine>(&stopper);
     GameController gameController(pos, std::move(engine), cfg.humanSide);
 
     // create and launch game

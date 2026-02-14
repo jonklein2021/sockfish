@@ -32,8 +32,8 @@ void UciFrontend::searchWorker() {
     }
 }
 
-int UciFrontend::calculateTimeToMove(int totalTime, int increment) {
-    return totalTime / 25 + increment;
+int UciFrontend::calculateTimeToMove(int remainingTime, int increment) {
+    return remainingTime / 25 + increment;
 }
 
 void UciFrontend::run() {
@@ -99,24 +99,24 @@ void UciFrontend::run() {
 
         // -------- Go command --------
         else if (cmd == "go") {
-            int depth = 0;
+            int depth = 64;
 
-            // units are ms
-            int wtime = 0, winc = 0;
-            int btime = 0, binc = 0;
+            // indexed by side to move, units are ms
+            std::array<int, 2> time = {-1, -1};
+            std::array<int, 2> inc = {0, 0};
 
             std::string token;
             while (ss >> token) {
                 if (token == "depth") {
                     ss >> depth;
                 } else if (token == "wtime") {
-                    ss >> wtime;
-                } else if (token == "winc") {
-                    ss >> winc;
+                    ss >> time[WHITE];
                 } else if (token == "btime") {
-                    ss >> btime;
+                    ss >> time[BLACK];
+                } else if (token == "winc") {
+                    ss >> inc[WHITE];
                 } else if (token == "binc") {
-                    ss >> binc;
+                    ss >> inc[BLACK];
                 }
             }
 
@@ -125,11 +125,16 @@ void UciFrontend::run() {
                 depth = 64;
             }
 
-            Color sideToMove = pos.getSideToMove();
-            int ourTime = sideToMove == WHITE ? wtime : btime;
-            int ourInc = sideToMove == WHITE ? winc : binc;
-            int timeToMove = calculateTimeToMove(ourTime, ourInc);
-            stopper.setTimeLimit(timeToMove);
+            if (time[WHITE] != -1) {
+                // times provided; set up time management
+                Color sideToMove = pos.getSideToMove();
+                int timeToMove = calculateTimeToMove(time[sideToMove], inc[sideToMove]);
+                timerStopper.setTimeLimit(timeToMove);
+                engine.setSearchStopper(&timerStopper);
+            } else {
+                // no time limit, use manual search stopper
+                engine.setSearchStopper(&manualStopper);
+            }
 
             {
                 std::lock_guard<std::mutex> lock(mtx);
@@ -143,7 +148,7 @@ void UciFrontend::run() {
         // -------- Stop command --------
         else if (cmd == "stop") {
             // this signals to the Searcher class to terminate ASAP
-            stopper.overrideAndAbort();
+            engine.abortSearch();
         }
 
         // -------- Quit --------

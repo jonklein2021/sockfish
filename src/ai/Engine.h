@@ -18,7 +18,11 @@ class Engine {
     PolyglotBook openingBook;
 
    public:
-    Engine(SearchStopper &searchStopper);
+    Engine(SearchStopper *searchStopper);
+
+    void setSearchStopper(SearchStopper *searchStopper);
+
+    void abortSearch();
 
     Move getMove(Position &pos);
 

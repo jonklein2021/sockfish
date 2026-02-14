@@ -15,7 +15,7 @@ class Searcher {
 
     Evaluator evaluator;
 
-    SearchStopper &searchStopper;
+    SearchStopper *searchStopper;
 
     // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
 
@@ -30,7 +30,11 @@ class Searcher {
     Eval quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply);
 
    public:
-    Searcher(SearchStopper &searchStopper);
+    Searcher(SearchStopper *searchStopper);
+
+    void setStopper(SearchStopper *searchStopper);
+
+    void abortSearch();
 
     Move run(Position pos, int maxDepth);
 };
