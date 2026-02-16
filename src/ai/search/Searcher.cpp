@@ -94,7 +94,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     // check for checkmate or stalemate
     if (legalMoveCount == 0) {
         // checkmate: return -500000 + ply to favor faster mates
-        if (PositionUtil::isCheck(pos)) {
+        if (pos.isCheck()) {
             return -INFINITY + ply;
         }
         // stalemate: return 0 to indicate draw

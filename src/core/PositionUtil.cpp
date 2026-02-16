@@ -3,14 +3,6 @@
 #include "src/bitboard/bit_tools.h"
 #include "src/movegen/MoveGenerator.h"
 
-bool PositionUtil::isCheck(Position &pos, Color defender) {
-    return pos.isAttacked(pos.getKingSquare(defender), otherColor(defender));
-}
-
-bool PositionUtil::isCheck(Position &pos) {
-    return isCheck(pos, pos.getSideToMove());
-}
-
 bool PositionUtil::insufficientMaterial(Position &pos) {
     // count all pieces
     const int pieceCount[12] = {
@@ -52,7 +44,7 @@ bool PositionUtil::isStalemate(Position &pos) {
 }
 
 bool PositionUtil::isCheckmate(Position &pos) {
-    return isCheck(pos) && isStalemate(pos);
+    return pos.isCheck() && isStalemate(pos);
 }
 
 bool PositionUtil::isTerminal(Position &pos) {

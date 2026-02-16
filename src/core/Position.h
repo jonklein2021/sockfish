@@ -8,7 +8,7 @@
 #include <string>
 
 /**
- * The game state includes the current position
+ * Includes where each piece is
  * whose turn it is, if each side can castle, etc.
  */
 class Position {
@@ -149,6 +149,14 @@ class Position {
             total += getBitCount(getPieceBB(p));
         }
         return total;
+    }
+
+    constexpr bool isCheck() const {
+        return isCheck(sideToMove);
+    }
+
+    constexpr bool isCheck(Color defender) const {
+        return isAttacked(md.kingSquares[defender], otherColor(defender));
     }
 
     /**

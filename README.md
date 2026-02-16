@@ -15,7 +15,7 @@ meson compile
 
 ## SPRT Testing Instructions
 ```
-./cutechess-cli -engine cmd=../../sockfish/build/sockfish -engine cmd=../../sockfish/build/sockfish -each proto=uci tc=10+0.10 -rounds 1 -debug
+./cutechess-cli -engine cmd=../../sockfish_baseline/build/sockfish -engine cmd=../../sockfish/build/sockfish -each proto=uci tc=10+0.10 -rounds 1 -debug
 ```
 
 ## Credits

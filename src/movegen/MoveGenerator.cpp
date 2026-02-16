@@ -133,7 +133,7 @@ inline void generateCastlingMoves(std::vector<Move> &moveList, Position &pos) {
         (Side == WHITE) ? std::array<Square, 2> {d1, c1} : std::array<Square, 2> {d8, c8};
 
     // prevent castling out of check
-    if (PositionUtil::isCheck(pos, Side)) {
+    if (pos.isCheck()) {
         return;
     }
 
