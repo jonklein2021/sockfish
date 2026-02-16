@@ -27,8 +27,13 @@ void GameController::makeManualMove(Move move) {
     // write to PGN file BEFORE move is made
     pgnWriter.writeMove(pos, move);
 
-    // make move and update legal moves
+    // make move
     pos.makeMove(move);
+
+    // log new move in engine history
+    engine.addToHashHistory(pos.getHash());
+
+    // update set of legal moves
     MoveGenerator::generateLegal(legalMoves, pos);
 }
 

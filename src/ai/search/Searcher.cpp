@@ -15,6 +15,10 @@ void Searcher::setStopper(SearchStopper *searchStopper) {
     this->searchStopper = searchStopper;
 }
 
+void Searcher::addToRepetitionTable(uint64_t posHash) {
+    repetitionTable.insert(posHash);
+}
+
 void Searcher::abortSearch() {
     searchStopper->overrideAndAbort();
 }
@@ -25,7 +29,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         return 0;
     }
 
-    // uint64_t h = pos.getHash();
+    uint64_t h = pos.getHash();
 
     // check for a TT entry
     // if (ply > 0) {
@@ -40,6 +44,14 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     if (depth == 0) {
         return quiescenceSearch(pos, alpha, beta, ply);
     }
+
+    // check for repetition
+    if (ply > 0 && repetitionTable.find(h) != repetitionTable.end()) {
+        return 0;
+    }
+
+    // add this position to the repetition table temporarily
+    repetitionTable.insert(h);
 
     // increment node search count
     nodesSearched++;
@@ -66,12 +78,13 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
         legalMoveCount++;
 
-        const Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
+        Eval score = -negamax(pos, -beta, -alpha, ply + 1, depth - 1);
 
         pos.unmakeMove(move, md);
 
         // exit if time is up
         if (searchStopper->isStopped()) {
+            repetitionTable.erase(h);
             return 0;
         }
 
@@ -86,10 +99,14 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
             // node fails high
             if (score >= beta) {
                 // tt.store(h, score, alpha, beta, depth);
+                repetitionTable.erase(h);
                 return beta;
             }
         }
     }
+
+    // erase this position from the repetition table
+    repetitionTable.erase(h);
 
     // check for checkmate or stalemate
     if (legalMoveCount == 0) {
@@ -123,6 +140,15 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
         return 0;
     }
 
+    // check for repetition unless from root
+    uint64_t h = pos.getHash();
+    if (repetitionTable.find(h) != repetitionTable.end()) {
+        return 0;
+    }
+
+    // add this position to the repetition table temporarily
+    repetitionTable.insert(h);
+
     // increment node search count
     nodesSearched++;
 
@@ -130,7 +156,7 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
     MoveGenerator::generatePseudolegalCaptures(captureMoves, pos);
     moveSorter.run(pos, captureMoves);
 
-    // examine every capture
+    // examine captures only
     for (const Move &move : captureMoves) {
         const Position::Metadata md = pos.makeMove(move);
 
@@ -143,16 +169,25 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 
         pos.unmakeMove(move, md);
 
-        // node fails high
-        if (score >= beta) {
-            return beta;
+        // exit if time is up
+        if (searchStopper->isStopped()) {
+            repetitionTable.erase(h);
+            return 0;
         }
 
         // found a better move
         if (score > alpha) {
             alpha = score;
+
+            // node fails high
+            if (score >= beta) {
+                repetitionTable.erase(h);
+                return beta;
+            }
         }
     }
+
+    repetitionTable.erase(h);
 
     // node fails low
     return alpha;

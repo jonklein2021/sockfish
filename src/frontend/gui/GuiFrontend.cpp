@@ -221,7 +221,7 @@ void GuiFrontend::update() {
         syncPositionToGUI();
 
         // play appropriate sound
-        if (PositionUtil::isCheck(game.getPosition())) {
+        if (game.getPosition().isCheck()) {
             sounds[CHECK_SOUND].play();
         } else if (isCapture) {
             sounds[CAPTURE_SOUND].play();
@@ -314,7 +314,7 @@ void GuiFrontend::update() {
                 syncPositionToGUI();
 
                 // play appropriate sound
-                if (PositionUtil::isCheck(game.getPosition())) {
+                if (game.getPosition().isCheck()) {
                     sounds[CHECK_SOUND].play();
                 } else if (isCapture) {
                     sounds[CAPTURE_SOUND].play();

@@ -7,6 +7,8 @@
 #include "src/core/Move.h"
 #include "src/core/Position.h"
 
+#include <unordered_set>
+
 class Searcher {
    private:
     // TranspositionTable tt;
@@ -18,6 +20,9 @@ class Searcher {
     SearchStopper *searchStopper;
 
     // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
+
+    // TODO: replace this with a vector or array
+    std::unordered_set<uint64_t> repetitionTable;
 
     uint64_t nodesSearched;
 
@@ -33,6 +38,8 @@ class Searcher {
     Searcher(SearchStopper *searchStopper);
 
     void setStopper(SearchStopper *searchStopper);
+
+    void addToRepetitionTable(uint64_t posHash);
 
     void abortSearch();
 

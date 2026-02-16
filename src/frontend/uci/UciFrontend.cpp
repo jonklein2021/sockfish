@@ -91,6 +91,11 @@ void UciFrontend::run() {
             if (movesToken == "moves") {
                 std::string moveStr;
                 while (ss >> moveStr) {
+                    // add the hash BEFORE the move is made because search checks the hash against
+                    // the repetition table before examining any moves
+                    engine.addToHashHistory(pos.getHash());
+
+                    // decode UCI move and apply it
                     Move m = Notation::uciToMove(pos, moveStr);
                     pos.makeMove(m);
                 }

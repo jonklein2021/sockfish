@@ -11,6 +11,10 @@ void Engine::setSearchStopper(SearchStopper *searchStopper) {
     searcher.setStopper(searchStopper);
 }
 
+void Engine::addToHashHistory(uint64_t posHash) {
+    searcher.addToRepetitionTable(posHash);
+}
+
 void Engine::abortSearch() {
     searcher.abortSearch();
 }

@@ -22,6 +22,8 @@ class Engine {
 
     void setSearchStopper(SearchStopper *searchStopper);
 
+    void addToHashHistory(uint64_t posHash);
+
     void abortSearch();
 
     Move getMove(Position &pos);

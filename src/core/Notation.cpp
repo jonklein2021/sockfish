@@ -147,7 +147,7 @@ std::string moveToSAN(const Move &move, Position &pos) {
     // ---- CHECK + MATE ----
     const Position::Metadata md = pos.makeMove(move);
 
-    if (PositionUtil::isCheck(pos)) {
+    if (pos.isCheck()) {
         // can't use legalMoves var from earlier because the position has changed
         san << (PositionUtil::isCheckmate(pos) ? "#" : "+");
     }
