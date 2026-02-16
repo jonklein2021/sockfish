@@ -2,12 +2,11 @@
 
 #include "src/ai/Evaluator.h"
 #include "src/ai/MoveSorter.h"
+#include "src/ai/RepetitionTable.h"
 #include "src/ai/TranspositionTable.h"
 #include "src/ai/search/SearchStopper.h"
 #include "src/core/Move.h"
 #include "src/core/Position.h"
-
-#include <unordered_set>
 
 class Searcher {
    private:
@@ -21,8 +20,7 @@ class Searcher {
 
     // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
 
-    // TODO: replace this with a vector or array
-    std::unordered_set<uint64_t> repetitionTable;
+    RepetitionTable repetitionTable;
 
     uint64_t nodesSearched;
 

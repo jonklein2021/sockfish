@@ -16,7 +16,7 @@ void Searcher::setStopper(SearchStopper *searchStopper) {
 }
 
 void Searcher::addToRepetitionTable(uint64_t posHash) {
-    repetitionTable.insert(posHash);
+    repetitionTable.push(posHash);
 }
 
 void Searcher::abortSearch() {
@@ -46,12 +46,12 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     }
 
     // check for repetition
-    if (ply > 0 && repetitionTable.find(h) != repetitionTable.end()) {
+    if (ply > 0 && repetitionTable.contains(h)) {
         return 0;
     }
 
     // add this position to the repetition table temporarily
-    repetitionTable.insert(h);
+    repetitionTable.push(h);
 
     // increment node search count
     nodesSearched++;
@@ -84,7 +84,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
         // exit if time is up
         if (searchStopper->isStopped()) {
-            repetitionTable.erase(h);
+            repetitionTable.pop();
             return 0;
         }
 
@@ -99,14 +99,14 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
             // node fails high
             if (score >= beta) {
                 // tt.store(h, score, alpha, beta, depth);
-                repetitionTable.erase(h);
+                repetitionTable.pop();
                 return beta;
             }
         }
     }
 
     // erase this position from the repetition table
-    repetitionTable.erase(h);
+    repetitionTable.pop();
 
     // check for checkmate or stalemate
     if (legalMoveCount == 0) {
@@ -142,12 +142,12 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 
     // check for repetition unless from root
     uint64_t h = pos.getHash();
-    if (repetitionTable.find(h) != repetitionTable.end()) {
+    if (repetitionTable.contains(h)) {
         return 0;
     }
 
     // add this position to the repetition table temporarily
-    repetitionTable.insert(h);
+    repetitionTable.push(h);
 
     // increment node search count
     nodesSearched++;
@@ -171,7 +171,7 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 
         // exit if time is up
         if (searchStopper->isStopped()) {
-            repetitionTable.erase(h);
+            repetitionTable.pop();
             return 0;
         }
 
@@ -181,13 +181,13 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 
             // node fails high
             if (score >= beta) {
-                repetitionTable.erase(h);
+                repetitionTable.pop();
                 return beta;
             }
         }
     }
 
-    repetitionTable.erase(h);
+    repetitionTable.pop();
 
     // node fails low
     return alpha;
