@@ -19,6 +19,10 @@ void Searcher::addToRepetitionTable(uint64_t posHash) {
     repetitionTable.push(posHash);
 }
 
+void Searcher::clearRepetitionTable() {
+    repetitionTable.clear();
+}
+
 void Searcher::abortSearch() {
     searchStopper->overrideAndAbort();
 }

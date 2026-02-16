@@ -39,6 +39,8 @@ class Searcher {
 
     void addToRepetitionTable(uint64_t posHash);
 
+    void clearRepetitionTable();
+
     void abortSearch();
 
     Move run(Position pos, int maxDepth);

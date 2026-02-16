@@ -4,7 +4,7 @@
 // Stack-based table that stores the hashes of positions visited in game and during search
 class RepetitionTable {
    private:
-    static constexpr std::size_t TABLE_SIZE = 512;
+    static constexpr int TABLE_SIZE = 512;
 
     std::array<uint64_t, TABLE_SIZE> table;
     int index = 0;
@@ -14,5 +14,8 @@ class RepetitionTable {
 
     void pop();
 
-    bool contains(uint64_t posHash);
+    bool contains(uint64_t posHash) const;
+
+    // consider clearing after pawn moves, captures, and castling
+    void clear();
 };

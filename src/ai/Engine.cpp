@@ -15,6 +15,10 @@ void Engine::addToHashHistory(uint64_t posHash) {
     searcher.addToRepetitionTable(posHash);
 }
 
+void Engine::clearHistory() {
+    searcher.clearRepetitionTable();
+}
+
 void Engine::abortSearch() {
     searcher.abortSearch();
 }

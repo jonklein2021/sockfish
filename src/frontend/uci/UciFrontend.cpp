@@ -84,6 +84,9 @@ void UciFrontend::run() {
                 pos.parseFen(fen);
             }
 
+            // Clear repetition table to avoid overflowing its index
+            engine.clearHistory();
+
             // Apply moves if present
             std::string movesToken;
             ss >> movesToken;

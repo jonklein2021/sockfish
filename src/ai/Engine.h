@@ -24,6 +24,8 @@ class Engine {
 
     void addToHashHistory(uint64_t posHash);
 
+    void clearHistory();
+
     void abortSearch();
 
     Move getMove(Position &pos);
