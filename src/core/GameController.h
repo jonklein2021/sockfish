@@ -8,7 +8,7 @@ class GameController {
    private:
     Position pos;
     Engine &engine;
-    std::vector<Move> legalMoves;
+    MoveList legalMoves;
     PGNWriter pgnWriter;
 
     Color humanSide;
@@ -30,7 +30,7 @@ class GameController {
 
     bool isGameOver();
 
-    std::vector<Move> getLegalMoves() const;
+    MoveList getLegalMoves() const;
 
     void makeManualMove(Move move);
 

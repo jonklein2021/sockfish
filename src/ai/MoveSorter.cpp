@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-void MoveSorter::run(const Position &pos, std::vector<Move> &moveList) {
+void MoveSorter::run(const Position &pos, MoveList &moveList) {
     std::sort(moveList.begin(), moveList.end(), [this, pos](const Move &a, const Move &b) {
         return rateMove(pos, a) > rateMove(pos, b);
     });

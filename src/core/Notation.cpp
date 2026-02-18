@@ -1,11 +1,13 @@
 
 #include "Notation.h"
 
+#include "src/core/MoveList.h"
 #include "src/core/PositionUtil.h"
 #include "src/core/types.h"
 #include "src/movegen/MoveGenerator.h"
 
 #include <sstream>
+#include <vector>
 
 namespace Notation {
 
@@ -65,7 +67,7 @@ std::string getSANDisambiguation(const Move &move, Position &pos) {
     std::vector<Square> attackers;
 
     // find moves of this piece that can move to the same square
-    std::vector<Move> legalMoves;
+    MoveList legalMoves;
     MoveGenerator::generatePtMoves(legalMoves, pos, pieceToPT(p));
     for (const Move &legalMove : legalMoves) {
         const Square src = legalMove.getFromSquare();

@@ -26,13 +26,13 @@ std::string CliFrontend::formatMove(const Move m) {
     }
 }
 
-std::string CliFrontend::getMoveSuggestion(const std::vector<Move> &legalMoves) {
+std::string CliFrontend::getMoveSuggestion(const MoveList &legalMoves) {
     Move random = legalMoves[std::rand() % legalMoves.size()];
     return formatMove(random);
 }
 
 Move CliFrontend::getMoveFromStdin() {
-    const std::vector<Move> legalMoves = game.getLegalMoves();
+    MoveList legalMoves = game.getLegalMoves();
     Move candidate;
     bool validMove = false;
     bool pawnPromoting = false;

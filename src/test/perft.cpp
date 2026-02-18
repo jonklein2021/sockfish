@@ -1,3 +1,4 @@
+#include "src/core/MoveList.h"
 #include "src/core/Position.h"
 #include "src/movegen/MoveGenerator.h"
 
@@ -5,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 uint64_t perft(Position &pos, int depth) {
     if (depth == 0) {
@@ -12,7 +14,7 @@ uint64_t perft(Position &pos, int depth) {
     }
 
     uint64_t nodes = 0;
-    std::vector<Move> moves;
+    MoveList moves;
     MoveGenerator::generatePseudolegal(moves, pos);
 
     for (const Move &m : moves) {

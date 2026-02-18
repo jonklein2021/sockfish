@@ -10,7 +10,7 @@ class CliFrontend {
 
     std::string formatMove(const Move m);
 
-    std::string getMoveSuggestion(const std::vector<Move> &legalMoves);
+    std::string getMoveSuggestion(const MoveList &legalMoves);
 
     /**
      * Get a move from stdin, loops until

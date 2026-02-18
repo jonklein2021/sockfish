@@ -164,6 +164,11 @@ constexpr std::string_view EMPTY_POSITION_FEN = "8/8/8/8/8/8/8/8 w - - 0 1";
 constexpr std::string_view WHITE_WINNING_FEN =
     "r4rkn/pbpq1p1p/2p3p1/7P/6P1/1P1B4/PBP1QP2/1K2R2R w - - 0 1";
 
+/**
+ * The deepest ply that can be searched
+ */
+constexpr int MAX_PLY = 128;
+
 // evals are ordered as follows:
 // -INFINITY, ..., -MATE_SCORE, ... mate in x for black ..., -MATE_BOUND,
 // positions favoring black, ... drawn positions ..., positions favoring white,

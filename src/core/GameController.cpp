@@ -19,7 +19,7 @@ bool GameController::isGameOver() {
     return PositionUtil::isTerminal(pos);
 }
 
-std::vector<Move> GameController::getLegalMoves() const {
+MoveList GameController::getLegalMoves() const {
     return legalMoves;
 }
 

@@ -172,7 +172,7 @@ void GuiFrontend::syncPositionToGUI() {
 
     // sync legalMovesBySq map
     legalMovesBySrcSq = std::vector<std::vector<Square>>(NO_SQ);
-    std::vector<Move> legalMoves = game.getLegalMoves();
+    MoveList legalMoves = game.getLegalMoves();
     for (const Move &move : legalMoves) {
         legalMovesBySrcSq[move.getFromSquare()].push_back(move.getToSquare());
     }

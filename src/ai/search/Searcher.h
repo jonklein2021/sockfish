@@ -16,9 +16,9 @@ class Searcher {
 
     Evaluator evaluator;
 
-    SearchStopper *searchStopper;
+    std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
 
-    // std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
+    SearchStopper *searchStopper;
 
     RepetitionTable repetitionTable;
 

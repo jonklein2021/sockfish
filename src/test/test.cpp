@@ -1,5 +1,6 @@
 #include "src/ai/Engine.h"
 #include "src/ai/search/SearchStopwatch.h"
+#include "src/core/MoveList.h"
 #include "src/core/Notation.h"
 #include "src/core/Position.h"
 #include "src/core/Printers.h"
@@ -11,7 +12,7 @@
 
 using std::string, std::cin, std::cout, std::endl;
 
-std::vector<Move> legalMoves;
+MoveList legalMoves;
 
 Move getMoveFromStdin(Position &pos) {
     Move candidate;

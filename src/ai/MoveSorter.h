@@ -1,7 +1,6 @@
 #include "src/core/Move.h"
+#include "src/core/MoveList.h"
 #include "src/core/Position.h"
-
-#include <vector>
 
 using MoveScore = int;
 
@@ -23,5 +22,5 @@ class MoveSorter {
     /**
      * Sorts list of moves in a given position according rateMove
      */
-    void run(const Position &pos, std::vector<Move> &moveList);
+    void run(const Position &pos, MoveList &moveList);
 };

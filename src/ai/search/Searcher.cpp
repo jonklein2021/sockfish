@@ -67,7 +67,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     int legalMoveCount = 0;
 
     // get pseudolegal moves and sort them
-    std::vector<Move> moves;
+    MoveList moves;
     MoveGenerator::generatePseudolegal(moves, pos);
     moveSorter.run(pos, moves);
 
@@ -156,7 +156,7 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
     // increment node search count
     nodesSearched++;
 
-    std::vector<Move> captureMoves;
+    MoveList captureMoves;
     MoveGenerator::generatePseudolegalCaptures(captureMoves, pos);
     moveSorter.run(pos, captureMoves);
 

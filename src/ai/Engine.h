@@ -6,13 +6,6 @@
 
 class Engine {
    private:
-    /**
-     * The maximum depth to search
-     *
-     * TODO: Increase this a lot after creating an interrupt mechanism
-     */
-    static constexpr int MAX_PLY = 64;
-
     Searcher searcher;
 
     PolyglotBook openingBook;

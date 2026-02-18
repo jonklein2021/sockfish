@@ -1,10 +1,9 @@
 #pragma once
 
 #include "src/core/Move.h"
+#include "src/core/MoveList.h"
 #include "src/core/Position.h"
 #include "src/core/PositionUtil.h"
-
-#include <vector>
 
 namespace MoveGenerator {
 
@@ -22,15 +21,15 @@ Move inline createCastlingMove() {
     return Move::create<Move::CASTLING>(KING_FROM, KING_TO);
 }
 
-void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt);
+void generatePtMoves(MoveList &result, Position &pos, PieceType pt);
 
-void generateLegal(std::vector<Move> &result, Position &pos);
+void generateLegal(MoveList &result, Position &pos);
 
 template<Color Side>
-void generatePseudolegal(std::vector<Move> &result, Position &pos);
+void generatePseudolegal(MoveList &result, Position &pos);
 
-void generatePseudolegal(std::vector<Move> &result, Position &pos);
+void generatePseudolegal(MoveList &result, Position &pos);
 
-void generatePseudolegalCaptures(std::vector<Move> &result, Position &pos);
+void generatePseudolegalCaptures(MoveList &result, Position &pos);
 
 }  // namespace MoveGenerator

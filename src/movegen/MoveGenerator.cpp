@@ -6,7 +6,6 @@
 #include "src/core/Position.h"
 #include "src/core/types.h"
 
-#include <algorithm>
 #include <cassert>
 
 namespace MoveGenerator {
@@ -17,7 +16,7 @@ static Bitboard enemyPieces = 0ull;
 static Bitboard occupiedSquares = 0ull;
 static Bitboard emptySquares = 0ull;
 
-inline bool isMoveLegal(Position &pos, Move &move) {
+inline bool isMoveLegal(Position &pos, const Move &move) {
     // simulate move
     const Position::Metadata md = pos.makeMove(move);
 
@@ -31,31 +30,29 @@ inline bool isMoveLegal(Position &pos, Move &move) {
     return isLegal;
 }
 
-inline bool isCaptureMove(Position &pos, Move &move) {
+inline bool isCaptureMove(Position &pos, const Move &move) {
     return pos.pieceAt(move.getToSquare()) != NO_PIECE || move.isEnPassant();
 }
 
 template<Move::Type MoveType>
-void appendMovesFromBitboard(std::vector<Move> &moveList, Bitboard moves, Square srcSq) {
-    forEachSquare(moves, [&](Square destSq) {
-        moveList.emplace_back(Move::create<MoveType>(srcSq, destSq));
-    });
+void appendMovesFromBitboard(MoveList &moveList, Bitboard moves, Square srcSq) {
+    forEachSquare(moves,
+                  [&](Square destSq) { moveList.add(Move::create<MoveType>(srcSq, destSq)); });
 }
 
 template<>
-inline void appendMovesFromBitboard<Move::PROMOTION>(std::vector<Move> &moveList,
-                                                     Bitboard moves,
-                                                     Square srcSq) {
+inline void
+appendMovesFromBitboard<Move::PROMOTION>(MoveList &moveList, Bitboard moves, Square srcSq) {
     forEachSquare(moves, [&](Square destSq) {
-        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, KNIGHT));
-        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, BISHOP));
-        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, ROOK));
-        moveList.emplace_back(Move::create<Move::PROMOTION>(srcSq, destSq, QUEEN));
+        moveList.add(Move::create<Move::PROMOTION>(srcSq, destSq, KNIGHT));
+        moveList.add(Move::create<Move::PROMOTION>(srcSq, destSq, BISHOP));
+        moveList.add(Move::create<Move::PROMOTION>(srcSq, destSq, ROOK));
+        moveList.add(Move::create<Move::PROMOTION>(srcSq, destSq, QUEEN));
     });
 }
 
 template<Color Side>
-inline void generatePawnMoves(std::vector<Move> &result, Position &pos) {
+inline void generatePawnMoves(MoveList &result, Position &pos) {
     constexpr Direction dir = Side == WHITE ? NORTH : SOUTH;
     constexpr Bitboard PROMOTING_RANK = Side == WHITE ? RANK_MASKS[RANK_8] : RANK_MASKS[RANK_1];
 
@@ -85,13 +82,13 @@ inline void generatePawnMoves(std::vector<Move> &result, Position &pos) {
         // handle en passant separately
         const Square epSq = pos.getEpSquare();
         if (epSq != NO_SQ && getBit(pseudoAttacksBB, epSq)) {
-            result.emplace_back(Move::create<Move::EN_PASSANT>(srcSq, epSq));
+            result.add(Move::create<Move::EN_PASSANT>(srcSq, epSq));
         }
     });
 }
 
 template<PieceType Pt, Color Side>
-inline void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos) {
+inline void generateSlidingPieceMoves(MoveList &result, Position &pos) {
     assert(Pt == BISHOP || Pt == ROOK || Pt == QUEEN);
     Bitboard bb = pos.getPieceBB(ptToPiece(Pt, Side));
     forEachSquare(bb, [&](Square srcSq) {
@@ -103,7 +100,7 @@ inline void generateSlidingPieceMoves(std::vector<Move> &result, Position &pos) 
 
 // handles knight and king
 template<PieceType Pt, Color Side>
-inline void generateHoppingPieceMoves(std::vector<Move> &result, Position &pos) {
+inline void generateHoppingPieceMoves(MoveList &result, Position &pos) {
     assert(Pt == KING || Pt == KNIGHT);
     constexpr MoveMaskTable pseudoAttackTable = Pt == KING ? KING_MASKS : KNIGHT_MASKS;
     Bitboard bb = pos.getPieceBB(ptToPiece(Pt, Side));
@@ -114,7 +111,7 @@ inline void generateHoppingPieceMoves(std::vector<Move> &result, Position &pos) 
 }
 
 template<Color Side>
-inline void generateCastlingMoves(std::vector<Move> &moveList, Position &pos) {
+inline void generateCastlingMoves(MoveList &moveList, Position &pos) {
     constexpr Color enemy = otherColor(Side);
 
     constexpr CastleRights KINGSIDE = Side == WHITE ? WHITE_OO : BLACK_OO;
@@ -142,18 +139,18 @@ inline void generateCastlingMoves(std::vector<Move> &moveList, Position &pos) {
     // --- Kingside ---
     if (hasCastleRights(cr, KINGSIDE) && (emptySquares & EMPTY_K) == EMPTY_K &&
         !pos.isAttacked<enemy>(PROTECTED_K[0]) && !pos.isAttacked<enemy>(PROTECTED_K[1])) {
-        moveList.push_back(createCastlingMove<false, Side>());
+        moveList.add(createCastlingMove<false, Side>());
     }
 
     // --- Queenside ---
     if (hasCastleRights(cr, QUEENSIDE) && (emptySquares & EMPTY_Q) == EMPTY_Q &&
         !pos.isAttacked<enemy>(PROTECTED_Q[0]) && !pos.isAttacked<enemy>(PROTECTED_Q[1])) {
-        moveList.push_back(createCastlingMove<true, Side>());
+        moveList.add(createCastlingMove<true, Side>());
     }
 }
 
 template<Color Side>
-void generatePseudolegal(std::vector<Move> &result, Position &pos) {
+void generatePseudolegal(MoveList &result, Position &pos) {
     // update occupancy variables for quick access later
     friendlyPieces = pos.getBoard().getOccupancy(Side);
     enemyPieces = pos.getBoard().getOccupancy(otherColor(Side));
@@ -176,7 +173,7 @@ void generatePseudolegal(std::vector<Move> &result, Position &pos) {
     generateCastlingMoves<Side>(result, pos);
 }
 
-void generatePseudolegal(std::vector<Move> &result, Position &pos) {
+void generatePseudolegal(MoveList &result, Position &pos) {
     if (pos.getSideToMove() == WHITE) {
         generatePseudolegal<WHITE>(result, pos);
     } else {
@@ -185,29 +182,35 @@ void generatePseudolegal(std::vector<Move> &result, Position &pos) {
 }
 
 // N.B: this is only really used by the UI to check user moves
-void generateLegal(std::vector<Move> &result, Position &pos) {
+void generateLegal(MoveList &result, Position &pos) {
     result.clear();
-    std::vector<Move> pseudolegal;
+    MoveList pseudolegal;
     generatePseudolegal(pseudolegal, pos);
 
     // only copy non-violating moves to legal vector
-    std::copy_if(pseudolegal.begin(), pseudolegal.end(), std::back_inserter(result),
-                 [&](Move m) { return isMoveLegal(pos, m); });
+    for (const Move &m : pseudolegal) {
+        if (isMoveLegal(pos, m)) {
+            result.add(m);
+        }
+    }
 }
 
 // used for quiescence search
-void generatePseudolegalCaptures(std::vector<Move> &result, Position &pos) {
+void generatePseudolegalCaptures(MoveList &result, Position &pos) {
     result.clear();
-    std::vector<Move> pseudolegal;
+    MoveList pseudolegal;
     generatePseudolegal(pseudolegal, pos);
 
-    // only copy legal captures
-    std::copy_if(pseudolegal.begin(), pseudolegal.end(), std::back_inserter(result),
-                 [&](Move m) { return isCaptureMove(pos, m); });
+    // only copy captures
+    for (const Move &m : pseudolegal) {
+        if (isCaptureMove(pos, m)) {
+            result.add(m);
+        }
+    }
 }
 
 template<Color Side>
-void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt) {
+void generatePtMoves(MoveList &result, Position &pos, PieceType pt) {
     switch (pt) {
         case PAWN: generatePawnMoves<Side>(result, pos); break;
         case KNIGHT: generateHoppingPieceMoves<KNIGHT, Side>(result, pos); break;
@@ -219,7 +222,7 @@ void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt) {
     }
 }
 
-void generatePtMoves(std::vector<Move> &result, Position &pos, PieceType pt) {
+void generatePtMoves(MoveList &result, Position &pos, PieceType pt) {
     if (pos.getSideToMove() == WHITE) {
         generatePtMoves<WHITE>(result, pos, pt);
     } else {

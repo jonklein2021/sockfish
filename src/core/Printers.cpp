@@ -1,8 +1,11 @@
 #include "Printers.h"
 
+#include "src/core/MoveList.h"
+
 #include <bitset>
 #include <iomanip>
 #include <iostream>
+#include <vector>
 
 void Printers::printBitboard(const Bitboard bitboard) {
     std::ostringstream out;
@@ -94,7 +97,7 @@ void Printers::printPieceValues(const Position &pos) {
     std::cout << out.str() << std::endl;
 }
 
-void Printers::printMoveList(const std::vector<Move> &moveList, const Position &pos) {
+void Printers::printMoveList(const MoveList &moveList, const Position &pos) {
     // srcSq -> {Piece, {dstSq0, ..., dstSqN}}
     std::array<std::pair<Piece, std::vector<Square>>, 64> movesFromSquares;
     bool kCastle = false, qCastle = false;

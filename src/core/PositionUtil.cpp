@@ -33,12 +33,12 @@ bool PositionUtil::is50MoveRuleDraw(const Position &pos) {
 }
 
 // TODO: Add more conditions to ensure this doesn't run for checkmate situations
-bool PositionUtil::isStalemate(const std::vector<Move> &legalMoves) {
+bool PositionUtil::isStalemate(const MoveList &legalMoves) {
     return legalMoves.empty();
 }
 
 bool PositionUtil::isStalemate(Position &pos) {
-    std::vector<Move> moves;
+    MoveList moves;
     MoveGenerator::generateLegal(moves, pos);
     return isStalemate(moves);
 }
