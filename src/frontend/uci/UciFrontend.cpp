@@ -33,7 +33,7 @@ void UciFrontend::searchWorker() {
 }
 
 int UciFrontend::calculateTimeToMove(int remainingTime, int increment) {
-    return remainingTime / 25 + increment;
+    return remainingTime / 15 + increment / 2;
 }
 
 void UciFrontend::run() {

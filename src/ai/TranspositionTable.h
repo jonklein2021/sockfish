@@ -48,7 +48,7 @@ class TranspositionTable {
 
     // Creates and stores a TT entry. Note that this always succeeds, so it will overwrite the
     // existing entry in the case of a collision or a duplicate.
-    void store(uint64_t posHash, Eval eval, int alpha, int beta, int depth);
+    void store(uint64_t posHash, Eval eval, int alpha, int beta, int ply, int depth);
 
     void clear();
 };

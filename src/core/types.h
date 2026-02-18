@@ -161,13 +161,31 @@ constexpr std::string_view STARTING_POSITION_FEN =
 
 constexpr std::string_view EMPTY_POSITION_FEN = "8/8/8/8/8/8/8/8 w - - 0 1";
 
+constexpr std::string_view WHITE_WINNING_FEN =
+    "r4rkn/pbpq1p1p/2p3p1/7P/6P1/1P1B4/PBP1QP2/1K2R2R w - - 0 1";
+
+// evals are ordered as follows:
+// -INFINITY, ..., -MATE_SCORE, ... mate in x for black ..., -MATE_BOUND,
+// positions favoring black, ... drawn positions ..., positions favoring white,
+// MATE_BOUND, ... mate in x for white ..., MATE_SCORE, ..., INFINITY
+
+// the "mate score range" in between MATE_SCORE and MATE_BOUND is necessary for the TT to detect
+// mate in x scores and adjust them accordingly
+
+// used for initial alpha/beta bounds
+constexpr Eval INFINITY = 500000;
+
+// the exclusive upper bound of mate score range
+constexpr Eval MATE_SCORE = 490000;
+
+// the inclusive lower bound of mate score range
+constexpr Eval MATE_BOUND = 480000;
+
 /**
  * Piece values for material evaluation
  * PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE
  */
-constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, 500000, 0};
-
-constexpr Eval INFINITY = pieceTypeValues[KING];
+constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, INFINITY, 0};
 
 // clang-format off
 enum Square : uint8_t {

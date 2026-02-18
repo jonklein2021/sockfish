@@ -12,8 +12,17 @@ TTEntry TranspositionTable::lookup(uint64_t posHash, int depth) const {
     return TTEntry {};
 }
 
-void TranspositionTable::store(uint64_t posHash, Eval eval, int alpha, int beta, int depth) {
+void TranspositionTable::store(
+    uint64_t posHash, Eval eval, int alpha, int beta, int ply, int depth) {
     const TTFlag flag = (eval <= alpha) ? UPPERBOUND : (eval >= beta) ? LOWERBOUND : EXACT;
+
+    // adjust eval for mate scores
+    if (eval >= MATE_BOUND) {
+        eval -= ply;
+    } else if (eval <= -MATE_BOUND) {
+        eval += ply;
+    }
+
     table[getIndex(posHash)] = {posHash, depth, eval, flag};
 }
 

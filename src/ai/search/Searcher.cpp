@@ -36,12 +36,12 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     uint64_t h = pos.getHash();
 
     // check for a TT entry
-    // if (ply > 0) {
-    //     TTEntry tte = tt.lookup(h, depth);
-    //     if (tte.flag != TTFlag::NO_ENTRY) {
-    //         return tte.eval;
-    //     }
-    // }
+    if (ply > 0) {
+        TTEntry tte = tt.lookup(h, depth);
+        if (tte.flag != TTFlag::NO_ENTRY) {
+            return tte.eval;
+        }
+    }
 
     // base case: depth exceeded
     // NTS: what happens if it is checkmate at depth 0?
@@ -61,7 +61,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     nodesSearched++;
 
     // save original alpha for TT record
-    // const Eval originalAlpha = alpha;
+    const Eval originalAlpha = alpha;
 
     // count legal moves to detect checkmate/stalemate after loop
     int legalMoveCount = 0;
@@ -102,7 +102,7 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
             // node fails high
             if (score >= beta) {
-                // tt.store(h, score, alpha, beta, depth);
+                tt.store(h, score, alpha, beta, ply, depth);
                 repetitionTable.pop();
                 return beta;
             }
@@ -114,16 +114,16 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
     // check for checkmate or stalemate
     if (legalMoveCount == 0) {
-        // checkmate: return -500000 + ply to favor faster mates
+        // checkmate: add ply to favor faster mates
         if (pos.isCheck()) {
-            return -INFINITY + ply;
+            return -MATE_SCORE + ply;
         }
         // stalemate: return 0 to indicate draw
         return 0;
     }
 
     // save result in transposition table
-    // tt.store(h, alpha, originalAlpha, beta, depth);
+    tt.store(h, alpha, originalAlpha, beta, ply, depth);
 
     // node fails low
     return alpha;

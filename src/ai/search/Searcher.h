@@ -10,7 +10,7 @@
 
 class Searcher {
    private:
-    // TranspositionTable tt;
+    TranspositionTable tt;
 
     MoveSorter moveSorter;
 
