@@ -34,5 +34,9 @@ Move Engine::getMove(Position &pos, int depth) {
         return move;
     }
 
+    return getSearchedMove(pos, depth);
+}
+
+Move Engine::getSearchedMove(Position &pos, int depth) {
     return searcher.run(pos, depth);
 }

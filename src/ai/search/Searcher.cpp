@@ -1,8 +1,8 @@
 #include "Searcher.h"
 
-#include "src/core/Notation.h"
 #include "src/movegen/MoveGenerator.h"
 
+#include <chrono>
 #include <iostream>
 
 Searcher::Searcher(SearchStopper *searchStopper)
@@ -210,23 +210,33 @@ Move Searcher::run(Position pos, int maxDepth) {
     Move bestFullySearchedMove = Move::none();
     Eval bestFullySearchedEval = -INFINITY;
 
-    // iterative deepening
+    // for reporting NPS
+    auto start = std::chrono::steady_clock::now();
+
+    // iterative deepeninuug
     for (int depth = 1; depth <= maxDepth; depth++) {
         // TODO: ensure PV move is examined first
         Eval score = negamax(pos, -INFINITY, INFINITY, 0, depth);
+        auto end = std::chrono::steady_clock::now();
+        int duration_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
+        // exit early if search was cancelled
         if (searchStopper->isStopped()) {
-            // exit early if search was cancelled
             break;
-        } else {
-            // otherwise, update the top move
-            bestFullySearchedMove = bestMove;
-            bestFullySearchedEval = score;
+        }
 
-            std::cout << "info depth " << depth << " ";
-            std::cout << "nodes " << nodesSearched << " ";
-            std::cout << "bestmove " << Notation::moveToUci(bestFullySearchedMove).c_str() << " ";
-            std::cout << "score cp " << bestFullySearchedEval << std::endl;
+        // otherwise, update the top move
+        bestFullySearchedMove = bestMove;
+        bestFullySearchedEval = score;
+
+        // UCI info out
+        std::cout << "info depth " << depth << " ";
+        std::cout << "nodes " << nodesSearched << " ";
+        std::cout << "score cp " << bestFullySearchedEval << std::endl;
+
+        if (duration_ms > 1000) {
+            std::cout << "info nps " << 1000 * nodesSearched / duration_ms << std::endl;
         }
     }
 

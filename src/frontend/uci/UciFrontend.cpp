@@ -22,7 +22,8 @@ void UciFrontend::searchWorker() {
         // unlock while searching to allow parsing commands in UCI loop
         lock.unlock();
 
-        Move best = engine.getMove(pos, searchDepth);
+        Move best = useOwnBook ? engine.getMove(pos, searchDepth)
+                               : engine.getSearchedMove(pos, searchDepth);
         std::cout << "bestmove " << Notation::moveToUci(best) << std::endl;
 
         lock.lock();
@@ -51,7 +52,34 @@ void UciFrontend::run() {
         if (cmd == "uci") {
             std::cout << "id name Sockfish" << std::endl;
             std::cout << "id author Jon Klein" << std::endl;
+            std::cout << "option name OwnBook type check default true" << std::endl;
             std::cout << "uciok" << std::endl;
+        }
+
+        // -------- Set Option command --------
+        else if (cmd == "setoption") {
+            std::string name;
+            ss >> name;
+            if (name != "name") {
+                continue;
+            }
+
+            std::string option;
+            ss >> option;
+
+            if (option == "OwnBook") {
+                std::string value;
+                ss >> value;
+                if (value != "value") {
+                    continue;
+                }
+
+                std::string checked;
+                ss >> checked;
+                if (checked == "false") {
+                    useOwnBook = false;
+                }
+            }
         }
 
         // -------- Ready command --------
@@ -133,15 +161,17 @@ void UciFrontend::run() {
                 depth = 64;
             }
 
-            if (time[WHITE] != -1) {
+            Color sideToMove = pos.getSideToMove();
+            if (time[sideToMove] != -1) {
                 // times provided; set up time management
-                Color sideToMove = pos.getSideToMove();
                 int timeToMove = calculateTimeToMove(time[sideToMove], inc[sideToMove]);
                 timerStopper.setTimeLimit(timeToMove);
                 engine.setSearchStopper(&timerStopper);
+                puts("using time management stoppper");
             } else {
                 // no time limit, use manual search stopper
                 engine.setSearchStopper(&manualStopper);
+                puts("using manual stoppper");
             }
 
             {

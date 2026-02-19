@@ -31,4 +31,7 @@ class Engine {
      * @return The best move to make
      */
     Move getMove(Position &pos, int depth);
+
+    // same as getMove but never queries openingBook
+    Move getSearchedMove(Position &pos, int depth);
 };

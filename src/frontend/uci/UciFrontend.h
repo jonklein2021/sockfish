@@ -27,6 +27,8 @@ class UciFrontend {
     // only set to true when the "quit" command is received
     bool terminateWorker = false;
 
+    bool useOwnBook = true;
+
     void searchWorker();
 
     // move this elsewhere?
