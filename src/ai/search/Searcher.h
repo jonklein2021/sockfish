@@ -2,6 +2,7 @@
 
 #include "src/ai/Evaluator.h"
 #include "src/ai/MoveSorter.h"
+#include "src/ai/PVTable.h"
 #include "src/ai/RepetitionTable.h"
 #include "src/ai/TranspositionTable.h"
 #include "src/ai/search/SearchStopper.h"
@@ -16,17 +17,13 @@ class Searcher {
 
     Evaluator evaluator;
 
-    std::array<std::array<Move, MAX_PLY>, MAX_PLY> pvTable;
+    PVTable pvTable;
 
     SearchStopper *searchStopper;
 
     RepetitionTable repetitionTable;
 
     uint64_t nodesSearched;
-
-    // Temporarily stores the best move for easy access during negamax
-    // TODO: Delete this after creating PV table
-    Move bestMove;
 
     Eval negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth);
 

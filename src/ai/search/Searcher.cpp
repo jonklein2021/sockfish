@@ -94,11 +94,11 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
         // found a better move
         if (score > alpha) {
+            // PV node found
             alpha = score;
-            // update bestMove only if from root
-            if (ply == 0) {
-                bestMove = move;
-            }
+
+            // update PV table
+            pvTable.update(move, ply);
 
             // node fails high
             if (score >= beta) {
@@ -114,6 +114,9 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
     // check for checkmate or stalemate
     if (legalMoveCount == 0) {
+        // zero out PV length at this ply to cut off PV line
+        pvTable.clearLength(ply);
+
         // checkmate: add ply to favor faster mates
         if (pos.isCheck()) {
             return -MATE_SCORE + ply;
@@ -204,18 +207,13 @@ Move Searcher::run(Position pos, int maxDepth) {
 
     // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
     nodesSearched = 0;
-    bestMove = Move::none();
-
-    // these variables are only updated for full searches
-    Move bestFullySearchedMove = Move::none();
-    Eval bestFullySearchedEval = -INFINITY;
+    pvTable.clear();
 
     // for reporting NPS
     auto start = std::chrono::steady_clock::now();
 
     // iterative deepeninuug
     for (int depth = 1; depth <= maxDepth; depth++) {
-        // TODO: ensure PV move is examined first
         Eval score = negamax(pos, -INFINITY, INFINITY, 0, depth);
         auto end = std::chrono::steady_clock::now();
         int duration_ms =
@@ -226,19 +224,34 @@ Move Searcher::run(Position pos, int maxDepth) {
             break;
         }
 
-        // otherwise, update the top move
-        bestFullySearchedMove = bestMove;
-        bestFullySearchedEval = score;
+        // -------- UCI -------- //
 
-        // UCI info out
+        // print current depth
         std::cout << "info depth " << depth << " ";
-        std::cout << "nodes " << nodesSearched << " ";
-        std::cout << "score cp " << bestFullySearchedEval << std::endl;
 
+        // print number of nodes searched so far
+        std::cout << "nodes " << nodesSearched << " ";
+
+        // print evaluation or mate in x
+        if (abs(score) >= MATE_BOUND) {
+            int mateIn = (MATE_SCORE - abs(score) + 1) / 2;
+            if (score > 0) {
+                std::cout << "score mate " << mateIn << " ";
+            } else {
+                std::cout << "score mate -" << mateIn << " ";
+            }
+        } else {
+            std::cout << "score cp " << score << " ";
+        }
+
+        // print PV line
+        std::cout << "pv " << pvTable.getBestLine() << std::endl;
+
+        // print nodes per second if search takes longer than a second
         if (duration_ms > 1000) {
             std::cout << "info nps " << 1000 * nodesSearched / duration_ms << std::endl;
         }
     }
 
-    return bestFullySearchedMove;
+    return pvTable.getBestMove();
 }

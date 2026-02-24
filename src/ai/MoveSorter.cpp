@@ -8,7 +8,7 @@ void MoveSorter::run(const Position &pos, MoveList &moveList) {
     });
 }
 
-// TODO: rate killer moves highly
+// TODO: rate PV move highest and killer moves highly
 MoveScore MoveSorter::rateMove(const Position &pos, const Move &move) {
     Eval rating = 0;
     const PieceType movedPT = pieceToPT(pos.pieceAt(move.getFromSquare()));

@@ -167,11 +167,9 @@ void UciFrontend::run() {
                 int timeToMove = calculateTimeToMove(time[sideToMove], inc[sideToMove]);
                 timerStopper.setTimeLimit(timeToMove);
                 engine.setSearchStopper(&timerStopper);
-                puts("using time management stoppper");
             } else {
                 // no time limit, use manual search stopper
                 engine.setSearchStopper(&manualStopper);
-                puts("using manual stoppper");
             }
 
             {

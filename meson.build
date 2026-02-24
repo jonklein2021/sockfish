@@ -42,6 +42,7 @@ common_sources = [
   'src/ai/Evaluator.cpp',
   'src/ai/MoveSorter.cpp',
   'src/ai/PolyglotBook.cpp',
+  'src/ai/PVTable.cpp',
   'src/ai/RepetitionTable.cpp',
   'src/ai/TranspositionTable.cpp',
   'src/ai/search/ManualSearchStopper.cpp',
