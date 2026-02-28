@@ -35,10 +35,20 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
     uint64_t h = pos.getHash();
 
-    // check for a TT entry
     if (ply > 0) {
-        TTEntry tte = tt.lookup(h, depth);
-        if (tte.flag != TTFlag::NO_ENTRY) {
+        // check for repetition
+        if (repetitionTable.contains(h)) {
+            return 0;
+        }
+
+        // probe TT
+        TTEntry tte = tt.lookup(h, ply, depth);
+        if (tte.flag == TTFlag::EXACT) {
+            pvTable.clearLength(ply);
+            return tte.eval;
+        } else if (tte.flag == TTFlag::LOWERBOUND && tte.eval >= beta) {
+            return tte.eval;
+        } else if (tte.flag == TTFlag::UPPERBOUND && tte.eval <= alpha) {
             return tte.eval;
         }
     }
@@ -49,19 +59,14 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
         return quiescenceSearch(pos, alpha, beta, ply);
     }
 
-    // check for repetition
-    if (ply > 0 && repetitionTable.contains(h)) {
-        return 0;
-    }
-
-    // add this position to the repetition table temporarily
+    // add this position to the repetition table
     repetitionTable.push(h);
 
     // increment node search count
     nodesSearched++;
 
     // save original alpha for TT record
-    const Eval originalAlpha = alpha;
+    Eval originalAlpha = alpha;
 
     // count legal moves to detect checkmate/stalemate after loop
     int legalMoveCount = 0;
@@ -70,9 +75,8 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
     MoveList moves;
     MoveGenerator::generatePseudolegal(moves, pos);
     moveSorter.run(pos, moves);
-
     for (const Move &move : moves) {
-        const Position::Metadata md = pos.makeMove(move);
+        Position::Metadata md = pos.makeMove(move);
 
         // move wasn't legal; undo it and skip the rest of this loop
         if (!pos.isLegal()) {
@@ -94,17 +98,16 @@ Eval Searcher::negamax(Position &pos, Eval alpha, Eval beta, int ply, int depth)
 
         // found a better move
         if (score > alpha) {
-            // PV node found
             alpha = score;
-
-            // update PV table
-            pvTable.update(move, ply);
 
             // node fails high
             if (score >= beta) {
-                tt.store(h, score, alpha, beta, ply, depth);
+                tt.store(h, score, originalAlpha, beta, ply, depth);
                 repetitionTable.pop();
                 return beta;
+            } else {
+                // update PV table only if PV node
+                pvTable.update(move, ply);
             }
         }
     }
@@ -147,27 +150,19 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
         return 0;
     }
 
-    // check for repetition unless from root
-    uint64_t h = pos.getHash();
-    if (repetitionTable.contains(h)) {
-        return 0;
-    }
-
-    // add this position to the repetition table temporarily
-    repetitionTable.push(h);
-
     // increment node search count
     nodesSearched++;
 
-    MoveList captureMoves;
-    MoveGenerator::generatePseudolegalCaptures(captureMoves, pos);
-    moveSorter.run(pos, captureMoves);
+    // generate pseudolegal moves and filter later
+    MoveList moves;
+    MoveGenerator::generatePseudolegal(moves, pos);
+    moveSorter.run(pos, moves);
 
-    // examine captures only
-    for (const Move &move : captureMoves) {
-        const Position::Metadata md = pos.makeMove(move);
+    for (const Move &move : moves) {
+        Position::Metadata md = pos.makeMove(move);
 
-        if (!pos.isLegal()) {
+        // examine captures only
+        if (!pos.isLegal() || md.capturedPiece == NO_PIECE) {
             pos.unmakeMove(move, md);
             continue;
         }
@@ -178,7 +173,6 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 
         // exit if time is up
         if (searchStopper->isStopped()) {
-            repetitionTable.pop();
             return 0;
         }
 
@@ -188,13 +182,10 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 
             // node fails high
             if (score >= beta) {
-                repetitionTable.pop();
                 return beta;
             }
         }
     }
-
-    repetitionTable.pop();
 
     // node fails low
     return alpha;
@@ -209,6 +200,8 @@ Move Searcher::run(Position pos, int maxDepth) {
     nodesSearched = 0;
     pvTable.clear();
 
+    Move bestFullySearchedMove = Move::none();
+
     // for reporting NPS
     auto start = std::chrono::steady_clock::now();
 
@@ -216,13 +209,16 @@ Move Searcher::run(Position pos, int maxDepth) {
     for (int depth = 1; depth <= maxDepth; depth++) {
         Eval score = negamax(pos, -INFINITY, INFINITY, 0, depth);
         auto end = std::chrono::steady_clock::now();
-        int duration_ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
         // exit early if search was cancelled
         if (searchStopper->isStopped()) {
             break;
+        } else {
+            bestFullySearchedMove = pvTable.getBestMove();
         }
+
+        int duration_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
         // -------- UCI -------- //
 
@@ -253,5 +249,5 @@ Move Searcher::run(Position pos, int maxDepth) {
         }
     }
 
-    return pvTable.getBestMove();
+    return bestFullySearchedMove;
 }

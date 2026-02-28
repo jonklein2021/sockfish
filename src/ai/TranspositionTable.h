@@ -44,7 +44,7 @@ class TranspositionTable {
 
     // Looks up a position hash at some depth and returns its TTEntry if found AND that entry was
     // recorded at the same or better depth, std::nullopt otherwise.
-    TTEntry lookup(uint64_t posHash, int depth) const;
+    TTEntry lookup(uint64_t posHash, int ply, int depth) const;
 
     // Creates and stores a TT entry. Note that this always succeeds, so it will overwrite the
     // existing entry in the case of a collision or a duplicate.

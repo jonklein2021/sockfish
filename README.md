@@ -13,7 +13,7 @@ meson compile
 ./build.sh
 ```
 
-## SPRT Testing Instructions
+## Cutechess CLI Testing
 ```
 ./cutechess-cli -engine cmd=../../sockfish_baseline/build/sockfish -engine cmd=../../sockfish/build/sockfish -each proto=uci tc=10+0.10 -rounds 1 -debug
 ```
