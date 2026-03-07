@@ -1,13 +1,8 @@
 # Changelog
 
-Note: This only applies to the Sockfish UCI engine; no frontend changes are recorded here
+Note: This only applies to the UCI engine; no frontend changes are recorded here
 
-## v1 - commit 16ce0d0c254615f1f21a171800774789440dcd11
-Changes:
-- Replace std::vector with array-based MoveList struct in move generation
-- Loosen time management, allowing for more time to make a move
-
-## v0 - commit 8662839775afc002305a465d3e9cb5901eb016a9
+## v1 - commit df3555dee84c32a0e41019573842ec603c0c7355
 Features:
 - Basic UCI compliance
 - Minimax search w/ alpha-beta pruning and quiescence search
