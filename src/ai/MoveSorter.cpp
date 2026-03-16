@@ -16,12 +16,12 @@ MoveScore MoveSorter::rateMove(const Position &pos, const Move &move) {
     // MVV-LVA
     const Piece capturedPiece = pos.pieceAt(move.getToSquare());
     if (capturedPiece != NO_PIECE) {
-        rating += 10 * pieceTypeValues[pieceToPT(capturedPiece)] - pieceTypeValues[movedPT];
+        rating += 10 * ptValues[pieceToPT(capturedPiece)] - ptValues[movedPT];
     }
 
     // pawn promotion moves are likely to be good
     if (move.isPromotion()) {
-        rating += 50 * pieceTypeValues[move.getPromotedPieceType()] - pieceTypeValues[movedPT];
+        rating += 50 * ptValues[move.getPromotedPieceType()] - ptValues[movedPT];
     }
 
     return rating;

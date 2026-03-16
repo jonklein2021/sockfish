@@ -190,7 +190,7 @@ constexpr Eval MATE_BOUND = 480000;
  * Piece values for material evaluation
  * PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE
  */
-constexpr std::array<Eval, 7> pieceTypeValues = {100, 300, 320, 500, 900, INFINITY, 0};
+constexpr std::array<Eval, 7> ptValues = {100, 300, 320, 500, 900, INFINITY, 0};
 
 // clang-format off
 enum Square : uint8_t {

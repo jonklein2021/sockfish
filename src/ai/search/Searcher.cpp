@@ -196,7 +196,7 @@ Eval Searcher::quiescenceSearch(Position &pos, Eval alpha, Eval beta, int ply) {
 Move Searcher::run(Position pos, int maxDepth) {
     searchStopper->reset();
 
-    // N.B: Remember to clear helper DSs here (killer moves, PV table, etc)
+    // N.B: Need to clear helper DSs here (killer moves, PV table, etc)
     nodesSearched = 0;
     pvTable.clear();
 

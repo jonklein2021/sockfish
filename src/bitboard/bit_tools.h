@@ -72,7 +72,7 @@ inline static constexpr uint64_t swap64(uint64_t v) {
 }
 
 template<typename Fn>
-constexpr void forEachSquare(Bitboard bb, Fn fn) {
+inline constexpr void forEachSquare(Bitboard bb, Fn fn) {
     while (bb) {
         Square sq = Square(getLsbIndex(bb));
         fn(sq);
